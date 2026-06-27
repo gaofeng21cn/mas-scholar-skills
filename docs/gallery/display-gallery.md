@@ -12,7 +12,6 @@ Machine boundary: 本文是 Scholar Display 的人读审阅入口。Gallery arti
 Gallery 放在本 ScholarSkills repo，是因为本 repo 是 skill pack 的 source of truth；它提供可审阅的 published review package。Workspace 或 quest-local install 只需要复制 compact review refs，不需要也不应该把 MAS 生成工作区带进每个论文目录。
 
 Gallery 只能证明有人可审的可视样例和 manifest surface 存在；它不能证明真实论文 figure ready、visual parity 完成、owner accepted、publication ready、current package ready 或 artifact authority。
-These refs do not prove publication readiness.
 
 ## 人审入口
 
@@ -27,17 +26,10 @@ These refs do not prove publication readiness.
 
 这些文件构成可安装/可引用的 compact review package。OPL Connect 同步到 `<workspace_root>/.codex/skills/opl-scholarskills/` 或 `<quest_root>/.codex/skills/opl-scholarskills/` 时，可以带上这些 review refs 或指向它们的轻量 manifest，但不应复制整套 gallery 生成目录。
 
-当前 fresh audit 口径：
-
-- Gallery status: `rendered`
-- visual gallery templates: `37`
-- evidence gallery templates: `34`
-- composition storyboard pages: `6`
-- default data-evidence renderer: `r_ggplot2`
-- current Python evidence templates: `0`
-- style profile: `student_curated_clinical_publication_v1`
-- journal palette ref: `lidocaineq_figure_template_palette_20260621`
-- publication-ready claim authorized: `false`
+当前 gallery status、template counts、renderer policy、style profile、palette ref、
+publication-ready claim flag 和 artifact fingerprints 由
+`gallery/medical-display/gallery_manifest.json` 与
+`gallery/medical-display/gallery_snapshot.json` 持有，并由 `scripts/verify.sh` 校验。
 
 ## Scholar Display 调用边界
 

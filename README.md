@@ -14,20 +14,7 @@ State: `public_entry`
 Machine boundary: Human-readable public entry. Machine truth remains in `.codex-plugin/plugin.json`, `skills/opl-scholarskills/SKILL.md`, `contracts/scholar-skills-capability-modules.json`, gallery manifests/fingerprints, OPL Framework CLI readbacks, and domain owner receipts in consuming agents.
 -->
 
-`OPL ScholarSkills` packages a set of scholarly capability modules as a Codex-compatible skill pack. This repository is the source of truth for the pack, and MAS or other OPL-family agents consume it through local Codex discovery paths in the paper workspace or runtime quest without moving domain authority out of the owning agent.
-
-The pack is intentionally branded and narrow:
-
-- `Scholar Display`
-- `Scholar Tables`
-- `Scholar Stats`
-- `Scholar Omics`
-- `Scholar Lit`
-- `Scholar Write`
-- `Scholar Review`
-- `Scholar Submit`
-- `Scholar Data`
-- `Scholar Intake`
+`OPL ScholarSkills` packages a narrow set of scholarly capability modules as a Codex-compatible skill pack. This repository is the source of truth for the pack, and MAS or other OPL-family agents consume it through local Codex discovery paths in the paper workspace or runtime quest without moving domain authority out of the owning agent.
 
 Each module is a capability descriptor and handoff pattern. It can guide refs-only candidate packages, dependency/run-context refs, and review handoffs. It does not sign owner receipts, mutate paper artifacts, declare quality verdicts, or claim publication readiness.
 
@@ -57,7 +44,7 @@ For example, MAS can request a display, table, statistics, writing, review, or s
 ## Core Highlights
 
 **Ten Branded Scholarly Modules**<br/>
-The module catalog covers display, tables, stats, omics, literature, writing, review, submission, data, and intake.
+The canonical module catalog lives in [`contracts/scholar-skills-capability-modules.json`](./contracts/scholar-skills-capability-modules.json) and is mirrored by [`skills/opl-scholarskills/SKILL.md`](./skills/opl-scholarskills/SKILL.md).
 
 **Codex Plugin Packaging**<br/>
 The repository is directly usable as a Codex plugin source through `.codex-plugin/plugin.json` and `skills/opl-scholarskills/SKILL.md`.
@@ -84,14 +71,10 @@ Included:
 - [`gallery/medical-display/display_pack_gallery_quality_audit.md`](./gallery/medical-display/display_pack_gallery_quality_audit.md)
 - [`gallery/medical-display/gallery_snapshot.json`](./gallery/medical-display/gallery_snapshot.json)
 
-Current snapshot:
-
-- Status: `rendered`
-- Visual gallery templates: `37`
-- Evidence gallery templates: `34`
-- Composition storyboard pages: `6`
-- Evidence renderer policy: `R/ggplot2 first`, current Python evidence templates `0`
-- Publication-ready claim authorized: `false`
+Current snapshot fields and fingerprints live in
+[`gallery_manifest.json`](./gallery/medical-display/gallery_manifest.json) and
+[`gallery_snapshot.json`](./gallery/medical-display/gallery_snapshot.json).
+`scripts/verify.sh` checks the gallery package and keeps publication-ready claims unauthorized.
 
 Not included:
 

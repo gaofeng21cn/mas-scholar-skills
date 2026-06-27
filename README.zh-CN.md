@@ -14,20 +14,7 @@ State: `public_entry`
 Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.json`、`skills/opl-scholarskills/SKILL.md`、`contracts/scholar-skills-capability-modules.json`、gallery manifest/fingerprint、OPL Framework CLI readback 与消费方 domain owner receipt 为准。
 -->
 
-`OPL ScholarSkills` 把一组学术工作能力打包成 Codex-compatible skill pack。本仓是该 skill pack 的 source of truth；MAS 和其他 OPL family agent 通过论文 workspace 或 runtime quest 内的 local Codex discovery path 消费它，同时不把领域 authority 从消费方 agent 搬出来。
-
-当前十个品牌能力模块是：
-
-- `Scholar Display`
-- `Scholar Tables`
-- `Scholar Stats`
-- `Scholar Omics`
-- `Scholar Lit`
-- `Scholar Write`
-- `Scholar Review`
-- `Scholar Submit`
-- `Scholar Data`
-- `Scholar Intake`
+`OPL ScholarSkills` 把一组聚焦的学术工作能力打包成 Codex-compatible skill pack。本仓是该 skill pack 的 source of truth；MAS 和其他 OPL family agent 通过论文 workspace 或 runtime quest 内的 local Codex discovery path 消费它，同时不把领域 authority 从消费方 agent 搬出来。
 
 每个模块都是 capability descriptor 和 handoff pattern：可以帮助生成 refs-only candidate package、dependency/run-context refs、人审提示和交接材料；不能签 owner receipt、不能改论文 artifact、不能给 quality verdict，也不能声明 publication ready。
 
@@ -57,7 +44,7 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
 ## 核心能力
 
 **十个品牌化学术模块**<br/>
-覆盖绘图、表格、统计、组学、文献、写作、审阅、投稿、数据和 intake。
+Canonical module catalog 由 [`contracts/scholar-skills-capability-modules.json`](./contracts/scholar-skills-capability-modules.json) 持有，并由 [`skills/opl-scholarskills/SKILL.md`](./skills/opl-scholarskills/SKILL.md) 镜像给 Codex discovery。
 
 **Codex Plugin Packaging**<br/>
 本仓通过 `.codex-plugin/plugin.json` 和 `skills/opl-scholarskills/SKILL.md` 直接作为 Codex plugin source。
@@ -84,14 +71,10 @@ MAS 的默认路径是安装到活跃论文 workspace 或 runtime quest 内的 l
 - [`gallery/medical-display/display_pack_gallery_quality_audit.md`](./gallery/medical-display/display_pack_gallery_quality_audit.md)
 - [`gallery/medical-display/gallery_snapshot.json`](./gallery/medical-display/gallery_snapshot.json)
 
-当前 snapshot：
-
-- 状态：`rendered`
-- 可视 gallery templates：`37`
-- evidence gallery templates：`34`
-- composition storyboard pages：`6`
-- Evidence renderer policy：`R/ggplot2 first`，当前 Python evidence templates 为 `0`
-- Publication-ready claim authorized：`false`
+当前 snapshot 字段和 fingerprint 由
+[`gallery_manifest.json`](./gallery/medical-display/gallery_manifest.json) 与
+[`gallery_snapshot.json`](./gallery/medical-display/gallery_snapshot.json) 持有。
+`scripts/verify.sh` 会检查 gallery package，并保持 publication-ready claim 未授权。
 
 不纳入：
 
