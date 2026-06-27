@@ -4,8 +4,8 @@
 
 <h1 align="center">OPL ScholarSkills</h1>
 
-<p align="center"><strong>面向 Codex、MAS 与 OPL family agent 的品牌化学术能力 Skill Pack</strong></p>
-<p align="center">Display · Tables · Stats · Omics · Literature · Writing · Review · Submission · Data · Intake</p>
+<p align="center"><strong>面向学术工作的 OPL 能力技能包</strong></p>
+<p align="center">图示设计 · 表格整理 · 统计判断 · 组学线索 · 文献证据 · 写作修订 · 审阅把关 · 投稿准备 · 数据脉络 · 材料接入</p>
 
 <!--
 Owner: `opl-scholarskills`
@@ -14,105 +14,94 @@ State: `public_entry`
 Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.json`、`skills/opl-scholarskills/SKILL.md`、`contracts/scholar-skills-capability-modules.json`、gallery manifest/fingerprint、OPL Framework CLI readback 与消费方 domain owner receipt 为准。
 -->
 
-`OPL ScholarSkills` 把一组聚焦的学术工作能力打包成 Codex-compatible skill pack。本仓是该 skill pack 的 source of truth；MAS 和其他 OPL family agent 通过论文 workspace 或 runtime quest 内的 local Codex discovery path 消费它，同时不把领域 authority 从消费方 agent 搬出来。
+<p align="center">
+  <img src="assets/branding/opl-scholarskills-overview.png" alt="OPL ScholarSkills 学术能力流转示意图" width="100%" />
+</p>
 
-每个模块都是 capability descriptor 和 handoff pattern：可以帮助生成 refs-only candidate package、dependency/run-context refs、人审提示和交接材料；不能签 owner receipt、不能改论文 artifact、不能给 quality verdict，也不能声明 publication ready。
+`OPL ScholarSkills` 把学术工作中常见、可复用的能力整理成一个 Codex 技能包。它不是新的论文系统，也不替研究者或领域智能体做最终判断；它的作用是让 Codex、MAS 和其他 OPL 智能体在需要图表、表格、统计、文献、写作、审阅、投稿和数据整理能力时，有一组稳定、可发现、边界清楚的能力入口。
+
+简单说：ScholarSkills 负责把“可以帮忙做什么、需要什么材料、会交出什么候选结果、最后由谁确认”讲清楚。最终论文真相、成果采纳、质量判断和投稿决策仍然回到对应的领域负责人或智能体。
 
 <table>
   <tr>
     <td width="33%" valign="top">
       <strong>服务对象</strong><br/>
-      需要复用学术能力的 MAS、OPL family agent 与 Codex 会话
+      需要复用学术能力的 Codex 会话、MAS 研究任务，以及 OPL 系列里的其他专业智能体
     </td>
     <td width="33%" valign="top">
-      <strong>提供内容</strong><br/>
-      Codex plugin、Skill 入口、十个 module descriptor、authority guardrail 和 display gallery 审阅包
+      <strong>解决问题</strong><br/>
+      把零散的学术辅助能力收成十个清晰模块，方便在不同论文、课题和智能体之间复用
     </td>
     <td width="33%" valign="top">
-      <strong>使用方式</strong><br/>
-      把紧凑 Skill 同步到 workspace 或 quest-local `.codex/skills/opl-scholarskills`，再由 domain owner 消费、拒绝或 route back candidate refs
+      <strong>交付形态</strong><br/>
+      提供候选引用、审阅提示、材料清单、图表示例和交接包；不直接替代最终论文判断
     </td>
   </tr>
 </table>
 
-## 为什么需要它
+## 为什么需要 ScholarSkills
 
-研究 agent 需要专业 skill，但专业 skill 不应该变成随机 prompt。ScholarSkills 给这些能力一个共同 OPL 身份、统一 authority boundary 和一致的 handoff contract。
+学术工作不是一次生成就结束。一个课题通常会反复经历材料接入、数据理解、统计检查、图表设计、文献组织、文字修订、内部审阅和投稿准备。每一步都需要专业判断，但这些判断又不应该散落成临时提示词。
 
-例如 MAS 可以用同一套 module vocabulary 请求 display、table、statistics、writing、review 或 submission 能力。Skill pack 可以准备候选 refs 或人审提示，但 study truth、publication truth、论文 artifact、owner receipt、typed blocker 和 quality verdict 仍归 MAS。
+ScholarSkills 的设计目标是把这些能力变成可复用的“能力模块”：
 
-## 核心能力
+- 研究智能体可以按同一套语言请求图表、表格、统计、文献或写作支持。
+- 每个模块都说明适合处理什么材料、会产出什么候选结果、需要哪些审阅。
+- 候选结果可以进入后续人工或领域智能体审阅，但不能自动升级为论文事实。
+- 同一个能力包可以在不同工作区、不同任务和不同 OPL 智能体之间同步使用。
 
-**十个品牌化学术模块**<br/>
-Canonical module catalog 由 [`contracts/scholar-skills-capability-modules.json`](./contracts/scholar-skills-capability-modules.json) 持有，并由 [`skills/opl-scholarskills/SKILL.md`](./skills/opl-scholarskills/SKILL.md) 镜像给 Codex discovery。
+这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。
 
-**Codex Plugin Packaging**<br/>
-本仓通过 `.codex-plugin/plugin.json` 和 `skills/opl-scholarskills/SKILL.md` 直接作为 Codex plugin source。
+## 十个能力模块
 
-**Workspace / Quest-local 消费**<br/>
-MAS 的默认路径是安装到活跃论文 workspace 或 runtime quest 内的 local Codex discovery path。系统级 Codex 安装和 MAS 程序仓 `plugins/` mirror 是显式开发或历史迁移面，不是默认消费路径。
+| 模块 | 用途 |
+| --- | --- |
+| **学术图示** | 帮助整理图意图、图表结构、视觉模板和人审图库，让研究结果更容易被看懂。 |
+| **论文表格** | 为基线表、统计摘要表、结果表和表格质检提供候选结构。 |
+| **统计判断** | 帮助组织分析方案、模型选择、可重复性检查和统计结果说明。 |
+| **组学线索** | 面向组学矩阵、特征筛选、通路线索和质量检查，整理可交接的分析候选。 |
+| **文献证据** | 帮助建立文献地图、引用清单、证据链和已有研究对照。 |
+| **写作修订** | 支持摘要、引言、方法、结果、讨论等论文段落的候选草稿与来源追踪。 |
+| **审阅把关** | 形成审阅报告、返修建议、route-back 证据和下一步修改入口。 |
+| **投稿准备** | 整理投稿包、清单、格式要求和提交前检查材料。 |
+| **数据脉络** | 记录数据来源、处理路线、变量说明、血缘关系和可复核性线索。 |
+| **材料接入** | 帮助把新课题、新材料或外部包接入到可治理的研究工作区。 |
 
-**默认无 authority**<br/>
-所有模块都保持 false authority flags。输出只是 candidate 或 refs，直到消费方 domain owner 接收、拒绝或 route back。
+这些模块不是十套独立产品，而是一组可以被 OPL / Codex / MAS 发现和调用的学术能力地图。真正的图表、论文、分析结论、审稿决策和投稿动作，仍由对应的领域系统和负责人确认。
 
-**绘图 Gallery 随 Skill Repo 提供**<br/>
-本仓在 [`gallery/medical-display/`](./gallery/medical-display/) 放置紧凑的人审发布包，包括 PDF、manifest、reference、status、quality audit 和 snapshot 元数据。Workspace 和 quest 安装只应暴露这些紧凑 review refs，不复制渲染中间产物。
+## 一句话使用方式
 
-## 绘图 Gallery
+你可以直接这样让 Codex 或 OPL 智能体调用它：
 
-把 gallery 放在 skill repo 里，是因为本仓是 ScholarSkills source of truth，也让运维和审阅更直接：拿到 skill repo 就能打开 `Scholar Display` 的当前人审样例。这里保存的是发布级审阅包，不是 MAS 渲染工作区。
+- “用 ScholarSkills 帮这个课题整理一版图表候选包，但不要声明可发表，等 MAS 负责人审阅门确认。”
+- “针对这批结果，先用学术图示、论文表格和统计判断三个模块列出下一步最该补的候选材料。”
+- “把这篇论文当前的文献证据、写作缺口和投稿准备事项整理成可交接清单。”
 
-已纳入：
+## 当前包含的审阅样例
+
+本仓随包提供一个医学图示图库，方便用户和操作者直接查看 Scholar Display 的当前视觉样例。它是人审参考包，不是论文发表授权。
 
 - [`gallery/medical-display/medical_display_gallery.pdf`](./gallery/medical-display/medical_display_gallery.pdf)
-- [`gallery/medical-display/gallery_manifest.json`](./gallery/medical-display/gallery_manifest.json)
 - [`gallery/medical-display/medical_display_gallery_reference.md`](./gallery/medical-display/medical_display_gallery_reference.md)
 - [`gallery/medical-display/display_pack_gallery_status.md`](./gallery/medical-display/display_pack_gallery_status.md)
 - [`gallery/medical-display/display_pack_gallery_quality_audit.md`](./gallery/medical-display/display_pack_gallery_quality_audit.md)
+- [`gallery/medical-display/gallery_manifest.json`](./gallery/medical-display/gallery_manifest.json)
 - [`gallery/medical-display/gallery_snapshot.json`](./gallery/medical-display/gallery_snapshot.json)
 
-当前 snapshot 字段和 fingerprint 由
-[`gallery_manifest.json`](./gallery/medical-display/gallery_manifest.json) 与
-[`gallery_snapshot.json`](./gallery/medical-display/gallery_snapshot.json) 持有。
-`scripts/verify.sh` 会检查 gallery package，并保持 publication-ready claim 未授权。
+图库只保存最终人审包。渲染中间结果、单图导出、缓存、版式旁路文件和依赖锁不进入本仓。
 
-不纳入：
+## 当前边界
 
-- MAS `outputs/display-pack-gallery/`
-- 单图 PNG/SVG/HTML 导出
-- render cache
-- layout sidecar
-- dependency lock 或 run-context 文件
-- 生成过程中的中间 asset 目录
+- `OPL ScholarSkills` 是 OPL 持有的学术能力技能包，不是 MAS/MAG/RCA 的领域真相源。
+- 本仓维护可分发的 Codex 插件和技能入口、十个能力模块目录、图库人审包和说明文档。
+- OPL Framework 维护可执行命令、同步、运行环境桥接和工作台动作。
+- MAS 等领域智能体继续维护研究事实、论文事实、产物权威、质量裁决、负责人回执、人工门和 current package authority。
+- ScholarSkills 的输出只能作为候选引用、候选包或审阅提示；不能单独声明运行就绪、领域就绪、质量裁决、产物权威、负责人已接受、可发表或发表就绪（publication readiness）。
 
-这些文件仍属于可再生成的 MAS/OPL 运维输出，并由本仓 `.gitignore` 排除。
+<details>
+  <summary><strong>给技术操作者看的入口</strong></summary>
 
-## 边界
-
-`OPL ScholarSkills` 是 OPL-owned capability library，不是新的 OPL 品牌模块，也不是 MAS domain module。
-
-OPL Framework 持有可执行 CLI 和 runtime bridge，例如：
-
-```bash
-opl scholar-skills list --json
-opl scholar-skills inspect --module opl.scholarskills.display --json
-opl scholar-skills materialize --module opl.scholarskills.display --output-root /tmp/scholarskills-display --json
-opl connect sync-skills --domain scholarskills --scope workspace --target-workspace <workspace_root> --json
-opl connect sync-skills --domain scholarskills --scope quest --target-quest <quest_root> --json
-```
-
-MAS 或其他消费方 domain agent 持有：
-
-- domain truth
-- study/publication truth
-- artifact mutation
-- owner receipt
-- typed blocker
-- human gate
-- quality verdict
-- publication-ready claim
-
-## 仓库结构
+### 仓库结构
 
 ```text
 .codex-plugin/plugin.json              Codex plugin manifest
@@ -123,9 +112,9 @@ docs/                                  capability 与运维说明
 scripts/verify.sh                      仓库验证入口
 ```
 
-## 安装与同步
+### 同步到工作区或任务
 
-本仓继续作为 source of truth。推荐的 MAS 安装面，是活跃论文 workspace 或 runtime quest 内的紧凑 local Codex discovery 副本：
+推荐消费面是论文工作区或运行任务内的本地 Codex 发现副本：
 
 ```text
 <workspace_root>/.codex/skills/opl-scholarskills/
@@ -139,15 +128,20 @@ opl connect sync-skills --domain scholarskills --scope workspace --target-worksp
 opl connect sync-skills --domain scholarskills --scope quest --target-quest <quest_root> --json
 ```
 
-目标目录只应收到 local discovery 和 review 所需的 Skill 入口、plugin/module refs 与紧凑 gallery review refs。不要把 source repo 整仓、MAS `outputs/display-pack-gallery/`、render cache、单图导出、dependency lock 或其他 gallery 中间产物复制进每个论文 workspace 或 quest。不要把 MAS 程序仓 `plugins/opl-scholarskills/` mirror 当作推荐 runtime discovery surface。
+目标目录只应收到技能入口、插件/模块引用与紧凑图库审阅引用。不要把本仓整仓、MAS `outputs/display-pack-gallery/`、渲染缓存、单图导出、依赖锁或图库中间产物复制进每个论文工作区或任务目录。
 
-直接做 Codex plugin 开发时，可以把本仓作为 plugin source，或显式让 OPL Connect 注册：
+### 常用读取检查
 
 ```bash
+opl scholar-skills list --json
+opl scholar-skills inspect --module opl.scholarskills.display --json
+opl scholar-skills materialize --module opl.scholarskills.display --input-ref <ref> --artifact-root <ref-or-path> --output-root <path> --json
 opl connect sync-skills --domain scholarskills --scope codex --json
 ```
 
-单独 clone 本仓不会安装 OPL Framework 的可执行面。需要 CLI 执行时，应准备当前 `one-person-lab` checkout 或 release bundle。
+单独克隆本仓不会安装 OPL Framework 的可执行面。需要命令行执行时，应准备当前 `one-person-lab` 检出仓库或发布包。
+
+</details>
 
 ## 验证
 
@@ -155,9 +149,9 @@ opl connect sync-skills --domain scholarskills --scope codex --json
 scripts/verify.sh
 ```
 
-验证脚本会检查 plugin manifest、Skill 入口、module catalog、gallery package、no-authority boundary、忽略中间产物策略和 gallery artifact fingerprint。
+验证脚本会检查插件清单、技能入口、模块目录、图库包、无权威边界、忽略中间产物策略和图库产物指纹。
 
-## 进一步阅读
+## 继续阅读
 
 - [Capability Modules](./docs/capability-modules.md)
 - [Candidate Artifact Engines](./docs/candidate-artifact-engines.md)
