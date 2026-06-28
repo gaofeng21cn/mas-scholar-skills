@@ -5,6 +5,34 @@
   "asset_ref_docs_mirror": "docs/delivery/medical-display/examples",
   "asset_ref_resolution": "template artifact refs are emitted relative to this docs examples directory; medical_display_gallery_assets is copied with the PDF so Markdown and browser readers can resolve images",
   "source_manifest_schema_version": 9,
+  "opl_scholarskills_import_policy": {
+    "policy_id": "opl_scholarskills_display_gallery_refs_only_source_manifest.v1",
+    "import_role": "human_review_ref_and_source_snapshot",
+    "source_repo": "med-autoscience",
+    "source_commit": "a0022e376",
+    "source_authority": "mas_display_pack_owner_surfaces",
+    "no_second_truth": true,
+    "allowed_uses": [
+      "gallery_review_ref",
+      "source_manifest_ref",
+      "quality_floor_ref"
+    ],
+    "forbidden_uses": [
+      "mas_display_truth",
+      "publication_ready_claim",
+      "owner_receipt",
+      "typed_blocker",
+      "artifact_authority",
+      "runtime_or_package_authority"
+    ],
+    "authority_boundary": {
+      "can_write_domain_truth": false,
+      "can_sign_owner_receipt": false,
+      "can_create_typed_blocker": false,
+      "can_claim_publication_ready": false,
+      "can_claim_artifact_authority": false
+    }
+  },
   "status": "rendered",
   "force_render": false,
   "package_only": true,
