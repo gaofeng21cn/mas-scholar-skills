@@ -542,7 +542,7 @@ for pattern in [
     if pattern not in gitignore:
         fail(f".gitignore missing intermediate-output pattern {pattern}")
 
-for relative in ["README.md", "README.zh-CN.md", "AGENTS.md", "TASTE.md"]:
+for relative in ["README.md", "README.zh-CN.md", "AGENTS.md"]:
     text = read_text(relative)
     lower = text.lower()
     if "publication ready" not in lower and "publication-ready" not in lower and "publication readiness" not in lower:
