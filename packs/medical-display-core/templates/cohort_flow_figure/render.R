@@ -248,9 +248,9 @@ cohort_endpoint_label <- function(endpoint) {
   )
 }
 
-add_context_card <- function(plot, payload, xmin, xmax, ymin, ymax, title, body, role = "flow_secondary") {
-  fill <- style_color(payload, paste0(role, "_fill"), "#F4EFE8")
-  edge <- style_color(payload, paste0(role, "_edge"), "#7B8794")
+add_context_note <- function(plot, payload, xmin, xmax, ymin, ymax, title, body, role = "flow_secondary") {
+  fill <- style_color(payload, paste0(role, "_fill"), "#F8FAFC")
+  edge <- style_color(payload, paste0(role, "_edge"), "#CBD5E1")
   text_colour <- style_color(payload, "flow_body_text", "#4B5563")
   title_colour <- style_color(payload, "flow_title_text", text_colour)
   plot +
@@ -262,28 +262,28 @@ add_context_card <- function(plot, payload, xmin, xmax, ymin, ymax, title, body,
       ymax = ymax,
       fill = fill,
       colour = edge,
-      linewidth = 0.34
+      linewidth = 0.24
     ) +
     ggplot2::annotate(
       "text",
-      x = xmin + 1.6,
-      y = ymax - 2.8,
-      label = wrap_plain_label(title, width = 24),
+      x = xmin + 1.0,
+      y = ymax - 1.4,
+      label = wrap_plain_label(title, width = 28),
       hjust = 0,
       vjust = 1,
       fontface = "bold",
-      size = 3.25,
+      size = 2.75,
       colour = title_colour,
       lineheight = 0.92
     ) +
     ggplot2::annotate(
       "text",
-      x = xmin + 1.6,
-      y = ymax - 9.0,
+      x = xmin + 1.0,
+      y = ymax - 5.2,
       label = body,
       hjust = 0,
       vjust = 1,
-      size = 2.62,
+      size = 2.28,
       colour = text_colour,
       lineheight = 0.88
     )
@@ -309,10 +309,10 @@ participant_flow_y_centers <- function(count) {
     return(numeric(0))
   }
   if (count == 1) {
-    return(76)
+    return(82)
   }
-  y_top <- 88
-  y_bottom <- 58
+  y_top <- 93
+  y_bottom <- 48
   seq(from = y_top, to = y_bottom, length.out = count)
 }
 
@@ -707,18 +707,17 @@ build_ggconsort_plot <- function(payload) {
   if (length(unique(step_ids)) != length(step_ids)) {
     stop("cohort_flow_figure step ids must be unique after ggconsort normalization")
   }
-  has_side_content <- length(exclusions) > 0 || length(endpoint_inventory) > 0 || length(design_panels) > 0
-
   step_df <- cohort_step_frame(steps, step_ids)
-  if (has_side_content) {
-    step_df$x <- 4
-  }
+  step_df$x <- 0
   exclusion_df <- cohort_exclusion_frame(exclusions, step_df, step_ids)
-  node_width <- if (has_side_content) 32 else 60
-  node_height <- 10
-  exclusion_width <- 26
+  node_width <- 62
+  node_height <- 9.5
+  exclusion_width <- 24
   exclusion_height <- 8
-  plot_y_min <- min(52, min(step_df$y - node_height / 2) - 5)
+  has_context_notes <- length(endpoint_inventory) > 0 || length(design_panels) > 0
+  context_note_ymin <- 6
+  context_note_ymax <- 28
+  plot_y_min <- min(if (has_context_notes) 3 else 38, min(step_df$y - node_height / 2) - 5)
   if (nrow(exclusion_df) > 0) {
     plot_y_min <- min(plot_y_min, min(exclusion_df$y - exclusion_height / 2) - 5)
   }
@@ -729,7 +728,7 @@ build_ggconsort_plot <- function(payload) {
   exclusion_edge <- style_color(payload, "flow_exclusion_edge", "#B57F7F")
   text_colour <- style_color(payload, "flow_body_text", "#111827")
 
-  plot_xlim <- if (has_side_content) c(-18, 78) else c(-38, 38)
+  plot_xlim <- c(-42, 42)
   plot <- ggplot2::ggplot() +
     ggplot2::theme_void() +
     ggplot2::coord_cartesian(xlim = plot_xlim, ylim = c(plot_y_min, 101), clip = "off")
@@ -755,7 +754,7 @@ build_ggconsort_plot <- function(payload) {
         ggplot2::annotate(
           "segment",
           x = from_row$x[[1]] + node_width / 2,
-          xend = exclusion_df$x[[index]] - exclusion_width / 2 + 1,
+          xend = 28,
           y = exclusion_df$y[[index]],
           yend = exclusion_df$y[[index]],
           colour = exclusion_edge,
@@ -812,27 +811,32 @@ build_ggconsort_plot <- function(payload) {
   }
   if (length(endpoint_inventory) > 0) {
     endpoint <- endpoint_inventory[[1]]
-    plot <- add_context_card(
+    design_body <- ""
+    if (length(design_panels) > 0) {
+      design_body <- cohort_design_panel_body(design_panels[[1]])
+    }
+    endpoint_body <- cohort_endpoint_label(endpoint)
+    combined_body <- paste(c(endpoint_body, design_body)[nzchar(c(endpoint_body, design_body))], collapse = "\n")
+    plot <- add_context_note(
       plot,
       payload,
-      xmin = 30,
-      xmax = 76,
-      ymin = 76,
-      ymax = 96,
-      title = "Endpoint",
-      body = cohort_endpoint_label(endpoint),
+      xmin = -39,
+      xmax = 39,
+      ymin = context_note_ymin,
+      ymax = context_note_ymax,
+      title = "Endpoint and design context",
+      body = combined_body,
       role = "flow_context"
     )
-  }
-  if (length(design_panels) > 0) {
+  } else if (length(design_panels) > 0) {
     panel <- design_panels[[1]]
-    plot <- add_context_card(
+    plot <- add_context_note(
       plot,
       payload,
-      xmin = 30,
-      xmax = 76,
-      ymin = 56,
-      ymax = 74,
+      xmin = -39,
+      xmax = 39,
+      ymin = context_note_ymin,
+      ymax = context_note_ymax,
       title = trimws(as.character(panel$title %||% panel$label %||% "Shared design")),
       body = cohort_design_panel_body(panel),
       role = "flow_secondary"
@@ -1061,10 +1065,10 @@ build_layout_sidecar <- function(payload, dependency_environment) {
   design_panels <- payload$design_panels %||% list()
   panel_ids <- declared_panel_ids(payload)
   rendered_panel_ids <- if (length(panel_ids) == 1) panel_ids else character(0)
-  has_side_content <- length(exclusions) > 0 || length(endpoint_inventory) > 0 || length(design_panels) > 0
   step_ids <- vapply(seq_along(steps), function(index) cohort_step_id(steps[[index]], index), character(1))
-  stack_top <- 0.835
-  stack_bottom <- 0.08
+  has_context_notes <- length(endpoint_inventory) > 0 || length(design_panels) > 0
+  stack_top <- 0.93
+  stack_bottom <- if (has_context_notes) 0.35 else 0.08
   stack_span <- stack_top - stack_bottom
   step_count <- length(steps)
   node_height <- min(0.16, stack_span / max(1, step_count + 0.35 * max(0, step_count - 1)))
@@ -1081,17 +1085,17 @@ build_layout_sidecar <- function(payload, dependency_environment) {
   }
   guide_boxes <- list()
   flow_nodes <- list()
-  step_x0 <- if (has_side_content) 0.10 else 0.18
-  step_x1 <- if (has_side_content) 0.40 else 0.82
-  connector_x0 <- if (has_side_content) 0.40 else 0.50
-  connector_x1 <- if (has_side_content) 0.42 else 0.50
-  rendered_width_pt <- if (has_side_content) 260.0 else 420.0
+  step_x0 <- 0.14
+  step_x1 <- 0.86
+  connector_x0 <- 0.50
+  connector_x1 <- 0.50
+  rendered_width_pt <- 460.0
   for (index in seq_along(steps)) {
     y_center <- y_centers[[index]]
     box_id <- paste0("participant_step_", step_ids[[index]])
     layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
       box_id,
-        "main_step",
+      "main_step",
       step_x0,
       y_center - node_height / 2,
       step_x1,
@@ -1132,17 +1136,17 @@ build_layout_sidecar <- function(payload, dependency_environment) {
       layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
         paste0("participant_exclusion_", exclusion_id),
         "exclusion_box",
-        0.64,
+        0.72,
         y_center - 0.048,
-        0.92,
+        0.96,
         y_center + 0.048
       )
       guide_boxes[[length(guide_boxes) + 1]] <- sidecar_box(
         paste0("flow_branch_", exclusion_id),
         "flow_branch_connector",
-        0.62,
+        0.86,
         y_center - 0.01,
-        0.64,
+        0.72,
         y_center + 0.01
       )
       flow_nodes[[length(flow_nodes) + 1]] <- list(
@@ -1157,41 +1161,41 @@ build_layout_sidecar <- function(payload, dependency_environment) {
     }
   }
   if (length(endpoint_inventory) > 0) {
+    context_box_id <- "participant_endpoint_design_context"
     layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
-      "participant_endpoint_summary",
-        "summary_panel",
-      0.50,
-      0.56,
-      0.96,
-      0.80
+      context_box_id,
+      "context_note",
+      0.06,
+      0.06,
+      0.94,
+      0.28
     )
     flow_nodes[[length(flow_nodes) + 1]] <- list(
-      box_id = "participant_endpoint_summary",
-      box_type = "summary_panel",
-      line_count = 3L,
-      max_line_chars = 30L,
-      rendered_height_pt = 96.0,
-      rendered_width_pt = 210.0,
-      padding_pt = 9.0
+      box_id = context_box_id,
+      box_type = "context_note",
+      line_count = 5L,
+      max_line_chars = 76L,
+      rendered_height_pt = 92.0,
+      rendered_width_pt = 570.0,
+      padding_pt = 7.0
     )
-  }
-  if (length(design_panels) > 0) {
+  } else if (length(design_panels) > 0) {
     layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
-      "participant_design_summary",
-        "summary_panel",
-      0.50,
-      0.26,
-      0.96,
-      0.52
+      "participant_design_context",
+      "design_context_note",
+      0.06,
+      0.06,
+      0.94,
+      0.28
     )
     flow_nodes[[length(flow_nodes) + 1]] <- list(
-      box_id = "participant_design_summary",
-      box_type = "summary_panel",
-      line_count = 3L,
-      max_line_chars = 32L,
-      rendered_height_pt = 108.0,
-      rendered_width_pt = 210.0,
-      padding_pt = 9.0
+      box_id = "participant_design_context",
+      box_type = "design_context_note",
+      line_count = 4L,
+      max_line_chars = 76L,
+      rendered_height_pt = 92.0,
+      rendered_width_pt = 570.0,
+      padding_pt = 7.0
     )
   }
   list(
