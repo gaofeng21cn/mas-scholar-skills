@@ -112,6 +112,12 @@ For `opl.scholarskills.display`, use this repo's compact gallery review package:
 
 The package is copied from MAS Display Pack final docs/gallery surfaces for direct human review. Treat these refs as human review and visual-audit preview refs only. They do not prove publication readiness, owner acceptance, artifact authority, or paper truth. Local workspace and quest installs should copy only these compact review refs when needed, not the gallery build workspace or intermediate outputs. MAS remains the owner for medical display truth, actual figure artifacts, visual audit receipts, and publication gates.
 
+## Scholar Display Pack
+
+`packs/medical-display-core/` is the ScholarSkills-managed source pack for generic medical display templates. It contains template descriptors, R/ggplot2 renderers, shared R helpers, pack Python helpers, dependency profile, and canonical template metadata. It deliberately excludes generated gallery outputs, render caches, layout sidecars, and single-figure preview exports.
+
+Use this pack as a reusable Display capability source. Do not treat it as MAS publication truth. The pack manifest keeps `authority = false`, `publication_ready = false`, `artifact_authority = false`, `owner_receipt_authority = false`, and `typed_blocker_authority = false`. MAS or the consuming domain owner must bind the pack output to paper-local figure purpose, claim/data refs, visual audit receipts, publication gate, owner receipt, typed blocker, or human gate.
+
 ## Display Quality Floor
 
 For scientific figures, including data evidence figures, page-level composite figures, graphical abstracts, and other design-led display work, apply `scholarskills_scientific_figure_quality_floor.v1`. Do not reuse the current gallery `submission_graphical_abstract` as a final template. Treat it as a lower-bound design shell only.

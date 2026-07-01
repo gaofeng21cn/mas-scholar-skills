@@ -130,6 +130,51 @@ display_module = next(
 if display_module is None:
     fail("contract missing Display module")
 
+display_pack_manifest = root / "packs/medical-display-core/display_pack.toml"
+if not display_pack_manifest.is_file():
+    fail("missing Scholar Display source pack manifest")
+display_pack_text = display_pack_manifest.read_text(encoding="utf-8")
+for token in [
+    'pack_id = "fenggaolab.org.medical-display-core"',
+    'source = "scholarskills-managed-external-pack"',
+    'authority = false',
+    'publication_ready = false',
+    'artifact_authority = false',
+    'owner_receipt_authority = false',
+    'typed_blocker_authority = false',
+    'heavy_render_intermediates_excluded = true',
+]:
+    if token not in display_pack_text:
+        fail(f"Display source pack manifest missing token: {token}")
+for relative in [
+    "packs/medical-display-core/templates/roc_curve_binary/template.toml",
+    "packs/medical-display-core/templates/roc_curve_binary/render.R",
+    "packs/medical-display-core/rlib/medicaldisplaycore/evidence_renderer.R",
+    "packs/medical-display-core/src/fenggaolab_org_medical_display_core/__init__.py",
+    "packs/medical-display-core/canonical_template_catalog.json",
+    "packs/medical-display-core/renderer_dependency_profile.json",
+]:
+    if not (root / relative).is_file():
+        fail(f"missing Display source pack file {relative}")
+for forbidden in [
+    "packs/medical-display-core/outputs",
+    "packs/medical-display-core/medical_display_gallery_assets",
+    "packs/medical-display-core/render-cache",
+]:
+    if (root / forbidden).exists():
+        fail(f"forbidden Display source pack intermediate present: {forbidden}")
+for forbidden_pattern in ["*.png", "*.svg", "*.html", "*.layout.json", "*render_cache*"]:
+    if list((root / "packs/medical-display-core").rglob(forbidden_pattern)):
+        fail(f"forbidden generated Display source pack artifact matched {forbidden_pattern}")
+display_refs = json.dumps(display_module.get("artifact_refs") or [], ensure_ascii=False)
+if "scholar_display_pack_source_ref" not in display_refs:
+    fail("Display module missing scholar_display_pack_source_ref")
+display_floor = display_module.get("display_quality_floor_policy") or {}
+if display_floor.get("source_pack_ref") != "packs/medical-display-core/display_pack.toml":
+    fail("Display module source_pack_ref must point at Scholar Display source pack")
+if display_floor.get("source_pack_policy") != "generic_template_renderer_source_authority_false":
+    fail("Display module source_pack_policy must keep authority false")
+
 modules_by_id = {item.get("module_id"): item for item in modules}
 
 def require_all(label: str, actual, expected) -> None:

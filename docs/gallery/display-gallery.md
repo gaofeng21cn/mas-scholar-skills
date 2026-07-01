@@ -13,6 +13,12 @@ Gallery 放在本 ScholarSkills repo，是因为本 repo 是 skill pack 的 sour
 
 Gallery 只能证明有人可审的可视样例和 manifest surface 存在；它不能证明真实论文 figure ready、visual parity 完成、owner accepted、publication ready、current package ready 或 artifact authority。
 
+## Source Pack 边界
+
+`packs/medical-display-core/` 是 Scholar Display 当前承接的通用医学绘图 source pack。它保存模板 descriptor、R/ggplot2 renderer、共享 R helper、pack Python helper、dependency profile 和 canonical template catalog；这些是可版本化的模板源码，不是 gallery 中间产物。
+
+本仓不提交 MAS `outputs/display-pack-gallery/`、render cache、layout sidecar、单图 PNG/SVG/HTML/PDF 预览全集或每篇论文的 current package。`packs/medical-display-core/display_pack.toml` 固定 `authority = false`、`publication_ready = false`、`artifact_authority = false`、`owner_receipt_authority = false` 和 `typed_blocker_authority = false`。MAS 可以把该 pack 作为外部模板/renderer source 消费，但论文局部 figure purpose、claim/data 绑定、visual audit、publication gate 和 owner/human verdict 仍归 MAS。
+
 ## 通用科研做图 Quality Floor
 
 本轮外部学习落到 `scholarskills_scientific_figure_quality_floor.v1`，覆盖数据证据图、页面级组合图、graphical abstract 和其他 design-led display work。它要求先有 figure contract、reference selection、style brief、candidate artifact、critic review、final-size inspection、source preservation 和 owner gate refs；AI 执行者仍可自由选择最适合论文局部主张的图型、布局、面板层级、渲染后端和候选数量。本仓只提高质量下限，不限制上限，也不签发质量 verdict。

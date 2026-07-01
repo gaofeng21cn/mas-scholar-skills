@@ -114,6 +114,13 @@
       ],
       "artifact_refs": [
         {
+          "ref_id": "scholar_display_pack_source_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "generic_display_template_pack_source",
+          "path": "packs/medical-display-core/display_pack.toml",
+          "body_policy": "scholarskills_owned_template_source_refs_only_not_domain_truth"
+        },
+        {
           "ref_id": "display_pack_agent_orchestration",
           "ref_kind": "candidate_artifact_ref",
           "role": "display_pack_candidate_output",
@@ -206,6 +213,8 @@
       },
       "display_quality_floor_policy": {
         "policy_id": "scholarskills_display_quality_floor.v1",
+        "source_pack_ref": "packs/medical-display-core/display_pack.toml",
+        "source_pack_policy": "generic_template_renderer_source_authority_false",
         "graphical_abstract_strategy": "brief_first_reference_guided_ai_candidate_not_single_template_reuse",
         "current_gallery_graphical_abstract_status": "lower_bound_design_shell_not_reusable_template_authority",
         "minimum_candidate_refs": [
