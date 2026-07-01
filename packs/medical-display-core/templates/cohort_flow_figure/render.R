@@ -714,10 +714,7 @@ build_ggconsort_plot <- function(payload) {
   node_height <- 9.5
   exclusion_width <- if (length(exclusions) > 0) 18 else 22
   exclusion_height <- 8
-  has_context_notes <- length(endpoint_inventory) > 0 || length(design_panels) > 0
-  context_note_ymin <- 6
-  context_note_ymax <- 28
-  plot_y_min <- min(if (has_context_notes) 3 else 38, min(step_df$y - node_height / 2) - 5)
+  plot_y_min <- min(38, min(step_df$y - node_height / 2) - 5)
   if (nrow(exclusion_df) > 0) {
     plot_y_min <- min(plot_y_min, min(exclusion_df$y - exclusion_height / 2) - 5)
   }
@@ -808,39 +805,6 @@ build_ggconsort_plot <- function(payload) {
         colour = text_colour,
         lineheight = 0.88
       )
-  }
-  if (length(endpoint_inventory) > 0) {
-    endpoint <- endpoint_inventory[[1]]
-    design_body <- ""
-    if (length(design_panels) > 0) {
-      design_body <- cohort_design_panel_body(design_panels[[1]])
-    }
-    endpoint_body <- cohort_endpoint_label(endpoint)
-    combined_body <- paste(c(endpoint_body, design_body)[nzchar(c(endpoint_body, design_body))], collapse = "\n")
-    plot <- add_context_note(
-      plot,
-      payload,
-      xmin = -39,
-      xmax = 39,
-      ymin = context_note_ymin,
-      ymax = context_note_ymax,
-      title = "Endpoint and design context",
-      body = combined_body,
-      role = "flow_context"
-    )
-  } else if (length(design_panels) > 0) {
-    panel <- design_panels[[1]]
-    plot <- add_context_note(
-      plot,
-      payload,
-      xmin = -39,
-      xmax = 39,
-      ymin = context_note_ymin,
-      ymax = context_note_ymax,
-      title = trimws(as.character(panel$title %||% panel$label %||% "Shared design")),
-      body = cohort_design_panel_body(panel),
-      role = "flow_secondary"
-    )
   }
   if (show_figure_title) {
     plot <- plot +
@@ -1066,7 +1030,7 @@ build_layout_sidecar <- function(payload, dependency_environment) {
   panel_ids <- declared_panel_ids(payload)
   rendered_panel_ids <- if (length(panel_ids) == 1) panel_ids else character(0)
   step_ids <- vapply(seq_along(steps), function(index) cohort_step_id(steps[[index]], index), character(1))
-  has_context_notes <- length(endpoint_inventory) > 0 || length(design_panels) > 0
+  has_context_notes <- FALSE
   stack_top <- 0.93
   stack_bottom <- if (has_context_notes) 0.35 else 0.08
   stack_span <- stack_top - stack_bottom
@@ -1160,44 +1124,6 @@ build_layout_sidecar <- function(payload, dependency_environment) {
         padding_pt = 8.0
       )
     }
-  }
-  if (length(endpoint_inventory) > 0) {
-    context_box_id <- "participant_endpoint_design_context"
-    layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
-      context_box_id,
-      "context_note",
-      0.06,
-      0.06,
-      0.94,
-      0.28
-    )
-    flow_nodes[[length(flow_nodes) + 1]] <- list(
-      box_id = context_box_id,
-      box_type = "context_note",
-      line_count = 5L,
-      max_line_chars = 76L,
-      rendered_height_pt = 92.0,
-      rendered_width_pt = 570.0,
-      padding_pt = 7.0
-    )
-  } else if (length(design_panels) > 0) {
-    layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
-      "participant_design_context",
-      "design_context_note",
-      0.06,
-      0.06,
-      0.94,
-      0.28
-    )
-    flow_nodes[[length(flow_nodes) + 1]] <- list(
-      box_id = "participant_design_context",
-      box_type = "design_context_note",
-      line_count = 4L,
-      max_line_chars = 76L,
-      rendered_height_pt = 92.0,
-      rendered_width_pt = 570.0,
-      padding_pt = 7.0
-    )
   }
   list(
     template_id = "cohort_flow_figure",
