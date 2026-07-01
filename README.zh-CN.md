@@ -24,6 +24,8 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
 
 运行原则是 progress-first 和 AI auto-judgment-first。MAS 不是“AI 只执行、人类才判断”：只要现有证据足够形成候选判断，AI 就应继续给出 AI-consumable evidence、`verdict_candidate`、`route_back_candidate` 和 stop/continue recommendations。只有下一步会越权写入 domain truth、publication readiness、owner receipt、typed blocker，或遇到真实 human gate，才交回 domain owner 或人类。
 
+Display 只是其中一个模块。ScholarSkills 同时也是 Lit、Tables、Stats、Submit、Write、Review、Omics、Data 和 Intake 这些非 Display 通用学术能力的 source、contract 和 docs 所在地。所有模块共用 refs-only handoff 骨架：`source_pack_ref`、`candidate_package_ref`、`execution_receipt_ref` 和 `owner_gate_handoff_ref`。这些 ref 只描述候选材料和下一跳 owner gate，不创建 runtime authority 或 owner acceptance。
+
 <table>
   <tr>
     <td width="33%" valign="top">
@@ -68,7 +70,7 @@ ScholarSkills 提到的 `owner_receipt_ref`、`typed_blocker_ref`、`reviewer_re
 | **写作修订** | 支持摘要、引言、方法、结果、讨论等论文段落的候选草稿与来源追踪。 |
 | **审阅把关** | 形成审阅报告、返修建议、route-back 证据和下一步修改入口。 |
 | **投稿准备** | 整理投稿包、清单、格式要求和提交前检查材料。 |
-| **数据脉络** | 记录数据来源、处理路线、变量说明、血缘关系、存储分层、派生副本盘点、restore-proof retention、已完成项目 closeout、冷存 catalog 和可复核性线索。 |
+| **数据脉络** | 记录数据来源、处理路线、变量说明、血缘关系、存储分层、派生副本盘点、restore-proof retention、已完成项目 closeout、lifecycle catalog 和可复核性线索。 |
 | **材料接入** | 帮助把新课题、新材料或外部包接入到可治理的研究工作区。 |
 
 这些模块不是十套独立产品，而是一组可以被 OPL / Codex / MAS 发现和调用的学术能力地图。真正的图表、论文、分析结论、审稿决策和投稿动作，仍由对应的领域系统和负责人确认。

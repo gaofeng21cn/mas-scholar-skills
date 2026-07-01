@@ -28,6 +28,8 @@ The local install is refs-only and authority false. It may include this Skill en
 ## Boundary
 
 - Keep the authority false boundary explicit: `can_write_domain_truth: false`, `can_write_runtime_state: false`, `can_mutate_artifact_body: false`, `can_sign_owner_receipt: false`, and `can_create_typed_blocker: false`.
+- Treat this repository as the source, contract, and docs home for all ten modules, not only Display. Lit, Tables, Stats, Submit, Write, Review, Omics, Data, and Intake use the same refs-only/no-authority boundary.
+- Require every module handoff to name `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`; these are candidate refs only and must not be read as runtime authority, owner acceptance, publication readiness, typed blocker creation, or a human gate.
 - Use ScholarSkills outputs as refs-only candidates. Do not present CLI readbacks, materialized packages, or tests as runtime-ready, domain-ready, quality verdict, publication readiness, artifact authority, owner receipt, typed blocker, or production readiness.
 - Respect the MAS owner gate: MAS or another domain owner must consume candidate refs and issue the owner receipt, typed blocker, reviewer receipt, route-back, or domain artifact mutation. Do not write MAS, Yang, runtime DB, queue, owner receipt, typed blocker, current package authority, publication eval, controller decision, or domain truth surfaces from this skill.
 - Treat any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref exposed by ScholarSkills as downstream owner-consumption refs only, not as ScholarSkills acceptance, receipt signing, blocker creation, publication readiness, or current package authority.
@@ -70,13 +72,15 @@ For large medical cohort datasets, `opl.scholarskills.data` must keep data manag
 - manifest-declared body inventory, registry lineage, semantic readiness, study binding, privacy/access tier, and retention guardrails;
 - analytical format strategy for repeated local work, including CSV interchange plus SQLite/DuckDB/Parquet working copies when appropriate, without making a working copy a second truth source;
 - byte-level cold-store restore proof, checksum, owner authorization, and rehydrate verification before any clinical dataset body leaves online storage.
-- completed or parked project data closeout refs, including exact `data_asset_manifest_ref`, `lifecycle_classification_ref`, `important_result_reproduction_ref`, `data_body_boundary_ref`, `study_impact_ref`, `owner_decision_ref`, `post_cleanup_readback_ref`, `prune_dry_run_ref`, and `cold_store_catalog_ref`.
+- completed or parked project data closeout refs, including exact `data_asset_manifest_ref`, `lifecycle_classification_ref`, `important_result_reproduction_ref`, `data_body_boundary_ref`, `study_impact_ref`, `owner_decision_ref`, `post_cleanup_readback_ref`, `prune_dry_run_ref`, and `lifecycle_catalog_ref`.
 
 Lifecycle states are refs-only labels: `hot_current_body`, `warm_parent_or_provenance`, `paper_facing_current`, `active_runtime`, `semantic_closed`, `byte_closed`, `delete_safe_cache`, and `retired_tombstone`. `owner_decision_ref` names the downstream decision target; it is not a ScholarSkills owner decision, deletion approval, retention waiver, or receipt.
 
 These refs follow FAIR-style metadata discipline and data package resource inventories, but they remain refs-only candidate guidance. They do not authorize moving, thinning, deleting, compacting, or publishing a clinical dataset. MAS or the consuming domain owner must issue the retention decision, owner receipt, typed blocker, or route-back evidence.
 
 For completed projects, prefer semantic reproducibility over byte preservation of historical process bodies: keep current cohort bodies hot, migrate useful historical information into semantic reproducible capsules when documented sources and commands can reproduce important results, keep byte-level capsules only when exact restore is required by active analysis, legal/regulatory retention, external handoff, or an explicit owner decision, use audit-only tombstones only after an explicit owner waiver, and delete covered raw history and rebuildable caches.
+
+Every module should expose the standard refs-only handoff family when materialized: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`. These are handoff refs only; they do not sign an owner receipt, create a typed blocker, authorize publication readiness, or make ScholarSkills a domain owner.
 
 ## CLI
 

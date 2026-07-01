@@ -214,9 +214,14 @@
           "programmatic_figure_audit_ref",
           "grayscale_color_vision_check_ref",
           "panel_to_code_review_ref",
-          "complex_heatmap_or_oncoprint_ref"
+          "complex_heatmap_or_oncoprint_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "display_quality_floor_policy": {
         "policy_id": "scholarskills_display_quality_floor.v1",
@@ -474,9 +479,14 @@
           "table_qc_ref",
           "claim_table_alignment_ref",
           "dataset_metric_benchmark_ref",
-          "result_metric_registry_ref"
+          "result_metric_registry_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -625,10 +635,15 @@
           "effect_size_or_metric_extraction_ref",
           "reproducibility_check_ref",
           "dataset_metric_benchmark_ref",
-          "result_metric_registry_ref"
+          "result_metric_registry_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "can_claim_statistical_conclusion": false
+        "can_claim_statistical_conclusion": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -763,10 +778,15 @@
           "feature_matrix_qc_ref",
           "omics_visualization_plan_ref",
           "pathway_context_ref",
-          "domain_review_ref"
+          "domain_review_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "can_claim_omics_truth": false
+        "can_claim_omics_truth": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -966,9 +986,14 @@
           "quality_appraisal_ref",
           "citation_graph_snowball_ref",
           "multi_source_paper_search_ref",
-          "confirm_or_drop_source_verification_ref"
+          "confirm_or_drop_source_verification_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -1151,9 +1176,14 @@
           "source_trace_ref",
           "unsupported_claim_route_back_ref",
           "section_draft_manifest_ref",
-          "confirm_or_drop_source_verification_ref"
+          "confirm_or_drop_source_verification_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -1322,9 +1352,14 @@
           "halt_or_revert_rule_ref",
           "route_back_ref",
           "residual_risk_ref",
-          "confirm_or_drop_source_verification_ref"
+          "confirm_or_drop_source_verification_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -1480,9 +1515,14 @@
           "journal_rule_ref",
           "format_sanity_ref",
           "ai_disclosure_ref",
-          "rebuttal_audit_ref"
+          "rebuttal_audit_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -1559,7 +1599,7 @@
         "derived_copy_inventory_review",
         "analytical_format_strategy_review",
         "cold_restore_proof_review",
-        "cold_store_catalog_review",
+        "lifecycle_catalog_review",
         "completed_project_closeout_review",
         "prune_dry_run_review",
         "post_cleanup_readback_review",
@@ -1705,9 +1745,9 @@
           "body_policy": "refs_only_readback_not_owner_receipt"
         },
         {
-          "ref_id": "cold_store_catalog_ref",
+          "ref_id": "lifecycle_catalog_ref",
           "ref_kind": "candidate_artifact_ref",
-          "role": "unified_cold_store_retention_catalog_candidate",
+          "role": "unified_lifecycle_retention_catalog_candidate",
           "body_policy": "refs_only_catalog_not_deletion_authority"
         }
       ],
@@ -1742,7 +1782,7 @@
           "derived_copy_inventory_ref",
           "analytical_format_strategy_ref",
           "cold_restore_proof_ref",
-          "cold_store_catalog_ref",
+          "lifecycle_catalog_ref",
           "completed_project_closeout_ref",
           "read_model_boundary_ref",
           "data_manifest_ref",
@@ -1764,9 +1804,14 @@
           "study_impact_ref",
           "owner_decision_ref",
           "prune_dry_run_ref",
-          "post_cleanup_readback_ref"
+          "post_cleanup_readback_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -1835,7 +1880,7 @@
           "lifecycle_classification_ref",
           "important_result_reproduction_ref",
           "data_body_boundary_ref",
-          "cold_store_catalog_ref",
+          "lifecycle_catalog_ref",
           "owner_decision_ref",
           "study_impact_ref",
           "prune_dry_run_ref",
@@ -1846,7 +1891,7 @@
           "lifecycle_classification_declared",
           "important_result_reproduction_path_declared",
           "data_body_boundary_declared",
-          "cold_store_catalog_declared",
+          "lifecycle_catalog_declared",
           "owner_decision_target_declared",
           "study_impact_declared",
           "prune_dry_run_declared",
@@ -1960,9 +2005,14 @@
           "dry_run_readback_ref",
           "input_contract_ref",
           "adoption_contract_ref",
-          "scope_boundary_ref"
+          "scope_boundary_ref",
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
         ],
-        "can_claim_quality_verdict": false
+        "can_claim_quality_verdict": false,
+        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -2014,5 +2064,24 @@
         "no_authority_policy": "candidate_refs_only_requires_domain_owner_gate"
       }
     }
-  ]
+  ],
+  "standard_handoff_ref_families": {
+    "policy_id": "scholarskills_standard_refs_only_handoff.v1",
+    "applies_to_modules": "all_ten_scholarskills_modules",
+    "required_ref_shapes": [
+      "source_pack_ref",
+      "candidate_package_ref",
+      "execution_receipt_ref",
+      "owner_gate_handoff_ref"
+    ],
+    "no_authority_policy": "source_pack_candidate_package_execution_receipt_and_owner_gate_handoff_refs_only",
+    "can_write_domain_truth": false,
+    "can_write_runtime_state": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_owner_acceptance": false,
+    "can_claim_current_package_authority": false
+  }
 }

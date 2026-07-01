@@ -38,6 +38,12 @@ def sha256_file(relative: str) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+def require_all(label: str, actual, expected) -> None:
+    actual_set = set(actual or [])
+    for item in expected:
+        if item not in actual_set:
+            fail(f"{label} missing {item}")
+
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "opl-scholarskills":
     fail("plugin name must be opl-scholarskills")
@@ -51,9 +57,42 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", skill, re.MULTILI
     fail("SKILL.md frontmatter must expose name: opl-scholarskills")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
+contract_text = json.dumps(contract, ensure_ascii=False)
+if "cold_store_catalog_ref" in contract_text:
+    fail("contract must use lifecycle_catalog_ref instead of cold_store_catalog_ref")
+if "cold_store_catalog_declared" in contract_text:
+    fail("contract must use lifecycle_catalog_declared instead of cold_store_catalog_declared")
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 10:
     fail("contract must contain exactly 10 ScholarSkills modules")
+
+standard_handoff_refs = [
+    "source_pack_ref",
+    "candidate_package_ref",
+    "execution_receipt_ref",
+    "owner_gate_handoff_ref",
+]
+standard_handoff = contract.get("standard_handoff_ref_families") or {}
+if standard_handoff.get("policy_id") != "scholarskills_standard_refs_only_handoff.v1":
+    fail("contract missing standard refs-only handoff policy")
+if standard_handoff.get("applies_to_modules") != "all_ten_scholarskills_modules":
+    fail("standard handoff policy must apply to all ten modules")
+require_all("standard handoff refs", standard_handoff.get("required_ref_shapes"), standard_handoff_refs)
+if standard_handoff.get("no_authority_policy") != "source_pack_candidate_package_execution_receipt_and_owner_gate_handoff_refs_only":
+    fail("standard handoff policy must stay refs-only/no-authority")
+for key in [
+    "can_write_domain_truth",
+    "can_write_runtime_state",
+    "can_mutate_artifact_body",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_publication_readiness",
+    "can_claim_owner_acceptance",
+    "can_claim_current_package_authority",
+]:
+    if standard_handoff.get(key) is not False:
+        fail(f"standard handoff authority flag {key} must be false")
+
 for module in modules:
     module_id = module.get("module_id")
     display_name = module.get("display_name")
@@ -87,6 +126,10 @@ for module in modules:
     ]:
         if receipt_policy.get(key) is not False:
             fail(f"{module_id} receipt policy flag {key} must be false")
+    quality = module.get("quality_evidence") or {}
+    if quality.get("handoff_policy") != "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff":
+        fail(f"{module_id} quality evidence missing standard handoff policy")
+    require_all(f"{module_id} standard handoff refs", quality.get("required_ref_shapes"), standard_handoff_refs)
 
 contract_boundary = contract.get("authority_boundary") or {}
 for key in [
@@ -184,12 +227,6 @@ if display_floor.get("gallery_review_package_policy") != "compact_review_refs_au
     fail("Display module gallery_review_package_policy must keep authority false")
 
 modules_by_id = {item.get("module_id"): item for item in modules}
-
-def require_all(label: str, actual, expected) -> None:
-    actual_set = set(actual or [])
-    for item in expected:
-        if item not in actual_set:
-            fail(f"{label} missing {item}")
 
 def require_module(module_id: str) -> dict:
     module = modules_by_id.get(module_id)
@@ -500,7 +537,7 @@ data_refs = [
     "owner_decision_ref",
     "post_cleanup_readback_ref",
     "prune_dry_run_ref",
-    "cold_store_catalog_ref",
+    "lifecycle_catalog_ref",
 ]
 data_module = require_module("opl.scholarskills.data")
 require_output_schema(
@@ -525,7 +562,7 @@ require_artifact_refs(
         "owner_decision_ref",
         "post_cleanup_readback_ref",
         "prune_dry_run_ref",
-        "cold_store_catalog_ref",
+        "lifecycle_catalog_ref",
     ],
 )
 require_external_fit(data_module, ["Future-Scholars/paperlib", "Ar9av/PaperOrchestra", "littlepeachs/NaturePanelForge"])
@@ -535,7 +572,7 @@ data_lifecycle_refs = [
     "lifecycle_classification_ref",
     "important_result_reproduction_ref",
     "data_body_boundary_ref",
-    "cold_store_catalog_ref",
+    "lifecycle_catalog_ref",
     "owner_decision_ref",
     "study_impact_ref",
     "prune_dry_run_ref",
@@ -550,7 +587,7 @@ require_all(
         "lifecycle_classification_declared",
         "important_result_reproduction_path_declared",
         "data_body_boundary_declared",
-        "cold_store_catalog_declared",
+        "lifecycle_catalog_declared",
         "owner_decision_target_declared",
         "study_impact_declared",
         "prune_dry_run_declared",
@@ -585,6 +622,16 @@ for token in [
 ]:
     if token not in skill:
         fail(f"SKILL.md missing Data lifecycle token: {token}")
+
+for token in [
+    "source_pack_ref",
+    "candidate_package_ref",
+    "execution_receipt_ref",
+    "owner_gate_handoff_ref",
+    "Every module should expose the standard refs-only handoff family",
+]:
+    if token not in skill:
+        fail(f"SKILL.md missing standard handoff token: {token}")
 
 intake_refs = [
     "source_snapshot_ref",
@@ -738,6 +785,10 @@ required_doc_tokens = {
         "route_back_candidate",
         "stop/continue recommendations",
         "downstream owner-consumption target",
+        "source_pack_ref",
+        "candidate_package_ref",
+        "execution_receipt_ref",
+        "owner_gate_handoff_ref",
     ],
     "README.zh-CN.md": [
         "progress-first",
@@ -747,6 +798,10 @@ required_doc_tokens = {
         "route_back_candidate",
         "stop/continue recommendations",
         "下游 owner-consumption 目标",
+        "source_pack_ref",
+        "candidate_package_ref",
+        "execution_receipt_ref",
+        "owner_gate_handoff_ref",
     ],
     "skills/opl-scholarskills/SKILL.md": [
         "MAS Progress And AI Judgment Rules",
@@ -755,6 +810,11 @@ required_doc_tokens = {
         "Missing external runtime installation is not a blocker",
         "Only authority surfaces block ScholarSkills progression",
         "downstream owner-consumption refs only",
+        "source_pack_ref",
+        "candidate_package_ref",
+        "execution_receipt_ref",
+        "owner_gate_handoff_ref",
+        "all ten modules",
     ],
     "docs/capability-modules.md": [
         "progress_first_ai_auto_judgment_first",
@@ -762,6 +822,10 @@ required_doc_tokens = {
         "verdict_candidate",
         "route_back_candidate",
         "stop_or_continue_recommendation",
+        "source_pack_ref",
+        "candidate_package_ref",
+        "execution_receipt_ref",
+        "owner_gate_handoff_ref",
         "Parsifal",
         "paper-search-mcp",
         "LocalCitationNetwork",
@@ -788,6 +852,10 @@ required_doc_tokens = {
         "verdict_candidate",
         "route_back_candidate",
         "stop_or_continue_recommendation",
+        "source_pack_ref",
+        "candidate_package_ref",
+        "execution_receipt_ref",
+        "owner_gate_handoff_ref",
         "Parsifal",
         "paper-search-mcp",
         "LocalCitationNetwork",
