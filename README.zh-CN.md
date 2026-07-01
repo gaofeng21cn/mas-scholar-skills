@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="assets/branding/opl-scholarskills-logo.png" alt="OPL ScholarSkills 标志" width="132" />
+</p>
+
+<p align="center">
   <a href="./README.md">English</a> | <a href="./README.zh-CN.md"><strong>中文</strong></a>
 </p>
 
