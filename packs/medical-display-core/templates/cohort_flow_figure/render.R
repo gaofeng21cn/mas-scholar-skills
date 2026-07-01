@@ -446,7 +446,7 @@ cohort_exclusion_frame <- function(exclusions, step_df, step_ids) {
       exclusion_id = make.names(trimws(as.character(exclusion$exclusion_id %||% exclusion$branch_id %||% sprintf("exclusion_%d", index)))),
       from_step_id = step_ids[[from_index]],
       label = cohort_exclusion_label(exclusion, index),
-      x = 26,
+      x = 34,
       y = step_df$y[[from_index]] - 6,
       stringsAsFactors = FALSE
     )
@@ -710,9 +710,9 @@ build_ggconsort_plot <- function(payload) {
   step_df <- cohort_step_frame(steps, step_ids)
   step_df$x <- 0
   exclusion_df <- cohort_exclusion_frame(exclusions, step_df, step_ids)
-  node_width <- 62
+  node_width <- if (length(exclusions) > 0) 50 else 62
   node_height <- 9.5
-  exclusion_width <- 24
+  exclusion_width <- if (length(exclusions) > 0) 18 else 22
   exclusion_height <- 8
   has_context_notes <- length(endpoint_inventory) > 0 || length(design_panels) > 0
   context_note_ymin <- 6
@@ -728,7 +728,7 @@ build_ggconsort_plot <- function(payload) {
   exclusion_edge <- style_color(payload, "flow_exclusion_edge", "#B57F7F")
   text_colour <- style_color(payload, "flow_body_text", "#111827")
 
-  plot_xlim <- c(-42, 42)
+  plot_xlim <- c(-44, 44)
   plot <- ggplot2::ggplot() +
     ggplot2::theme_void() +
     ggplot2::coord_cartesian(xlim = plot_xlim, ylim = c(plot_y_min, 101), clip = "off")
@@ -754,7 +754,7 @@ build_ggconsort_plot <- function(payload) {
         ggplot2::annotate(
           "segment",
           x = from_row$x[[1]] + node_width / 2,
-          xend = 28,
+          xend = exclusion_df$x[[index]] - exclusion_width / 2,
           y = exclusion_df$y[[index]],
           yend = exclusion_df$y[[index]],
           colour = exclusion_edge,
@@ -1085,11 +1085,12 @@ build_layout_sidecar <- function(payload, dependency_environment) {
   }
   guide_boxes <- list()
   flow_nodes <- list()
-  step_x0 <- 0.14
-  step_x1 <- 0.86
+  has_exclusion_boxes <- length(exclusions) > 0
+  step_x0 <- if (has_exclusion_boxes) 0.12 else 0.14
+  step_x1 <- if (has_exclusion_boxes) 0.74 else 0.86
   connector_x0 <- 0.50
   connector_x1 <- 0.50
-  rendered_width_pt <- 460.0
+  rendered_width_pt <- if (has_exclusion_boxes) 410.0 else 460.0
   for (index in seq_along(steps)) {
     y_center <- y_centers[[index]]
     box_id <- paste0("participant_step_", step_ids[[index]])
@@ -1136,7 +1137,7 @@ build_layout_sidecar <- function(payload, dependency_environment) {
       layout_boxes[[length(layout_boxes) + 1]] <- sidecar_box(
         paste0("participant_exclusion_", exclusion_id),
         "exclusion_box",
-        0.72,
+        0.78,
         y_center - 0.048,
         0.96,
         y_center + 0.048
@@ -1144,9 +1145,9 @@ build_layout_sidecar <- function(payload, dependency_environment) {
       guide_boxes[[length(guide_boxes) + 1]] <- sidecar_box(
         paste0("flow_branch_", exclusion_id),
         "flow_branch_connector",
-        0.86,
+        0.74,
         y_center - 0.01,
-        0.72,
+        0.78,
         y_center + 0.01
       )
       flow_nodes[[length(flow_nodes) + 1]] <- list(
