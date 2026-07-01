@@ -1413,9 +1413,13 @@
           "confirm_or_drop_source_verification_in_adversarial_review",
           "ai_may_route_back_unverified_source_claims_before_owner_gate",
           "flag_workflow/tool-pipeline prose before owner gate",
-          "flag conclusion self-evaluation before owner gate"
+          "flag conclusion self-evaluation before owner gate",
+          "flag registry enrollment not-promoted prose before owner gate",
+          "flag MAS display-pack renderer prose before owner gate",
+          "flag TRIPOD boundary-citation prose before owner gate",
+          "flag defensible clinical story conclusion before owner gate"
         ],
-        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose and conclusion self-evaluation only before owner gate",
+        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose, conclusion self-evaluation, calendar enrollment period is not promoted, MAS display-pack renderer, TRIPOD is cited only as a boundary reference, and defensible clinical story only before owner gate",
         "required_ref_shapes": [
           "reviewer_report_ref",
           "adversarial_review_ref",
