@@ -85,9 +85,11 @@ material belongs in the consuming paper caption, legend, manifest, or manuscript
 The layout sidecar for the participant-flow generation must expose
 `layout_generation = "scholarskills_cohort_flow_v2"`,
 `flow_visual_policy = "purpose_first_reporting_flow_no_legacy_card_shell"`, and
-`rendered_title_policy = "figure_title_metadata_only_not_drawn_inside_plot"`. MAS visual audit uses
-those fields together with final PDF page inspection; `renderer_family = "r_ggplot2"` or
-`uses_ggconsort = true` alone is not enough evidence that Figure 1 meets the purpose-first contract.
+`rendered_title_policy = "figure_title_metadata_only_not_drawn_inside_plot"`. Step details must be
+short enough to render as complete wrapped text; the template must not use ellipsis truncation to hide
+study-design or participant-accounting meaning. MAS visual audit uses those fields together with final PDF
+page inspection; `renderer_family = "r_ggplot2"` or `uses_ggconsort = true` alone is not enough evidence
+that Figure 1 meets the purpose-first contract.
 
 ## Gallery review maintenance
 
