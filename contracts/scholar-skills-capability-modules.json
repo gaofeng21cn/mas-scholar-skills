@@ -1411,9 +1411,11 @@
           "route_back_when_evidence_or_owner_authority_is_missing",
           "residual_risk_register_before_owner_gate",
           "confirm_or_drop_source_verification_in_adversarial_review",
-          "ai_may_route_back_unverified_source_claims_before_owner_gate"
+          "ai_may_route_back_unverified_source_claims_before_owner_gate",
+          "flag_workflow/tool-pipeline prose before owner gate",
+          "flag conclusion self-evaluation before owner gate"
         ],
-        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt",
+        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose and conclusion self-evaluation only before owner gate",
         "required_ref_shapes": [
           "reviewer_report_ref",
           "adversarial_review_ref",
