@@ -2,6 +2,8 @@
 
 ## Unreleased - 2026-04-20
 
+- Document the `cohort_flow_figure` v2 reporting-flow contract: Figure 1-style participant-flow outputs must be purpose-first flow diagrams with no drawn figure title, no summary/context/prose cards, and no fake-axis prose panels; endpoint/design/interpretation text stays in consuming-paper caption, legend, manifest, or prose, while MAS audit verifies the v2 sidecar fields and final PDF page.
+
 - Tighten `site_held_out_stability_figure` for paper-scale PDF use: transition heatmap cells now use sparse major-share percentage labels only, omit per-cell counts, site-support bars use percent-only labels with counts left to the companion table, and the layout sidecar exports `transition_cell_label_policy = "major_share_percent_only_no_counts"` plus `site_support_label_policy = "percent_only_counts_remain_in_table"` so MAS post-PDF visual audit can verify the renderer contract.
 
 - Add `confusion_matrix_heatmap_binary` as the next audited `A/E` binary confusion-matrix slice in the core display pack.

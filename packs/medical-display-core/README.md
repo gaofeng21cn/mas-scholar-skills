@@ -73,6 +73,22 @@ The implementation is split under `src/fenggaolab_org_medical_display_core/illus
 
 This keeps the manifest-facing API stable while making evidence-renderer policy simple: current data evidence is R/ggplot2; design expression can use Python/SVG composition.
 
+## Purpose-first reporting-flow policy
+
+`cohort_flow_figure` is the audited reporting-flow template for participant accounting and
+STROBE-CONSORT style cohort flow. Its accepted output is the flow itself: short cohort nodes,
+counts, exclusions when present, and connectors. The template must not draw an overall figure title
+inside the image, and it must not reintroduce `summary_panel`, `context_note`, prose cards, fake-axis
+prose panels, or other explanatory shells for endpoint/design/interpretation text. That explanatory
+material belongs in the consuming paper caption, legend, manifest, or manuscript prose.
+
+The layout sidecar for the participant-flow generation must expose
+`layout_generation = "scholarskills_cohort_flow_v2"`,
+`flow_visual_policy = "purpose_first_reporting_flow_no_legacy_card_shell"`, and
+`rendered_title_policy = "figure_title_metadata_only_not_drawn_inside_plot"`. MAS visual audit uses
+those fields together with final PDF page inspection; `renderer_family = "r_ggplot2"` or
+`uses_ggconsort = true` alone is not enough evidence that Figure 1 meets the purpose-first contract.
+
 ## Gallery review maintenance
 
 The compact human-review package is maintained in:
