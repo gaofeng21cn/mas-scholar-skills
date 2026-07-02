@@ -14,16 +14,17 @@ OPL base, not an additional brand module, and not a domain truth owner. Its
 docs stay compact: module contracts, quality floors, source packs,
 external-learning refs, professional syncable skills
 `medical-manuscript-writing`, `medical-manuscript-review`,
-`medical-figure-design`, `medical-research-lit`, and gallery review surfaces
-support the MAS overlay. The write/review/figure/lit professional skills are maintained
-here as a single source for MAS consumption; stage-prompt routing and generated artifacts
-remain with their owning runtime or domain repo.
+`medical-figure-design`, `medical-research-lit`, `medical-statistical-review`,
+`medical-table-design`, `medical-submission-prep`, and gallery review surfaces
+support the MAS overlay. The writing/review/figure/literature/statistics/table/submission
+professional skills are maintained here as a single source for MAS consumption;
+stage-prompt routing and generated artifacts remain with their owning runtime or
+domain repo.
 
-Current classification: ten capability-module contracts, four real syncable
-Codex specialist skills, and six contract-layer modules. `tables`, `stats`,
-`omics`, `submit`, `data`, and `intake` stay as refs/checklist/candidate-handoff
-contracts until a stable active workflow justifies promoting one into a real
-skill.
+Current classification: ten capability-module contracts, seven real syncable
+Codex specialist skills, and three contract-layer modules. `omics`, `data`, and
+`intake` stay as refs/checklist/candidate-handoff contracts until a stable
+active workflow justifies promoting one into a real skill.
 
 For literature access, use `medical-research-lit` for the AI workflow and OPL
 Connect for stable PubMed refs: `opl connect pubmed search --query <query>
@@ -32,12 +33,17 @@ Connect for stable PubMed refs: `opl connect pubmed search --query <query>
 judgment, evidence interpretation, owner receipts, typed blockers, and
 publication decisions.
 
-The current professional quality floor is in the four real skills. Figure work
+The current professional quality floor is in the seven real skills. Figure work
 requires a figure contract, evidence chain, candidate loop, and visual QA;
 writing requires an argument contract, terminology ledger, paragraph job map,
 and citation/availability audits; review requires reviewer lanes and a
 cross-review synthesis; literature work requires source routing,
-deduplication, support-strength grading, and citation integrity notes.
+deduplication, support-strength grading, and citation integrity notes;
+statistical review requires estimand, denominator, assumption, effect-size,
+and action-matrix checks; table design requires table-shell, source-metric,
+denominator, footnote, QC, and table-to-claim checks; submission prep requires
+journal-instruction, reporting-guideline, declaration, availability,
+reviewer-response, and package-consistency checks.
 
 ## Current Docs
 

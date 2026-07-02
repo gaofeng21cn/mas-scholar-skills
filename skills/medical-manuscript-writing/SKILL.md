@@ -15,8 +15,10 @@ owner receipts, typed blockers, human gates, current packages, and publication
 readiness.
 
 Sibling skill routes are `medical-manuscript-review` for adversarial review,
-`medical-figure-design` for material figure work, and `medical-research-lit`
-for PubMed-oriented literature discovery.
+`medical-figure-design` for material figure work, `medical-research-lit` for
+PubMed-oriented literature discovery, `medical-statistical-review` for
+statistical claim checks, `medical-table-design` for table-to-text binding, and
+`medical-submission-prep` for submission package surfaces.
 
 ## Core Rule
 

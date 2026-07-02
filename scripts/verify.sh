@@ -67,6 +67,15 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-design$", figure_skill,
 lit_skill = read_text("skills/medical-research-lit/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-lit$", lit_skill, re.MULTILINE):
     fail("medical-research-lit must be a real Codex skill")
+stats_skill = read_text("skills/medical-statistical-review/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-statistical-review$", stats_skill, re.MULTILINE):
+    fail("medical-statistical-review must be a real Codex skill")
+table_skill = read_text("skills/medical-table-design/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-table-design$", table_skill, re.MULTILINE):
+    fail("medical-table-design must be a real Codex skill")
+submit_skill = read_text("skills/medical-submission-prep/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-submission-prep$", submit_skill, re.MULTILINE):
+    fail("medical-submission-prep must be a real Codex skill")
 legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.MULTILINE):
     fail("legacy alias must expose name: opl-scholarskills")
@@ -134,12 +143,27 @@ if specialist_skill_policy.get("legacy_aggregate_skill_alias") != "opl-scholarsk
 require_all(
     "syncable real skills",
     specialist_skill_policy.get("syncable_real_skills"),
-    ["medical-manuscript-writing", "medical-manuscript-review", "medical-figure-design", "medical-research-lit"],
+    [
+        "medical-manuscript-writing",
+        "medical-manuscript-review",
+        "medical-figure-design",
+        "medical-research-lit",
+        "medical-statistical-review",
+        "medical-table-design",
+        "medical-submission-prep",
+    ],
 )
 require_all(
     "medical paper specialist skill sources",
     specialist_skill_policy.get("medical_paper_specialist_skill_sources"),
-    ["medical-manuscript-writing", "medical-manuscript-review", "medical-figure-design"],
+    [
+        "medical-manuscript-writing",
+        "medical-manuscript-review",
+        "medical-figure-design",
+        "medical-statistical-review",
+        "medical-table-design",
+        "medical-submission-prep",
+    ],
 )
 require_all(
     "external resource specialist skills",
@@ -155,7 +179,7 @@ expected_specialist_boundary = {
     "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
     "default_skill_home_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo_next_to_stage_prompts",
-    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_Display_and_source_refs",
+    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_stats_tables_submit_Display_and_source_refs",
     "tool_connector_boundary_policy": "tool_connectors_own_tool_or_API_invocation_normalized_read_receipts_and_resource_errors_not_stage_policy_professional_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
 }
 for key, expected in expected_specialist_boundary.items():
@@ -207,21 +231,32 @@ require_all(
 require_all(
     "real syncable specialist skills",
     classification_policy.get("real_syncable_specialist_skills"),
-    ["medical-manuscript-writing", "medical-manuscript-review", "medical-figure-design", "medical-research-lit"],
+    [
+        "medical-manuscript-writing",
+        "medical-manuscript-review",
+        "medical-figure-design",
+        "medical-research-lit",
+        "medical-statistical-review",
+        "medical-table-design",
+        "medical-submission-prep",
+    ],
 )
 require_all(
     "contract-layer modules",
     classification_policy.get("contract_layer_modules"),
-    ["tables", "stats", "omics", "submit", "data", "intake"],
+    ["omics", "data", "intake"],
 )
 expected_real_skill_backed_modules = {
     "display": "medical-figure-design",
     "lit": "medical-research-lit",
+    "stats": "medical-statistical-review",
+    "tables": "medical-table-design",
     "write": "medical-manuscript-writing",
     "review": "medical-manuscript-review",
+    "submit": "medical-submission-prep",
 }
 if classification_policy.get("real_skill_backed_module_map") != expected_real_skill_backed_modules:
-    fail("classification policy must map the four real-skill-backed modules")
+    fail("classification policy must map the seven real-skill-backed modules")
 for token in [
     "not_from_ten_preexisting_real_MAS_skills",
     "without_claiming_to_be_active_specialist_skills",
@@ -254,6 +289,9 @@ for token in [
     "support_strength_matrix_ref",
     "data_availability_and_FAIR_metadata_checks",
     "reviewer_response_delta_audit",
+    "statistical_action_matrix_ref",
+    "table_shell_ref",
+    "submission_action_matrix_ref",
 ]:
     if token not in quality_policy_text:
         fail(f"professional skill quality upgrade policy missing {token}")
@@ -262,6 +300,9 @@ expected_quality_skill_refs = {
     "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref"],
     "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref"],
     "medical-research-lit": ["fallback_source_refs", "deduplication_ref", "support_strength_matrix_ref"],
+    "medical-statistical-review": ["estimand_or_target_parameter_ref", "effect_size_and_uncertainty_ref", "statistical_action_matrix_ref"],
+    "medical-table-design": ["table_shell_ref", "table_qc_ref", "claim_table_alignment_ref"],
+    "medical-submission-prep": ["journal_instruction_ref", "reporting_guideline_ref", "submission_action_matrix_ref"],
 }
 for skill_id, refs in expected_quality_skill_refs.items():
     require_all(f"quality refs for {skill_id}", (quality_policy.get("skill_quality_refs") or {}).get(skill_id), refs)
@@ -284,12 +325,18 @@ for relative, text in [
     ("skills/medical-manuscript-writing/SKILL.md", write_skill),
     ("skills/medical-manuscript-review/SKILL.md", review_skill),
     ("skills/medical-figure-design/SKILL.md", figure_skill),
+    ("skills/medical-statistical-review/SKILL.md", stats_skill),
+    ("skills/medical-table-design/SKILL.md", table_skill),
+    ("skills/medical-submission-prep/SKILL.md", submit_skill),
 ]:
     for token in [
         "MAS Scholar Skills",
         "medical-manuscript-writing",
         "medical-manuscript-review",
         "medical-figure-design",
+        "medical-statistical-review",
+        "medical-table-design",
+        "medical-submission-prep",
     ]:
         if token not in text:
             fail(f"{relative} missing MAS Scholar Skills positioning token: {token}")
@@ -332,6 +379,9 @@ for relative, text in [
     ("skills/medical-manuscript-review/SKILL.md", review_skill),
     ("skills/medical-figure-design/SKILL.md", figure_skill),
     ("skills/medical-research-lit/SKILL.md", lit_skill),
+    ("skills/medical-statistical-review/SKILL.md", stats_skill),
+    ("skills/medical-table-design/SKILL.md", table_skill),
+    ("skills/medical-submission-prep/SKILL.md", submit_skill),
 ]:
     for token in [
         "opl connect pubmed search",

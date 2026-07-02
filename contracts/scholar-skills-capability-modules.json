@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack and professional specialist Codex skills for MAS medical-paper writing, review, figure design, and literature workflows that can be discovered by MAS stage operating prompts, consumed as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, or medical-research-lit. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
+  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack and professional specialist Codex skills for MAS medical-paper writing, review, figure design, literature, statistics, table, and submission workflows that can be discovered by MAS stage operating prompts, consumed as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, or medical-submission-prep. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -47,7 +47,7 @@
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false,
-    "specialist_skill_source_policy": "medical_manuscript_writing_review_figure_design_and_lit_specialist_skills_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_stage_prompt_consumption",
+    "specialist_skill_source_policy": "medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_and_submission_prep_specialist_skills_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_stage_prompt_consumption",
     "mas_stage_prompt_maintenance_policy": "MAS_keeps_write_review_figure_stage_operating_prompts_and_does_not_duplicate_specialist_playbooks",
     "can_replace_mas_runtime_owner_surface": false
   },
@@ -59,12 +59,18 @@
       "medical-manuscript-writing",
       "medical-manuscript-review",
       "medical-figure-design",
-      "medical-research-lit"
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep"
     ],
     "medical_paper_specialist_skill_sources": [
       "medical-manuscript-writing",
       "medical-manuscript-review",
-      "medical-figure-design"
+      "medical-figure-design",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep"
     ],
     "external_resource_specialist_skills": [
       "medical-research-lit"
@@ -76,7 +82,7 @@
     "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
     "default_skill_home_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo_next_to_stage_prompts",
-    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_Display_and_source_refs",
+    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_stats_tables_submit_Display_and_source_refs",
     "tool_connector_boundary_policy": "tool_connectors_own_tool_or_API_invocation_normalized_read_receipts_and_resource_errors_not_stage_policy_professional_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
     "default_boundary_defense": [
       "stage_prompt",
@@ -115,21 +121,24 @@
       "medical-manuscript-writing",
       "medical-manuscript-review",
       "medical-figure-design",
-      "medical-research-lit"
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep"
     ],
     "contract_layer_modules": [
-      "tables",
-      "stats",
       "omics",
-      "submit",
       "data",
       "intake"
     ],
     "real_skill_backed_module_map": {
       "display": "medical-figure-design",
       "lit": "medical-research-lit",
+      "stats": "medical-statistical-review",
+      "tables": "medical-table-design",
       "write": "medical-manuscript-writing",
-      "review": "medical-manuscript-review"
+      "review": "medical-manuscript-review",
+      "submit": "medical-submission-prep"
     },
     "origin_policy": "capability_modules_came_from_MAS_medical_paper_workflow_needs_OPL_capability_registry_readback_requirements_and_external_learning_ref_checklist_shapes_not_from_ten_preexisting_real_MAS_skills",
     "contract_layer_role": "contract_layer_modules_standardize_vocabulary_ref_families_checklists_candidate_handoff_receipt_shape_quality_floor_hints_and_owner_gate_routing_without_claiming_to_be_active_specialist_skills",
@@ -173,7 +182,7 @@
         ]
       }
     ],
-    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_and_lit_skills_first; keep_tables_stats_omics_submit_data_intake_as_contract_layer_modules_until_active_stable_workflows_need_real_skills",
+    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_and_submission_prep_skills_first; keep_omics_data_intake_as_contract_layer_modules_until_active_stable_workflows_need_real_skills",
     "skill_quality_refs": {
       "medical-figure-design": [
         "figure_contract_ref",
@@ -208,13 +217,45 @@
         "claim_support_map_ref",
         "support_strength_matrix_ref",
         "citation_integrity_notes"
+      ],
+      "medical-statistical-review": [
+        "statistical_question_ref",
+        "estimand_or_target_parameter_ref",
+        "analysis_plan_ref",
+        "denominator_and_missingness_ref",
+        "assumption_diagnostic_ref",
+        "effect_size_and_uncertainty_ref",
+        "multiplicity_and_sensitivity_ref",
+        "statistical_action_matrix_ref"
+      ],
+      "medical-table-design": [
+        "table_job_ref",
+        "table_shell_ref",
+        "source_metric_ref",
+        "denominator_ref",
+        "statistical_display_ref",
+        "table_qc_ref",
+        "claim_table_alignment_ref",
+        "journal_table_contract_ref"
+      ],
+      "medical-submission-prep": [
+        "journal_instruction_ref",
+        "submission_inventory_ref",
+        "reporting_guideline_ref",
+        "data_code_availability_ref",
+        "declaration_completeness_ref",
+        "package_consistency_ref",
+        "reviewer_response_candidate_ref",
+        "submission_action_matrix_ref"
       ]
     },
     "absorbed_contract_layer_patterns": [
       "statistical_assumption_and_effect_size_checks_feed_write_and_review",
       "data_availability_and_FAIR_metadata_checks_feed_write_review_and_submit",
       "reviewer_response_delta_audit_feeds_review_and_write",
-      "source_routing_dedup_and_claim_support_grading_feed_lit"
+      "source_routing_dedup_and_claim_support_grading_feed_lit",
+      "table_shell_denominator_footnote_and_claim_alignment_feed_write_review_and_submit",
+      "journal_instruction_reporting_guideline_declaration_and_response_audit_feed_submit"
     ],
     "can_add_parallel_stage_skill_authority": false,
     "can_require_external_runtime_install_before_candidate_refs": false,

@@ -16,8 +16,10 @@ publication eval, controller decisions, owner receipts, typed blockers, human
 gates, current packages, and publication readiness.
 
 Sibling skill routes are `medical-manuscript-writing` for manuscript repair,
-`medical-figure-design` for material figure work, and `medical-research-lit`
-for PubMed-oriented literature discovery.
+`medical-figure-design` for material figure work, `medical-research-lit` for
+PubMed-oriented literature discovery, `medical-statistical-review` for
+statistical pressure tests, `medical-table-design` for table repair, and
+`medical-submission-prep` for submission and reviewer-response checks.
 
 Review is not copyediting. It is an adversarial medical pressure test over
 claims, evidence, displays, citations, methods, limitations, and route

@@ -15,8 +15,11 @@ visual audit receipts, owner receipts, typed blockers, human gates, current
 packages, and publication readiness.
 
 Sibling skill routes are `medical-manuscript-writing` for manuscript narrative
-repair, `medical-manuscript-review` for adversarial review, and
-`medical-research-lit` for PubMed-oriented literature discovery.
+repair, `medical-manuscript-review` for adversarial review,
+`medical-research-lit` for PubMed-oriented literature discovery,
+`medical-statistical-review` for statistical annotation checks,
+`medical-table-design` for table/figure consistency, and
+`medical-submission-prep` for export and submission package checks.
 
 MAS `figure-polish` is only the polish/review phase entry for an already scoped
 figure. It is not an independent specialist source.

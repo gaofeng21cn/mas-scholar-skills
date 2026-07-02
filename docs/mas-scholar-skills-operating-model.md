@@ -3,7 +3,7 @@
 Owner: `One Person Lab`
 Purpose: Explain how `mas-scholar-skills` operates as the MAS Scholar Skills professional-skill enhancement pack without becoming MAS domain truth.
 State: `active_operating_model`
-Machine boundary: Human-readable operating model. Machine truth stays in `contracts/scholar-skills-capability-modules.json`, `skills/mas-scholar-skills/SKILL.md`, `skills/medical-manuscript-writing/SKILL.md`, `skills/medical-manuscript-review/SKILL.md`, `skills/medical-figure-design/SKILL.md`, `skills/medical-research-lit/SKILL.md`, pack manifests, OPL Framework readbacks, and consuming MAS owner surfaces.
+Machine boundary: Human-readable operating model. Machine truth stays in `contracts/scholar-skills-capability-modules.json`, `skills/mas-scholar-skills/SKILL.md`, `skills/medical-manuscript-writing/SKILL.md`, `skills/medical-manuscript-review/SKILL.md`, `skills/medical-figure-design/SKILL.md`, `skills/medical-research-lit/SKILL.md`, `skills/medical-statistical-review/SKILL.md`, `skills/medical-table-design/SKILL.md`, `skills/medical-submission-prep/SKILL.md`, pack manifests, OPL Framework readbacks, and consuming MAS owner surfaces.
 
 ## Positioning
 
@@ -15,25 +15,25 @@ It owns enhancement surfaces:
 - Source packs such as `packs/medical-display-core`.
 - Quality floors, route-back hints, and external-learning absorption.
 - Compact human-review refs and templates that MAS can discover.
-- Syncable medical-paper professional skills where a stable AI workflow should have one maintained source: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit`.
+- Syncable medical-paper professional skills where a stable AI workflow should have one maintained source: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, and `medical-submission-prep`.
 
 It does not own MAS study truth, publication truth, owner receipts, typed blockers, human gates, runtime queues, provider attempts, ledgers, current-package authority, or publication readiness.
 
 ## Capability Module Classification
 
-MAS Scholar Skills has ten capability-module contracts and four syncable real Codex specialist skills.
+MAS Scholar Skills has ten capability-module contracts and seven syncable real Codex specialist skills.
 
 | Classification | Members | Role |
 | --- | --- | --- |
 | Capability-module contracts | `display`, `tables`, `stats`, `omics`, `lit`, `write`, `review`, `submit`, `data`, `intake` | Shared module ids, vocabulary, ref families, checklists, candidate handoff, receipt shape, and owner gates. |
-| Real specialist skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit` | AI-first professional playbooks that Codex can discover and execute after OPL Connect syncs them into a workspace or quest `.codex/skills/` directory. |
-| Contract-layer modules | `tables`, `stats`, `omics`, `submit`, `data`, `intake` | Refs, checklists, candidate packages, quality floors, and owner-gate handoff until a stable active workflow justifies a real skill. |
+| Real specialist skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep` | AI-first professional playbooks that Codex can discover and execute after OPL Connect syncs them into a workspace or quest `.codex/skills/` directory. |
+| Contract-layer modules | `omics`, `data`, `intake` | Refs, checklists, candidate packages, quality floors, and owner-gate handoff until a stable active workflow justifies a real skill. |
 
-The six contract-layer modules are not unfinished skills and are not MAS-private implementations. They came from MAS medical-paper workflow needs, OPL capability registry/readback requirements, and external-learning patterns that are useful as refs/checklists. Keep them as the machine contract layer unless Codex needs to actively run a maintained specialist workflow.
+The three contract-layer modules are not unfinished skills and are not MAS-private implementations. They came from MAS medical-paper workflow needs, OPL capability registry/readback requirements, and external-learning patterns that are useful as refs/checklists. Keep them as the machine contract layer unless Codex needs to actively run a maintained specialist workflow.
 
 ## Professional Quality Floor
 
-MAS Scholar Skills now applies an explicit quality floor to the four real
+MAS Scholar Skills now applies an explicit quality floor to the seven real
 specialist skills. The floor is adapted from fresh inspection of
 `K-Dense-AI/scientific-agent-skills` commit
 `1e024ea8547ada12039edbe8197aaa959d97763f` and
@@ -46,17 +46,19 @@ specialist skills. The floor is adapted from fresh inspection of
 | `medical-manuscript-writing` | One-sentence argument, terminology ledger, paragraph job map, section contract, claim-strength calibration, citation integrity, figure/table binding, and data/code availability audit. |
 | `medical-manuscript-review` | Shared fact base, technical/significance/reader reviewer lanes, cross-review synthesis, reviewer action matrix, citation repair, revision-delta audit, and route-back closeout. |
 | `medical-research-lit` | PubMed-first source routing, query plan, fallback source refs, deduplication, retain/reject/watchlist screening, source verification, support-strength matrix, and citation integrity floor. |
+| `medical-statistical-review` | Statistical question, estimand/target parameter, analysis plan fit, denominator and missingness review, assumption diagnostics, effect-size and uncertainty reporting, multiplicity/sensitivity review, table/figure consistency, and statistical action matrix. |
+| `medical-table-design` | Table job, table shell, source-metric binding, denominator checks, statistical display policy, table QC, claim-table alignment, footnote/abbreviation discipline, and journal table contract. |
+| `medical-submission-prep` | Journal instruction mapping, reporting guideline checklist, declaration inventory, data/code availability, package consistency, cover-letter or reviewer-response candidates, author-input fields, and submission action matrix. |
 
-Statistics, data availability, reviewer response, reporting guideline, and
-submission checks are valuable, but they enter this floor first through the
-four existing specialist skills. They become new real skills only when MAS
-needs Codex to actively run a stable standalone workflow.
+Data availability, omics-specific source routing, and intake-specific adoption
+checks remain valuable contract-layer patterns until MAS needs Codex to actively
+run those workflows as standalone specialist skills.
 
 ## Stage Source Boundary
 
 The canonical MAS stage source is the MAS domain-agent repository, specifically `agent/stages/` and `agent/prompts/`. MAS overlay Skills, local workspace or quest `.codex/skills/` copies, and synced compatibility entries are Codex projection surfaces. They can expose a stage or specialist skill to a Codex session, but they must not be treated as the source for stage routing, evidence thresholds, owner gates, route-back semantics, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
 
-Default ownership for a professional specialist skill is the consuming domain-agent repo, close to the stage prompt that calls it. A specialist skill should move to an external pack only when it is heavy, cross-workspace, or independently releasable. MAS Scholar Skills is that external pack for MAS medical writing, review, figure design, literature work, Display/source refs, and reusable source packs.
+Default ownership for a professional specialist skill is the consuming domain-agent repo, close to the stage prompt that calls it. A specialist skill should move to an external pack only when it is heavy, cross-workspace, or independently releasable. MAS Scholar Skills is that external pack for MAS medical writing, review, figure design, literature, statistics, table, submission, Display/source refs, and reusable source packs.
 
 Tool connectors are the third boundary. OPL Connect/Fabric owns tool or API invocation, normalized read receipts, connector error semantics, and resource access, such as the PubMed command used by `medical-research-lit`. A connector does not own stage policy, professional judgment, route acceptance, owner receipt, typed blocker, human gate, publication readiness, or artifact authority.
 
@@ -68,6 +70,9 @@ The MAS overlay skill and MAS stage operating prompts are the primary runtime an
 - `medical-manuscript-review` for critique, quality-floor review, and route-back.
 - `medical-figure-design` for figure and display work.
 - `medical-research-lit` for literature search strategy, source screening, and evidence maps.
+- `medical-statistical-review` for statistical assumptions, estimands, effect sizes, and action matrices.
+- `medical-table-design` for clinical table shells, table QC, and table-to-claim alignment.
+- `medical-submission-prep` for journal instructions, reporting checklists, declarations, reviewer responses, and package consistency.
 
 MAS Scholar Skills is called after that routing point as a professional-skill, discovery, and reference layer:
 
@@ -75,6 +80,7 @@ MAS Scholar Skills is called after that routing point as a professional-skill, d
 MAS agent/stages or agent/prompts stage prompt
   -> optional MAS overlay or .codex projection for Codex discovery
   -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design / medical-research-lit
+     / medical-statistical-review / medical-table-design / medical-submission-prep
   -> MAS Scholar Skills module refs, packs, templates, and quality floors
   -> optional tool connector readback, such as OPL Connect PubMed
   -> refs-only candidate package or route-back hint
@@ -108,7 +114,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The local install should contain the canonical aggregate Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for MAS discovery and review. Do not copy this whole repository, MAS render outputs, caches, single-figure exports, dependency locks, or intermediate gallery workspaces into a paper workspace or quest.
+The local install should contain the canonical aggregate Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, and `medical-submission-prep`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for MAS discovery and review. Do not copy this whole repository, MAS render outputs, caches, single-figure exports, dependency locks, or intermediate gallery workspaces into a paper workspace or quest.
 
 The legacy `--domain scholarskills` command remains a compatibility alias for existing workspaces.
 
