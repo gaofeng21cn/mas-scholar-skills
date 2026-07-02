@@ -19,6 +19,18 @@ It owns enhancement surfaces:
 
 It does not own MAS study truth, publication truth, owner receipts, typed blockers, human gates, runtime queues, provider attempts, ledgers, current-package authority, or publication readiness.
 
+## Capability Module Classification
+
+MAS Scholar Skills has ten capability-module contracts and four syncable real Codex specialist skills.
+
+| Classification | Members | Role |
+| --- | --- | --- |
+| Capability-module contracts | `display`, `tables`, `stats`, `omics`, `lit`, `write`, `review`, `submit`, `data`, `intake` | Shared module ids, vocabulary, ref families, checklists, candidate handoff, receipt shape, and owner gates. |
+| Real specialist skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit` | AI-first professional playbooks that Codex can discover and execute after OPL Connect syncs them into a workspace or quest `.codex/skills/` directory. |
+| Contract-layer modules | `tables`, `stats`, `omics`, `submit`, `data`, `intake` | Refs, checklists, candidate packages, quality floors, and owner-gate handoff until a stable active workflow justifies a real skill. |
+
+The six contract-layer modules are not unfinished skills and are not MAS-private implementations. They came from MAS medical-paper workflow needs, OPL capability registry/readback requirements, and external-learning patterns that are useful as refs/checklists. Keep them as the machine contract layer unless Codex needs to actively run a maintained specialist workflow.
+
 ## Stage Source Boundary
 
 The canonical MAS stage source is the MAS domain-agent repository, specifically `agent/stages/` and `agent/prompts/`. MAS overlay Skills, local workspace or quest `.codex/skills/` copies, and synced compatibility entries are Codex projection surfaces. They can expose a stage or specialist skill to a Codex session, but they must not be treated as the source for stage routing, evidence thresholds, owner gates, route-back semantics, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.

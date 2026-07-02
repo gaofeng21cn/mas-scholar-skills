@@ -61,6 +61,16 @@ The local install is refs-only and authority false. It may include this Skill en
 - Respect the MAS owner gate: MAS or another domain owner must consume candidate refs and issue the owner receipt, typed blocker, reviewer receipt, route-back, or domain artifact mutation. Do not write MAS, Yang, runtime DB, queue, owner receipt, typed blocker, current package authority, publication eval, controller decision, or domain truth surfaces from this skill.
 - Treat any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref exposed by MAS Scholar Skills as downstream owner-consumption refs only, not as MAS Scholar Skills acceptance, receipt signing, blocker creation, publication readiness, or current package authority.
 
+## Capability Module Classification
+
+Keep the physical shape explicit:
+
+- Ten capability-module contracts: `display`, `tables`, `stats`, `omics`, `lit`, `write`, `review`, `submit`, `data`, and `intake`.
+- Four real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit`.
+- Six contract-layer modules: `tables`, `stats`, `omics`, `submit`, `data`, and `intake`.
+
+The contract-layer modules provide vocabulary, ref families, checklist items, candidate handoff, receipt shape, quality-floor hints, and owner-gate routing. They are not half-built skills and are not MAS-private implementations. Promote one to a real Codex skill only when MAS needs Codex to actively execute a stable professional workflow.
+
 ## MAS Progress And AI Judgment Rules
 
 - Use progress-first and AI auto-judgment-first routing: AI should continue when available evidence is enough for a candidate judgment, instead of waiting for a human by default.

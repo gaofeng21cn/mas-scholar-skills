@@ -97,6 +97,50 @@
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false
   },
+  "capability_module_classification_policy": {
+    "policy_id": "mas_scholar_skills_capability_module_classification.v1",
+    "capability_module_contracts": [
+      "display",
+      "tables",
+      "stats",
+      "omics",
+      "lit",
+      "write",
+      "review",
+      "submit",
+      "data",
+      "intake"
+    ],
+    "real_syncable_specialist_skills": [
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
+      "medical-research-lit"
+    ],
+    "contract_layer_modules": [
+      "tables",
+      "stats",
+      "omics",
+      "submit",
+      "data",
+      "intake"
+    ],
+    "real_skill_backed_module_map": {
+      "display": "medical-figure-design",
+      "lit": "medical-research-lit",
+      "write": "medical-manuscript-writing",
+      "review": "medical-manuscript-review"
+    },
+    "origin_policy": "capability_modules_came_from_MAS_medical_paper_workflow_needs_OPL_capability_registry_readback_requirements_and_external_learning_ref_checklist_shapes_not_from_ten_preexisting_real_MAS_skills",
+    "contract_layer_role": "contract_layer_modules_standardize_vocabulary_ref_families_checklists_candidate_handoff_receipt_shape_quality_floor_hints_and_owner_gate_routing_without_claiming_to_be_active_specialist_skills",
+    "promotion_policy": "promote_contract_layer_module_to_real_codex_skill_only_when_Codex_must_actively_execute_a_stable_professional_workflow",
+    "codex_discovery_projection_policy": "workspace_or_quest_dot_codex_skills_sync_remains_required_for_Codex_discovery_but_synced_copies_are_runtime_projections_not_stage_or_contract_authority",
+    "can_claim_contract_layer_modules_are_real_skills": false,
+    "can_move_contract_layer_modules_back_to_MAS_private_implementation": false,
+    "can_replace_mas_stage_prompts": false,
+    "can_claim_owner_acceptance": false,
+    "can_claim_publication_readiness": false
+  },
   "runtime_environment_bridge": {
     "mode": "refs_only",
     "owner": "OPL Framework",
