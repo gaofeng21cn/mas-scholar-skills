@@ -35,6 +35,43 @@ If evidence is incomplete, contradictory, or too weak, produce one of:
 
 Do not polish fiction.
 
+## External Learning Quality Floor
+
+This skill absorbs the useful parts of Nature-style writing skills and
+K-Dense-style scientific writing skills as MAS-owned writing discipline:
+
+- write the paper argument before writing sentences;
+- maintain a terminology ledger before drafting;
+- map every paragraph to one job;
+- draft from evidence outward;
+- use full manuscript prose for final text, not bullet lists;
+- treat reporting guidelines, statistics, citations, figures, tables, and data
+  availability as writing inputs rather than after-the-fact formatting.
+
+Do not import foreign defaults that conflict with MAS. A MAS medical manuscript
+does not need a mandatory graphical abstract, a fixed Nature voice, or extra
+figures by default. It needs a defendable medical argument with claim-evidence
+traceability.
+
+## Argument And Reader Contract
+
+Before a substantial section or full draft, write a compact contract:
+
+- `one_sentence_argument_ref`: in this problem/population, we show this bounded
+  advance, using this approach, supported by these evidence refs.
+- `reader_question_ref`: which reader question the section must answer first:
+  relevance, novelty, trust, reuse, or clinical meaning.
+- `terminology_ledger_ref`: canonical terms, abbreviations, endpoint names,
+  dataset labels, model names, and statistical terms.
+- `paragraph_job_map_ref`: one job per paragraph: context, gap, approach,
+  result, comparison, implication, limitation, or route-back.
+- `claim_strength_calibration_ref`: verbs matched to evidence strength, such as
+  show, demonstrate, suggest, indicate, may, or could.
+
+If the core claim, evidence, or boundary is ambiguous, produce an alignment
+block and route back before drafting a full section. If MAS already supplied an
+equivalent stage prompt or section contract, reuse it and continue.
+
 ## Preconditions
 
 Before serious drafting, confirm or create durable refs for:
@@ -144,6 +181,17 @@ Discussion should normally cover:
 - main strengths
 - main limitations and future work
 
+For a high-impact or SCI-facing draft, also record:
+
+- novelty and audience boundary;
+- reporting guideline family, such as STROBE, CONSORT, PRISMA, TRIPOD, or
+  RECORD when relevant;
+- data availability, code availability, ethics/consent, funding, COI, and
+  author contribution placeholders;
+- figure/table narrative map showing where each display supports a text claim;
+- expected supplementary material when missingness, source heterogeneity, model
+  details, or sensitivity analyses need space.
+
 ### 3. Draft From Evidence
 
 Draft only sections the current evidence can support. Prefer direct medical
@@ -161,6 +209,11 @@ recorded/available diagnostic fields and denominators carefully. Do not promote
 selected positive fields, missingness, or source availability as prevalence,
 burden, causality, prediction, or clinical deployment unless the design and
 evidence support that claim.
+
+Write final manuscript text in full paragraphs. Use bullets only in planning
+surfaces, review ledgers, checklists, or route-back packets. In Results, lead
+with the medical question and evidence answer; use figure/table references as
+support, not as the paragraph's only logic.
 
 ### 4. Citation Integrity
 
@@ -210,6 +263,10 @@ Before calling a draft stable, run a harsh self-review:
 - Results narrative audit
 - language redline audit
 - submission-minimal audit
+- terminology consistency audit
+- paragraph-flow audit
+- data/code availability audit when the target journal expects it
+- reviewer-response readiness audit when the draft follows external comments
 
 Record major issues in `paper/reviewer_first_pass.md`,
 `paper/review/revision_log.md`, or the active review ledger. Unsupported claims

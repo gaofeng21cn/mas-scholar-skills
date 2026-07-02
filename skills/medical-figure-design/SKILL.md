@@ -37,6 +37,44 @@ display material may execute bounded searches, renders, manifest checks, or QA
 tasks. They must not decide claims, invent evidence, silently switch backend, or
 turn a local render into MAS owner authority.
 
+## External Learning Quality Floor
+
+This skill absorbs the useful parts of Nature-style figure skills and broad
+scientific-agent figure skills without importing their runtime or authority:
+
+- start from a figure contract before plotting;
+- classify the figure archetype before choosing a template;
+- prefer a strong hero panel plus supporting panels over equal-size grids when
+  the science needs hierarchy;
+- keep the selected renderer family stable after it is recorded;
+- inspect the actual exported figure at final manuscript scale;
+- produce reviewer-facing evidence refs, not just an image file.
+
+Use K-Dense-style scientific visualization skills as package/tool references
+and Nature-style figure skills as workflow references. Do not copy their
+mandatory graphical-abstract or "generate many figures" defaults into MAS.
+Medical figures must earn their place through claim and evidence.
+
+## Figure Contract
+
+Before writing plotting code, produce or refresh a compact contract:
+
+- `core_conclusion_ref`: the one-sentence claim the figure must defend.
+- `evidence_chain_ref`: data, cohort, statistic, model, table, or prior result
+  refs for every panel.
+- `figure_archetype`: `quantitative_grid`, `schematic_led_composite`,
+  `image_plate_plus_quant`, `asymmetric_mixed_modality`, or
+  `clinical_evidence_summary`.
+- `renderer_decision_ref`: chosen renderer family, why it fits, and why
+  alternatives were not used.
+- `journal_export_contract_ref`: target size, editable text requirement,
+  export formats, source-data expectation, and image-integrity notes.
+
+If the contract cannot name the core conclusion and evidence chain, route back
+before drawing. If MAS or the user has not fixed a backend, recommend one from
+the paper-local contract and record the reason; once recorded, keep it exclusive
+for rendering, preview, export, and visual QA.
+
 ## MAS Authority Boundary
 
 Use MAS owner surfaces before declaring a figure accepted:
@@ -118,6 +156,12 @@ Plan panels as scientific units. For every panel, name:
 Keep in-figure text limited to panel labels, axis labels, legend labels,
 necessary statistical annotations, and minimal cohort/group notes.
 
+For each panel, add a `panel_job`: discovery, mechanism, validation,
+comparison, robustness, clinical relevance, source flow, or limitation. Drop
+panels that do not carry a distinct job. For a multi-panel figure, choose the
+hero panel first and make the remaining panels support or qualify that hero
+claim.
+
 ### 4. Template And Backend Selection
 
 Choose the figure grammar only after intent and refs are clear.
@@ -147,6 +191,26 @@ Record the selected grammar in a figure manifest before polishing:
 - QA checks
 - owner-gate status
 
+### 4b. Reference-Guided Candidate Loop
+
+When a figure is important enough for a manuscript main figure, use an
+AI-first candidate loop:
+
+1. `style_brief_ref`: summarize the intended reader, journal class, figure
+   archetype, visual hierarchy, allowed palette, and forbidden claim drift.
+2. `reference_selection_ref`: cite visual references or local gallery refs as
+   style targets only. They are not data truth or template authority.
+3. `candidate_set_ref`: create one to three candidate plans or renders when the
+   design space is open.
+4. `critic_review_ref`: judge the candidates against evidence, readability,
+   reviewer risk, color accessibility, and export constraints.
+5. `selected_candidate_ref`: record the selected route and the concrete fixes
+   still required before owner review.
+
+For a small repair, one candidate is enough. For a new main figure, skipping the
+brief/reference/candidate/critic loop is allowed only when MAS has already
+provided an equivalent figure contract.
+
 ### 5. Draft Render
 
 Render the first draft through a deterministic script or MAS display command
@@ -174,6 +238,10 @@ Check:
 - text size after likely manuscript scaling
 - overlap, truncation, clipped legends, duplicate titles, and prose cards
 - whether every visible claim is supported by evidence refs
+- grayscale and color-vision robustness for categorical encodings
+- figure legend consistency with visible variables, units, sample sizes, and
+  statistical annotations
+- source-data and code traceability for every evidence panel
 
 Every failed check must be fixed, downgraded to a named caveat, routed back to
 the correct owner, or carried as a human gate.
@@ -203,8 +271,9 @@ Before handoff, produce a compact reviewer packet:
 - figure intent and supported claim
 - evidence refs and data/statistic refs
 - panel plan
+- figure contract, style brief, and renderer decision refs
 - selected template/backend and why it fits
-- draft/final export refs
+- candidate set and selected draft/final export refs
 - visual QA findings and fixes
 - remaining caveats, blockers, or human decisions
 - next MAS route

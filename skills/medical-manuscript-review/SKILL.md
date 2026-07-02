@@ -84,6 +84,47 @@ When open-ended judgment adds a concern, bind it to evidence refs, citation
 refs, affected text/display locations, route decision, typed blocker target, or
 human gate target.
 
+## External Learning Quality Floor
+
+This skill absorbs useful reviewer patterns from Nature-style reviewer skills
+and K-Dense-style peer-review skills:
+
+- extract a shared manuscript fact base before judging;
+- evaluate significance, originality, technical soundness, readability, and
+  audience fit separately;
+- simulate multiple reviewer emphases when that helps identify hidden risk;
+- consolidate findings into a cross-review synthesis instead of averaging them
+  away;
+- tie every major concern to a route-back action and owner surface.
+
+Use these patterns as stricter review discipline, not as a foreign journal
+verdict. The skill may say a Nature-style case is weak, but it cannot claim an
+editorial decision or publication readiness.
+
+## Fact Base And Reviewer Lanes
+
+Before scoring or writing findings, build `review_fact_base_ref` with:
+
+- manuscript type and submission posture;
+- central claim and bounded contribution;
+- evidence shown and evidence missing;
+- claimed clinical or scientific significance;
+- likely interested readership;
+- visible technical gaps;
+- citation, figure, table, and methods surfaces under review.
+
+For important manuscripts, include three reviewer lanes:
+
+- `technical_reviewer_lane`: methods, statistics, reproducibility, data
+  availability, and figure/table support.
+- `significance_reviewer_lane`: novelty, clinical meaning, prior-work
+  distinction, and overclaim risk.
+- `reader_reviewer_lane`: title/abstract clarity, nonspecialist readability,
+  narrative flow, terminology, and journal/audience fit.
+
+Then write `cross_review_synthesis_ref` that names consensus blockers,
+divergent emphases, and the narrowest next route.
+
 ## Knowledge Obligations
 
 Before reviewing, recover and name:
@@ -204,6 +245,9 @@ Write findings as an action matrix. Each row should include:
 - disposition
 - readiness label blocked: `draft-ready`, `paper-ready`, or `submission-ready`
 - owner surface that must record closure
+- reviewer lane: `technical`, `significance`, `reader`, `citation`,
+  `display`, or `submission`
+- required evidence to close, not just suggested wording
 
 The matrix should be specific enough for another executor to continue without
 transient chat.
