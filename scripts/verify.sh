@@ -77,6 +77,7 @@ readme = read_text("README.md")
 readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
+capability_modules = read_text("docs/capability-modules.md")
 if "cold_store_catalog_ref" in contract_text:
     fail("contract must use lifecycle_catalog_ref instead of cold_store_catalog_ref")
 if "cold_store_catalog_declared" in contract_text:
@@ -89,7 +90,11 @@ expected_positioning = {
     "repository_id": "mas-scholar-skills",
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
     "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
+    "canonical_mas_stage_source_policy": "MAS_domain_agent_repo_agent_stages_and_agent_prompts_are_the_canonical_stage_prompt_source",
+    "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
     "no_parallel_entry_policy": "do_not_create_parallel_stage_authority_entries_in_mas_scholar_skills",
+    "professional_skill_location_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo; heavy_cross_workspace_or_independently_released_skills_may_be_externalized_to_pack_repos_such_as_mas_scholar_skills",
+    "tool_connector_policy": "OPL_Connect_or_Fabric_owns_tool_invocation_normalized_read_receipts_and_connector_errors_not_stage_policy_specialist_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
     "sync_owner": "OPL Connect",
     "required_or_default_pack_owner": "MAS_profile_or_overlay",
     "ledger_and_owner_receipt_owner": "MAS_or_relevant_OPL_domain_owner",
@@ -97,6 +102,11 @@ expected_positioning = {
 for key, expected in expected_positioning.items():
     if positioning_policy.get(key) != expected:
         fail(f"positioning policy {key} must be {expected}")
+require_all(
+    "positioning default boundary defense",
+    positioning_policy.get("default_boundary_defense"),
+    ["stage_prompt", "professional_specialist_skill", "tool_connector"],
+)
 require_all(
     "positioning policy provided surfaces",
     positioning_policy.get("provided_surfaces"),
@@ -135,6 +145,26 @@ require_all(
     "external resource specialist skills",
     specialist_skill_policy.get("external_resource_specialist_skills"),
     ["medical-research-lit"],
+)
+require_all(
+    "canonical MAS stage source roots",
+    specialist_skill_policy.get("canonical_mas_stage_source_roots"),
+    ["agent/stages/", "agent/prompts/"],
+)
+expected_specialist_boundary = {
+    "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
+    "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
+    "default_skill_home_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo_next_to_stage_prompts",
+    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_Display_and_source_refs",
+    "tool_connector_boundary_policy": "tool_connectors_own_tool_or_API_invocation_normalized_read_receipts_and_resource_errors_not_stage_policy_professional_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
+}
+for key, expected in expected_specialist_boundary.items():
+    if specialist_skill_policy.get(key) != expected:
+        fail(f"specialist skill policy {key} must be {expected}")
+require_all(
+    "specialist default boundary defense",
+    specialist_skill_policy.get("default_boundary_defense"),
+    ["stage_prompt", "professional_specialist_skill", "tool_connector"],
 )
 if "mas_owned_primary_skills" in specialist_skill_policy:
     fail("specialist skill policy must not keep legacy mas_owned_primary_skills wording")
@@ -198,6 +228,21 @@ for forbidden in [
 ]:
     if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
         fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
+for relative, text in [
+    ("README.md", readme),
+    ("README.zh-CN.md", readme_zh),
+    ("docs/mas-scholar-skills-operating-model.md", operating_model),
+    ("docs/capability-modules.md", capability_modules),
+]:
+    for token in [
+        "agent/stages/",
+        "agent/prompts/",
+        ".codex/skills/",
+        "professional specialist",
+        "Tool connector",
+    ]:
+        if token.lower() not in text.lower():
+            fail(f"{relative} missing stage/professional/tool boundary token: {token}")
 for relative, text in [
     ("README.md", readme),
     ("README.zh-CN.md", readme_zh),

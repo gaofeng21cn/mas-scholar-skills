@@ -14,7 +14,16 @@
     ],
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
     "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
+    "canonical_mas_stage_source_policy": "MAS_domain_agent_repo_agent_stages_and_agent_prompts_are_the_canonical_stage_prompt_source",
+    "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
     "no_parallel_entry_policy": "do_not_create_parallel_stage_authority_entries_in_mas_scholar_skills",
+    "professional_skill_location_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo; heavy_cross_workspace_or_independently_released_skills_may_be_externalized_to_pack_repos_such_as_mas_scholar_skills",
+    "default_boundary_defense": [
+      "stage_prompt",
+      "professional_specialist_skill",
+      "tool_connector"
+    ],
+    "tool_connector_policy": "OPL_Connect_or_Fabric_owns_tool_invocation_normalized_read_receipts_and_connector_errors_not_stage_policy_specialist_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
     "provided_surfaces": [
       "real_codex_skills",
       "medical_paper_professional_specialist_skills",
@@ -60,7 +69,20 @@
     "external_resource_specialist_skills": [
       "medical-research-lit"
     ],
+    "canonical_mas_stage_source_roots": [
+      "agent/stages/",
+      "agent/prompts/"
+    ],
     "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
+    "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
+    "default_skill_home_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo_next_to_stage_prompts",
+    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_Display_and_source_refs",
+    "tool_connector_boundary_policy": "tool_connectors_own_tool_or_API_invocation_normalized_read_receipts_and_resource_errors_not_stage_policy_professional_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
+    "default_boundary_defense": [
+      "stage_prompt",
+      "professional_specialist_skill",
+      "tool_connector"
+    ],
     "connect_sync_policy": "OPL_Connect_installs_canonical_aggregate_skill_and_syncable_real_skills_into_workspace_or_quest_local_codex_discovery_paths",
     "legacy_alias_policy": "opl_scholarskills_is_compatibility_entry_only_not_second_truth_source",
     "mas_consumes_specialist_skills": true,

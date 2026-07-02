@@ -24,7 +24,7 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
 
 `MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as a compatibility alias. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, and the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit`.
 
-The MAS stage operating prompts stay in MAS. `write`, `review`, `figure`, `scout`, and related stages decide when the stage is valid, what evidence is enough, where the output goes next, what routes back, and what needs an owner gate. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit` are professional skills for doing the assigned writing, review, figure, and literature work well.
+The MAS stage operating prompts stay in the MAS domain-agent repository. The canonical stage sources are MAS `agent/stages/` and `agent/prompts/`; MAS overlay Skills and workspace or quest `.codex/skills/` copies are Codex discovery projections and compatibility surfaces, not the source of stage authority. `write`, `review`, `figure`, `scout`, and related stages decide when the stage is valid, what evidence is enough, where the output goes next, what routes back, and what needs an owner gate. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit` are professional skills for doing the assigned writing, review, figure, and literature work well.
 
 In practical terms, MAS Scholar Skills says what each capability can help with, what material it needs, what candidate handoff it can prepare, and who must review the result. The domain owner still owns study truth, artifact authority, quality judgment, acceptance, and publication decisions.
 
@@ -60,6 +60,7 @@ MAS Scholar Skills turns the reusable support material into capability modules a
 - MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, data, or intake support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
 - `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, and `medical-research-lit` are real Codex skills in this repo; they are not only module descriptors.
+- By default, a professional specialist skill belongs in the consuming domain-agent repo next to the stage prompts. MAS Scholar Skills is the external pack exception for MAS writing, review, figure, literature, Display, and source refs because these surfaces are reusable across workspaces and independently syncable.
 - Candidate outputs can move into human or domain-agent review, but they do not become paper truth by themselves.
 - The same skill pack can be synced into different MAS workspaces or quests without copying a second source of truth.
 
@@ -89,6 +90,14 @@ These modules are not ten separate products and they are not default entries par
 External projects such as ARS, PaperOrchestra, Research-Paper-Writing-Skills, Paperlib, SciPilot Figure, NaturePanelForge, Marsilea, and curated figure/resource lists inform MAS Scholar Skills as refs-only module fit. The lessons land as stronger candidate refs and checklists for Display, Tables, Stats, Omics, Lit, Write, Review, Submit, Data, and Intake.
 
 These additions improve progress without forcing agents to install external runtimes first. They add reviewable candidate surfaces such as visual QA previews, citation verification, claim-evidence maps, submission sanity refs, source lineage, and intake provenance; they do not bypass MAS or another domain owner gate.
+
+## Default Boundary Defense
+
+Every new or disputed MAS Scholar Skills surface should be defended in three parts:
+
+1. **Stage prompt**: MAS `agent/stages/` and `agent/prompts/` own stage entry, routing, evidence thresholds, owner gates, route-back, owner receipt, typed blocker, human gate, publication readiness, and artifact authority.
+2. **Professional skill**: the domain repo owns it by default; MAS Scholar Skills owns only the reusable external-pack specialists `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, and Display/source refs. These skills can prepare candidate refs and specialist work products, but they cannot accept them.
+3. **Tool connector**: OPL Connect/Fabric or another connector owns tool/API invocation, normalized read receipts, and resource errors. A connector does not own stage policy, specialist judgment, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
 
 ## Quick Use
 

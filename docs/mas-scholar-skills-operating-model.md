@@ -19,20 +19,31 @@ It owns enhancement surfaces:
 
 It does not own MAS study truth, publication truth, owner receipts, typed blockers, human gates, runtime queues, provider attempts, ledgers, current-package authority, or publication readiness.
 
+## Stage Source Boundary
+
+The canonical MAS stage source is the MAS domain-agent repository, specifically `agent/stages/` and `agent/prompts/`. MAS overlay Skills, local workspace or quest `.codex/skills/` copies, and synced compatibility entries are Codex projection surfaces. They can expose a stage or specialist skill to a Codex session, but they must not be treated as the source for stage routing, evidence thresholds, owner gates, route-back semantics, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
+
+Default ownership for a professional specialist skill is the consuming domain-agent repo, close to the stage prompt that calls it. A specialist skill should move to an external pack only when it is heavy, cross-workspace, or independently releasable. MAS Scholar Skills is that external pack for MAS medical writing, review, figure design, literature work, Display/source refs, and reusable source packs.
+
+Tool connectors are the third boundary. OPL Connect/Fabric owns tool or API invocation, normalized read receipts, connector error semantics, and resource access, such as the PubMed command used by `medical-research-lit`. A connector does not own stage policy, professional judgment, route acceptance, owner receipt, typed blocker, human gate, publication readiness, or artifact authority.
+
 ## MAS Skill Call Path
 
-The MAS overlay skill and MAS stage operating prompts are the primary runtime and stage entries. They decide stage validity, evidence thresholds, route-back, owner gates, and acceptance. High-frequency paper work should then use MAS-consumed professional skills maintained in this repository:
+The MAS overlay skill and MAS stage operating prompts are the primary runtime and stage entries, with source edits made in MAS `agent/stages/` and `agent/prompts/`. They decide stage validity, evidence thresholds, route-back, owner gates, and acceptance. High-frequency paper work should then use MAS-consumed professional skills maintained in this repository:
 
 - `medical-manuscript-writing` for manuscript writing and revision.
 - `medical-manuscript-review` for critique, quality-floor review, and route-back.
 - `medical-figure-design` for figure and display work.
+- `medical-research-lit` for literature search strategy, source screening, and evidence maps.
 
 MAS Scholar Skills is called after that routing point as a professional-skill, discovery, and reference layer:
 
 ```text
-MAS overlay or stage operating prompt
-  -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design
+MAS agent/stages or agent/prompts stage prompt
+  -> optional MAS overlay or .codex projection for Codex discovery
+  -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design / medical-research-lit
   -> MAS Scholar Skills module refs, packs, templates, and quality floors
+  -> optional tool connector readback, such as OPL Connect PubMed
   -> refs-only candidate package or route-back hint
   -> MAS owner gate consume / reject / route back
 ```

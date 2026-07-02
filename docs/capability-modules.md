@@ -43,9 +43,15 @@ MAS Scholar Skills 正式承接全部十个模块的 MAS 增强材料 source / c
 
 ## MAS 默认入口与技能正文边界
 
-MAS overlay skill 是医学论文工作的 runtime 主入口，MAS stage operating prompts 负责阶段进入、证据门槛、路由、owner gate 和采纳边界。写作、审阅和图件三类高频专业执行默认走 `medical-manuscript-writing`、`medical-manuscript-review` 和 `medical-figure-design`；这些专业 skill 由本仓维护并同步给 MAS 消费。MAS 继续持有 study truth、artifact authority、owner receipt、typed blocker、human gate、current package 和 publication readiness。本仓不规划 `opl-scholar-write`、`opl-scholar-review` 或 `opl-scholar-display` 作为与这些 skill 并列的默认入口。
+MAS overlay skill 是医学论文工作的 runtime 主入口，MAS stage operating prompts 负责阶段进入、证据门槛、路由、owner gate 和采纳边界。MAS stage 主提示词的 canonical source 是 MAS domain-agent 仓的 `agent/stages/` 和 `agent/prompts/`；overlay Skill、workspace/quest `.codex/skills/` 同步副本只是 Codex 投影或兼容入口，不是 stage authority source。写作、审阅、图件和文献四类高频专业执行默认走 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design` 和 `medical-research-lit`；这些专业 skill 由本仓维护并同步给 MAS 消费。MAS 继续持有 study truth、artifact authority、owner receipt、typed blocker、human gate、current package 和 publication readiness。本仓不规划 `opl-scholar-write`、`opl-scholar-review` 或 `opl-scholar-display` 作为与这些 skill 并列的默认入口。
 
-当这些 skill 需要能力增强时，可以读取同仓的模块说明、source pack、quality floor、template、candidate refs 或 route-back hints。如果写作、审阅或图件的专业执行质量不足，修复方向是更新本仓对应 `medical-manuscript-writing`、`medical-manuscript-review` 或 `medical-figure-design`；如果问题出在阶段判定、证据门槛、route-back、owner gate 或采纳边界，修复方向是 MAS 的 stage operating prompt。
+当这些 skill 需要能力增强时，可以读取同仓的模块说明、source pack、quality floor、template、candidate refs 或 route-back hints。如果写作、审阅、图件或文献专业执行质量不足，修复方向是更新本仓对应 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design` 或 `medical-research-lit`；如果问题出在阶段判定、证据门槛、route-back、owner gate 或采纳边界，修复方向是 MAS 的 stage operating prompt。
+
+默认 defense 分三段：
+
+- **Stage prompt**：归 MAS `agent/stages/` 与 `agent/prompts/`，负责 stage policy、路由、证据门槛、owner gate、route-back、owner receipt、typed blocker、human gate、publication readiness 和 artifact authority。
+- **Professional specialist skill**：默认放在消费它的 domain-agent 仓；只有重型、跨 workspace、或需要独立发布/同步时，才拆到外部 pack。本仓是 MAS 写作、审阅、图件、文献、Display/source refs 和 source packs 的外部 pack 单源。
+- **Tool connector**：归 OPL Connect/Fabric 或具体 connector，负责工具/API 调用、标准化只读回执和资源错误；不负责 stage policy、专业判断、owner receipt、typed blocker、human gate、publication readiness 或 artifact authority。
 
 ## Runtime Env 关系
 
