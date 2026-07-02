@@ -53,8 +53,8 @@ def require_review_policy(container: dict, label: str) -> None:
         fail(f"{label} missing ScholarSkills gallery refs-only policy")
     if policy.get("import_role") != "pack_native_human_review_ref_and_source_snapshot":
         fail(f"{label} must be a pack-native human review snapshot")
-    if policy.get("source_repo") != "opl-scholarskills":
-        fail(f"{label} source_repo must be opl-scholarskills")
+    if policy.get("source_repo") != "mas-scholar-skills":
+        fail(f"{label} source_repo must be mas-scholar-skills")
     if policy.get("source_authority") != "opl_scholarskills_display_pack_review_surface":
         fail(f"{label} source_authority must be the ScholarSkills display review surface")
     if not str(policy.get("source_snapshot_ref") or "").startswith("repo-local:gallery/medical-display/"):

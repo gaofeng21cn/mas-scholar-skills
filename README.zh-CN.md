@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/branding/opl-scholarskills-logo.png" alt="OPL ScholarSkills 标志" width="132" />
+  <img src="assets/branding/mas-scholar-skills-logo.png" alt="MAS Scholar Skills 标志" width="132" />
 </p>
 
 <p align="center">
@@ -12,25 +12,27 @@
 <p align="center">图示设计 · 表格整理 · 统计判断 · 组学线索 · 文献证据 · 写作修订 · 审阅把关 · 投稿准备 · 数据脉络 · 材料接入</p>
 
 <!--
-Owner: `opl-scholarskills`
+Owner: `mas-scholar-skills`
 Purpose: `public_repository_entry_zh`
 State: `public_entry`
-Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.json`、`skills/opl-scholarskills/SKILL.md`、`contracts/scholar-skills-capability-modules.json`、gallery manifest/fingerprint、OPL Framework CLI readback 与消费方 domain owner receipt 为准。
+Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.json`、`skills/mas-scholar-skills/SKILL.md`、`skills/medical-research-lit/SKILL.md`、`contracts/scholar-skills-capability-modules.json`、gallery manifest/fingerprint、OPL Framework CLI readback 与消费方 domain owner receipt 为准。
 -->
 
 <p align="center">
-  <img src="assets/branding/opl-scholarskills-overview.png" alt="OPL ScholarSkills 学术能力流转示意图" width="100%" />
+  <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills 学术能力流转示意图" width="100%" />
 </p>
 
-`MAS Scholar Skills` 是 `opl-scholarskills` 仓当前产品阶段的定位：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。本仓是 ScholarSkills refs、packs、quality floors、模板、外部学习吸收和模块 contract 的单源；它不是通用 OPL runtime 基座，不是 MAS overlay owner skill，不是新的论文系统，也不替 MAS 或其他领域智能体写入最终 truth。
+`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为兼容别名。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同和外置专家入口的单源，其中 `medical-research-lit` 已作为真正 Codex Skill 提供文献检索流程。
 
-MAS 的默认入口仍是 MAS overlay skill。高频写作、审阅和图件问题应从 MAS `medical-research-write`、`medical-research-review`、`medical-research-figure` 进入；ScholarSkills 提供这些 MAS 技能可发现、可消费的增强材料：模块 descriptor、candidate refs、display pack、quality floor、检查清单和 route-back hints。
+MAS 的默认入口仍是 MAS overlay skill。高频写作、审阅和图件问题从 MAS `medical-research-write`、`medical-research-review`、`medical-research-figure` 进入；MAS Scholar Skills 提供这些 MAS 技能可发现、可消费的增强材料：模块描述、候选引用、图示资料包、质量下限、检查清单和回流提示。
 
-简单说：ScholarSkills 负责把“可以帮忙做什么、需要什么材料、会交出什么候选结果、最后由谁确认”讲清楚。最终论文真相、成果采纳、质量判断和投稿决策仍然回到对应的领域负责人或智能体。
+简单说：MAS Scholar Skills 负责把“可以帮忙做什么、需要什么材料、会交出什么候选结果、最后由谁确认”讲清楚。最终论文真相、成果采纳、质量判断和投稿决策仍然回到对应的领域负责人或智能体。
 
 运行原则是 progress-first 和 AI auto-judgment-first。MAS 不是“AI 只执行、人类才判断”：只要现有证据足够形成候选判断，AI 就应继续给出 AI-consumable evidence、`verdict_candidate`、`route_back_candidate` 和 stop/continue recommendations。只有下一步会越权写入 domain truth、publication readiness、owner receipt、typed blocker，或遇到真实 human gate，才交回 domain owner 或人类。
 
-Display 只是其中一个模块。ScholarSkills 同时也是 Lit、Tables、Stats、Submit、Write、Review、Omics、Data 和 Intake 这些非 Display 通用学术能力的 source、contract 和 docs 所在地。所有模块共用 refs-only handoff 骨架：`source_pack_ref`、`candidate_package_ref`、`execution_receipt_ref` 和 `owner_gate_handoff_ref`。这些 ref 只描述候选材料和下一跳 owner gate，不创建 runtime authority 或 owner acceptance。
+Display 只是其中一个模块。MAS Scholar Skills 同时也是 Lit、Tables、Stats、Submit、Write、Review、Omics、Data 和 Intake 这些非 Display 学术能力的来源、合同和文档所在地。所有模块共用 refs-only handoff 骨架：`source_pack_ref`、`candidate_package_ref`、`execution_receipt_ref` 和 `owner_gate_handoff_ref`。这些 ref 只描述候选材料和下一跳 owner gate，不创建运行权威或采纳权威。
+
+文献工作现在使用稳定的 OPL Connect PubMed 路径：`medical-research-lit` 负责检索策略、来源筛选、证据地图和 MAS 回流交接；`opl connect pubmed search --query <query> --limit <n> --json` 负责只读 PubMed 访问，并返回 `pubmed_source_refs` 与 `pubmed_connector_invocation_ref`。
 
 <table>
   <tr>
@@ -40,7 +42,7 @@ Display 只是其中一个模块。ScholarSkills 同时也是 Lit、Tables、Sta
     </td>
     <td width="33%" valign="top">
       <strong>解决问题</strong><br/>
-      把 ScholarSkills refs、packs、quality floors、外部学习模式和模块 contract 收成一个单源
+      把 MAS Scholar Skills 引用、资料包、质量下限、外部学习模式和模块合同收成一个单源
     </td>
     <td width="33%" valign="top">
       <strong>交付形态</strong><br/>
@@ -49,20 +51,21 @@ Display 只是其中一个模块。ScholarSkills 同时也是 Lit、Tables、Sta
   </tr>
 </table>
 
-## 为什么需要 ScholarSkills
+## 为什么需要 MAS Scholar Skills
 
 学术工作不是一次生成就结束。一个课题通常会反复经历材料接入、数据理解、统计检查、图表设计、文献组织、文字修订、内部审阅和投稿准备。每一步都需要专业判断，但这些判断又不应该散落成临时提示词。
 
-MAS Scholar Skills 的设计目标是把这些可复用支持材料变成“能力模块”：
+MAS Scholar Skills 的设计目标是把这些可复用支持材料变成“能力模块”和可同步专家 Skill：
 
 - MAS overlay 和 MAS medical-research skills 可以按同一套语言请求图表、表格、统计、文献或写作支持。
 - 每个模块都说明适合处理什么材料、会产出什么候选结果、需要哪些审阅。
+- `medical-research-lit` 是真正的文献检索 Codex Skill，负责 PubMed 取证、检索式、纳排记录、证据地图和 MAS 回流交接。
 - 候选结果可以进入后续人工或领域智能体审阅，但不能自动升级为论文事实。
 - 同一个能力包可以同步到不同 MAS 工作区或 quest，而不复制第二套 source of truth。
 
 这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。
 
-ScholarSkills 提到的 `owner_receipt_ref`、`typed_blocker_ref`、`reviewer_receipt_ref`、`route_back_evidence_ref` 或 current-package ref 只是下游 owner-consumption 目标；它们不表示 ScholarSkills 已采纳、已签回执、已创建 blocker，也不授权 publication/current-package readiness。
+MAS Scholar Skills 提到的 `owner_receipt_ref`、`typed_blocker_ref`、`reviewer_receipt_ref`、`route_back_evidence_ref` 或 current-package ref 只是下游 owner-consumption 目标；它们不表示 MAS Scholar Skills 已采纳、已签回执、已创建 blocker，也不授权 publication/current-package readiness。
 
 ## 十个能力模块
 
@@ -83,7 +86,7 @@ ScholarSkills 提到的 `owner_receipt_ref`、`typed_blocker_ref`、`reviewer_re
 
 ## 外部学习模块映射
 
-ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figure、NaturePanelForge、Marsilea 以及科研图示/资源清单里的可迁移做法，只进入 ScholarSkills 的 refs-only 模块映射。落点是十个模块更强的候选引用和检查清单，而不是引入第二套外部 runtime 或 truth source。
+ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figure、NaturePanelForge、Marsilea 以及科研图示/资源清单里的可迁移做法，只进入 MAS Scholar Skills 的 refs-only 模块映射。落点是十个模块更强的候选引用和检查清单，而不是引入第二套外部 runtime 或 truth source。
 
 这些优化优先进度：智能体不需要先安装外部 runtime 才能继续推进。它们增加的是可审阅候选面，例如视觉 QA 预览、引用核查、claim-evidence map、投稿 sanity refs、数据 lineage 和 intake provenance；不能绕过 MAS 或其他领域负责人的 owner gate。
 
@@ -91,8 +94,8 @@ ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figur
 
 你可以直接这样让 Codex 或 OPL 智能体调用它：
 
-- “在 MAS overlay 里以 `medical-research-figure` 为主入口，拉取 ScholarSkills Display refs 形成图件候选包；不要声明 publication readiness。”
-- “让 MAS medical-research skills 使用 ScholarSkills Display、Tables、Stats refs，列出下一步最该补的候选材料。”
+- “在 MAS overlay 里以 `medical-research-figure` 为主入口，拉取 MAS Scholar Skills Display refs 形成图件候选包；不要声明 publication readiness。”
+- “让 MAS medical-research skills 使用 MAS Scholar Skills Display、Tables、Stats refs，列出下一步最该补的候选材料。”
 - “把当前文献证据、写作缺口和投稿准备事项整理成 refs-only MAS 交接清单。”
 
 ## 当前包含的审阅样例
@@ -110,12 +113,12 @@ ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figur
 
 ## 当前边界
 
-- `MAS Scholar Skills` 是 OPL-owned `opl-scholarskills` 增强包在当前产品阶段的名称，不是通用 OPL 基座，也不是 MAS/MAG/RCA 的领域真相源。
-- 本仓维护可分发的 Codex 插件和技能入口、十个能力模块目录、图库人审包和说明文档。
+- `MAS Scholar Skills` 是本仓和增强包的正式名称，不是通用 OPL 基座，也不是 MAS/MAG/RCA 的领域真相源。
+- 本仓维护可分发的 Codex 插件和技能入口、文献专家 Skill、十个能力模块目录、图库人审包和说明文档。
 - OPL Framework 维护可执行命令、同步、运行环境桥接、Connect/Fabric 资源能力和工作台动作。
 - MAS overlay 以及 MAS `medical-research-write` / `medical-research-review` / `medical-research-figure` 仍是高频医学论文任务的默认技能入口。
 - MAS 等领域智能体继续维护研究事实、论文事实、产物权威、质量裁决、负责人回执、人工门、ledger 和 current package authority。
-- ScholarSkills 的输出只能作为候选引用、候选包或审阅提示；不能单独声明运行就绪、领域就绪、质量裁决、产物权威、负责人已接受、可发表或发表就绪（publication readiness）。
+- MAS Scholar Skills 的输出只能作为候选引用、候选包或审阅提示；不能单独声明运行就绪、领域就绪、质量裁决、产物权威、负责人已接受、可发表或发表就绪（publication readiness）。
 
 <details>
   <summary><strong>给技术操作者看的入口</strong></summary>
@@ -124,7 +127,9 @@ ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figur
 
 ```text
 .codex-plugin/plugin.json              Codex plugin manifest
-skills/opl-scholarskills/SKILL.md      Codex skill entry
+skills/mas-scholar-skills/SKILL.md     canonical Codex skill entry
+skills/medical-research-lit/SKILL.md   文献检索专家 Skill
+skills/opl-scholarskills/SKILL.md      legacy alias
 contracts/                             module catalog snapshot
 gallery/medical-display/               紧凑人审 gallery package
 docs/                                  capability 与运维说明
@@ -136,15 +141,17 @@ scripts/verify.sh                      仓库验证入口
 推荐消费面是论文工作区或运行任务内的本地 Codex 发现副本：
 
 ```text
-<workspace_root>/.codex/skills/opl-scholarskills/
-<quest_root>/.codex/skills/opl-scholarskills/
+<workspace_root>/.codex/skills/mas-scholar-skills/
+<workspace_root>/.codex/skills/medical-research-lit/
+<quest_root>/.codex/skills/mas-scholar-skills/
+<quest_root>/.codex/skills/medical-research-lit/
 ```
 
 使用当前 OPL Framework checkout 的 Connect：
 
 ```bash
-opl connect sync-skills --domain scholarskills --scope workspace --target-workspace <workspace_root> --json
-opl connect sync-skills --domain scholarskills --scope quest --target-quest <quest_root> --json
+opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-workspace <workspace_root> --json
+opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
 目标目录只应收到技能入口、插件/模块引用与紧凑图库审阅引用。不要把本仓整仓、MAS `outputs/display-pack-gallery/`、渲染缓存、单图导出、依赖锁或图库中间产物复制进每个论文工作区或任务目录。
@@ -155,10 +162,10 @@ opl connect sync-skills --domain scholarskills --scope quest --target-quest <que
 opl scholar-skills list --json
 opl scholar-skills inspect --module opl.scholarskills.display --json
 opl scholar-skills materialize --module opl.scholarskills.display --input-ref <ref> --artifact-root <ref-or-path> --output-root <path> --json
-opl connect sync-skills --domain scholarskills --scope codex --json
+opl connect sync-skills --domain mas-scholar-skills --scope codex --json
 ```
 
-单独克隆本仓不会安装 OPL Framework 的可执行面。需要命令行执行时，应准备当前 `one-person-lab` 检出仓库或发布包。
+单独克隆本仓不会安装 OPL Framework 的可执行面。需要命令行执行时，应准备当前 `one-person-lab` 检出仓库或发布包。历史 `--domain scholarskills` 仍作为兼容入口保留。
 
 </details>
 

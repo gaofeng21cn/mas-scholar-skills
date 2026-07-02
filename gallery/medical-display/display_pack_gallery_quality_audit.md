@@ -1,6 +1,6 @@
-# ScholarSkills 医学论文配图 Gallery 质量审计
+# MAS Scholar Skills 医学论文配图 Gallery 质量审计
 
-Owner: `OPL ScholarSkills Display`
+Owner: `MAS Scholar Skills Display`
 Purpose: `human_readable_quality_audit_for_display_pack_gallery`
 State: `active_support`
 Machine boundary: 人读质量审计。机器真相归 Gallery manifest、Gallery snapshot、template descriptor、renderer source 和 repo-native verification；真实论文 artifact、visual audit receipt、owner receipt、typed blocker 和 publication gate 仍归 MAS / consuming domain owner。

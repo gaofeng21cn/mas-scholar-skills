@@ -1,13 +1,13 @@
-# OPL ScholarSkills Candidate Artifact Engines
+# MAS Scholar Skills Candidate Artifact Engines
 
 Owner: `One Person Lab`
-Purpose: 说明 `OPL ScholarSkills` 十模块非权威 candidate artifact body 生成器的 CLI 入口、输出边界和 authority guard。
+Purpose: 说明 `MAS Scholar Skills` 十模块非权威 candidate artifact body 生成器的 CLI 入口、输出边界和 authority guard。
 State: `active_executable_candidate_artifact_engine_surface`
 Machine boundary: 本文是人读导航。机器真相以 `src/scholar-skills.ts`、`src/scholar-skills-parts/artifact-engines.ts`、`src/cli/cases/public-command-specs-parts/scholar-skills.ts`、`tests/src/cli/cases/scholar-skills-artifact-engines.test.ts` 与 `opl scholar-skills materialize --json` readback 为准。
 
 ## 品牌模块边界
 
-本能力属于 MAS Scholar Skills，也就是 OPL-owned `opl-scholarskills` 外置增强包；它不新增第十一个 OPL 品牌模块，也不是 MAS owner skill。
+本能力属于 MAS Scholar Skills，也就是 OPL-owned `mas-scholar-skills` 外置增强包；历史 `opl-scholarskills` 只作为 legacy alias 和 provenance。它不新增第十一个 OPL 品牌模块，也不是 MAS owner skill。
 
 - 主模块：`Pack` 承载 candidate package、manifest、body paths 和 sha256。
 - 协同模块：`Atlas` 发现 module descriptor，`Runway` 承载 invocation / execution receipt candidate 形状，`Vault` 承载 refs、lineage 和 evidence refs，`Console` 读取 CLI JSON readback。
@@ -44,7 +44,7 @@ opl scholar-skills materialize --module <module_id> --input-ref <ref> --artifact
 
 Candidate body 应优先服务 MAS 的 AI 自动候选判断，而不是把判断默认推给人类。只要 evidence 足够，engine/readback 应暴露 `verdict_candidate`、`route_back_candidate`、`stop_or_continue_recommendation` 和可机读 AI-consumable evidence refs；只有越权到 domain truth、publication readiness、owner receipt、typed blocker、artifact authority、current package authority 或真实 human gate 时才停止在 owner surface。
 
-FeedbackOps 输入走同一 refs-only engine 边界。`target_agent_feedback_external_suite` profile 下，ScholarSkills 可以把 delivery feedback 转成 `candidate_refs`、quality hints、Display/Write/Review capability suggestions、`route_back_candidate_ref` 和 `stop_or_continue_recommendation_ref`；这些 refs 只作为 MAS/OMA 的 `feedbackops_intake_ref` 或 route-back evidence input。MAS/OMA 可以消费它们并在自己的 owner surface 签 owner receipt、typed blocker、quality verdict、artifact mutation 或 current-package update；ScholarSkills engine 不能写 MAS/current_package，不能签 owner receipt，不能创建 typed blocker，也不能 claim quality verdict、owner acceptance 或 publication readiness。
+FeedbackOps 输入走同一 refs-only engine 边界。`target_agent_feedback_external_suite` profile 下，MAS Scholar Skills 可以把 delivery feedback 转成 `candidate_refs`、quality hints、Display/Write/Review capability suggestions、`route_back_candidate_ref` 和 `stop_or_continue_recommendation_ref`；这些 refs 只作为 MAS/OMA 的 `feedbackops_intake_ref` 或 route-back evidence input。MAS/OMA 可以消费它们并在自己的 owner surface 签 owner receipt、typed blocker、quality verdict、artifact mutation 或 current-package update；MAS Scholar Skills engine 不能写 MAS/current_package，不能签 owner receipt，不能创建 typed blocker，也不能 claim quality verdict、owner acceptance 或 publication readiness。
 
 当前十个 engine 是 OPL-owned deterministic candidate builder：
 
@@ -61,13 +61,13 @@ FeedbackOps 输入走同一 refs-only engine 边界。`target_agent_feedback_ext
 
 这些 engine 可以生成更专业的可消费候选体、输入要求、质量检查清单和 receipt metadata；它们不运行 MAS/MAG/RCA domain workflow，不做医学分析裁决，不签 owner receipt，也不把候选体晋级为论文 truth。
 
-十个模块共用同一 handoff 骨架：`source_pack_ref` 指向 ScholarSkills/OPL-owned 能力来源或模块 descriptor，`candidate_package_ref` 指向 `materialize` 产生的 refs-only package，`execution_receipt_ref` 指向 unsigned execution receipt candidate，`owner_gate_handoff_ref` 指向 MAS 或 consuming domain owner 的消费入口。Lit、Tables、Stats、Submit、Write、Review、Omics、Data 和 Intake 与 Display 一样由本仓维护 source / contract / docs，但这些 ref family 都是 no-authority candidate refs，不创建 runtime、owner receipt、typed blocker 或 human gate。
+十个模块共用同一 handoff 骨架：`source_pack_ref` 指向 MAS Scholar Skills / OPL-owned 能力来源或模块说明，`candidate_package_ref` 指向 `materialize` 产生的 refs-only package，`execution_receipt_ref` 指向 unsigned execution receipt candidate，`owner_gate_handoff_ref` 指向 MAS 或 consuming domain owner 的消费入口。Lit、Tables、Stats、Submit、Write、Review、Omics、Data 和 Intake 与 Display 一样由本仓维护 source / contract / docs，但这些 ref family 都是 no-authority candidate refs，不创建 runtime、owner receipt、typed blocker 或 human gate。
 
 如果 readback 或 manifest 暴露 `owner_receipt_ref`、`typed_blocker_ref`、`reviewer_receipt_ref`、`route_back_evidence_ref` 或 current-package ref，这些字段只说明下一跳 owner-consumption 需要读写的目标 ref family；它们不能被解释为 engine acceptance、typed blocker creation、publication readiness 或 current package authority。
 
 ## 单模块外部学习落点
 
-本轮只吸收外部 repo 的可迁移 ref shape 和质量检查要求，不接入外部 runtime，也不让 ScholarSkills 成为 domain truth owner。
+本轮只吸收外部 repo 的可迁移 ref shape 和质量检查要求，不接入外部 runtime，也不让 MAS Scholar Skills 成为 domain truth owner。
 
 - Display 从 `Haojae/scipilot-figure-skill`、`littlepeachs/NaturePanelForge`、`Marsilea-viz/marsilea` 和 `Boom5426/Awesome-Virtual-Cell` 吸收 `visual_qa_preview_ref`、`programmatic_figure_audit_ref`、`grayscale_color_vision_check_ref`、`panel_to_code_review_ref`、`complex_heatmap_or_oncoprint_ref`，并为医学 SCI 初稿提供 `figure_table_volume_and_clinical_value_ref`、`figure_polish_alignment_ref`。
 - Tables 从 `Master-cai/Research-Paper-Writing-Skills`、`Ar9av/PaperOrchestra` 和 Papers-with-Code/SOTA result registry patterns 吸收 `table_shell_ref`、`metric_extraction_ref`、`booktabs_or_minimal_ink_table_ref`、`table_qc_ref`、`claim_table_alignment_ref`、`dataset_metric_benchmark_ref` 和 `result_metric_registry_ref`。
@@ -78,7 +78,7 @@ FeedbackOps 输入走同一 refs-only engine 边界。`target_agent_feedback_ext
 - Review 从 ARS reviewer、PaperOrchestra refinement 和 `kennethkhoocy/lit-review-orchestrator` 吸收 `reviewer_report_ref`、`adversarial_review_ref`、`revision_action_ref`、`halt_or_revert_rule_ref`、`route_back_ref`、`residual_risk_ref`、`confirm_or_drop_source_verification_ref`，并以 `scholarskills_medical_sci_initial_draft_quality_floor.v1` 聚合 `reference_integrity_floor_ref`、`manuscript_body_volume_floor_ref`、`figure_table_volume_and_clinical_value_ref`、`internal_report_prose_route_back_ref`、`figure_polish_alignment_ref` 和 `registry_descriptive_scientific_boundary_ref`。
 - Submit 从 ARS disclosure/format/rebuttal 和 PaperOrchestra LaTeX sanity 吸收 `submission_checklist_ref`、`journal_rule_ref`、`format_sanity_ref`、`ai_disclosure_ref`、`rebuttal_audit_ref`、`export_package_ref`；Submit 不能 authorize publication readiness。
 
-新增学习源只学 pattern，不接 runtime：Parsifal 提供 systematic-review protocol、screening decision 和 exclusion reason 形状；paper-search-mcp 提供可机读 search/query/source refs；LocalCitationNetwork 提供 citation graph、seed-paper expansion 和 local network audit 形状；lit-review-orchestrator 提供 literature workflow orchestration、gap map 和 handoff refs；AI-Scientist、FAROS、AutoR 提供自动实验/写作/review loop 的 `verdict_candidate`、`route_back_candidate`、budgeted retry 和 stop/continue decision pattern。ScholarSkills engine 只把这些模式转成 deterministic candidate bodies 和 AI-consumable evidence，不安装或调用外部 runtime。
+新增学习源只学 pattern，不接 runtime：Parsifal 提供 systematic-review protocol、screening decision 和 exclusion reason 形状；paper-search-mcp 提供可机读 search/query/source refs；LocalCitationNetwork 提供 citation graph、seed-paper expansion 和 local network audit 形状；lit-review-orchestrator 提供 literature workflow orchestration、gap map 和 handoff refs；AI-Scientist、FAROS、AutoR 提供自动实验/写作/review loop 的 `verdict_candidate`、`route_back_candidate`、budgeted retry 和 stop/continue decision pattern。MAS Scholar Skills engine 只把这些模式转成 deterministic candidate bodies 和 AI-consumable evidence，不安装或调用外部 runtime。
 
 ## Data Storage Candidate Refs
 

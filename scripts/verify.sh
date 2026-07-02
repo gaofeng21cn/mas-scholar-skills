@@ -45,16 +45,22 @@ def require_all(label: str, actual, expected) -> None:
             fail(f"{label} missing {item}")
 
 manifest = read_json(".codex-plugin/plugin.json")
-if manifest.get("name") != "opl-scholarskills":
-    fail("plugin name must be opl-scholarskills")
+if manifest.get("name") != "mas-scholar-skills":
+    fail("plugin name must be mas-scholar-skills")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
-if manifest.get("interface", {}).get("displayName") != "OPL ScholarSkills":
-    fail("plugin displayName must be OPL ScholarSkills")
+if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
+    fail("plugin displayName must be MAS Scholar Skills")
 
-skill = read_text("skills/opl-scholarskills/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", skill, re.MULTILINE):
-    fail("SKILL.md frontmatter must expose name: opl-scholarskills")
+skill = read_text("skills/mas-scholar-skills/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
+    fail("SKILL.md frontmatter must expose name: mas-scholar-skills")
+lit_skill = read_text("skills/medical-research-lit/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-lit$", lit_skill, re.MULTILINE):
+    fail("medical-research-lit must be a real Codex skill")
+legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.MULTILINE):
+    fail("legacy alias must expose name: opl-scholarskills")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 contract_text = json.dumps(contract, ensure_ascii=False)
@@ -71,7 +77,7 @@ if contract.get("brand_family") != "MAS Scholar Skills":
 positioning_policy = contract.get("positioning_policy") or {}
 expected_positioning = {
     "product_stage_name": "MAS Scholar Skills",
-    "repository_id": "opl-scholarskills",
+    "repository_id": "mas-scholar-skills",
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
     "primary_mas_entry_policy": "MAS_overlay_skill_and_medical_research_write_review_figure_remain_primary_default_entries",
     "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
@@ -86,6 +92,7 @@ require_all(
     "positioning policy provided surfaces",
     positioning_policy.get("provided_surfaces"),
     [
+        "real_codex_skills",
         "references",
         "packs",
         "quality_floors",
@@ -96,6 +103,34 @@ require_all(
         "route_back_hints",
     ],
 )
+if "opl-scholarskills" not in positioning_policy.get("legacy_repository_ids", []):
+    fail("positioning policy must keep opl-scholarskills as legacy alias")
+specialist_skill_policy = contract.get("specialist_skill_policy") or {}
+if specialist_skill_policy.get("canonical_aggregate_skill") != "mas-scholar-skills":
+    fail("specialist skill policy must name mas-scholar-skills as canonical aggregate skill")
+if specialist_skill_policy.get("legacy_aggregate_skill_alias") != "opl-scholarskills":
+    fail("specialist skill policy must keep opl-scholarskills as legacy alias")
+require_all(
+    "external specialist skills",
+    specialist_skill_policy.get("external_specialist_skills"),
+    ["medical-research-lit"],
+)
+require_all(
+    "MAS-owned primary skills",
+    specialist_skill_policy.get("mas_owned_primary_skills"),
+    ["medical-research-write", "medical-research-review", "medical-research-figure"],
+)
+for key in [
+    "can_replace_mas_medical_research_write",
+    "can_replace_mas_medical_research_review",
+    "can_replace_mas_medical_research_figure",
+    "can_claim_literature_authority",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_publication_readiness",
+]:
+    if specialist_skill_policy.get(key) is not False:
+        fail(f"specialist skill authority flag {key} must be false")
 for key in [
     "can_replace_mas_overlay_skill",
     "can_replace_mas_medical_research_skills",
@@ -112,7 +147,7 @@ for relative, text in [
     ("README.zh-CN.md", readme_zh),
     ("docs/README.md", docs_index),
     ("docs/mas-scholar-skills-operating-model.md", operating_model),
-    ("skills/opl-scholarskills/SKILL.md", skill),
+    ("skills/mas-scholar-skills/SKILL.md", skill),
 ]:
     for token in [
         "MAS Scholar Skills",
@@ -136,6 +171,29 @@ for forbidden in [
 ]:
     if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
         fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
+for relative, text in [
+    ("README.md", readme),
+    ("README.zh-CN.md", readme_zh),
+    ("docs/README.md", docs_index),
+    ("docs/mas-scholar-skills-operating-model.md", operating_model),
+    ("skills/mas-scholar-skills/SKILL.md", skill),
+    ("skills/medical-research-lit/SKILL.md", lit_skill),
+]:
+    for token in [
+        "opl connect pubmed search",
+        "pubmed_source_refs",
+        "pubmed_connector_invocation_ref",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing PubMed Connect positioning token: {token}")
+for token in [
+    "connect_pubmed_search",
+    "pubmed_source_refs",
+    "pubmed_connector_invocation_ref",
+    "read_only_normalized_source_refs_not_literature_verdict_or_domain_truth",
+]:
+    if token not in contract_text:
+        fail(f"contract missing PubMed Connect Lit token: {token}")
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 10:
     fail("contract must contain exactly 10 ScholarSkills modules")
@@ -313,6 +371,7 @@ for token in [
     "FeedbackOps Refs-Only Adapter",
     "target_agent_feedback_external_suite",
     "feedbackops_refs_only_adapter_policy",
+    "medical-research-lit",
 ]:
     if token not in skill:
         fail(f"SKILL.md missing required token: {token}")
@@ -903,8 +962,8 @@ def require_gallery_import_policy(container: dict, label: str) -> None:
         fail(f"{label} missing ScholarSkills gallery refs-only import policy")
     if policy.get("import_role") != "pack_native_human_review_ref_and_source_snapshot":
         fail(f"{label} gallery import role must stay pack-native refs/source snapshot only")
-    if policy.get("source_repo") != "opl-scholarskills":
-        fail(f"{label} gallery source repo must remain opl-scholarskills")
+    if policy.get("source_repo") != "mas-scholar-skills":
+        fail(f"{label} gallery source repo must remain mas-scholar-skills")
     if policy.get("source_authority") != "opl_scholarskills_display_pack_review_surface":
         fail(f"{label} gallery source authority must remain ScholarSkills display review surface")
     if not str(policy.get("source_snapshot_ref") or "").startswith("repo-local:gallery/medical-display/"):
@@ -1048,20 +1107,28 @@ required_doc_tokens = {
         "owner_gate_handoff_ref",
     ],
     "skills/opl-scholarskills/SKILL.md": [
+        "Legacy Alias",
+        "mas-scholar-skills",
+        "medical-research-lit",
+        "not treat this alias as a separate source of truth",
+    ],
+    "skills/mas-scholar-skills/SKILL.md": [
         "MAS Progress And AI Judgment Rules",
-        "FeedbackOps Refs-Only Adapter",
-        "target_agent_feedback_external_suite",
-        "feedbackops_refs_only_adapter_policy",
+        "medical-research-lit",
         "AI auto-judgment-first",
-        "stop_or_continue_recommendation",
-        "Missing external runtime installation is not a blocker",
-        "Only authority surfaces block ScholarSkills progression",
-        "downstream owner-consumption refs only",
         "source_pack_ref",
         "candidate_package_ref",
         "execution_receipt_ref",
         "owner_gate_handoff_ref",
         "all ten modules",
+    ],
+    "skills/medical-research-lit/SKILL.md": [
+        "PubMed",
+        "PMID",
+        "DOI",
+        "claim_support_map_ref",
+        "owner_gate_handoff_ref",
+        "Do not fabricate citations",
     ],
     "docs/capability-modules.md": [
         "progress_first_ai_auto_judgment_first",
@@ -1092,7 +1159,7 @@ required_doc_tokens = {
         "publication gate",
     ],
     "packs/medical-display-core/README.md": [
-        "ScholarSkills-owned externalized medical display source pack",
+        "MAS Scholar Skills-owned externalized medical display source pack",
         "gallery/medical-display/gallery_snapshot.json",
         "scripts/verify-display-gallery-pack.py --check",
         "authority = false",
@@ -1127,5 +1194,5 @@ for relative, tokens in required_doc_tokens.items():
         if token not in text:
             fail(f"{relative} missing required AI judgment token: {token}")
 
-print("verify ok: opl-scholarskills plugin, contract, gallery package, and no-authority boundaries are valid")
+print("verify ok: mas-scholar-skills plugin, contract, specialist skills, gallery package, and no-authority boundaries are valid")
 PY

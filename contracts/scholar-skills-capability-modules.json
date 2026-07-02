@@ -5,14 +5,18 @@
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
   "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack that can be discovered by the MAS overlay, consumed by MAS medical-research skills as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS owner skill, and not a parallel default entry set for medical-research-write, medical-research-review, or medical-research-figure. It does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, real external specialist skill entries, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS owner skill, and not a parallel default entry set for medical-research-write, medical-research-review, or medical-research-figure. It does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
-    "repository_id": "opl-scholarskills",
+    "repository_id": "mas-scholar-skills",
+    "legacy_repository_ids": [
+      "opl-scholarskills"
+    ],
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
     "primary_mas_entry_policy": "MAS_overlay_skill_and_medical_research_write_review_figure_remain_primary_default_entries",
     "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
     "provided_surfaces": [
+      "real_codex_skills",
       "references",
       "packs",
       "quality_floors",
@@ -30,6 +34,28 @@
     "can_replace_mas_medical_research_skills": false,
     "can_claim_required_pack_for_study": false,
     "can_write_owner_ledger": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_publication_readiness": false
+  },
+  "specialist_skill_policy": {
+    "policy_id": "mas_scholar_skills_specialist_skill_single_source.v1",
+    "canonical_aggregate_skill": "mas-scholar-skills",
+    "legacy_aggregate_skill_alias": "opl-scholarskills",
+    "external_specialist_skills": [
+      "medical-research-lit"
+    ],
+    "mas_owned_primary_skills": [
+      "medical-research-write",
+      "medical-research-review",
+      "medical-research-figure"
+    ],
+    "single_source_policy": "writing_review_and_figure_quality_are_optimized_in_MAS_owned_medical_research_skills; external_specialist_skills_cover_capabilities_that_need_stable_resource_connector_guidance_such_as_literature_discovery",
+    "connect_sync_policy": "OPL_Connect_installs_canonical_aggregate_skill_and_materialized_external_specialist_skills_into_workspace_or_quest_local_codex_discovery_paths",
+    "can_replace_mas_medical_research_write": false,
+    "can_replace_mas_medical_research_review": false,
+    "can_replace_mas_medical_research_figure": false,
+    "can_claim_literature_authority": false,
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false
@@ -149,7 +175,7 @@
   "modules": [
     {
       "module_id": "opl.scholarskills.display",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Display",
       "stage_fit": [
         "figure_plan",
@@ -463,7 +489,7 @@
     },
     {
       "module_id": "opl.scholarskills.tables",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Tables",
       "stage_fit": [
         "table_shell",
@@ -627,7 +653,7 @@
     },
     {
       "module_id": "opl.scholarskills.stats",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Stats",
       "stage_fit": [
         "analysis_plan",
@@ -783,7 +809,7 @@
     },
     {
       "module_id": "opl.scholarskills.omics",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Omics",
       "stage_fit": [
         "omics_preflight",
@@ -922,7 +948,7 @@
     },
     {
       "module_id": "opl.scholarskills.lit",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Lit",
       "stage_fit": [
         "literature_map",
@@ -936,6 +962,7 @@
         "scholarskills_lit_output_refs.v1",
         "scholarskills_lit_external_learning_refs.v1#query_citation_evidence_map",
         "scholarskills_lit_slr_citation_external_refs.v1#protocol_snowball_search_confirm_drop",
+        "scholarskills_lit_connect_refs.v1#pubmed_readonly_source_refs",
         "scholarskills_lit_medical_sci_draft_refs.v1#reference_integrity_floor"
       ],
       "dependency_profile_refs": [
@@ -951,6 +978,14 @@
           "command": "opl scholar-skills inspect --module opl.scholarskills.lit --json",
           "mutation": false,
           "descriptor_only": true
+        },
+        {
+          "entry_id": "connect_pubmed_search",
+          "entry_kind": "external_source_connector",
+          "command": "opl connect pubmed search --query <query> --limit <n> --json",
+          "mutation": false,
+          "descriptor_only": false,
+          "authority_boundary": "read_only_normalized_source_refs_not_literature_verdict_or_domain_truth"
         }
       ],
       "artifact_refs": [
@@ -995,6 +1030,18 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "metadata_scrape_candidate",
           "body_policy": "refs_only_literature_hint_requires_domain_owner_gate"
+        },
+        {
+          "ref_id": "pubmed_source_refs",
+          "ref_kind": "external_source_ref",
+          "role": "pubmed_normalized_metadata_refs_from_opl_connect",
+          "body_policy": "refs_only_pubmed_metadata_not_fulltext_or_literature_verdict"
+        },
+        {
+          "ref_id": "pubmed_connector_invocation_ref",
+          "ref_kind": "execution_receipt_ref",
+          "role": "opl_connect_pubmed_request_read_receipt_candidate",
+          "body_policy": "connect_invocation_receipt_candidate_not_owner_receipt"
         },
         {
           "ref_id": "claim_support_ref",
@@ -1076,6 +1123,8 @@
           "citation_coverage_ref",
           "evidence_map_ref",
           "metadata_scrape_ref",
+          "pubmed_source_refs",
+          "pubmed_connector_invocation_ref",
           "systematic_review_protocol_ref",
           "inclusion_exclusion_criteria_ref",
           "data_extraction_schema_ref",
@@ -1137,6 +1186,7 @@
           "citation_manifest_before_claim_use",
           "source_verification_and_coverage_gap_map",
           "metadata_scrape_receipt_before_evidence_map",
+          "pubmed_readonly_connector_before_citation_manifest_when_pubmed_is_relevant",
           "claim_support_route_back_when_sources_do_not_cover_claim",
           "systematic_review_protocol_and_criteria_before_screening",
           "slr_data_extraction_schema_and_quality_appraisal_as_candidate_refs",
@@ -1154,6 +1204,8 @@
           "citation_coverage_ref",
           "evidence_map_ref",
           "metadata_scrape_ref",
+          "pubmed_source_refs",
+          "pubmed_connector_invocation_ref",
           "claim_support_ref",
           "systematic_review_protocol_ref",
           "inclusion_exclusion_criteria_ref",
@@ -1169,7 +1221,7 @@
     },
     {
       "module_id": "opl.scholarskills.write",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Write",
       "stage_fit": [
         "section_draft",
@@ -1364,7 +1416,7 @@
     },
     {
       "module_id": "opl.scholarskills.review",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Review",
       "stage_fit": [
         "reviewer_comment_map",
@@ -1712,7 +1764,7 @@
     },
     {
       "module_id": "opl.scholarskills.submit",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Submit",
       "stage_fit": [
         "submission_checklist",
@@ -1874,7 +1926,7 @@
     },
     {
       "module_id": "opl.scholarskills.data",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Data",
       "stage_fit": [
         "source_data_profile",
@@ -2213,7 +2265,7 @@
     },
     {
       "module_id": "opl.scholarskills.intake",
-      "brand_family": "OPL ScholarSkills",
+      "brand_family": "MAS Scholar Skills",
       "display_name": "Scholar Intake",
       "stage_fit": [
         "source_intake",

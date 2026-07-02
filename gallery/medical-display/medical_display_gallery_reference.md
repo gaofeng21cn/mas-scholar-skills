@@ -1,6 +1,6 @@
-# ScholarSkills 医学论文配图 Gallery
+# MAS Scholar Skills 医学论文配图 Gallery
 
-Owner: `OPL ScholarSkills Display`
+Owner: `MAS Scholar Skills Display`
 Purpose: `human_readable_gallery_for_scholarskills_medical_display_core`
 State: `active_support`
 Machine boundary: 人读示例文档。Pack source 与 compact review refs 归 `packs/medical-display-core/`、`gallery_manifest.json`、`gallery_snapshot.json` 和 repo-native verification；真实论文 artifacts、visual audit receipt、owner gate 和 publication readiness 仍归 MAS / consuming domain owner。
@@ -16,7 +16,7 @@ python3 scripts/verify-display-gallery-pack.py --check
 ./scripts/verify.sh
 ```
 
-这些命令只校验 ScholarSkills pack source、compact review refs、artifact fingerprints、禁止中间产物和 authority=false 边界；不生成 MAS owner receipt、typed blocker、publication readiness 或论文 artifact authority。
+这些命令只校验 MAS Scholar Skills pack source、compact review refs、artifact fingerprints、禁止中间产物和 authority=false 边界；不生成 MAS owner receipt、typed blocker、publication readiness 或论文 artifact authority。
 
 ## 设计目的
 

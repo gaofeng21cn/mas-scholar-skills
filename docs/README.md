@@ -1,4 +1,4 @@
-# OPL ScholarSkills Docs
+# MAS Scholar Skills Docs
 
 Owner: `One Person Lab`
 Purpose: `docs_index`
@@ -7,14 +7,23 @@ Machine boundary: Human-readable navigation. Machine truth remains in
 contracts, skill pack files, source, gallery manifests, OPL Framework readback,
 and repo-native verification.
 
-`MAS Scholar Skills` is the current product-stage name for the OPL-owned
-`opl-scholarskills` external enhancement pack. It is not a generic OPL base,
-not an additional brand module, not the MAS owner skill, and not a domain truth
-owner. Its docs stay compact: module contracts, quality floors, source packs,
-external-learning refs, and gallery review surfaces are support docs for MAS
-overlay, `medical-research-write`, `medical-research-review`, and
+`MAS Scholar Skills` is the canonical name for the OPL-owned
+`mas-scholar-skills` external enhancement pack. The historical
+`opl-scholarskills` name is a compatibility alias. This repo is not a generic
+OPL base, not an additional brand module, not the MAS owner skill, and not a
+domain truth owner. Its docs stay compact: module contracts, quality floors,
+source packs, external-learning refs, real specialist skills such as
+`medical-research-lit`, and gallery review surfaces support the MAS overlay,
+`medical-research-write`, `medical-research-review`, and
 `medical-research-figure`; generated or domain-owned artifacts remain with
 their owning runtime or domain repo.
+
+For literature access, use `medical-research-lit` for the AI workflow and OPL
+Connect for stable PubMed refs: `opl connect pubmed search --query <query>
+--limit <n> --json`. The connector output should be recorded as
+`pubmed_source_refs` and `pubmed_connector_invocation_ref`; MAS keeps citation
+judgment, evidence interpretation, owner receipts, typed blockers, and
+publication decisions.
 
 ## Current Docs
 
@@ -29,4 +38,4 @@ their owning runtime or domain repo.
 
 Do not create empty OPL-family taxonomy directories for alignment. Add
 `active/`, `references/`, `history/`, or other lifecycle directories only when
-ScholarSkills gains durable material that cannot stay in this small index.
+MAS Scholar Skills gains durable material that cannot stay in this small index.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "surface_kind": "opl_scholarskills_display_gallery_snapshot",
-  "source_repo": "opl-scholarskills",
+  "source_repo": "mas-scholar-skills",
   "source_snapshot_ref": "repo-local:gallery/medical-display/gallery_snapshot.json",
   "source_commit_policy": "not_self_referential; verify included_files sha256 and repo commit at release/readback time",
   "source_paths": [
@@ -14,7 +14,7 @@
   "opl_scholarskills_import_policy": {
     "policy_id": "opl_scholarskills_display_gallery_refs_only_source_manifest.v1",
     "import_role": "pack_native_human_review_ref_and_source_snapshot",
-    "source_repo": "opl-scholarskills",
+    "source_repo": "mas-scholar-skills",
     "source_snapshot_ref": "repo-local:gallery/medical-display/gallery_snapshot.json",
     "source_commit_policy": "not_self_referential; verify included_files sha256 and repo commit at release/readback time",
     "source_authority": "opl_scholarskills_display_pack_review_surface",
@@ -97,19 +97,19 @@
     },
     {
       "path": "gallery_manifest.json",
-      "sha256": "4f09a4850ce5e7e445084962ccb5ec175f1d4d6d52ae93833c992459ae55cf11"
+      "sha256": "8b273aa8c4f9ead86c68048af0eb9b7c508d4db8876519f6b0539963f4e0144e"
     },
     {
       "path": "medical_display_gallery_reference.md",
-      "sha256": "399e09e3811e959920304828049d6ffc0b94d18f5469c01bcca8328cb1d679d2"
+      "sha256": "2bf35d951a986dd4589b17f12406ca51680418c69a347def881cccb1f7f07fa0"
     },
     {
       "path": "display_pack_gallery_status.md",
-      "sha256": "a151a43d8a4dac31a53e63d94025c0e35c6868b971b919d303cf612ea52ba786"
+      "sha256": "d630f4de9153284257d63d6fd21eff66208a1634722ec83802a911f62744159d"
     },
     {
       "path": "display_pack_gallery_quality_audit.md",
-      "sha256": "4e86d1b1fd0a51139f498c6b4953a641696924bac3231582f3515e3bde9757f9"
+      "sha256": "6617b1ba0daa0a23c9397e6464fa6c1f34fcffda41d68576210b463ae8d61198"
     }
   ],
   "excluded_intermediate_outputs": [

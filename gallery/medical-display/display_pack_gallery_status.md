@@ -1,6 +1,6 @@
-# ScholarSkills 医学论文配图 Gallery 状态
+# MAS Scholar Skills 医学论文配图 Gallery 状态
 
-Owner: `OPL ScholarSkills Display`
+Owner: `MAS Scholar Skills Display`
 Purpose: `display_pack_gallery_review_status`
 State: `generated_active_support`
 Machine boundary: 本文是 compact review package 的人读状态。机器真相归 `packs/medical-display-core/` template descriptor、canonical catalog、Gallery manifest、Gallery snapshot、renderer source 和 repo-native verification；真实论文 artifact、visual-audit receipt、owner receipt 和 publication gate 仍归 MAS / consuming domain owner。

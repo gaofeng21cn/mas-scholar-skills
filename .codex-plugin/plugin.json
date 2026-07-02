@@ -1,22 +1,23 @@
 {
-  "name": "opl-scholarskills",
+  "name": "mas-scholar-skills",
   "version": "0.1.0",
-  "description": "Repo-tracked Codex plugin for OPL ScholarSkills capability modules and refs-only skill entry.",
+  "description": "Repo-tracked Codex plugin for MAS Scholar Skills capability modules and medical-paper skill entries.",
   "author": {
     "name": "One Person Lab"
   },
   "license": "Apache-2.0",
   "keywords": [
     "opl",
+    "mas-scholar-skills",
     "scholarskills",
     "scholarly-skills",
     "codex-skill"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "OPL ScholarSkills",
-    "shortDescription": "Codex skill entry for refs-only scholarly capability modules.",
-    "longDescription": "Provides a Codex skill entry for the ten OPL ScholarSkills capability modules, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries.",
+    "displayName": "MAS Scholar Skills",
+    "shortDescription": "Codex skill entries for MAS medical-paper capability support.",
+    "longDescription": "Provides Codex skill entries for MAS Scholar Skills capability modules, medical literature discovery, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -25,9 +26,9 @@
       "Research"
     ],
     "defaultPrompt": [
-      "Use OPL ScholarSkills to inspect scholarly capability modules.",
-      "Materialize a refs-only ScholarSkills candidate package.",
-      "Check ScholarSkills authority boundaries before a MAS handoff."
+      "Use MAS Scholar Skills to inspect medical-paper capability modules.",
+      "Use medical-research-lit to plan PubMed-backed literature discovery.",
+      "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],
     "brandColor": "#2563EB"
   }

@@ -8,7 +8,7 @@
   "opl_scholarskills_import_policy": {
     "policy_id": "opl_scholarskills_display_gallery_refs_only_source_manifest.v1",
     "import_role": "pack_native_human_review_ref_and_source_snapshot",
-    "source_repo": "opl-scholarskills",
+    "source_repo": "mas-scholar-skills",
     "source_snapshot_ref": "repo-local:gallery/medical-display/gallery_manifest.json",
     "source_commit_policy": "not_self_referential; verify gallery_snapshot included_files sha256 and repo commit at release/readback time",
     "source_authority": "opl_scholarskills_display_pack_review_surface",
