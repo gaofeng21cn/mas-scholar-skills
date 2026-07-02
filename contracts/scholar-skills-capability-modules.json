@@ -1458,6 +1458,42 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "registry_descriptive_medical_science_boundary_candidate",
           "body_policy": "refs_only_review_hint_not_scientific_verdict_or_publication_ready"
+        },
+        {
+          "ref_id": "submission_declaration_completeness_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "ethics_consent_data_availability_funding_coi_review_candidate",
+          "body_policy": "refs_only_submission_declaration_hint_not_submission_authority_or_human_gate"
+        },
+        {
+          "ref_id": "registry_data_lock_enrollment_boundary_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "registry_enrollment_period_data_lock_visit_window_boundary_candidate",
+          "body_policy": "refs_only_registry_metadata_hint_not_owner_metadata_authority"
+        },
+        {
+          "ref_id": "diagnostic_provenance_caveat_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "diagnostic_ascertainment_and_available_denominator_review_candidate",
+          "body_policy": "refs_only_diagnostic_provenance_hint_not_ascertainment_authority"
+        },
+        {
+          "ref_id": "figure_caption_content_consistency_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "figure_caption_visible_payload_consistency_review_candidate",
+          "body_policy": "refs_only_caption_consistency_hint_not_visual_quality_verdict"
+        },
+        {
+          "ref_id": "supplementary_missingness_atlas_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "materialized_variable_availability_atlas_review_candidate",
+          "body_policy": "refs_only_missingness_atlas_hint_not_data_quality_authority"
+        },
+        {
+          "ref_id": "adult_bmi_sensitivity_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "adult_known_age_bmi_category_sensitivity_review_candidate",
+          "body_policy": "refs_only_adult_sensitivity_hint_not_statistical_or_submission_authority"
         }
       ],
       "receipt_policy": {
@@ -1495,6 +1531,12 @@
           "internal_report_prose_route_back_ref",
           "figure_polish_alignment_ref",
           "registry_descriptive_scientific_boundary_ref",
+          "submission_declaration_completeness_ref",
+          "registry_data_lock_enrollment_boundary_ref",
+          "diagnostic_provenance_caveat_ref",
+          "figure_caption_content_consistency_ref",
+          "supplementary_missingness_atlas_ref",
+          "adult_bmi_sensitivity_ref",
           "source_pack_ref",
           "candidate_package_ref",
           "execution_receipt_ref",
@@ -1556,9 +1598,15 @@
           "flag_too_thin_manuscript_body_before_owner_gate",
           "flag_low_clinical_value_or_underdeveloped_result_figures_before_owner_gate",
           "align_with_figure_polish_skill_refs_before_owner_gate",
-          "flag_registry_descriptive_scope_drift_before_owner_gate"
+          "flag_registry_descriptive_scope_drift_before_owner_gate",
+          "flag_missing_ethics_consent_data_availability_funding_or_coi_sections_before_owner_gate",
+          "flag_visit_window_written_as_enrollment_or_data_lock_before_owner_gate",
+          "flag_diagnostic_field_positivity_without_provenance_caveat_before_owner_gate",
+          "flag_figure_caption_domain_not_rendered_in_payload_before_owner_gate",
+          "flag_missing_or_nonmaterialized_supplementary_missingness_atlas_before_owner_gate",
+          "flag_missing_adult_known_age_bmi_sensitivity_table_before_owner_gate"
         ],
-        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose, conclusion self-evaluation, calendar enrollment period is not promoted, MAS display-pack renderer, TRIPOD is cited only as a boundary reference, defensible clinical story, missing references, too-thin manuscript body, figure/table clinical-value gaps, figure-polish drift, and registry descriptive scope drift only before owner gate",
+        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose, conclusion self-evaluation, calendar enrollment period is not promoted, MAS display-pack renderer, TRIPOD is cited only as a boundary reference, defensible clinical story, missing references, too-thin manuscript body, figure/table clinical-value gaps, figure-polish drift, registry descriptive scope drift, missing submission declarations, data-lock/enrollment ambiguity, diagnostic provenance gaps, figure-caption payload drift, nonmaterialized missingness atlas, and missing adult-known-age BMI sensitivity tables only before owner gate",
         "required_ref_shapes": [
           "reviewer_report_ref",
           "adversarial_review_ref",
@@ -1573,7 +1621,13 @@
           "figure_table_volume_and_clinical_value_ref",
           "internal_report_prose_route_back_ref",
           "figure_polish_alignment_ref",
-          "registry_descriptive_scientific_boundary_ref"
+          "registry_descriptive_scientific_boundary_ref",
+          "submission_declaration_completeness_ref",
+          "registry_data_lock_enrollment_boundary_ref",
+          "diagnostic_provenance_caveat_ref",
+          "figure_caption_content_consistency_ref",
+          "supplementary_missingness_atlas_ref",
+          "adult_bmi_sensitivity_ref"
         ],
         "ai_judgment_policy": "ai_may_emit_quality_or_source_verdict_candidate_and_route_back_candidate_but_cannot_claim_quality_verdict_domain_truth_reviewer_receipt_owner_receipt_or_publication_readiness"
       },
@@ -1592,6 +1646,12 @@
           "internal_report_prose_route_back_ref",
           "figure_polish_alignment_ref",
           "registry_descriptive_scientific_boundary_ref",
+          "submission_declaration_completeness_ref",
+          "registry_data_lock_enrollment_boundary_ref",
+          "diagnostic_provenance_caveat_ref",
+          "figure_caption_content_consistency_ref",
+          "supplementary_missingness_atlas_ref",
+          "adult_bmi_sensitivity_ref",
           "route_back_ref",
           "owner_gate_handoff_ref"
         ],
@@ -1604,6 +1664,12 @@
           "internal_report_or_workflow_prose_in_manuscript_body",
           "figure_polish_skill_contract_drift",
           "registry_descriptive_paper_claims_exceed_descriptive_evidence",
+          "missing_ethics_consent_data_availability_funding_or_coi_sections",
+          "visit_window_written_as_formal_enrollment_or_data_lock",
+          "diagnostic_field_positivity_written_without_ascertainment_caveat",
+          "figure_caption_mentions_domain_not_rendered_in_figure",
+          "missing_or_nonmaterialized_supplementary_missingness_atlas",
+          "missing_adult_known_age_bmi_sensitivity_table",
           "diagnostic_or_prediction_framing_without_corresponding_design"
         ],
         "registry_descriptive_boundary": "Descriptive registry or atlas drafts may present cohort definition, availability, missingness, diagnostic ascertainment, subgroup distribution, and clinical interpretation candidates; they must route back claims that imply causal effects, population prevalence or burden, diagnostic prediction, treatment effect, or publication readiness without domain owner evidence.",
