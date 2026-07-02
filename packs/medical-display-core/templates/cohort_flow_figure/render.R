@@ -518,24 +518,24 @@ build_source_layer_accounting_plot <- function(payload) {
       hjust = 0,
       vjust = 1,
       fontface = "bold",
-      size = 3.35,
+      size = 3.5,
       colour = muted_text
     ) +
     ggplot2::annotate(
       "text",
       x = -37,
-      y = 40,
+      y = 48,
       label = "Analysis coverage",
       hjust = 0,
       vjust = 1,
       fontface = "bold",
-      size = 3.35,
+      size = 3.5,
       colour = muted_text
     ) +
     ggplot2::annotate(
       "rect",
-      xmin = -20,
-      xmax = 20,
+      xmin = -24,
+      xmax = 24,
       ymin = 70,
       ymax = 82,
       fill = node_fill,
@@ -549,7 +549,7 @@ build_source_layer_accounting_plot <- function(payload) {
       label = denominator_label,
       hjust = 0.5,
       vjust = 0.5,
-      size = 3.2,
+      size = 3.45,
       colour = text_colour,
       lineheight = 0.9
     )
@@ -567,8 +567,8 @@ build_source_layer_accounting_plot <- function(payload) {
       ggplot2::annotate(
         "segment",
         x = layer_df$x[[index]],
-        xend = 0,
-        y = 70,
+        xend = layer_df$x[[index]] * 0.25,
+        y = 86,
         yend = 82,
         colour = guide_colour,
         linewidth = 0.28,
@@ -576,8 +576,8 @@ build_source_layer_accounting_plot <- function(payload) {
       ) +
       ggplot2::annotate(
         "rect",
-        xmin = layer_df$x[[index]] - 12,
-        xmax = layer_df$x[[index]] + 12,
+        xmin = layer_df$x[[index]] - 14,
+        xmax = layer_df$x[[index]] + 14,
         ymin = 86,
         ymax = 98,
         fill = layer_fill,
@@ -591,7 +591,7 @@ build_source_layer_accounting_plot <- function(payload) {
         label = layer_df$label[[index]],
         hjust = 0.5,
         vjust = 0.5,
-        size = 2.85,
+        size = 3.25,
         colour = text_colour,
         lineheight = 0.88
       )
@@ -631,8 +631,8 @@ build_source_layer_accounting_plot <- function(payload) {
     plot <- plot +
       ggplot2::annotate(
         "rect",
-        xmin = -18,
-        xmax = 18,
+        xmin = -22,
+        xmax = 22,
         ymin = center_y - 5.2,
         ymax = center_y + 5.2,
         fill = coverage_fill,
@@ -641,23 +641,23 @@ build_source_layer_accounting_plot <- function(payload) {
       ) +
       ggplot2::annotate(
         "text",
-        x = -15.5,
+        x = -19.5,
         y = center_y,
         label = wrap_plain_label(coverage_df$label[[index]], width = 20),
         hjust = 0,
         vjust = 0.5,
-        size = 2.85,
+        size = 3.15,
         colour = text_colour,
         lineheight = 0.88
       ) +
       ggplot2::annotate(
         "text",
-        x = 15.5,
+        x = 19.5,
         y = center_y,
         label = n_label,
         hjust = 1,
         vjust = 0.5,
-        size = 2.75,
+        size = 3.0,
         colour = text_colour,
         lineheight = 0.88
       )
@@ -694,9 +694,9 @@ build_ggconsort_plot <- function(payload) {
   step_df <- cohort_step_frame(steps, step_ids)
   step_df$x <- 0
   exclusion_df <- cohort_exclusion_frame(exclusions, step_df, step_ids)
-  node_width <- if (length(exclusions) > 0) 50 else 62
+  node_width <- if (length(exclusions) > 0) 50 else 68
   node_height <- if (has_step_details) {
-    min(18.0, max(12.0, as.numeric(max_step_line_count) * 2.45 + 2.0))
+    min(22.0, max(13.0, as.numeric(max_step_line_count) * 2.8 + 2.8))
   } else {
     9.5
   }
@@ -713,7 +713,7 @@ build_ggconsort_plot <- function(payload) {
   exclusion_edge <- style_color(payload, "flow_exclusion_edge", "#B57F7F")
   text_colour <- style_color(payload, "flow_body_text", "#111827")
 
-  plot_xlim <- c(-44, 44)
+  plot_xlim <- if (length(exclusions) > 0) c(-44, 44) else c(-36, 36)
   plot <- ggplot2::ggplot() +
     ggplot2::theme_void() +
     ggplot2::coord_cartesian(xlim = plot_xlim, ylim = c(plot_y_min, 101), clip = "off")
@@ -766,9 +766,9 @@ build_ggconsort_plot <- function(payload) {
       label = step_df$label,
       hjust = 0.5,
       vjust = 0.5,
-      size = if (has_step_details && max_step_line_count > 6L) 2.45 else if (has_step_details) 2.75 else 3.15,
+      size = if (has_step_details && max_step_line_count > 6L) 3.35 else if (has_step_details) 3.55 else 3.65,
       colour = text_colour,
-      lineheight = if (has_step_details) 0.84 else 0.9
+      lineheight = if (has_step_details) 0.88 else 0.9
     )
   if (nrow(exclusion_df) > 0) {
     plot <- plot +
