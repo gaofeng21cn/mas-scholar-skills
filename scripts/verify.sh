@@ -196,6 +196,49 @@ for key in [
 ]:
     if positioning_policy.get(key) is not False:
         fail(f"positioning authority flag {key} must be false")
+classification_policy = contract.get("capability_module_classification_policy") or {}
+if classification_policy.get("policy_id") != "mas_scholar_skills_capability_module_classification.v1":
+    fail("contract missing capability module classification policy")
+require_all(
+    "capability module contracts",
+    classification_policy.get("capability_module_contracts"),
+    ["display", "tables", "stats", "omics", "lit", "write", "review", "submit", "data", "intake"],
+)
+require_all(
+    "real syncable specialist skills",
+    classification_policy.get("real_syncable_specialist_skills"),
+    ["medical-manuscript-writing", "medical-manuscript-review", "medical-figure-design", "medical-research-lit"],
+)
+require_all(
+    "contract-layer modules",
+    classification_policy.get("contract_layer_modules"),
+    ["tables", "stats", "omics", "submit", "data", "intake"],
+)
+expected_real_skill_backed_modules = {
+    "display": "medical-figure-design",
+    "lit": "medical-research-lit",
+    "write": "medical-manuscript-writing",
+    "review": "medical-manuscript-review",
+}
+if classification_policy.get("real_skill_backed_module_map") != expected_real_skill_backed_modules:
+    fail("classification policy must map the four real-skill-backed modules")
+for token in [
+    "not_from_ten_preexisting_real_MAS_skills",
+    "without_claiming_to_be_active_specialist_skills",
+    "promote_contract_layer_module_to_real_codex_skill_only_when",
+    "dot_codex_skills_sync_remains_required_for_Codex_discovery",
+]:
+    if token not in json.dumps(classification_policy, ensure_ascii=False):
+        fail(f"classification policy missing {token}")
+for key in [
+    "can_claim_contract_layer_modules_are_real_skills",
+    "can_move_contract_layer_modules_back_to_MAS_private_implementation",
+    "can_replace_mas_stage_prompts",
+    "can_claim_owner_acceptance",
+    "can_claim_publication_readiness",
+]:
+    if classification_policy.get(key) is not False:
+        fail(f"classification policy flag {key} must be false")
 for relative, text in [
     ("README.md", readme),
     ("README.zh-CN.md", readme_zh),

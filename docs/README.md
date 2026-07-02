@@ -19,6 +19,12 @@ support the MAS overlay. The write/review/figure/lit professional skills are mai
 here as a single source for MAS consumption; stage-prompt routing and generated artifacts
 remain with their owning runtime or domain repo.
 
+Current classification: ten capability-module contracts, four real syncable
+Codex specialist skills, and six contract-layer modules. `tables`, `stats`,
+`omics`, `submit`, `data`, and `intake` stay as refs/checklist/candidate-handoff
+contracts until a stable active workflow justifies promoting one into a real
+skill.
+
 For literature access, use `medical-research-lit` for the AI workflow and OPL
 Connect for stable PubMed refs: `opl connect pubmed search --query <query>
 --limit <n> --json`. The connector output should be recorded as

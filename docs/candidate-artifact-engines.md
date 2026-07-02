@@ -15,6 +15,8 @@ Machine boundary: 本文是人读导航。机器真相以 `src/scholar-skills.ts
 
 MAS 默认 runtime 入口仍是 MAS overlay，写作、审阅和图件的专业 skill 由本仓 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design` 单源维护并同步给 MAS 消费。Candidate engines 只为这些入口提供 refs-only candidate bodies、quality floors 和 route-back hints；不新增 `opl-scholar-write/review/display` 并列默认入口。
 
+Candidate engine 不是 Skill。`tables`、`stats`、`omics`、`submit`、`data` 和 `intake` 当前保持合同层模块形态：它们可以生成结构化候选体、检查项和 owner-gate handoff，但不作为可主动执行的 Codex 专家 Skill 暴露。只有当某个模块需要稳定 AI-first 专业流程时，才升级为新的真实 Skill。
+
 ## CLI 入口
 
 默认 `materialize` 仍保持 refs-only package：
