@@ -15,16 +15,16 @@
 Owner: `mas-scholar-skills`
 Purpose: `public_repository_entry`
 State: `public_entry`
-Machine boundary: Human-readable public entry. Machine truth remains in `.codex-plugin/plugin.json`, `skills/mas-scholar-skills/SKILL.md`, `skills/medical-research-lit/SKILL.md`, `contracts/scholar-skills-capability-modules.json`, gallery manifests/fingerprints, OPL Framework CLI readbacks, and domain owner receipts in consuming agents.
+Machine boundary: Human-readable public entry. Machine truth remains in `.codex-plugin/plugin.json`, `skills/mas-scholar-skills/SKILL.md`, `skills/medical-research-write/SKILL.md`, `skills/medical-research-review/SKILL.md`, `skills/medical-research-figure/SKILL.md`, `skills/medical-research-lit/SKILL.md`, `contracts/scholar-skills-capability-modules.json`, gallery manifests/fingerprints, OPL Framework CLI readbacks, and domain owner receipts in consuming agents.
 -->
 
 <p align="center">
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills academic capability handoff map" width="100%" />
 </p>
 
-`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as a compatibility alias. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, and external specialist entries such as `medical-research-lit`.
+`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as a compatibility alias. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, and the real syncable medical-paper skills `medical-research-write`, `medical-research-review`, `medical-research-figure`, and `medical-research-lit`.
 
-The default MAS entry stays the MAS overlay skill. High-frequency manuscript writing, review, and figure work should start in the MAS `medical-research-write`, `medical-research-review`, and `medical-research-figure` skills. MAS Scholar Skills supplies enhancement material those MAS skills can discover and consume: module guidance, candidate refs, display packs, quality floors, checklists, and route-back hints.
+The default MAS runtime entry stays the MAS overlay skill. High-frequency manuscript writing, review, and figure work should start in `medical-research-write`, `medical-research-review`, and `medical-research-figure`, but those skill bodies are now maintained here and synced for MAS consumption. MAS consumes these skills and their refs; it no longer maintains a second copy of the write/review/figure skill text.
 
 In practical terms, MAS Scholar Skills says what each capability can help with, what material it needs, what candidate handoff it can prepare, and who must review the result. The domain owner still owns study truth, artifact authority, quality judgment, acceptance, and publication decisions.
 
@@ -59,7 +59,7 @@ MAS Scholar Skills turns the reusable support material into capability modules a
 
 - MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, data, or intake support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
-- `medical-research-lit` is a real Codex skill for PubMed-oriented literature discovery and evidence-map handoff; it is not only a module descriptor.
+- `medical-research-write`, `medical-research-review`, `medical-research-figure`, and `medical-research-lit` are real Codex skills in this repo; they are not only module descriptors.
 - Candidate outputs can move into human or domain-agent review, but they do not become paper truth by themselves.
 - The same skill pack can be synced into different MAS workspaces or quests without copying a second source of truth.
 
@@ -114,9 +114,9 @@ The gallery keeps only the final review package. Renderer intermediates, single-
 ## Boundary
 
 - `MAS Scholar Skills` is the canonical name for this repository and enhancement pack, not a generic OPL base and not a MAS/MAG/RCA domain truth owner.
-- This repository owns the distributable Codex plugin/Skills, the ten-module capability catalog, the literature specialist entry, the gallery review package, and human-readable guidance.
+- This repository owns the distributable Codex plugin/Skills, the MAS-consumed medical write/review/figure/lit skill bodies, the ten-module capability catalog, the gallery review package, and human-readable guidance.
 - OPL Framework owns executable commands, sync, runtime environment bridges, Connect/Fabric resource plumbing, and workbench actions.
-- MAS overlay and MAS `medical-research-write` / `medical-research-review` / `medical-research-figure` remain the default high-frequency medical-paper skill entries.
+- MAS overlay remains the runtime owner entry. MAS consumes the `medical-research-write` / `medical-research-review` / `medical-research-figure` skill bodies from this repository instead of maintaining their text in MAS.
 - MAS and other domain agents keep ownership of study truth, publication truth, artifact authority, quality verdicts, owner receipts, human gates, ledgers, and current package authority.
 - MAS Scholar Skills outputs are candidate refs, candidate packages, or review hints only. They cannot by themselves claim runtime readiness, domain readiness, quality verdicts, artifact authority, owner acceptance, publication readiness, or publication-ready status.
 
@@ -128,6 +128,9 @@ The gallery keeps only the final review package. Renderer intermediates, single-
 ```text
 .codex-plugin/plugin.json              Codex plugin manifest
 skills/mas-scholar-skills/SKILL.md     Canonical aggregate Codex skill entry
+skills/medical-research-write/SKILL.md Medical manuscript writing owner skill source
+skills/medical-research-review/SKILL.md Medical manuscript review owner skill source
+skills/medical-research-figure/SKILL.md Medical figure owner skill source
 skills/medical-research-lit/SKILL.md   Medical literature specialist skill
 skills/opl-scholarskills/SKILL.md      Legacy alias entry
 contracts/                             module catalog snapshot
@@ -142,8 +145,14 @@ The recommended consuming surface is a local Codex discovery copy inside the act
 
 ```text
 <workspace_root>/.codex/skills/mas-scholar-skills/
+<workspace_root>/.codex/skills/medical-research-write/
+<workspace_root>/.codex/skills/medical-research-review/
+<workspace_root>/.codex/skills/medical-research-figure/
 <workspace_root>/.codex/skills/medical-research-lit/
 <quest_root>/.codex/skills/mas-scholar-skills/
+<quest_root>/.codex/skills/medical-research-write/
+<quest_root>/.codex/skills/medical-research-review/
+<quest_root>/.codex/skills/medical-research-figure/
 <quest_root>/.codex/skills/medical-research-lit/
 ```
 

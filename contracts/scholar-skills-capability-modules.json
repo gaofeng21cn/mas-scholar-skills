@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack that can be discovered by the MAS overlay, consumed by MAS medical-research skills as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, real external specialist skill entries, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS owner skill, and not a parallel default entry set for medical-research-write, medical-research-review, or medical-research-figure. It does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
+  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack and single maintained Codex skill source for MAS medical-paper write/review/figure/lit workflows that can be discovered by the MAS overlay, consumed by MAS medical-research skills as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, real syncable medical-paper skill bodies, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-research-write, medical-research-review, medical-research-figure, or medical-research-lit. MAS consumes the skill bodies from this repository and remains the runtime, study-truth, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -13,10 +13,12 @@
       "opl-scholarskills"
     ],
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
-    "primary_mas_entry_policy": "MAS_overlay_skill_and_medical_research_write_review_figure_remain_primary_default_entries",
+    "primary_mas_entry_policy": "MAS_overlay_runtime_entry_consumes_medical_research_write_review_figure_from_mas_scholar_skills",
     "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
     "provided_surfaces": [
       "real_codex_skills",
+      "medical_paper_owner_skill_bodies",
+      "syncable_real_skills",
       "references",
       "packs",
       "quality_floors",
@@ -31,31 +33,44 @@
     "required_or_default_pack_owner": "MAS_profile_or_overlay",
     "ledger_and_owner_receipt_owner": "MAS_or_relevant_OPL_domain_owner",
     "can_replace_mas_overlay_skill": false,
-    "can_replace_mas_medical_research_skills": false,
     "can_claim_required_pack_for_study": false,
     "can_write_owner_ledger": false,
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
-    "can_claim_publication_readiness": false
+    "can_claim_publication_readiness": false,
+    "skill_body_source_policy": "medical_research_write_review_figure_lit_skill_bodies_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_consumption",
+    "mas_skill_body_maintenance_policy": "MAS_consumes_synced_skill_bodies_and_does_not_maintain_a_second_write_review_figure_body_source",
+    "can_replace_mas_runtime_owner_surface": false
   },
   "specialist_skill_policy": {
-    "policy_id": "mas_scholar_skills_specialist_skill_single_source.v1",
+    "policy_id": "mas_scholar_skills_medical_skill_single_source.v2",
     "canonical_aggregate_skill": "mas-scholar-skills",
     "legacy_aggregate_skill_alias": "opl-scholarskills",
-    "external_specialist_skills": [
+    "syncable_real_skills": [
+      "medical-research-write",
+      "medical-research-review",
+      "medical-research-figure",
       "medical-research-lit"
     ],
-    "mas_owned_primary_skills": [
+    "medical_paper_owner_skill_sources": [
       "medical-research-write",
       "medical-research-review",
       "medical-research-figure"
     ],
-    "single_source_policy": "writing_review_and_figure_quality_are_optimized_in_MAS_owned_medical_research_skills; external_specialist_skills_cover_capabilities_that_need_stable_resource_connector_guidance_such_as_literature_discovery",
-    "connect_sync_policy": "OPL_Connect_installs_canonical_aggregate_skill_and_materialized_external_specialist_skills_into_workspace_or_quest_local_codex_discovery_paths",
-    "can_replace_mas_medical_research_write": false,
-    "can_replace_mas_medical_research_review": false,
-    "can_replace_mas_medical_research_figure": false,
+    "external_resource_specialist_skills": [
+      "medical-research-lit"
+    ],
+    "single_source_policy": "medical_research_write_review_figure_lit_skill_bodies_are_maintained_in_mas_scholar_skills; MAS_consumes_synced_skill_bodies_and_keeps_runtime_artifact_owner_receipt_typed_blocker_and_publication_authority",
+    "connect_sync_policy": "OPL_Connect_installs_canonical_aggregate_skill_and_syncable_real_skills_into_workspace_or_quest_local_codex_discovery_paths",
+    "legacy_alias_policy": "opl_scholarskills_is_compatibility_entry_only_not_second_truth_source",
+    "mas_consumes_skill_bodies": true,
+    "mas_maintains_write_review_figure_skill_bodies": false,
+    "can_replace_mas_overlay_skill": false,
+    "can_replace_mas_runtime_owner_surface": false,
     "can_claim_literature_authority": false,
+    "can_claim_medical_writing_authority": false,
+    "can_claim_medical_review_authority": false,
+    "can_claim_figure_artifact_authority": false,
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false

@@ -55,6 +55,15 @@ if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")
+write_skill = read_text("skills/medical-research-write/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-write$", write_skill, re.MULTILINE):
+    fail("medical-research-write must be a real Codex skill")
+review_skill = read_text("skills/medical-research-review/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-review$", review_skill, re.MULTILINE):
+    fail("medical-research-review must be a real Codex skill")
+figure_skill = read_text("skills/medical-research-figure/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-figure$", figure_skill, re.MULTILINE):
+    fail("medical-research-figure must be a real Codex skill")
 lit_skill = read_text("skills/medical-research-lit/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-lit$", lit_skill, re.MULTILINE):
     fail("medical-research-lit must be a real Codex skill")
@@ -79,7 +88,7 @@ expected_positioning = {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
-    "primary_mas_entry_policy": "MAS_overlay_skill_and_medical_research_write_review_figure_remain_primary_default_entries",
+    "primary_mas_entry_policy": "MAS_overlay_runtime_entry_consumes_medical_research_write_review_figure_from_mas_scholar_skills",
     "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
     "sync_owner": "OPL Connect",
     "required_or_default_pack_owner": "MAS_profile_or_overlay",
@@ -93,6 +102,8 @@ require_all(
     positioning_policy.get("provided_surfaces"),
     [
         "real_codex_skills",
+        "syncable_real_skills",
+        "medical_paper_owner_skill_bodies",
         "references",
         "packs",
         "quality_floors",
@@ -111,20 +122,33 @@ if specialist_skill_policy.get("canonical_aggregate_skill") != "mas-scholar-skil
 if specialist_skill_policy.get("legacy_aggregate_skill_alias") != "opl-scholarskills":
     fail("specialist skill policy must keep opl-scholarskills as legacy alias")
 require_all(
-    "external specialist skills",
-    specialist_skill_policy.get("external_specialist_skills"),
-    ["medical-research-lit"],
+    "syncable real skills",
+    specialist_skill_policy.get("syncable_real_skills"),
+    ["medical-research-write", "medical-research-review", "medical-research-figure", "medical-research-lit"],
 )
 require_all(
-    "MAS-owned primary skills",
-    specialist_skill_policy.get("mas_owned_primary_skills"),
+    "medical paper owner skill sources",
+    specialist_skill_policy.get("medical_paper_owner_skill_sources"),
     ["medical-research-write", "medical-research-review", "medical-research-figure"],
 )
+require_all(
+    "external resource specialist skills",
+    specialist_skill_policy.get("external_resource_specialist_skills"),
+    ["medical-research-lit"],
+)
+if "mas_owned_primary_skills" in specialist_skill_policy:
+    fail("specialist skill policy must not keep legacy mas_owned_primary_skills wording")
+if specialist_skill_policy.get("mas_consumes_skill_bodies") is not True:
+    fail("specialist skill policy must state MAS consumes synced skill bodies")
+if specialist_skill_policy.get("mas_maintains_write_review_figure_skill_bodies") is not False:
+    fail("specialist skill policy must state MAS no longer maintains write/review/figure skill bodies")
 for key in [
-    "can_replace_mas_medical_research_write",
-    "can_replace_mas_medical_research_review",
-    "can_replace_mas_medical_research_figure",
+    "can_replace_mas_overlay_skill",
+    "can_replace_mas_runtime_owner_surface",
     "can_claim_literature_authority",
+    "can_claim_medical_writing_authority",
+    "can_claim_medical_review_authority",
+    "can_claim_figure_artifact_authority",
     "can_sign_owner_receipt",
     "can_create_typed_blocker",
     "can_claim_publication_readiness",
@@ -133,7 +157,7 @@ for key in [
         fail(f"specialist skill authority flag {key} must be false")
 for key in [
     "can_replace_mas_overlay_skill",
-    "can_replace_mas_medical_research_skills",
+    "can_replace_mas_runtime_owner_surface",
     "can_claim_required_pack_for_study",
     "can_write_owner_ledger",
     "can_sign_owner_receipt",
@@ -148,6 +172,9 @@ for relative, text in [
     ("docs/README.md", docs_index),
     ("docs/mas-scholar-skills-operating-model.md", operating_model),
     ("skills/mas-scholar-skills/SKILL.md", skill),
+    ("skills/medical-research-write/SKILL.md", write_skill),
+    ("skills/medical-research-review/SKILL.md", review_skill),
+    ("skills/medical-research-figure/SKILL.md", figure_skill),
 ]:
     for token in [
         "MAS Scholar Skills",
@@ -177,6 +204,9 @@ for relative, text in [
     ("docs/README.md", docs_index),
     ("docs/mas-scholar-skills-operating-model.md", operating_model),
     ("skills/mas-scholar-skills/SKILL.md", skill),
+    ("skills/medical-research-write/SKILL.md", write_skill),
+    ("skills/medical-research-review/SKILL.md", review_skill),
+    ("skills/medical-research-figure/SKILL.md", figure_skill),
     ("skills/medical-research-lit/SKILL.md", lit_skill),
 ]:
     for token in [
@@ -1109,6 +1139,9 @@ required_doc_tokens = {
     "skills/opl-scholarskills/SKILL.md": [
         "Legacy Alias",
         "mas-scholar-skills",
+        "medical-research-write",
+        "medical-research-review",
+        "medical-research-figure",
         "medical-research-lit",
         "not treat this alias as a separate source of truth",
     ],
@@ -1129,6 +1162,39 @@ required_doc_tokens = {
         "claim_support_map_ref",
         "owner_gate_handoff_ref",
         "Do not fabricate citations",
+    ],
+    "skills/medical-research-write/SKILL.md": [
+        "single source",
+        "AI-native medical authorship",
+        "claim_evidence_map.json",
+        "section_contracts.md",
+        "opl connect pubmed search",
+        "pubmed_source_refs",
+        "pubmed_connector_invocation_ref",
+        "submission_minimal_required",
+        "Do not polish fiction",
+    ],
+    "skills/medical-research-review/SKILL.md": [
+        "single source",
+        "adversarial medical pressure test",
+        "Reviewer Action Matrix",
+        "sci_clinical_registry_review",
+        "revision_delta_audit",
+        "opl connect pubmed search",
+        "pubmed_source_refs",
+        "pubmed_connector_invocation_ref",
+        "Do not fabricate citations",
+    ],
+    "skills/medical-research-figure/SKILL.md": [
+        "single source",
+        "Medical figures are evidence surfaces",
+        "Figure Intent And Claim",
+        "Panel Plan",
+        "Visual QA",
+        "opl connect pubmed search",
+        "pubmed_source_refs",
+        "pubmed_connector_invocation_ref",
+        "Do not silently fallback",
     ],
     "docs/capability-modules.md": [
         "progress_first_ai_auto_judgment_first",
@@ -1194,5 +1260,5 @@ for relative, tokens in required_doc_tokens.items():
         if token not in text:
             fail(f"{relative} missing required AI judgment token: {token}")
 
-print("verify ok: mas-scholar-skills plugin, contract, specialist skills, gallery package, and no-authority boundaries are valid")
+print("verify ok: mas-scholar-skills plugin, contract, medical skill sources, gallery package, and no-authority boundaries are valid")
 PY

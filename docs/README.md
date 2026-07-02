@@ -10,13 +10,14 @@ and repo-native verification.
 `MAS Scholar Skills` is the canonical name for the OPL-owned
 `mas-scholar-skills` external enhancement pack. The historical
 `opl-scholarskills` name is a compatibility alias. This repo is not a generic
-OPL base, not an additional brand module, not the MAS owner skill, and not a
-domain truth owner. Its docs stay compact: module contracts, quality floors,
-source packs, external-learning refs, real specialist skills such as
-`medical-research-lit`, and gallery review surfaces support the MAS overlay,
-`medical-research-write`, `medical-research-review`, and
-`medical-research-figure`; generated or domain-owned artifacts remain with
-their owning runtime or domain repo.
+OPL base, not an additional brand module, and not a domain truth owner. Its
+docs stay compact: module contracts, quality floors, source packs,
+external-learning refs, real syncable skills
+`medical-research-write`, `medical-research-review`,
+`medical-research-figure`, `medical-research-lit`, and gallery review surfaces
+support the MAS overlay. The write/review/figure/lit skill bodies are maintained
+here as a single source for MAS consumption; generated or domain-owned artifacts
+remain with their owning runtime or domain repo.
 
 For literature access, use `medical-research-lit` for the AI workflow and OPL
 Connect for stable PubMed refs: `opl connect pubmed search --query <query>
@@ -30,7 +31,7 @@ publication decisions.
 | Doc | Role | Boundary |
 | --- | --- | --- |
 | [Capability modules](./capability-modules.md) | Canonical human-readable module library overview | Machine truth stays in `contracts/scholar-skills-capability-modules.json`, skill pack files, source, and OPL Framework readback |
-| [MAS Scholar Skills operating model](./mas-scholar-skills-operating-model.md) | MAS overlay routing, pack/default ownership, Connect/Fabric sync, and no-dual-source boundary | MAS owner skill, ledgers, owner receipts, typed blockers, queues, and publication readiness remain outside this repo |
+| [MAS Scholar Skills operating model](./mas-scholar-skills-operating-model.md) | MAS overlay routing, skill-body single-source policy, pack/default ownership, Connect/Fabric sync, and no-dual-source boundary | MAS ledgers, owner receipts, typed blockers, queues, artifact authority, and publication readiness remain outside this repo |
 | [Candidate artifact engines](./candidate-artifact-engines.md) | Candidate artifact body generator boundary and CLI orientation | Candidate artifacts are non-authoritative and require domain owner consumption |
 | [Display gallery](./gallery/display-gallery.md) | Human review entry for Scholar Display gallery refs | Pack source and compact review refs live in this repo; consuming MAS/domain owners still own paper truth, visual audit receipts, and publication readiness |
 
