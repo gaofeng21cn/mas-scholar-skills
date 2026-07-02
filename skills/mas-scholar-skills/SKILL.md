@@ -71,6 +71,28 @@ Keep the physical shape explicit:
 
 The contract-layer modules provide vocabulary, ref families, checklist items, candidate handoff, receipt shape, quality-floor hints, and owner-gate routing. They are not half-built skills and are not MAS-private implementations. Promote one to a real Codex skill only when MAS needs Codex to actively execute a stable professional workflow.
 
+## Professional Skill Quality Floor
+
+The existing four real specialist skills carry the default AI-first quality
+floor for MAS medical-paper work:
+
+- `medical-figure-design`: figure contract, evidence chain, archetype, renderer
+  decision, style brief, candidate set, critic review, and visual QA.
+- `medical-manuscript-writing`: one-sentence argument, terminology ledger,
+  paragraph job map, section contract, citation integrity, figure/table binding,
+  and data/code availability audit.
+- `medical-manuscript-review`: shared fact base, technical/significance/reader
+  reviewer lanes, cross-review synthesis, reviewer action matrix, and route-back
+  closeout.
+- `medical-research-lit`: PubMed-first source routing, query plan,
+  deduplication, retain/reject/watchlist screening, fallback source refs,
+  support-strength matrix, and citation integrity floor.
+
+These requirements absorb useful patterns from `K-Dense-AI/scientific-agent-skills`
+and `Yuan1z0825/nature-skills` into MAS-owned professional playbooks. They do
+not require installing those external runtimes before MAS can produce candidate
+refs, and they do not create a parallel stage authority.
+
 ## MAS Progress And AI Judgment Rules
 
 - Use progress-first and AI auto-judgment-first routing: AI should continue when available evidence is enough for a candidate judgment, instead of waiting for a human by default.

@@ -31,6 +31,27 @@ MAS Scholar Skills has ten capability-module contracts and four syncable real Co
 
 The six contract-layer modules are not unfinished skills and are not MAS-private implementations. They came from MAS medical-paper workflow needs, OPL capability registry/readback requirements, and external-learning patterns that are useful as refs/checklists. Keep them as the machine contract layer unless Codex needs to actively run a maintained specialist workflow.
 
+## Professional Quality Floor
+
+MAS Scholar Skills now applies an explicit quality floor to the four real
+specialist skills. The floor is adapted from fresh inspection of
+`K-Dense-AI/scientific-agent-skills` commit
+`1e024ea8547ada12039edbe8197aaa959d97763f` and
+`Yuan1z0825/nature-skills` commit
+`c91df241a7a963ea151687ac669c5534404f53e5`.
+
+| Skill | Quality floor |
+| --- | --- |
+| `medical-figure-design` | Figure contract, evidence chain, archetype, renderer decision, style brief, candidate set, critic review, final-scale visual QA, and reviewer packet. |
+| `medical-manuscript-writing` | One-sentence argument, terminology ledger, paragraph job map, section contract, claim-strength calibration, citation integrity, figure/table binding, and data/code availability audit. |
+| `medical-manuscript-review` | Shared fact base, technical/significance/reader reviewer lanes, cross-review synthesis, reviewer action matrix, citation repair, revision-delta audit, and route-back closeout. |
+| `medical-research-lit` | PubMed-first source routing, query plan, fallback source refs, deduplication, retain/reject/watchlist screening, source verification, support-strength matrix, and citation integrity floor. |
+
+Statistics, data availability, reviewer response, reporting guideline, and
+submission checks are valuable, but they enter this floor first through the
+four existing specialist skills. They become new real skills only when MAS
+needs Codex to actively run a stable standalone workflow.
+
 ## Stage Source Boundary
 
 The canonical MAS stage source is the MAS domain-agent repository, specifically `agent/stages/` and `agent/prompts/`. MAS overlay Skills, local workspace or quest `.codex/skills/` copies, and synced compatibility entries are Codex projection surfaces. They can expose a stage or specialist skill to a Codex session, but they must not be treated as the source for stage routing, evidence thresholds, owner gates, route-back semantics, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.

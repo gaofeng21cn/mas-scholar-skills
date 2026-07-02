@@ -32,6 +32,13 @@ Connect for stable PubMed refs: `opl connect pubmed search --query <query>
 judgment, evidence interpretation, owner receipts, typed blockers, and
 publication decisions.
 
+The current professional quality floor is in the four real skills. Figure work
+requires a figure contract, evidence chain, candidate loop, and visual QA;
+writing requires an argument contract, terminology ledger, paragraph job map,
+and citation/availability audits; review requires reviewer lanes and a
+cross-review synthesis; literature work requires source routing,
+deduplication, support-strength grading, and citation integrity notes.
+
 ## Current Docs
 
 | Doc | Role | Boundary |

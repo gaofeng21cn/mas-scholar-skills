@@ -239,6 +239,42 @@ for key in [
 ]:
     if classification_policy.get(key) is not False:
         fail(f"classification policy flag {key} must be false")
+quality_policy = contract.get("professional_skill_quality_upgrade_policy") or {}
+if quality_policy.get("policy_id") != "mas_scholar_skills_professional_quality_upgrade.v1":
+    fail("contract missing professional skill quality upgrade policy")
+quality_policy_text = json.dumps(quality_policy, ensure_ascii=False)
+for token in [
+    "K-Dense-AI/scientific-agent-skills",
+    "Yuan1z0825/nature-skills",
+    "1e024ea8547ada12039edbe8197aaa959d97763f",
+    "c91df241a7a963ea151687ac669c5534404f53e5",
+    "figure_contract_ref",
+    "one_sentence_argument_ref",
+    "review_fact_base_ref",
+    "support_strength_matrix_ref",
+    "data_availability_and_FAIR_metadata_checks",
+    "reviewer_response_delta_audit",
+]:
+    if token not in quality_policy_text:
+        fail(f"professional skill quality upgrade policy missing {token}")
+expected_quality_skill_refs = {
+    "medical-figure-design": ["figure_contract_ref", "candidate_set_ref", "critic_review_ref"],
+    "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref"],
+    "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref"],
+    "medical-research-lit": ["fallback_source_refs", "deduplication_ref", "support_strength_matrix_ref"],
+}
+for skill_id, refs in expected_quality_skill_refs.items():
+    require_all(f"quality refs for {skill_id}", (quality_policy.get("skill_quality_refs") or {}).get(skill_id), refs)
+for key in [
+    "can_add_parallel_stage_skill_authority",
+    "can_require_external_runtime_install_before_candidate_refs",
+    "can_claim_quality_verdict",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_publication_readiness",
+]:
+    if quality_policy.get(key) is not False:
+        fail(f"professional quality policy flag {key} must be false")
 for relative, text in [
     ("README.md", readme),
     ("README.zh-CN.md", readme_zh),
@@ -1235,6 +1271,7 @@ required_doc_tokens = {
     ],
     "skills/mas-scholar-skills/SKILL.md": [
         "MAS Progress And AI Judgment Rules",
+        "Professional Skill Quality Floor",
         "medical-research-lit",
         "AI auto-judgment-first",
         "source_pack_ref",
@@ -1248,12 +1285,17 @@ required_doc_tokens = {
         "PMID",
         "DOI",
         "claim_support_map_ref",
+        "support_strength_matrix_ref",
+        "deduplication_ref",
         "owner_gate_handoff_ref",
         "Do not fabricate citations",
     ],
     "skills/medical-manuscript-writing/SKILL.md": [
         "professional specialist",
         "AI-native medical authorship",
+        "one_sentence_argument_ref",
+        "terminology_ledger_ref",
+        "paragraph_job_map_ref",
         "claim_evidence_map.json",
         "section_contracts.md",
         "opl connect pubmed search",
@@ -1265,6 +1307,9 @@ required_doc_tokens = {
     "skills/medical-manuscript-review/SKILL.md": [
         "professional specialist",
         "adversarial medical pressure test",
+        "review_fact_base_ref",
+        "technical_reviewer_lane",
+        "cross_review_synthesis_ref",
         "Reviewer Action Matrix",
         "sci_clinical_registry_review",
         "revision_delta_audit",
@@ -1276,6 +1321,10 @@ required_doc_tokens = {
     "skills/medical-figure-design/SKILL.md": [
         "professional specialist",
         "Medical figures are evidence surfaces",
+        "figure_contract_ref",
+        "style_brief_ref",
+        "candidate_set_ref",
+        "critic_review_ref",
         "Figure Intent And Claim",
         "Panel Plan",
         "Visual QA",
@@ -1305,6 +1354,8 @@ required_doc_tokens = {
         "target_agent_feedback_external_suite",
         "feedbackops_intake_ref",
         "MAS/OMA",
+        "专业 Skill 质量地板",
+        "support-strength matrix",
     ],
     "docs/gallery/display-gallery.md": [
         "source pack",

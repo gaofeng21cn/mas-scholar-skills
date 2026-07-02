@@ -141,6 +141,88 @@
     "can_claim_owner_acceptance": false,
     "can_claim_publication_readiness": false
   },
+  "professional_skill_quality_upgrade_policy": {
+    "policy_id": "mas_scholar_skills_professional_quality_upgrade.v1",
+    "scope": "quality_floor_for_existing_real_specialist_skills_without_new_runtime_or_parallel_stage_authority",
+    "upstream_evidence": [
+      {
+        "repo": "K-Dense-AI/scientific-agent-skills",
+        "commit": "1e024ea8547ada12039edbe8197aaa959d97763f",
+        "inspected_patterns": [
+          "large_discoverable_scientific_skill_pack",
+          "scientific_writing",
+          "peer_review",
+          "paper_lookup",
+          "citation_management",
+          "scientific_visualization",
+          "statistical_analysis",
+          "experimental_design"
+        ]
+      },
+      {
+        "repo": "Yuan1z0825/nature-skills",
+        "commit": "c91df241a7a963ea151687ac669c5534404f53e5",
+        "inspected_patterns": [
+          "router_static_references_split",
+          "nature_figure_contract",
+          "nature_writing_argument_and_terminology_workflow",
+          "nature_reviewer_fact_base_and_three_reviewer_lanes",
+          "nature_academic_search_source_routing",
+          "nature_citation_and_data_availability_workflows",
+          "nature_response_workflow"
+        ]
+      }
+    ],
+    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_and_lit_skills_first; keep_tables_stats_omics_submit_data_intake_as_contract_layer_modules_until_active_stable_workflows_need_real_skills",
+    "skill_quality_refs": {
+      "medical-figure-design": [
+        "figure_contract_ref",
+        "core_conclusion_ref",
+        "evidence_chain_ref",
+        "renderer_decision_ref",
+        "style_brief_ref",
+        "candidate_set_ref",
+        "critic_review_ref",
+        "visual_qa_findings_ref"
+      ],
+      "medical-manuscript-writing": [
+        "one_sentence_argument_ref",
+        "reader_question_ref",
+        "terminology_ledger_ref",
+        "paragraph_job_map_ref",
+        "claim_strength_calibration_ref",
+        "data_code_availability_audit_ref"
+      ],
+      "medical-manuscript-review": [
+        "review_fact_base_ref",
+        "technical_reviewer_lane",
+        "significance_reviewer_lane",
+        "reader_reviewer_lane",
+        "cross_review_synthesis_ref",
+        "reviewer_action_matrix_ref"
+      ],
+      "medical-research-lit": [
+        "query_plan_ref",
+        "fallback_source_refs",
+        "deduplication_ref",
+        "claim_support_map_ref",
+        "support_strength_matrix_ref",
+        "citation_integrity_notes"
+      ]
+    },
+    "absorbed_contract_layer_patterns": [
+      "statistical_assumption_and_effect_size_checks_feed_write_and_review",
+      "data_availability_and_FAIR_metadata_checks_feed_write_review_and_submit",
+      "reviewer_response_delta_audit_feeds_review_and_write",
+      "source_routing_dedup_and_claim_support_grading_feed_lit"
+    ],
+    "can_add_parallel_stage_skill_authority": false,
+    "can_require_external_runtime_install_before_candidate_refs": false,
+    "can_claim_quality_verdict": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_publication_readiness": false
+  },
   "runtime_environment_bridge": {
     "mode": "refs_only",
     "owner": "OPL Framework",

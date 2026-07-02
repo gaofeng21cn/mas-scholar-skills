@@ -36,6 +36,8 @@ The current classification is fixed: ten capability-module contracts, four synca
 
 For literature work, `medical-research-lit` now uses the stable OPL Connect PubMed path: `opl connect pubmed search --query <query> --limit <n> --json`. The connector returns `pubmed_source_refs` and `pubmed_connector_invocation_ref`; MAS Scholar Skills keeps the AI workflow around query design, source screening, evidence maps, and route-back handoff.
 
+The current professional quality floor is concentrated in those four real skills. `medical-figure-design` requires a figure contract, evidence chain, candidate loop, and visual QA. `medical-manuscript-writing` requires an argument contract, terminology ledger, paragraph job map, citation integrity, and data/code availability audit. `medical-manuscript-review` requires a shared fact base, reviewer lanes, cross-review synthesis, reviewer action matrix, and route-back closeout. `medical-research-lit` requires source routing, deduplication, retain/reject/watchlist screening, support-strength grading, and citation integrity notes.
+
 <table>
   <tr>
     <td width="33%" valign="top">
@@ -91,6 +93,8 @@ These modules are not ten separate products and they are not default entries par
 ## External Learning Module Fit
 
 External projects such as ARS, PaperOrchestra, Research-Paper-Writing-Skills, Paperlib, SciPilot Figure, NaturePanelForge, Marsilea, and curated figure/resource lists inform MAS Scholar Skills as refs-only module fit. The lessons land as stronger candidate refs and checklists for Display, Tables, Stats, Omics, Lit, Write, Review, Submit, Data, and Intake.
+
+The specialist-skill floor also absorbs maintainable patterns from `K-Dense-AI/scientific-agent-skills` and `Yuan1z0825/nature-skills`: discoverable scientific skill packs, figure contracts, argument-first writing, reviewer fact bases, source routing, citation verification, data availability checks, and reviewer-response discipline. These patterns are adapted into MAS-owned skills instead of imported as a second runtime.
 
 These additions improve progress without forcing agents to install external runtimes first. They add reviewable candidate surfaces such as visual QA previews, citation verification, claim-evidence maps, submission sanity refs, source lineage, and intake provenance; they do not bypass MAS or another domain owner gate.
 

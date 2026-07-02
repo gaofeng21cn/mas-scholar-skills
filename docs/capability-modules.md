@@ -53,6 +53,19 @@ MAS Scholar Skills 正式承接全部十个模块的 MAS 增强材料 source / c
 
 这六个合同层模块不是从 MAS 拆出的旧真 Skill，也不是回流到 MAS 内部的私有实现。它们来自 MAS 医学论文链条的高频能力需求、OPL capability registry 的可发现/可回执要求，以及外部学习吸收后的 refs/checklist 形状。它们的必要性是作为机器合同层：让 MAS、OPL Framework、OPL Connect/Fabric 和专业 Skill 用同一套能力名、引用族和 owner gate 交接，而不是把一次性提示词、脚本路径或临时清单散落到各处。
 
+## 专业 Skill 质量地板
+
+本轮继续吸收 `K-Dense-AI/scientific-agent-skills` 与 `Yuan1z0825/nature-skills` 的可迁移经验，但落点是四个已有真 Skill 的 AI-first 工作流，不新增并列 stage authority，也不要求先安装外部 runtime。
+
+| Skill | 新增质量要求 |
+| --- | --- |
+| `medical-figure-design` | figure contract、core conclusion、evidence chain、figure archetype、renderer decision、style brief、candidate set、critic review、final-scale visual QA 和 reviewer packet。 |
+| `medical-manuscript-writing` | one-sentence argument、terminology ledger、paragraph job map、section contract、claim-strength calibration、citation integrity、figure/table binding、data/code availability audit。 |
+| `medical-manuscript-review` | review fact base、technical/significance/reader reviewer lanes、cross-review synthesis、reviewer action matrix、citation repair、revision delta audit、route-back closeout。 |
+| `medical-research-lit` | PubMed-first source routing、query plan、fallback source refs、deduplication、retain/reject/watchlist screening、source verification、support-strength matrix、citation integrity floor。 |
+
+统计假设、效应量、数据可用性、FAIR metadata、投稿回复和 reporting guideline 检查，先作为上述四个 Skill 的检查层吸收。只有当它们需要 Codex 主动执行一套稳定、可维护、可同步的独立专业流程时，才升级为新的真实 Skill。
+
 ## MAS 默认入口与技能正文边界
 
 MAS overlay skill 是医学论文工作的 runtime 主入口，MAS stage operating prompts 负责阶段进入、证据门槛、路由、owner gate 和采纳边界。MAS stage 主提示词的 canonical source 是 MAS domain-agent 仓的 `agent/stages/` 和 `agent/prompts/`；overlay Skill、workspace/quest `.codex/skills/` 同步副本只是 Codex 投影或兼容入口，不是 stage authority source。写作、审阅、图件和文献四类高频专业执行默认走 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design` 和 `medical-research-lit`；这些专业 skill 由本仓维护并同步给 MAS 消费。MAS 继续持有 study truth、artifact authority、owner receipt、typed blocker、human gate、current package 和 publication readiness。本仓不规划 `opl-scholar-write`、`opl-scholar-review` 或 `opl-scholar-display` 作为与这些 skill 并列的默认入口。

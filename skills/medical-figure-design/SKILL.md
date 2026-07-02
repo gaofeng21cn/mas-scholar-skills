@@ -196,15 +196,17 @@ Record the selected grammar in a figure manifest before polishing:
 When a figure is important enough for a manuscript main figure, use an
 AI-first candidate loop:
 
-1. `style_brief_ref`: summarize the intended reader, journal class, figure
+1. `figure_contract_ref`: bind the figure to the accepted claim, evidence refs,
+   allowed comparisons, forbidden claim drift, and owner-gate target.
+2. `style_brief_ref`: summarize the intended reader, journal class, figure
    archetype, visual hierarchy, allowed palette, and forbidden claim drift.
-2. `reference_selection_ref`: cite visual references or local gallery refs as
+3. `reference_selection_ref`: cite visual references or local gallery refs as
    style targets only. They are not data truth or template authority.
-3. `candidate_set_ref`: create one to three candidate plans or renders when the
+4. `candidate_set_ref`: create one to three candidate plans or renders when the
    design space is open.
-4. `critic_review_ref`: judge the candidates against evidence, readability,
+5. `critic_review_ref`: judge the candidates against evidence, readability,
    reviewer risk, color accessibility, and export constraints.
-5. `selected_candidate_ref`: record the selected route and the concrete fixes
+6. `selected_candidate_ref`: record the selected route and the concrete fixes
    still required before owner review.
 
 For a small repair, one candidate is enough. For a new main figure, skipping the
