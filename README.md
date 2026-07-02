@@ -6,9 +6,9 @@
   <a href="./README.md"><strong>English</strong></a> | <a href="./README.zh-CN.md">中文</a>
 </p>
 
-<h1 align="center">OPL ScholarSkills</h1>
+<h1 align="center">MAS Scholar Skills</h1>
 
-<p align="center"><strong>An OPL skill pack for academic work that needs reusable scholarly capabilities</strong></p>
+<p align="center"><strong>An OPL-owned external enhancement pack for MAS medical-paper capabilities</strong></p>
 <p align="center">Display · Tables · Stats · Omics · Literature · Writing · Review · Submission · Data · Intake</p>
 
 <!--
@@ -22,7 +22,9 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
   <img src="assets/branding/opl-scholarskills-overview.png" alt="OPL ScholarSkills academic capability handoff map" width="100%" />
 </p>
 
-`OPL ScholarSkills` turns common scholarly capabilities into a Codex-compatible skill pack. It is not a paper system, a study authority, or a publication gate. Its job is to give Codex, MAS, and other OPL agents a stable way to ask for academic support such as figures, tables, statistics, literature, writing, review, submission prep, and data organization.
+`MAS Scholar Skills` is the current product-stage positioning of the `opl-scholarskills` repository: an OPL-owned, Codex-compatible external enhancement pack for MAS medical-paper work. It is the single source for ScholarSkills refs, packs, quality floors, templates, external-learning absorption, and module contracts. It is not a generic OPL runtime base, not the MAS overlay owner skill, not a paper system, not a study authority, and not a publication gate.
+
+The default MAS entry stays the MAS overlay skill. High-frequency manuscript writing, review, and figure work should start in the MAS `medical-research-write`, `medical-research-review`, and `medical-research-figure` skills. ScholarSkills supplies enhancement material those MAS skills can discover and consume: module descriptors, candidate refs, display packs, quality floors, checklists, and route-back hints.
 
 In practical terms, ScholarSkills says what each capability can help with, what material it needs, what candidate handoff it can prepare, and who must review the result. The domain owner still owns study truth, artifact authority, quality judgment, acceptance, and publication decisions.
 
@@ -34,15 +36,15 @@ Display is only one module. ScholarSkills is also the source, contract, and docu
   <tr>
     <td width="33%" valign="top">
       <strong>Who It Serves</strong><br/>
-      Codex sessions, MAS research tasks, and OPL-family agents that need reusable academic capability guidance
+      MAS overlay sessions and MAS medical-paper skills that need OPL-owned enhancement material
     </td>
     <td width="33%" valign="top">
       <strong>What It Solves</strong><br/>
-      It organizes scattered academic helper skills into ten clear modules that can be reused across studies, workspaces, and agents
+      It keeps ScholarSkills refs, packs, quality floors, external-learning patterns, and module contracts in one source
     </td>
     <td width="33%" valign="top">
       <strong>What It Produces</strong><br/>
-      Candidate refs, review hints, material checklists, gallery examples, and handoff packages; not final paper authority
+      Candidate refs, templates, quality-floor hints, gallery examples, and handoff packages; not MAS owner authority
     </td>
   </tr>
 </table>
@@ -51,12 +53,12 @@ Display is only one module. ScholarSkills is also the source, contract, and docu
 
 Academic work rarely moves in one shot. A real study may need intake, data understanding, statistical checks, visual design, literature mapping, drafting, review, revision, and submission preparation. Each step needs judgment, but those capabilities should not live as scattered one-off prompts.
 
-ScholarSkills turns them into reusable capability modules:
+MAS Scholar Skills turns the reusable support material into capability modules:
 
-- Agents can ask for display, table, statistics, literature, writing, review, submission, data, or intake support through one shared vocabulary.
+- MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, data, or intake support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
 - Candidate outputs can move into human or domain-agent review, but they do not become paper truth by themselves.
-- The same skill pack can be synced into different workspaces, quests, and OPL agents without copying a second source of truth.
+- The same skill pack can be synced into different MAS workspaces or quests without copying a second source of truth.
 
 The design keeps reuse and responsibility separate: ScholarSkills prepares the handoff; the domain owner decides what is accepted.
 
@@ -77,7 +79,7 @@ Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_bac
 | **Scholar Data** | Data source notes, lineage, variable context, processing routes, storage tiering, derived-copy inventory, restore-proof retention, completed-project closeout, lifecycle catalogs, and reproducibility hints. |
 | **Scholar Intake** | New project, source, or external package intake into a governed research workspace. |
 
-These modules are not ten separate products. They are an academic capability map that OPL, Codex, and MAS can discover and call. Final figures, manuscripts, analysis conclusions, review decisions, and submission actions remain with the owning domain system and human owner gate.
+These modules are not ten separate products and they are not default entries parallel to MAS `medical-research-*` skills. They are the MAS Scholar Skills enhancement map that MAS can discover and call. Final figures, manuscripts, analysis conclusions, review decisions, and submission actions remain with the owning MAS/domain system and human owner gate.
 
 ## External Learning Module Fit
 
@@ -89,9 +91,9 @@ These additions improve progress without forcing agents to install external runt
 
 Useful prompts look like this:
 
-- "Use ScholarSkills to prepare a display candidate package for this study, but do not claim publication readiness; route it through the MAS owner gate."
-- "For these results, use Display, Tables, and Stats to list the highest-value candidate materials to prepare next."
-- "Turn the current literature evidence, writing gaps, and submission prep items into a handoff checklist."
+- "In the MAS overlay, use `medical-research-figure` as the primary entry and pull ScholarSkills Display refs for the candidate package; do not claim publication readiness."
+- "For these results, ask the MAS medical-research skills to use ScholarSkills Display, Tables, and Stats refs to list the highest-value candidate materials."
+- "Turn the current literature evidence, writing gaps, and submission prep items into a refs-only MAS handoff checklist."
 
 ## Included Review Example
 
@@ -108,10 +110,11 @@ The gallery keeps only the final review package. Renderer intermediates, single-
 
 ## Boundary
 
-- `OPL ScholarSkills` is an OPL-owned scholarly capability skill pack, not a MAS/MAG/RCA domain truth owner.
+- `MAS Scholar Skills` is the current product-stage name for the OPL-owned `opl-scholarskills` enhancement pack, not a generic OPL base and not a MAS/MAG/RCA domain truth owner.
 - This repository owns the distributable Codex plugin/Skill, the ten-module capability catalog, the gallery review package, and human-readable guidance.
-- OPL Framework owns executable commands, sync, runtime environment bridges, and workbench actions.
-- MAS and other domain agents keep ownership of study truth, publication truth, artifact authority, quality verdicts, owner receipts, human gates, and current package authority.
+- OPL Framework owns executable commands, sync, runtime environment bridges, Connect/Fabric resource plumbing, and workbench actions.
+- MAS overlay and MAS `medical-research-write` / `medical-research-review` / `medical-research-figure` remain the default high-frequency medical-paper skill entries.
+- MAS and other domain agents keep ownership of study truth, publication truth, artifact authority, quality verdicts, owner receipts, human gates, ledgers, and current package authority.
 - ScholarSkills outputs are candidate refs, candidate packages, or review hints only. They cannot by themselves claim runtime readiness, domain readiness, quality verdicts, artifact authority, owner acceptance, publication readiness, or publication-ready status.
 
 <details>
@@ -170,6 +173,7 @@ The verifier checks the plugin manifest, Skill entry, module catalog, gallery pa
 ## Further Reading
 
 - [Capability Modules](./docs/capability-modules.md)
+- [MAS Scholar Skills Operating Model](./docs/mas-scholar-skills-operating-model.md)
 - [Candidate Artifact Engines](./docs/candidate-artifact-engines.md)
 - [Display Gallery](./docs/gallery/display-gallery.md)
 - [Gallery Snapshot](./gallery/medical-display/gallery_snapshot.json)

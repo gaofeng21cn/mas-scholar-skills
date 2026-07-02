@@ -5,7 +5,7 @@ Purpose: `repo_local_display_pack_index`
 State: `active_support`
 Machine boundary: This README is a human index for the ScholarSkills-owned externalized medical display source pack. Machine truth stays in `display_pack.toml`, `templates/*/template.toml`, `canonical_template_catalog.json`, renderer source, `gallery/medical-display/gallery_snapshot.json`, and repo-native verification. It does not authorize MAS artifact freshness, display rendering success, publication readiness, submission readiness, package readiness, owner acceptance, or quality verdicts.
 
-Externalized core pack for audited medical display templates.
+Externalized core pack for audited medical display templates. In the current product stage this is a MAS Scholar Skills support pack: MAS profile/overlay decides whether it is required or default for a paper, while this repo only owns the source pack, reusable templates, and no-authority review refs.
 
 ## Operating model
 
@@ -13,7 +13,7 @@ The pack is maintained like a versioned ggplot2/R display extension:
 
 - template descriptors, renderer source, shared R helpers, example payload contracts, and dependency requirement declarations live in this pack;
 - ScholarSkills owns the pack source and compact review refs under `gallery/medical-display/`;
-- MAS or another consuming domain owner discovers and calls the pack through its own registry/catalog surfaces and paper-level figure contracts;
+- MAS overlay, `medical-research-figure`, or another consuming domain owner discovers and calls the pack through its own registry/catalog surfaces and paper-level figure contracts;
 - generated Gallery assets, HTML, PDF, manifest, layout sidecars, and parity contact sheets are publishable review artifacts, not source truth;
 - dependency resolution, package installation, managed R libraries, runtime cache, and doctor flows belong to the OPL Runtime Environment Substrate.
 

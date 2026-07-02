@@ -58,10 +58,84 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", skill, re.MULTILI
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 contract_text = json.dumps(contract, ensure_ascii=False)
+readme = read_text("README.md")
+readme_zh = read_text("README.zh-CN.md")
+docs_index = read_text("docs/README.md")
+operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
 if "cold_store_catalog_ref" in contract_text:
     fail("contract must use lifecycle_catalog_ref instead of cold_store_catalog_ref")
 if "cold_store_catalog_declared" in contract_text:
     fail("contract must use lifecycle_catalog_declared instead of cold_store_catalog_declared")
+if contract.get("brand_family") != "MAS Scholar Skills":
+    fail("contract brand_family must be MAS Scholar Skills")
+positioning_policy = contract.get("positioning_policy") or {}
+expected_positioning = {
+    "product_stage_name": "MAS Scholar Skills",
+    "repository_id": "opl-scholarskills",
+    "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
+    "primary_mas_entry_policy": "MAS_overlay_skill_and_medical_research_write_review_figure_remain_primary_default_entries",
+    "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
+    "sync_owner": "OPL Connect",
+    "required_or_default_pack_owner": "MAS_profile_or_overlay",
+    "ledger_and_owner_receipt_owner": "MAS_or_relevant_OPL_domain_owner",
+}
+for key, expected in expected_positioning.items():
+    if positioning_policy.get(key) != expected:
+        fail(f"positioning policy {key} must be {expected}")
+require_all(
+    "positioning policy provided surfaces",
+    positioning_policy.get("provided_surfaces"),
+    [
+        "references",
+        "packs",
+        "quality_floors",
+        "templates",
+        "external_learning_absorption",
+        "module_contract",
+        "candidate_refs",
+        "route_back_hints",
+    ],
+)
+for key in [
+    "can_replace_mas_overlay_skill",
+    "can_replace_mas_medical_research_skills",
+    "can_claim_required_pack_for_study",
+    "can_write_owner_ledger",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_publication_readiness",
+]:
+    if positioning_policy.get(key) is not False:
+        fail(f"positioning authority flag {key} must be false")
+for relative, text in [
+    ("README.md", readme),
+    ("README.zh-CN.md", readme_zh),
+    ("docs/README.md", docs_index),
+    ("docs/mas-scholar-skills-operating-model.md", operating_model),
+    ("skills/opl-scholarskills/SKILL.md", skill),
+]:
+    for token in [
+        "MAS Scholar Skills",
+        "medical-research-write",
+        "medical-research-review",
+        "medical-research-figure",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing MAS Scholar Skills positioning token: {token}")
+    for token in [
+        "owner receipt",
+        "typed blocker",
+        "publication readiness",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing no-authority boundary token: {token}")
+for forbidden in [
+    "default opl-scholar-write",
+    "default opl-scholar-review",
+    "default opl-scholar-display",
+]:
+    if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
+        fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 10:
     fail("contract must contain exactly 10 ScholarSkills modules")

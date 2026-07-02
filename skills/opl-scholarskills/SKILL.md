@@ -1,15 +1,31 @@
 ---
 name: opl-scholarskills
-description: "Operate OPL ScholarSkills as a Codex skill pack for repo-tracked scholarly capability modules, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries. Use when Codex needs ScholarSkills module guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
+description: "Operate MAS Scholar Skills (`opl-scholarskills`) as the OPL-owned external enhancement pack for MAS medical-paper capability discovery, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS medical-research-* skills when Codex needs ScholarSkills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
 ---
 
-# OPL ScholarSkills
+# MAS Scholar Skills (`opl-scholarskills`)
 
-Use OPL ScholarSkills as a repo-tracked Codex entry for scholarly capability modules. Treat `contracts/scholar-skills-capability-modules.json` as this skill pack's module catalog snapshot. The executable `opl scholar-skills *` CLI and runtime bridge remain owned by OPL Framework.
+Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry for the OPL-owned `opl-scholarskills` enhancement pack. Treat `contracts/scholar-skills-capability-modules.json` as this skill pack's module catalog snapshot. The executable `opl scholar-skills *` CLI and runtime bridge remain owned by OPL Framework.
+
+This skill is not the primary MAS owner skill. In MAS work, start from the MAS overlay skill and route high-frequency writing, review, and figure issues through MAS `medical-research-write`, `medical-research-review`, and `medical-research-figure`. Use ScholarSkills after that routing point to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Do not create or prefer `opl-scholar-write`, `opl-scholar-review`, or `opl-scholar-display` as default entries parallel to the MAS `medical-research-*` skills.
+
+## MAS Overlay Call Path
+
+Default route:
+
+```text
+MAS overlay skill
+  -> medical-research-write / medical-research-review / medical-research-figure
+  -> MAS Scholar Skills discovery refs
+  -> source_pack_ref / candidate_package_ref / quality_floor_ref / owner_gate_handoff_ref
+  -> MAS owner gate consume / reject / route back
+```
+
+ScholarSkills can improve the material those MAS skills use. It cannot replace the MAS overlay, issue MAS owner receipts, create typed blockers, update ledgers, mutate current packages, write runtime queues, or claim publication readiness.
 
 ## Local Install / Discovery
 
-This `opl-scholarskills` repository is the source of truth for the skill pack. The recommended MAS consumption path is a compact local Codex discovery install inside the active paper workspace or runtime quest:
+This `opl-scholarskills` repository is the single source of truth for the MAS Scholar Skills pack. The recommended MAS consumption path is a compact local Codex discovery install inside the active paper workspace or runtime quest:
 
 ```text
 <workspace_root>/.codex/skills/opl-scholarskills/
@@ -28,7 +44,8 @@ The local install is refs-only and authority false. It may include this Skill en
 ## Boundary
 
 - Keep the authority false boundary explicit: `can_write_domain_truth: false`, `can_write_runtime_state: false`, `can_mutate_artifact_body: false`, `can_sign_owner_receipt: false`, and `can_create_typed_blocker: false`.
-- Treat this repository as the source, contract, and docs home for all ten modules, not only Display. Lit, Tables, Stats, Submit, Write, Review, Omics, Data, and Intake use the same refs-only/no-authority boundary.
+- Treat this repository as the source, contract, and docs home for all ten modules in MAS Scholar Skills, not only Display. Lit, Tables, Stats, Submit, Write, Review, Omics, Data, and Intake use the same refs-only/no-authority boundary.
+- Keep default MAS skill routing single-sourced: writing, review, and figure problems optimize MAS `medical-research-write`, `medical-research-review`, and `medical-research-figure`; ScholarSkills supplies references, packs, quality floors, external-learning absorption, module contracts, and candidate refs for those entries.
 - Require every module handoff to name `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`; these are candidate refs only and must not be read as runtime authority, owner acceptance, publication readiness, typed blocker creation, or a human gate.
 - Use ScholarSkills outputs as refs-only candidates. Do not present CLI readbacks, materialized packages, or tests as runtime-ready, domain-ready, quality verdict, publication readiness, artifact authority, owner receipt, typed blocker, or production readiness.
 - Respect the MAS owner gate: MAS or another domain owner must consume candidate refs and issue the owner receipt, typed blocker, reviewer receipt, route-back, or domain artifact mutation. Do not write MAS, Yang, runtime DB, queue, owner receipt, typed blocker, current package authority, publication eval, controller decision, or domain truth surfaces from this skill.
