@@ -1,25 +1,25 @@
 ---
-name: medical-research-figure
-description: "Use when a MAS medical-paper line needs a new or materially repaired manuscript figure from figure intent through evidence refs, panel plan, renderer/template selection, draft render, visual QA, polish, and reviewer handoff. This is the single maintained Codex skill body for MAS medical figures in mas-scholar-skills; MAS consumes it while MAS remains the runtime, artifact, owner-receipt, typed-blocker, visual-audit, and publication-readiness authority."
+name: medical-figure-design
+description: "Use when a MAS figure stage operating prompt needs professional medical figure design for a new or materially repaired manuscript figure, from figure intent through evidence refs, panel plan, renderer/template selection, draft render, visual QA, polish, and reviewer handoff. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, visual-audit authority, owner receipts, typed blockers, and publication readiness."
 ---
 
-# Medical Research Figure
+# Medical Figure Design
 
 Use this skill when a paper-facing figure needs to be created or materially
 repaired from zero to one.
 
-This skill body is maintained in `mas-scholar-skills` / MAS Scholar Skills as
-the single source for the MAS-consumed `medical-research-figure` skill. MAS may
-sync and consume this skill, but MAS still owns study truth, display registry,
-figure semantics, visual audit receipts, owner receipts, typed blockers, human
-gates, current packages, and publication readiness.
+This professional specialist skill is maintained in `mas-scholar-skills` /
+MAS Scholar Skills. MAS stage operating prompts may sync and consume it, while MAS
+still owns stage routing, study truth, display registry, figure semantics,
+visual audit receipts, owner receipts, typed blockers, human gates, current
+packages, and publication readiness.
 
-Sibling skill routes are `medical-research-write` for manuscript narrative
-repair, `medical-research-review` for adversarial review, and
+Sibling skill routes are `medical-manuscript-writing` for manuscript narrative
+repair, `medical-manuscript-review` for adversarial review, and
 `medical-research-lit` for PubMed-oriented literature discovery.
 
-`medical-research-figure-polish` is only the polish/review phase entry for an
-already scoped figure. It is not an independent authority source.
+MAS `figure-polish` is only the polish/review phase entry for an already scoped
+figure. It is not an independent specialist source.
 
 ## Core Rule
 
@@ -75,7 +75,7 @@ Start by writing the figure intent in plain scientific terms:
 - what the figure must not claim
 
 If the claim is missing, too broad, or not accepted by MAS evidence surfaces,
-route to `medical-research-write`, `medical-research-review`,
+route to `medical-manuscript-writing`, `medical-manuscript-review`,
 `analysis-campaign`, `decision`, or human gate before drawing.
 
 ### 2. Evidence Refs

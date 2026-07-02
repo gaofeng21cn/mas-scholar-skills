@@ -1,22 +1,22 @@
 ---
-name: medical-research-review
-description: "Use when a MAS medical manuscript, draft, claim-evidence package, reviewer response, figure/table set, or citation surface needs adversarial medical review, claim downgrade, citation repair routing, reviewer action matrix, SCI clinical-registry review, revision-delta audit, or route-back closeout. This is the single maintained Codex skill body for MAS medical review in mas-scholar-skills; MAS consumes it while MAS remains the runtime, artifact, owner-receipt, typed-blocker, and publication-readiness authority."
+name: medical-manuscript-review
+description: "Use when a MAS review stage operating prompt needs professional adversarial medical review over a manuscript, draft, claim-evidence package, reviewer response, figure/table set, or citation surface. Covers claim downgrade, citation repair routing, reviewer action matrix, SCI clinical-registry review, revision-delta audit, and route-back candidates. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, owner receipts, typed blockers, and publication readiness."
 ---
 
-# Medical Research Review
+# Medical Manuscript Review
 
 Use this skill when a manuscript-facing draft, claim-evidence package, display
 set, or reviewer feedback needs strict medical review before the line can
 advance.
 
-This skill body is maintained in `mas-scholar-skills` / MAS Scholar Skills as
-the single source for the MAS-consumed `medical-research-review` skill. MAS may
-sync and consume this skill, but MAS still owns study truth, review ledgers,
-evidence ledgers, publication eval, controller decisions, owner receipts, typed
-blockers, human gates, current packages, and publication readiness.
+This professional specialist skill is maintained in `mas-scholar-skills` /
+MAS Scholar Skills. MAS stage operating prompts may sync and consume it, while MAS
+still owns stage routing, study truth, review ledgers, evidence ledgers,
+publication eval, controller decisions, owner receipts, typed blockers, human
+gates, current packages, and publication readiness.
 
-Sibling skill routes are `medical-research-write` for manuscript repair,
-`medical-research-figure` for material figure work, and `medical-research-lit`
+Sibling skill routes are `medical-manuscript-writing` for manuscript repair,
+`medical-figure-design` for material figure work, and `medical-research-lit`
 for PubMed-oriented literature discovery.
 
 Review is not copyediting. It is an adversarial medical pressure test over
@@ -216,7 +216,7 @@ Review is complete only after it names the narrowest honest next route:
   bounded analysis slice
 - route to `write` when evidence is adequate but wording, structure, caveats,
   limitations, citations, or display wording need repair
-- route to `medical-research-figure` when figure intent, display-to-claim,
+- route to `medical-figure-design` when figure intent, display-to-claim,
   renderer, or visual QA needs material repair
 - route to `finalize` only when no blocker remains and package readiness is the
   main work

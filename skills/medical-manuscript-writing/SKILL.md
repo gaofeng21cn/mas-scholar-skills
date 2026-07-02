@@ -1,21 +1,21 @@
 ---
-name: medical-research-write
-description: "Use when a MAS medical-paper line has accepted evidence and needs manuscript writing, revision, claim-evidence mapping, section contracts, citation-integrity work, reviewer-facing prose, figure/table narrative binding, submission-minimal checks, or a route-back decision. This is the single maintained Codex skill body for MAS medical writing in mas-scholar-skills; MAS consumes it while MAS remains the runtime, artifact, owner-receipt, typed-blocker, and publication-readiness authority."
+name: medical-manuscript-writing
+description: "Use when a MAS write stage operating prompt has accepted evidence and needs professional medical manuscript writing, revision, claim-evidence mapping, section contracts, citation-integrity work, reviewer-facing prose, figure/table narrative binding, submission-minimal checks, or a route-back candidate. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, owner receipts, typed blockers, and publication readiness."
 ---
 
-# Medical Research Write
+# Medical Manuscript Writing
 
 Use this skill to turn accepted medical evidence into a faithful manuscript,
 reviewable draft, section repair, or writing route-back packet.
 
-This skill body is maintained in `mas-scholar-skills` / MAS Scholar Skills as
-the single source for the MAS-consumed `medical-research-write` skill. MAS may
-sync and consume this skill, but MAS still owns study truth, manuscript
-artifacts, evidence ledgers, owner receipts, typed blockers, human gates,
-current packages, and publication readiness.
+This professional specialist skill is maintained in `mas-scholar-skills` /
+MAS Scholar Skills. MAS stage operating prompts may sync and consume it, while MAS
+still owns stage routing, study truth, manuscript artifacts, evidence ledgers,
+owner receipts, typed blockers, human gates, current packages, and publication
+readiness.
 
-Sibling skill routes are `medical-research-review` for adversarial review,
-`medical-research-figure` for material figure work, and `medical-research-lit`
+Sibling skill routes are `medical-manuscript-review` for adversarial review,
+`medical-figure-design` for material figure work, and `medical-research-lit`
 for PubMed-oriented literature discovery.
 
 ## Core Rule
@@ -193,7 +193,7 @@ Before placing a display in the manuscript:
   match the evidence
 - ensure figure/table catalogs and display registry are fresh enough for the
   claim
-- route figure creation or material repair through `medical-research-figure`
+- route figure creation or material repair through `medical-figure-design`
 
 Do not let a main-text claim-bound figure disappear from the current package
 only to make a smaller bundle compile.
@@ -216,7 +216,7 @@ Record major issues in `paper/reviewer_first_pass.md`,
 must be removed, downgraded, or routed back.
 
 When the draft is substantial enough for an independent critique, route through
-`medical-research-review` before finalize.
+`medical-manuscript-review` before finalize.
 
 ## Required Durable Outputs
 

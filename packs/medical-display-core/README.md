@@ -13,7 +13,7 @@ The pack is maintained like a versioned ggplot2/R display extension:
 
 - template descriptors, renderer source, shared R helpers, example payload contracts, and dependency requirement declarations live in this pack;
 - MAS Scholar Skills owns the pack source and compact review refs under `gallery/medical-display/`;
-- MAS overlay, `medical-research-figure`, or another consuming domain owner discovers and calls the pack through its own registry/catalog surfaces and paper-level figure contracts;
+- MAS overlay, a MAS figure stage operating prompt, `medical-figure-design`, or another consuming domain owner discovers and calls the pack through its own registry/catalog surfaces and paper-level figure contracts;
 - generated Gallery assets, HTML, PDF, manifest, layout sidecars, and parity contact sheets are publishable review artifacts, not source truth;
 - dependency resolution, package installation, managed R libraries, runtime cache, and doctor flows belong to the OPL Runtime Environment Substrate.
 

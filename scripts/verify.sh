@@ -55,15 +55,15 @@ if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")
-write_skill = read_text("skills/medical-research-write/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-write$", write_skill, re.MULTILINE):
-    fail("medical-research-write must be a real Codex skill")
-review_skill = read_text("skills/medical-research-review/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-review$", review_skill, re.MULTILINE):
-    fail("medical-research-review must be a real Codex skill")
-figure_skill = read_text("skills/medical-research-figure/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-figure$", figure_skill, re.MULTILINE):
-    fail("medical-research-figure must be a real Codex skill")
+write_skill = read_text("skills/medical-manuscript-writing/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-manuscript-writing$", write_skill, re.MULTILINE):
+    fail("medical-manuscript-writing must be a real Codex skill")
+review_skill = read_text("skills/medical-manuscript-review/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-manuscript-review$", review_skill, re.MULTILINE):
+    fail("medical-manuscript-review must be a real Codex skill")
+figure_skill = read_text("skills/medical-figure-design/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-design$", figure_skill, re.MULTILINE):
+    fail("medical-figure-design must be a real Codex skill")
 lit_skill = read_text("skills/medical-research-lit/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-lit$", lit_skill, re.MULTILINE):
     fail("medical-research-lit must be a real Codex skill")
@@ -88,8 +88,8 @@ expected_positioning = {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
-    "primary_mas_entry_policy": "MAS_overlay_runtime_entry_consumes_medical_research_write_review_figure_from_mas_scholar_skills",
-    "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
+    "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
+    "no_parallel_entry_policy": "do_not_create_parallel_stage_authority_entries_in_mas_scholar_skills",
     "sync_owner": "OPL Connect",
     "required_or_default_pack_owner": "MAS_profile_or_overlay",
     "ledger_and_owner_receipt_owner": "MAS_or_relevant_OPL_domain_owner",
@@ -103,7 +103,7 @@ require_all(
     [
         "real_codex_skills",
         "syncable_real_skills",
-        "medical_paper_owner_skill_bodies",
+        "medical_paper_professional_specialist_skills",
         "references",
         "packs",
         "quality_floors",
@@ -124,12 +124,12 @@ if specialist_skill_policy.get("legacy_aggregate_skill_alias") != "opl-scholarsk
 require_all(
     "syncable real skills",
     specialist_skill_policy.get("syncable_real_skills"),
-    ["medical-research-write", "medical-research-review", "medical-research-figure", "medical-research-lit"],
+    ["medical-manuscript-writing", "medical-manuscript-review", "medical-figure-design", "medical-research-lit"],
 )
 require_all(
-    "medical paper owner skill sources",
-    specialist_skill_policy.get("medical_paper_owner_skill_sources"),
-    ["medical-research-write", "medical-research-review", "medical-research-figure"],
+    "medical paper specialist skill sources",
+    specialist_skill_policy.get("medical_paper_specialist_skill_sources"),
+    ["medical-manuscript-writing", "medical-manuscript-review", "medical-figure-design"],
 )
 require_all(
     "external resource specialist skills",
@@ -138,10 +138,10 @@ require_all(
 )
 if "mas_owned_primary_skills" in specialist_skill_policy:
     fail("specialist skill policy must not keep legacy mas_owned_primary_skills wording")
-if specialist_skill_policy.get("mas_consumes_skill_bodies") is not True:
-    fail("specialist skill policy must state MAS consumes synced skill bodies")
-if specialist_skill_policy.get("mas_maintains_write_review_figure_skill_bodies") is not False:
-    fail("specialist skill policy must state MAS no longer maintains write/review/figure skill bodies")
+if specialist_skill_policy.get("mas_consumes_specialist_skills") is not True:
+    fail("specialist skill policy must state MAS consumes synced professional specialist skills")
+if specialist_skill_policy.get("mas_maintains_write_review_figure_stage_operating_prompts") is not True:
+    fail("specialist skill policy must state MAS keeps write/review/figure stage operating prompts")
 for key in [
     "can_replace_mas_overlay_skill",
     "can_replace_mas_runtime_owner_surface",
@@ -172,15 +172,15 @@ for relative, text in [
     ("docs/README.md", docs_index),
     ("docs/mas-scholar-skills-operating-model.md", operating_model),
     ("skills/mas-scholar-skills/SKILL.md", skill),
-    ("skills/medical-research-write/SKILL.md", write_skill),
-    ("skills/medical-research-review/SKILL.md", review_skill),
-    ("skills/medical-research-figure/SKILL.md", figure_skill),
+    ("skills/medical-manuscript-writing/SKILL.md", write_skill),
+    ("skills/medical-manuscript-review/SKILL.md", review_skill),
+    ("skills/medical-figure-design/SKILL.md", figure_skill),
 ]:
     for token in [
         "MAS Scholar Skills",
-        "medical-research-write",
-        "medical-research-review",
-        "medical-research-figure",
+        "medical-manuscript-writing",
+        "medical-manuscript-review",
+        "medical-figure-design",
     ]:
         if token not in text:
             fail(f"{relative} missing MAS Scholar Skills positioning token: {token}")
@@ -204,9 +204,9 @@ for relative, text in [
     ("docs/README.md", docs_index),
     ("docs/mas-scholar-skills-operating-model.md", operating_model),
     ("skills/mas-scholar-skills/SKILL.md", skill),
-    ("skills/medical-research-write/SKILL.md", write_skill),
-    ("skills/medical-research-review/SKILL.md", review_skill),
-    ("skills/medical-research-figure/SKILL.md", figure_skill),
+    ("skills/medical-manuscript-writing/SKILL.md", write_skill),
+    ("skills/medical-manuscript-review/SKILL.md", review_skill),
+    ("skills/medical-figure-design/SKILL.md", figure_skill),
     ("skills/medical-research-lit/SKILL.md", lit_skill),
 ]:
     for token in [
@@ -1139,9 +1139,9 @@ required_doc_tokens = {
     "skills/opl-scholarskills/SKILL.md": [
         "Legacy Alias",
         "mas-scholar-skills",
-        "medical-research-write",
-        "medical-research-review",
-        "medical-research-figure",
+        "medical-manuscript-writing",
+        "medical-manuscript-review",
+        "medical-figure-design",
         "medical-research-lit",
         "not treat this alias as a separate source of truth",
     ],
@@ -1163,8 +1163,8 @@ required_doc_tokens = {
         "owner_gate_handoff_ref",
         "Do not fabricate citations",
     ],
-    "skills/medical-research-write/SKILL.md": [
-        "single source",
+    "skills/medical-manuscript-writing/SKILL.md": [
+        "professional specialist",
         "AI-native medical authorship",
         "claim_evidence_map.json",
         "section_contracts.md",
@@ -1174,8 +1174,8 @@ required_doc_tokens = {
         "submission_minimal_required",
         "Do not polish fiction",
     ],
-    "skills/medical-research-review/SKILL.md": [
-        "single source",
+    "skills/medical-manuscript-review/SKILL.md": [
+        "professional specialist",
         "adversarial medical pressure test",
         "Reviewer Action Matrix",
         "sci_clinical_registry_review",
@@ -1185,8 +1185,8 @@ required_doc_tokens = {
         "pubmed_connector_invocation_ref",
         "Do not fabricate citations",
     ],
-    "skills/medical-research-figure/SKILL.md": [
-        "single source",
+    "skills/medical-figure-design/SKILL.md": [
+        "professional specialist",
         "Medical figures are evidence surfaces",
         "Figure Intent And Claim",
         "Panel Plan",

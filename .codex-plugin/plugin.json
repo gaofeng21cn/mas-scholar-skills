@@ -1,7 +1,7 @@
 {
   "name": "mas-scholar-skills",
   "version": "0.1.0",
-  "description": "Repo-tracked Codex plugin for MAS Scholar Skills capability modules and single-source medical-paper skill entries.",
+  "description": "Repo-tracked Codex plugin for MAS Scholar Skills capability modules and medical-paper professional specialist skills.",
   "author": {
     "name": "One Person Lab"
   },
@@ -16,8 +16,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "MAS Scholar Skills",
-    "shortDescription": "Single-source MAS medical-paper skills and refs.",
-    "longDescription": "Provides the single maintained Codex skill source for MAS medical writing, review, figure, and literature workflows, plus MAS Scholar Skills capability modules, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries.",
+    "shortDescription": "MAS medical-paper specialist skills and refs.",
+    "longDescription": "Provides the maintained professional Codex skills for MAS medical writing, review, figure, and literature workflows, plus MAS Scholar Skills capability modules, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -27,7 +27,7 @@
     ],
     "defaultPrompt": [
       "Use MAS Scholar Skills to inspect medical-paper capability modules.",
-      "Use medical-research-write, medical-research-review, or medical-research-figure for MAS medical-paper owner skill workflows.",
+      "Use medical-manuscript-writing, medical-manuscript-review, or medical-figure-design for MAS medical-paper specialist skill workflows.",
       "Use medical-research-lit to plan PubMed-backed literature discovery.",
       "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],

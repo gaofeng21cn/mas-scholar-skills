@@ -7,13 +7,13 @@ Machine boundary: 本文是人读导航。机器真相以 `src/scholar-skills.ts
 
 ## 品牌模块边界
 
-本能力属于 MAS Scholar Skills，也就是 OPL-owned `mas-scholar-skills` 外置增强包；历史 `opl-scholarskills` 只作为 legacy alias 和 provenance。它不新增第十一个 OPL 品牌模块，也不是 MAS owner skill。
+本能力属于 MAS Scholar Skills，也就是 OPL-owned `mas-scholar-skills` 外置增强包；历史 `opl-scholarskills` 只作为 legacy alias 和 provenance。它不新增第十一个 OPL 品牌模块，也不是 MAS specialist skill。
 
 - 主模块：`Pack` 承载 candidate package、manifest、body paths 和 sha256。
 - 协同模块：`Atlas` 发现 module descriptor，`Runway` 承载 invocation / execution receipt candidate 形状，`Vault` 承载 refs、lineage 和 evidence refs，`Console` 读取 CLI JSON readback。
 - 不触碰范围：`Connect` / system install surfaces、MAS/Yang/domain authority、runtime DB、runtime queues、owner receipts、typed blockers、publication readiness、domain truth 和 paper truth。
 
-MAS 默认 runtime 入口仍是 MAS overlay，写作、审阅和图件 skill 正文则由本仓 `medical-research-write`、`medical-research-review`、`medical-research-figure` 单源维护并同步给 MAS 消费。Candidate engines 只为这些入口提供 refs-only candidate bodies、quality floors 和 route-back hints；不新增 `opl-scholar-write/review/display` 并列默认入口。
+MAS 默认 runtime 入口仍是 MAS overlay，写作、审阅和图件的专业 skill 由本仓 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design` 单源维护并同步给 MAS 消费。Candidate engines 只为这些入口提供 refs-only candidate bodies、quality floors 和 route-back hints；不新增 `opl-scholar-write/review/display` 并列默认入口。
 
 ## CLI 入口
 

@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack and single maintained Codex skill source for MAS medical-paper write/review/figure/lit workflows that can be discovered by the MAS overlay, consumed by MAS medical-research skills as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, real syncable medical-paper skill bodies, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-research-write, medical-research-review, medical-research-figure, or medical-research-lit. MAS consumes the skill bodies from this repository and remains the runtime, study-truth, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
+  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack and professional specialist Codex skills for MAS medical-paper writing, review, figure design, and literature workflows that can be discovered by MAS stage operating prompts, consumed as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, or medical-research-lit. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -13,11 +13,11 @@
       "opl-scholarskills"
     ],
     "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
-    "primary_mas_entry_policy": "MAS_overlay_runtime_entry_consumes_medical_research_write_review_figure_from_mas_scholar_skills",
-    "no_parallel_entry_policy": "do_not_create_opl_scholar_write_review_display_as_default_entries_parallel_to_medical_research_write_review_figure",
+    "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
+    "no_parallel_entry_policy": "do_not_create_parallel_stage_authority_entries_in_mas_scholar_skills",
     "provided_surfaces": [
       "real_codex_skills",
-      "medical_paper_owner_skill_bodies",
+      "medical_paper_professional_specialist_skills",
       "syncable_real_skills",
       "references",
       "packs",
@@ -38,33 +38,33 @@
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false,
-    "skill_body_source_policy": "medical_research_write_review_figure_lit_skill_bodies_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_consumption",
-    "mas_skill_body_maintenance_policy": "MAS_consumes_synced_skill_bodies_and_does_not_maintain_a_second_write_review_figure_body_source",
+    "specialist_skill_source_policy": "medical_manuscript_writing_review_figure_design_and_lit_specialist_skills_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_stage_prompt_consumption",
+    "mas_stage_prompt_maintenance_policy": "MAS_keeps_write_review_figure_stage_operating_prompts_and_does_not_duplicate_specialist_playbooks",
     "can_replace_mas_runtime_owner_surface": false
   },
   "specialist_skill_policy": {
-    "policy_id": "mas_scholar_skills_medical_skill_single_source.v2",
+    "policy_id": "mas_scholar_skills_professional_specialist_skills.v1",
     "canonical_aggregate_skill": "mas-scholar-skills",
     "legacy_aggregate_skill_alias": "opl-scholarskills",
     "syncable_real_skills": [
-      "medical-research-write",
-      "medical-research-review",
-      "medical-research-figure",
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
       "medical-research-lit"
     ],
-    "medical_paper_owner_skill_sources": [
-      "medical-research-write",
-      "medical-research-review",
-      "medical-research-figure"
+    "medical_paper_specialist_skill_sources": [
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design"
     ],
     "external_resource_specialist_skills": [
       "medical-research-lit"
     ],
-    "single_source_policy": "medical_research_write_review_figure_lit_skill_bodies_are_maintained_in_mas_scholar_skills; MAS_consumes_synced_skill_bodies_and_keeps_runtime_artifact_owner_receipt_typed_blocker_and_publication_authority",
+    "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
     "connect_sync_policy": "OPL_Connect_installs_canonical_aggregate_skill_and_syncable_real_skills_into_workspace_or_quest_local_codex_discovery_paths",
     "legacy_alias_policy": "opl_scholarskills_is_compatibility_entry_only_not_second_truth_source",
-    "mas_consumes_skill_bodies": true,
-    "mas_maintains_write_review_figure_skill_bodies": false,
+    "mas_consumes_specialist_skills": true,
+    "mas_maintains_write_review_figure_stage_operating_prompts": true,
     "can_replace_mas_overlay_skill": false,
     "can_replace_mas_runtime_owner_surface": false,
     "can_claim_literature_authority": false,
