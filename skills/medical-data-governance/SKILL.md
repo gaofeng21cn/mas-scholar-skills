@@ -36,6 +36,14 @@ cleaned extract as clinical data truth unless the MAS data asset manifest and
 owner surface identify it as the authoritative body or an accepted derived
 asset.
 
+## Active Data Identity
+
+The active MAS Scholar Skills Data module id is `mas-scholar-skills.data`; the
+real specialist skill is `medical-data-governance`. Legacy
+`opl.scholarskills.data` is an alias/provenance key only, not an active module
+id, not a parallel descriptor authority, and not the preferred human-facing
+name.
+
 ## OPL Base Lifecycle Fit
 
 Use OPL base lifecycle primitives as locator, index, projection, and receipt
@@ -138,6 +146,28 @@ analysis, cleanup, archival, or owner-gate handoff:
 7. Produce a refs-only governance handoff with missing inputs, safe next command,
    owner gate target, and route-back recommendation.
 
+## Machine Assessment Refs
+
+For machine-readable Data assessment, include these candidate refs when the
+source material exists:
+
+- `data_governance_handoff_ref`
+- `data_governance_assessment_ref`
+- `data_operation_receipt_ref`
+- `manifest_completeness_check_ref`
+- `privacy_tier_check_ref`
+- `study_impact_check_ref`
+
+`data_operation_receipt_ref` must classify the operation category as exactly one
+of `ingest`, `clean`, `deidentify`, `normalize`, `update`, `diff`, `release`, or
+`retire`. The category describes the candidate receipt only; it does not
+authorize data mutation, release, retirement, deletion, or source readiness.
+
+Machine checks should expose `manifest_completeness_declared`,
+`privacy_access_tier_declared`, `study_impact_declared`,
+`operation_receipt_category_declared`,
+`legacy_opl_scholarskills_data_alias_only`, and `no_authority_flags_false`.
+
 ## Quality Checks
 
 Check:
@@ -165,6 +195,12 @@ Return refs-only candidate output:
 - `dataset_manifest_ref`
 - `data_dictionary_ref`
 - `codebook_ref`
+- `data_governance_handoff_ref`
+- `data_governance_assessment_ref`
+- `data_operation_receipt_ref`
+- `manifest_completeness_check_ref`
+- `privacy_tier_check_ref`
+- `study_impact_check_ref`
 - `cleaning_normalization_readiness_ref`
 - `derived_variable_registry_ref`
 - `source_lineage_ref`

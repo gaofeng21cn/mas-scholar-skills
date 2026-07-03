@@ -168,6 +168,9 @@ For large medical cohort datasets, use `medical-data-governance` as the real MAS
 - authoritative release bodies from convenience interchange files, indexed working copies, study-local extracts, reports, caches, and runtime artifacts;
 - hot / warm / cold / external placement and the reason each tier is allowed;
 - manifest-declared body inventory, registry lineage, semantic readiness, study binding, privacy/access tier, and retention guardrails;
+- machine-readable governance handoff and assessment refs: `data_governance_handoff_ref`, `data_governance_assessment_ref`, `data_operation_receipt_ref`, `manifest_completeness_check_ref`, `privacy_tier_check_ref`, and `study_impact_check_ref`;
+- operation receipt categories: `ingest`, `clean`, `deidentify`, `normalize`, `update`, `diff`, `release`, and `retire`;
+- manifest completeness, privacy/access tier, and study-impact checks: `manifest_completeness_declared`, `privacy_access_tier_declared`, `study_impact_declared`, `operation_receipt_category_declared`, `legacy_opl_scholarskills_data_alias_only`, and `no_authority_flags_false`;
 - analytical format strategy for repeated local work, including CSV interchange plus SQLite/DuckDB/Parquet working copies when appropriate, without making a working copy a second truth source;
 - byte-level cold-store restore proof, checksum, owner authorization, and rehydrate verification before any clinical dataset body leaves online storage.
 - completed or parked project data closeout refs, including exact `data_asset_manifest_ref`, `lifecycle_classification_ref`, `important_result_reproduction_ref`, `data_body_boundary_ref`, `study_impact_ref`, `owner_decision_ref`, `post_cleanup_readback_ref`, `prune_dry_run_ref`, and `lifecycle_catalog_ref`.

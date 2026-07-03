@@ -248,10 +248,15 @@
         "data_asset_manifest_ref",
         "dataset_manifest_ref",
         "data_dictionary_ref",
+        "data_governance_assessment_ref",
+        "data_operation_receipt_ref",
+        "manifest_completeness_check_ref",
         "derived_variable_registry_ref",
         "cleaning_normalization_readiness_ref",
         "version_diff_impact_ref",
         "study_binding_ref",
+        "privacy_tier_check_ref",
+        "study_impact_check_ref",
         "privacy_access_tier_ref",
         "retention_guardrail_ref",
         "lifecycle_catalog_ref",
@@ -2064,7 +2069,8 @@
         "scholarskills_data_external_learning_refs.v1",
         "scholarskills_data_slr_metric_refs.v1#extraction_schema_quality_appraisal_metric_registry",
         "scholarskills_data_completed_project_closeout_refs.v1",
-        "scholarskills_data_lifecycle_refs.v1#asset_manifest_classification_reproduction_prune_readback"
+        "scholarskills_data_lifecycle_refs.v1#asset_manifest_classification_reproduction_prune_readback",
+        "scholarskills_data_governance_assessment_refs.v1#handoff_assessment_operation_checks"
       ],
       "dependency_profile_refs": [
         "runtime_env_dependency_profile:scholarskills_data_v1"
@@ -2099,6 +2105,42 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "metadata_scrape_source_lineage_agent_log_and_bundle_refs",
           "body_policy": "refs_only_lineage_not_domain_truth"
+        },
+        {
+          "ref_id": "data_governance_handoff_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "data_governance_handoff_candidate",
+          "body_policy": "refs_only_handoff_requires_domain_owner_consumption"
+        },
+        {
+          "ref_id": "data_governance_assessment_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "machine_readable_data_governance_assessment_candidate",
+          "body_policy": "refs_only_assessment_not_source_readiness_verdict"
+        },
+        {
+          "ref_id": "data_operation_receipt_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "data_operation_receipt_category_candidate",
+          "body_policy": "refs_only_operation_receipt_not_mutation_authority"
+        },
+        {
+          "ref_id": "manifest_completeness_check_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "manifest_completeness_check_candidate",
+          "body_policy": "refs_only_manifest_check_not_dataset_truth"
+        },
+        {
+          "ref_id": "privacy_tier_check_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "privacy_access_tier_check_candidate",
+          "body_policy": "refs_only_privacy_check_requires_domain_owner_gate"
+        },
+        {
+          "ref_id": "study_impact_check_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "study_impact_check_candidate",
+          "body_policy": "refs_only_study_impact_check_requires_domain_owner_gate"
         },
         {
           "ref_id": "data_asset_manifest_ref",
@@ -2239,6 +2281,12 @@
           "lifecycle_classification_ref",
           "data_dictionary_ref",
           "agent_log_aggregation_ref",
+          "data_governance_handoff_ref",
+          "data_governance_assessment_ref",
+          "data_operation_receipt_ref",
+          "manifest_completeness_check_ref",
+          "privacy_tier_check_ref",
+          "study_impact_check_ref",
           "systematic_review_protocol_ref",
           "inclusion_exclusion_criteria_ref",
           "data_extraction_schema_ref",
@@ -2286,6 +2334,54 @@
         "owner receipts",
         "typed blockers"
       ],
+      "data_governance_assessment_policy": {
+        "policy_id": "scholarskills_data_governance_assessment.v1",
+        "active_module_id": "mas-scholar-skills.data",
+        "real_specialist_skill_id": "medical-data-governance",
+        "legacy_module_ids": [
+          "opl.scholarskills.data"
+        ],
+        "legacy_id_policy": "legacy_alias_provenance_only_not_active_module_id",
+        "required_handoff_refs": [
+          "source_pack_ref",
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref",
+          "data_governance_handoff_ref"
+        ],
+        "assessment_ref_families": [
+          "data_governance_assessment_ref",
+          "data_operation_receipt_ref",
+          "manifest_completeness_check_ref",
+          "privacy_tier_check_ref",
+          "study_impact_check_ref"
+        ],
+        "operation_receipt_categories": [
+          "ingest",
+          "clean",
+          "deidentify",
+          "normalize",
+          "update",
+          "diff",
+          "release",
+          "retire"
+        ],
+        "required_checks": [
+          "manifest_completeness_declared",
+          "privacy_access_tier_declared",
+          "study_impact_declared",
+          "operation_receipt_category_declared",
+          "legacy_opl_scholarskills_data_alias_only",
+          "no_authority_flags_false"
+        ],
+        "no_authority_policy": "refs_only_data_governance_assessment_requires_MAS_or_domain_owner_consumption",
+        "can_write_domain_truth": false,
+        "can_mutate_clinical_data_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_source_readiness": false,
+        "can_claim_publication_readiness": false
+      },
       "external_learning_module_fit": {
         "policy_id": "scholarskills_external_learning_module_fit.v1",
         "sources": [

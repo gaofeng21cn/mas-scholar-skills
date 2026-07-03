@@ -316,7 +316,17 @@ expected_quality_skill_refs = {
     "medical-statistical-review": ["estimand_or_target_parameter_ref", "effect_size_and_uncertainty_ref", "statistical_action_matrix_ref"],
     "medical-table-design": ["table_shell_ref", "table_qc_ref", "claim_table_alignment_ref"],
     "medical-submission-prep": ["journal_instruction_ref", "reporting_guideline_ref", "submission_action_matrix_ref"],
-    "medical-data-governance": ["data_asset_manifest_ref", "data_dictionary_ref", "version_diff_impact_ref", "owner_gate_handoff_ref"],
+    "medical-data-governance": [
+        "data_asset_manifest_ref",
+        "data_dictionary_ref",
+        "data_governance_assessment_ref",
+        "data_operation_receipt_ref",
+        "manifest_completeness_check_ref",
+        "privacy_tier_check_ref",
+        "study_impact_check_ref",
+        "version_diff_impact_ref",
+        "owner_gate_handoff_ref",
+    ],
 }
 for skill_id, refs in expected_quality_skill_refs.items():
     require_all(f"quality refs for {skill_id}", (quality_policy.get("skill_quality_refs") or {}).get(skill_id), refs)
@@ -1069,6 +1079,12 @@ data_refs = [
     "lifecycle_classification_ref",
     "data_dictionary_ref",
     "agent_log_aggregation_ref",
+    "data_governance_handoff_ref",
+    "data_governance_assessment_ref",
+    "data_operation_receipt_ref",
+    "manifest_completeness_check_ref",
+    "privacy_tier_check_ref",
+    "study_impact_check_ref",
     "privacy_access_tier_ref",
     "read_model_boundary_ref",
     "storage_tier_ref",
@@ -1085,12 +1101,19 @@ data_refs = [
     "lifecycle_catalog_ref",
 ]
 data_module = require_module("mas-scholar-skills.data")
+if data_module.get("specialist_skill_id") != "medical-data-governance":
+    fail("Data module must point to real specialist skill medical-data-governance")
+if "opl.scholarskills.data" not in (data_module.get("legacy_module_ids") or []):
+    fail("Data module must retain opl.scholarskills.data only as legacy alias/provenance")
+if data_module.get("legacy_module_id_policy") != "opl.scholarskills.data remains a legacy alias/provenance key only; active module id is mas-scholar-skills.data and active specialist work uses medical-data-governance":
+    fail("Data module legacy id policy must keep opl.scholarskills.data alias-only")
 require_output_schema(
     data_module,
     [
         "scholarskills_data_external_learning_refs.v1",
         "scholarskills_data_asset_refs.v1",
         "scholarskills_data_lifecycle_refs.v1#asset_manifest_classification_reproduction_prune_readback",
+        "scholarskills_data_governance_assessment_refs.v1#handoff_assessment_operation_checks",
     ],
 )
 require_quality_refs(data_module, data_refs)
@@ -1099,6 +1122,12 @@ require_artifact_refs(
     [
         "scholarskills_data_manifest_candidate",
         "scholarskills_data_lineage_candidate",
+        "data_governance_handoff_ref",
+        "data_governance_assessment_ref",
+        "data_operation_receipt_ref",
+        "manifest_completeness_check_ref",
+        "privacy_tier_check_ref",
+        "study_impact_check_ref",
         "data_asset_manifest_ref",
         "lifecycle_classification_ref",
         "important_result_reproduction_ref",
@@ -1111,6 +1140,77 @@ require_artifact_refs(
     ],
 )
 require_external_fit(data_module, ["Future-Scholars/paperlib", "Ar9av/PaperOrchestra", "littlepeachs/NaturePanelForge"])
+data_assessment_policy = data_module.get("data_governance_assessment_policy") or {}
+if data_assessment_policy.get("policy_id") != "scholarskills_data_governance_assessment.v1":
+    fail("Data module missing machine-readable governance assessment policy")
+if data_assessment_policy.get("active_module_id") != "mas-scholar-skills.data":
+    fail("Data assessment policy must pin active_module_id mas-scholar-skills.data")
+if data_assessment_policy.get("real_specialist_skill_id") != "medical-data-governance":
+    fail("Data assessment policy must pin real specialist skill medical-data-governance")
+if "opl.scholarskills.data" not in (data_assessment_policy.get("legacy_module_ids") or []):
+    fail("Data assessment policy must keep opl.scholarskills.data as legacy alias/provenance")
+if data_assessment_policy.get("legacy_id_policy") != "legacy_alias_provenance_only_not_active_module_id":
+    fail("Data assessment policy legacy id policy must be alias/provenance only")
+data_assessment_refs = [
+    "data_governance_handoff_ref",
+    "data_governance_assessment_ref",
+    "data_operation_receipt_ref",
+    "manifest_completeness_check_ref",
+    "privacy_tier_check_ref",
+    "study_impact_check_ref",
+]
+require_all(
+    "Data assessment handoff refs",
+    data_assessment_policy.get("required_handoff_refs"),
+    [
+        "source_pack_ref",
+        "candidate_package_ref",
+        "execution_receipt_ref",
+        "owner_gate_handoff_ref",
+        "data_governance_handoff_ref",
+    ],
+)
+require_all(
+    "Data assessment refs",
+    data_assessment_policy.get("assessment_ref_families"),
+    [
+        "data_governance_assessment_ref",
+        "data_operation_receipt_ref",
+        "manifest_completeness_check_ref",
+        "privacy_tier_check_ref",
+        "study_impact_check_ref",
+    ],
+)
+data_operation_categories = [
+    "ingest",
+    "clean",
+    "deidentify",
+    "normalize",
+    "update",
+    "diff",
+    "release",
+    "retire",
+]
+require_all("Data operation receipt categories", data_assessment_policy.get("operation_receipt_categories"), data_operation_categories)
+data_assessment_checks = [
+    "manifest_completeness_declared",
+    "privacy_access_tier_declared",
+    "study_impact_declared",
+    "operation_receipt_category_declared",
+    "legacy_opl_scholarskills_data_alias_only",
+    "no_authority_flags_false",
+]
+require_all("Data machine assessment checks", data_assessment_policy.get("required_checks"), data_assessment_checks)
+for key in [
+    "can_write_domain_truth",
+    "can_mutate_clinical_data_body",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_source_readiness",
+    "can_claim_publication_readiness",
+]:
+    if data_assessment_policy.get(key) is not False:
+        fail(f"Data assessment authority flag {key} must be false")
 retention_policy = data_module.get("retention_closeout_policy") or {}
 data_lifecycle_refs = [
     "data_asset_manifest_ref",
@@ -1167,6 +1267,21 @@ for token in [
 ]:
     if token not in skill:
         fail(f"SKILL.md missing Data lifecycle token: {token}")
+
+for relative, text in [
+    ("skills/mas-scholar-skills/SKILL.md", skill),
+    ("skills/medical-data-governance/SKILL.md", data_governance_skill),
+]:
+    for token in [
+        "mas-scholar-skills.data",
+        "medical-data-governance",
+        "opl.scholarskills.data",
+        *data_assessment_refs,
+        *data_operation_categories,
+        *data_assessment_checks,
+    ]:
+        if token not in text:
+            fail(f"{relative} missing Data governance assessment token: {token}")
 
 for token in [
     "source_pack_ref",
