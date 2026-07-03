@@ -59,6 +59,11 @@ design, and pseudoreplication discipline; tables get table-vs-figure and
 statistical-display checks; submit gets current venue-instruction provenance;
 data governance gets database endpoint/filter/count/provenance discipline.
 
+K-Dense also seeds the external scientific Skill router. When MAS needs a
+specialized capability outside these eight skills, Codex should discover and
+inspect the external Skill through OPL Connect before any selective sync. The
+router is a task-level capability lookup, not a full K-Dense runtime install.
+
 Data availability checks are active through `medical-data-governance`. Omics-specific source routing should stay with the relevant MAS/OPL owner surface until MAS needs Codex to actively run that workflow as a standalone specialist skill.
 
 ## Stage / Specialist / Connector / Contract Boundary
@@ -92,6 +97,7 @@ MAS agent/stages or agent/prompts stage prompt
   -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design / medical-research-lit
      / medical-statistical-review / medical-table-design / medical-submission-prep
      / medical-data-governance
+  -> optional OPL Connect external-skills search / inspect / single-skill sync
   -> MAS Scholar Skills module refs, packs, templates, and quality floors
   -> optional tool connector readback, such as OPL Connect PubMed
   -> refs-only candidate package or route-back hint
@@ -109,6 +115,24 @@ opl connect pubmed search --query "<query>" --limit <n> --json
 ```
 
 `medical-research-lit` records the returned normalized metadata as `pubmed_source_refs` and the connector read receipt as `pubmed_connector_invocation_ref`. MAS Scholar Skills owns query strategy, screening, evidence maps, and route-back handoff. OPL Connect owns the PubMed API call, source-ref normalization, connector error semantics, and read-only receipt candidate. MAS owns citation judgment, manuscript use, review ledger updates, owner receipts, typed blockers, and publication decisions.
+
+When the default eight professional skills do not cover a named external
+scientific capability, such as omics, single-cell analysis, Nextflow, RDKit,
+PyHealth, or a specialized database/API connector, use OPL Connect as the
+Codex discovery chain:
+
+```bash
+opl connect external-skills search --query "<scientific need>" --json
+opl connect external-skills inspect --skill <skill_id> --json
+opl connect external-skills sync --skill <skill_id> --scope workspace --target-workspace <workspace_root> --json
+opl connect external-skills sync --skill <skill_id> --scope quest --target-quest <quest_root> --json
+```
+
+Search and inspect are read-only. Sync is selective: choose one inspected skill
+for the active workspace or quest. Do not install an entire external source by
+default, and do not use an external Skill to replace the default `medical-*`
+skills, MAS stage policy, owner receipts, typed blockers, current-package
+authority, artifact authority, domain truth, or publication readiness.
 
 ## Pack And Default Ownership
 

@@ -43,6 +43,15 @@ authoritative source set that answers the claim, keep endpoint/filter
 provenance, reconcile identifiers and counts when completeness matters, and
 return screened candidate refs rather than unbounded raw API dumps.
 
+When a literature task needs a specialty outside the default MAS Scholar Skills
+package, such as omics, single-cell, Nextflow, RDKit, PyHealth, or a named
+database/API skill, first discover it with
+`opl connect external-skills search --query "<need>" --json`, inspect the
+candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
+then sync only that one skill into the active workspace or quest if needed.
+Keep the result as refs-only source-routing support; it does not replace this
+skill or MAS citation and source-acceptance authority.
+
 For source/ref chain handoffs that go beyond a single targeted lookup, read
 `references/professional-quality-ref-templates.md` and use
 `source_ref_chain_template_ref` plus `source_acceptance_decision_ref`. These are

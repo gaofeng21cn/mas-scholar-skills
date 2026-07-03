@@ -51,6 +51,15 @@ scientific-critical-thinking, Nature-style data, and reviewer-response skills:
   design unit, randomization, blocking, clustering, power/MDE sensitivity, and
   pseudoreplication before interpreting model output.
 
+When a statistical review needs a specialty outside the default MAS Scholar
+Skills package, such as omics statistics, single-cell analysis, Nextflow,
+RDKit, PyHealth, or a named database/API workflow, first run
+`opl connect external-skills search --query "<need>" --json`, inspect the
+candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
+then sync only that one skill into the active workspace or quest if needed.
+Keep the output as refs-only method support; it does not replace this skill,
+the analysis plan owner, or MAS statistical acceptance authority.
+
 ## Review Contract
 
 Before judging the analysis, create or refresh:

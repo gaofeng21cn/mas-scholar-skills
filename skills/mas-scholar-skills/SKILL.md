@@ -72,6 +72,33 @@ opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest
 
 The local install is refs-only and authority false. It may include this Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
 
+## External Scientific Skill Discovery / Router
+
+Use OPL Connect external-skill discovery only when the default eight `medical-*`
+skills do not cover a named scientific specialty, tool, database, API, or
+workflow, such as omics, single-cell analysis, Nextflow, RDKit, PyHealth, or a
+specialized database connector.
+
+Start read-only:
+
+```bash
+opl connect external-skills search --query "<scientific need>" --json
+opl connect external-skills inspect --skill <skill_id> --json
+```
+
+Sync only one inspected external skill into the active workspace or quest when
+it is needed for the current task:
+
+```bash
+opl connect external-skills sync --skill <skill_id> --scope workspace --target-workspace <workspace_root> --json
+opl connect external-skills sync --skill <skill_id> --scope quest --target-quest <quest_root> --json
+```
+
+Do not install a full external skill library by default. A synced external skill
+is a refs-only candidate helper. It must not replace the default `medical-*`
+skills, MAS overlay or stage prompts, MAS owner receipts, typed blockers,
+publication readiness, domain truth, artifact authority, or owner acceptance.
+
 ## Boundary
 
 The authority false summary is single-sourced in `docs/no-authority-boundary.md`; machine flags remain in `contracts/capability_map.json` and `contracts/scholar-skills-capability-modules.json`.

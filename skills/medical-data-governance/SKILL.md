@@ -42,6 +42,15 @@ authoritative databases, separate server-side filters from local checks,
 reconcile counts when completeness matters, and keep API payloads as untrusted
 source data until MAS or the domain owner accepts them.
 
+When data governance needs a specialty outside the default MAS Scholar Skills
+package, such as omics resources, single-cell data, Nextflow pipelines, RDKit,
+PyHealth, OMOP/FHIR, or a named database/API connector, first run
+`opl connect external-skills search --query "<need>" --json`, inspect the
+candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
+then sync only that one skill into the active workspace or quest if needed.
+Keep the result as refs-only source-readiness support; it does not replace this
+skill, MAS data-owner decisions, source readiness, or clinical data authority.
+
 ## Active Data Identity
 
 The active MAS Scholar Skills Data module id is `mas-scholar-skills.data`; the
