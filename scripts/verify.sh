@@ -127,6 +127,72 @@ capability_by_id = {
     item.get("capability_id"): item
     for item in capability_map.get("capabilities", [])
 }
+failure_token_registry_ref = "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
+expected_capability_token_policy = {
+    "medical-figure-design": {
+        "module": "display",
+        "required_improvement_tokens": ["figure_quality", "display_quality", "visual_quality"],
+        "required_failure_tokens": ["medical_failure:figure", "figure_quality"],
+        "failure_types": ["figure"],
+    },
+    "medical-manuscript-writing": {
+        "module": "write",
+        "required_improvement_tokens": ["manuscript_quality", "medical_manuscript_quality", "writing_quality"],
+        "required_failure_tokens": ["medical_failure:writing", "manuscript_quality"],
+        "failure_types": ["writing"],
+    },
+    "medical-manuscript-review": {
+        "module": "review",
+        "required_improvement_tokens": ["review_quality", "manuscript_review", "quality_review"],
+        "required_failure_tokens": ["medical_failure:review", "review_quality"],
+        "failure_types": ["review"],
+    },
+    "medical-research-lit": {
+        "module": "lit",
+        "required_improvement_tokens": ["citation", "literature", "citation_quality", "literature_quality"],
+        "required_failure_tokens": ["medical_failure:citation", "medical_failure:literature"],
+        "failure_types": ["citation", "literature"],
+    },
+    "medical-statistical-review": {
+        "module": "stats",
+        "required_improvement_tokens": ["stats", "statistical_review", "stats_quality", "analysis_quality"],
+        "required_failure_tokens": ["medical_failure:statistics", "stats"],
+        "failure_types": ["statistics"],
+    },
+    "medical-table-design": {
+        "module": "tables",
+        "required_improvement_tokens": ["table", "tables", "table_quality", "reporting_table_quality"],
+        "required_failure_tokens": ["medical_failure:table", "table"],
+        "failure_types": ["table"],
+    },
+    "medical-submission-prep": {
+        "module": "submit",
+        "required_improvement_tokens": ["submission", "submission_quality", "submission_package", "journal_package"],
+        "required_failure_tokens": ["medical_failure:submission", "submission"],
+        "failure_types": ["submission"],
+    },
+    "medical-data-governance": {
+        "module": "data",
+        "required_improvement_tokens": ["data_governance", "data_quality", "source_data_governance", "clinical_data_governance"],
+        "required_failure_tokens": ["medical_failure:data_governance", "data_governance"],
+        "failure_types": ["data_governance"],
+    },
+}
+if capability_map.get("failure_token_registry_ref") != failure_token_registry_ref:
+    fail("capability map must point to the OPL failure token registry ref")
+owner_closeout_boundary = capability_map.get("owner_closeout_boundary") or {}
+if owner_closeout_boundary.get("boundary_kind") != "refs_only_no_authority_owner_closeout":
+    fail("capability map must expose refs-only no-authority owner closeout boundary")
+if owner_closeout_boundary.get("closeout_authority_owner") != "consuming_domain_owner":
+    fail("owner closeout boundary must route closeout to the consuming domain owner")
+for key in [
+    "capability_pack_may_sign_owner_receipt",
+    "capability_pack_may_create_typed_blocker",
+    "capability_pack_may_claim_publication_readiness",
+    "capability_pack_may_claim_current_package_authority",
+]:
+    if owner_closeout_boundary.get(key) is not False:
+        fail(f"owner closeout boundary flag {key} must be false")
 for skill_id in expected_capability_skills:
     item = capability_by_id.get(skill_id)
     if item is None:
@@ -136,6 +202,54 @@ for skill_id in expected_capability_skills:
     if item.get("external_repo_ref") != f"external_repo:mas-scholar-skills/skills/{skill_id}/SKILL.md":
         fail(f"capability map external repo ref for {skill_id} must point to mas-scholar-skills")
     require_all(f"capability map tokens for {skill_id}", item.get("tokens"), [skill_id])
+    token_policy = expected_capability_token_policy[skill_id]
+    require_all(
+        f"capability map improvement tokens for {skill_id}",
+        item.get("improvement_tokens"),
+        [skill_id, f"mas-scholar-skills.{token_policy['module']}", *token_policy["required_improvement_tokens"]],
+    )
+    require_all(
+        f"capability map failure tokens for {skill_id}",
+        item.get("failure_tokens"),
+        token_policy["required_failure_tokens"],
+    )
+    require_all(
+        f"capability map failure token refs for {skill_id}",
+        item.get("failure_token_refs"),
+        [
+            f"{failure_token_registry_ref}#/medical_failure_types/{failure_type}"
+            for failure_type in token_policy["failure_types"]
+        ],
+    )
+    require_all(
+        f"capability map verification refs for {skill_id}",
+        item.get("verification_refs"),
+        ["scripts/verify.sh#capability-map-token-policy", failure_token_registry_ref],
+    )
+    require_all(
+        f"capability map canonical paths for {skill_id}",
+        item.get("canonical_paths"),
+        [
+            f"skills/{skill_id}/SKILL.md",
+            f"contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/{token_policy['module']}",
+        ],
+    )
+    if item.get("owner_closeout_boundary_ref") != "contracts/capability_map.json#/owner_closeout_boundary":
+        fail(f"capability map owner closeout boundary ref missing for {skill_id}")
+    item_authority = item.get("authority_boundary") or {}
+    for key in [
+        "can_write_domain_truth",
+        "can_write_runtime_state",
+        "can_mutate_artifact_body",
+        "can_sign_owner_receipt",
+        "can_create_typed_blocker",
+        "can_claim_quality_verdict",
+        "can_claim_publication_readiness",
+        "can_claim_current_package_authority",
+        "can_claim_owner_closeout",
+    ]:
+        if item_authority.get(key) is not False:
+            fail(f"capability map authority flag {key} must be false for {skill_id}")
 if "figure_quality" not in set(capability_by_id["medical-figure-design"].get("feedback_targets", [])):
     fail("capability map must route figure_quality to medical-figure-design")
 if "manuscript_quality" not in set(capability_by_id["medical-manuscript-writing"].get("feedback_targets", [])):
