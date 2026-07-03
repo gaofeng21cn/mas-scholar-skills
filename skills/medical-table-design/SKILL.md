@@ -18,8 +18,10 @@ readiness.
 Sibling skill routes are `medical-statistical-review` for statistical judgment,
 `medical-manuscript-writing` for text/table narrative binding,
 `medical-manuscript-review` for full-paper critique, and
-`medical-figure-design` for visual displays, and `medical-submission-prep` for
-submission-facing table package checks.
+`medical-figure-design` for visual displays, `medical-submission-prep` for
+submission-facing table package checks, and `medical-data-governance` for
+clinical data manifests, source readiness support, version impact,
+privacy/access tiers, and lifecycle guardrails.
 
 ## Core Rule
 

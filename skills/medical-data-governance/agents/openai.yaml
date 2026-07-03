@@ -1,0 +1,4 @@
+interface:
+  display_name: "Medical Data Governance"
+  short_description: "Clinical cohort data governance for MAS."
+  default_prompt: "Use Medical Data Governance to review MAS clinical cohort data manifests, lineage, readiness, lifecycle, and owner-gated handoff."

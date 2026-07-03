@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical capability-module catalog for the OPL-owned MAS Scholar Skills external enhancement pack and professional specialist Codex skills for MAS medical-paper writing, review, figure design, literature, statistics, table, and submission workflows that can be discovered by MAS stage operating prompts, consumed as refs-only candidate outputs, packaged by OPL Pack, prepared through OPL runtime env, and synced through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, or medical-submission-prep. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, publication, App, or production readiness.",
+  "purpose": "Canonical active professional-skill catalog for the OPL-owned MAS Scholar Skills external enhancement pack and specialist Codex skills for MAS medical-paper writing, review, figure design, literature, statistics, table, submission, and medical data governance workflows. MAS can discover these skill-backed capabilities through stage operating prompts, consume refs-only candidate outputs, package them through OPL Pack, prepare runtime context through OPL runtime env, and sync local Codex discovery copies through OPL Connect.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate clinical data bodies or artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, source, data, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -47,7 +47,7 @@
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false,
-    "specialist_skill_source_policy": "medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_and_submission_prep_specialist_skills_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_stage_prompt_consumption",
+    "specialist_skill_source_policy": "medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_submission_prep_and_data_governance_specialist_skills_are_maintained_in_mas_scholar_skills_and_synced_for_MAS_stage_prompt_consumption",
     "mas_stage_prompt_maintenance_policy": "MAS_keeps_write_review_figure_stage_operating_prompts_and_does_not_duplicate_specialist_playbooks",
     "can_replace_mas_runtime_owner_surface": false
   },
@@ -62,7 +62,8 @@
       "medical-research-lit",
       "medical-statistical-review",
       "medical-table-design",
-      "medical-submission-prep"
+      "medical-submission-prep",
+      "medical-data-governance"
     ],
     "medical_paper_specialist_skill_sources": [
       "medical-manuscript-writing",
@@ -70,7 +71,8 @@
       "medical-figure-design",
       "medical-statistical-review",
       "medical-table-design",
-      "medical-submission-prep"
+      "medical-submission-prep",
+      "medical-data-governance"
     ],
     "external_resource_specialist_skills": [
       "medical-research-lit"
@@ -82,7 +84,7 @@
     "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
     "default_skill_home_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo_next_to_stage_prompts",
-    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_stats_tables_submit_Display_and_source_refs",
+    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_stats_tables_submit_data_governance_Display_and_source_refs",
     "tool_connector_boundary_policy": "tool_connectors_own_tool_or_API_invocation_normalized_read_receipts_and_resource_errors_not_stage_policy_professional_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
     "default_boundary_defense": [
       "stage_prompt",
@@ -104,18 +106,16 @@
     "can_claim_publication_readiness": false
   },
   "capability_module_classification_policy": {
-    "policy_id": "mas_scholar_skills_capability_module_classification.v1",
-    "capability_module_contracts": [
+    "policy_id": "mas_scholar_skills_professional_skill_classification.v1",
+    "active_professional_skill_modules": [
       "display",
       "tables",
       "stats",
-      "omics",
       "lit",
       "write",
       "review",
       "submit",
-      "data",
-      "intake"
+      "data"
     ],
     "real_syncable_specialist_skills": [
       "medical-manuscript-writing",
@@ -124,12 +124,8 @@
       "medical-research-lit",
       "medical-statistical-review",
       "medical-table-design",
-      "medical-submission-prep"
-    ],
-    "contract_layer_modules": [
-      "omics",
-      "data",
-      "intake"
+      "medical-submission-prep",
+      "medical-data-governance"
     ],
     "real_skill_backed_module_map": {
       "display": "medical-figure-design",
@@ -138,14 +134,17 @@
       "tables": "medical-table-design",
       "write": "medical-manuscript-writing",
       "review": "medical-manuscript-review",
-      "submit": "medical-submission-prep"
+      "submit": "medical-submission-prep",
+      "data": "medical-data-governance"
     },
-    "origin_policy": "capability_modules_came_from_MAS_medical_paper_workflow_needs_OPL_capability_registry_readback_requirements_and_external_learning_ref_checklist_shapes_not_from_ten_preexisting_real_MAS_skills",
-    "contract_layer_role": "contract_layer_modules_standardize_vocabulary_ref_families_checklists_candidate_handoff_receipt_shape_quality_floor_hints_and_owner_gate_routing_without_claiming_to_be_active_specialist_skills",
-    "promotion_policy": "promote_contract_layer_module_to_real_codex_skill_only_when_Codex_must_actively_execute_a_stable_professional_workflow",
+    "retired_or_deferred_modules": {
+      "omics": "not_active_in_mas_scholar_skills_until_a_real_mas_omics_professional_skill_workflow_exists",
+      "intake": "not_active_in_mas_scholar_skills; generic_source_or_external_learning_intake_belongs_to_OPL_Framework_or_MAS_stage_source_surfaces"
+    },
+    "origin_policy": "active_catalog_is_derived_from_real_MAS_medical_paper_professional_skills_not_from_a_fixed_ten_module_catalog",
     "codex_discovery_projection_policy": "workspace_or_quest_dot_codex_skills_sync_remains_required_for_Codex_discovery_but_synced_copies_are_runtime_projections_not_stage_or_contract_authority",
-    "can_claim_contract_layer_modules_are_real_skills": false,
-    "can_move_contract_layer_modules_back_to_MAS_private_implementation": false,
+    "can_expose_contract_layer_modules_without_real_skill": false,
+    "can_claim_retired_or_deferred_modules_are_active": false,
     "can_replace_mas_stage_prompts": false,
     "can_claim_owner_acceptance": false,
     "can_claim_publication_readiness": false
@@ -182,7 +181,7 @@
         ]
       }
     ],
-    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_and_submission_prep_skills_first; keep_omics_data_intake_as_contract_layer_modules_until_active_stable_workflows_need_real_skills",
+    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_submission_prep_and_data_governance_skills_first; add_omics_or_source_intake_to_mas_scholar_skills_only_when_a_real_stable_professional_skill_workflow_exists",
     "skill_quality_refs": {
       "medical-figure-design": [
         "figure_contract_ref",
@@ -247,6 +246,19 @@
         "package_consistency_ref",
         "reviewer_response_candidate_ref",
         "submission_action_matrix_ref"
+      ],
+      "medical-data-governance": [
+        "data_asset_manifest_ref",
+        "dataset_manifest_ref",
+        "data_dictionary_ref",
+        "derived_variable_registry_ref",
+        "cleaning_normalization_readiness_ref",
+        "version_diff_impact_ref",
+        "study_binding_ref",
+        "privacy_access_tier_ref",
+        "retention_guardrail_ref",
+        "lifecycle_catalog_ref",
+        "owner_gate_handoff_ref"
       ]
     },
     "absorbed_contract_layer_patterns": [
@@ -255,7 +267,8 @@
       "reviewer_response_delta_audit_feeds_review_and_write",
       "source_routing_dedup_and_claim_support_grading_feed_lit",
       "table_shell_denominator_footnote_and_claim_alignment_feed_write_review_and_submit",
-      "journal_instruction_reporting_guideline_declaration_and_response_audit_feed_submit"
+      "journal_instruction_reporting_guideline_declaration_and_response_audit_feed_submit",
+      "clinical_data_manifest_dictionary_lineage_version_and_lifecycle_checks_feed_stats_tables_write_review_submit"
     ],
     "can_add_parallel_stage_skill_authority": false,
     "can_require_external_runtime_install_before_candidate_refs": false,
@@ -1009,145 +1022,6 @@
         ],
         "authority_boundary": "refs_only_statistical_review_handoff_cannot_claim_statistical_conclusion_quality_verdict_or_domain_truth",
         "ai_judgment_policy": "ai_may_emit_metric_comparison_verdict_candidate_or_route_back_candidate_but_cannot_claim_statistical_conclusion_domain_truth_owner_receipt_or_publication_readiness"
-      }
-    },
-    {
-      "module_id": "opl.scholarskills.omics",
-      "brand_family": "MAS Scholar Skills",
-      "display_name": "Scholar Omics",
-      "stage_fit": [
-        "omics_preflight",
-        "feature_matrix_qc",
-        "pathway_projection"
-      ],
-      "input_schema_refs": [
-        "scholarskills_omics_input.v1"
-      ],
-      "output_schema_refs": [
-        "scholarskills_omics_output_refs.v1",
-        "scholarskills_omics_learned_pattern_refs.v1#feature_matrix_visualization_pathway_review"
-      ],
-      "dependency_profile_refs": [
-        "runtime_env_dependency_profile:scholarskills_omics_v1"
-      ],
-      "run_context_refs": [
-        "opl runtime env run-context --domain scholarskills --profile omics --json"
-      ],
-      "invocation_entries": [
-        {
-          "entry_id": "scholar_omics_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module opl.scholarskills.omics --json",
-          "mutation": false,
-          "descriptor_only": true
-        }
-      ],
-      "artifact_refs": [
-        {
-          "ref_id": "scholarskills_omics_candidate_refs",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "omics_analysis_candidate_output",
-          "body_policy": "body_owned_by_domain_artifact_surface"
-        },
-        {
-          "ref_id": "feature_matrix_qc_ref",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "feature_matrix_qc_candidate",
-          "body_policy": "qc_hint_not_omics_truth"
-        },
-        {
-          "ref_id": "omics_visualization_plan_ref",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "omics_visualization_plan_candidate",
-          "body_policy": "visualization_plan_hint_requires_domain_owner_gate"
-        },
-        {
-          "ref_id": "pathway_context_ref",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "pathway_context_candidate",
-          "body_policy": "pathway_context_hint_not_biological_truth"
-        },
-        {
-          "ref_id": "domain_review_ref",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "omics_domain_review_candidate",
-          "body_policy": "domain_review_hint_not_omics_truth"
-        }
-      ],
-      "receipt_policy": {
-        "accepted_receipt_refs": [
-          "owner_receipt_ref",
-          "typed_blocker_ref"
-        ],
-        "can_sign_owner_receipt": false,
-        "receipt_body_policy": "domain_owner_receipt_or_typed_blocker_required_for_authority",
-        "refs_role": "downstream_owner_consumption_refs_only_not_scholarskills_acceptance_or_signature",
-        "can_claim_owner_acceptance": false,
-        "can_claim_publication_readiness": false,
-        "can_claim_current_package_authority": false,
-        "can_create_typed_blocker": false,
-        "owner_consumption_policy": "MAS_or_domain_owner_must_issue_owner_receipt_typed_blocker_route_back_or_artifact_mutation"
-      },
-      "quality_evidence": {
-        "evidence_kind": "candidate_omics_quality_refs",
-        "required_ref_shapes": [
-          "feature_matrix_ref",
-          "pipeline_context_ref",
-          "omics_review_ref",
-          "feature_matrix_qc_ref",
-          "omics_visualization_plan_ref",
-          "pathway_context_ref",
-          "domain_review_ref",
-          "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
-          "owner_gate_handoff_ref"
-        ],
-        "can_claim_quality_verdict": false,
-        "can_claim_omics_truth": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
-      },
-      "authority_boundary": {
-        "can_claim_domain_ready": false,
-        "can_claim_quality_verdict": false,
-        "can_claim_artifact_authority": false,
-        "can_claim_production_ready": false,
-        "can_claim_runtime_ready": false,
-        "can_claim_publication_readiness": false,
-        "can_claim_owner_acceptance": false,
-        "can_claim_current_package_authority": false,
-        "can_schedule_runtime": false,
-        "can_write_domain_truth": false,
-        "can_write_runtime_state": false,
-        "can_write_memory_body": false,
-        "can_mutate_artifact_body": false,
-        "can_sign_owner_receipt": false,
-        "can_create_typed_blocker": false,
-        "can_replace_domain_owner": false,
-        "can_replace_ai_executor_planning": false
-      },
-      "allowed_writes": [],
-      "forbidden_writes": [
-        "domain truth",
-        "artifact bodies",
-        "runtime queues/outbox/state",
-        "owner receipts",
-        "typed blockers"
-      ],
-      "learned_pattern_policy": {
-        "policy_id": "scholarskills_omics_external_learning_refs.v1",
-        "classification": "adapt_refs_only",
-        "source_patterns": [
-          "Marsilea-viz/marsilea: composable omics heatmap and annotation visualization plan",
-          "Boom5426/Awesome-Virtual-Cell: pathway and cell-model context refs with source inclusion discipline"
-        ],
-        "required_ref_shapes": [
-          "feature_matrix_qc_ref",
-          "omics_visualization_plan_ref",
-          "pathway_context_ref",
-          "domain_review_ref"
-        ],
-        "authority_boundary": "refs_only_omics_review_handoff_cannot_claim_omics_truth_domain_truth_or_quality_verdict"
       }
     },
     {
@@ -2131,7 +2005,10 @@
     {
       "module_id": "opl.scholarskills.data",
       "brand_family": "MAS Scholar Skills",
-      "display_name": "Scholar Data",
+      "display_name": "Medical Data Governance",
+      "specialist_skill_id": "medical-data-governance",
+      "legacy_module_descriptor": true,
+      "legacy_module_id_policy": "opl.scholarskills.data_remains_descriptor_and_readback_compatibility_key; active_specialist_work_uses_medical-data-governance",
       "stage_fit": [
         "source_data_profile",
         "data_dictionary",
@@ -2464,158 +2341,13 @@
           "delete_safe_cache"
         ],
         "default_completed_project_policy": "Prefer semantic reproducibility over byte preservation of historical process bodies. Preserve current cohort bodies hot; migrate useful historical information into semantic capsules; keep byte-level capsules only for active analysis, legal/regulatory retention, external handoff, or explicit owner decision; delete covered raw history and rebuildable caches.",
-        "no_authority_policy": "Scholar Data may propose closeout refs and catalog shape, but cannot move, thin, delete, compact, publish, sign owner receipt, create typed blocker, or waive reproducibility."
-      }
-    },
-    {
-      "module_id": "opl.scholarskills.intake",
-      "brand_family": "MAS Scholar Skills",
-      "display_name": "Scholar Intake",
-      "stage_fit": [
-        "source_intake",
-        "protocol_parse",
-        "study_workspace_bootstrap",
-        "source_manifest_review",
-        "commit_vendor_provenance_review",
-        "included_excluded_paths_review",
-        "dry_run_readback_review",
-        "input_contract_review",
-        "adoption_contract_review",
-        "scope_boundary_review"
-      ],
-      "input_schema_refs": [
-        "scholarskills_intake_input.v1"
-      ],
-      "output_schema_refs": [
-        "scholarskills_intake_output_refs.v1",
-        "scholarskills_intake_external_learning_refs.v1"
-      ],
-      "dependency_profile_refs": [
-        "runtime_env_dependency_profile:scholarskills_intake_v1"
-      ],
-      "run_context_refs": [
-        "opl runtime env run-context --domain scholarskills --profile intake --json"
-      ],
-      "invocation_entries": [
-        {
-          "entry_id": "scholar_intake_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module opl.scholarskills.intake --json",
-          "mutation": false,
-          "descriptor_only": true
-        }
-      ],
-      "artifact_refs": [
-        {
-          "ref_id": "scholarskills_intake_candidate_refs",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "source_intake_candidate_output",
-          "body_policy": "body_owned_by_domain_artifact_surface"
-        },
-        {
-          "ref_id": "scholarskills_intake_source_manifest_candidate",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "source_snapshot_commit_paths_and_scope_refs",
-          "body_policy": "refs_only_intake_manifest_requires_domain_owner_consumption"
-        },
-        {
-          "ref_id": "scholarskills_intake_adoption_candidate",
-          "ref_kind": "candidate_artifact_ref",
-          "role": "dry_run_input_contract_and_adoption_contract_refs",
-          "body_policy": "refs_only_adoption_hint_not_owner_receipt"
-        }
-      ],
-      "receipt_policy": {
-        "accepted_receipt_refs": [
-          "owner_receipt_ref",
-          "typed_blocker_ref"
-        ],
-        "can_sign_owner_receipt": false,
-        "receipt_body_policy": "domain_owner_receipt_or_typed_blocker_required_for_authority",
-        "refs_role": "downstream_owner_consumption_refs_only_not_scholarskills_acceptance_or_signature",
-        "can_claim_owner_acceptance": false,
-        "can_claim_publication_readiness": false,
-        "can_claim_current_package_authority": false,
-        "can_create_typed_blocker": false,
-        "owner_consumption_policy": "MAS_or_domain_owner_must_issue_owner_receipt_typed_blocker_route_back_or_artifact_mutation"
-      },
-      "quality_evidence": {
-        "evidence_kind": "candidate_intake_quality_refs",
-        "required_ref_shapes": [
-          "source_package_ref",
-          "parsed_protocol_ref",
-          "readiness_ref",
-          "source_snapshot_ref",
-          "source_manifest_ref",
-          "upstream_commit_ref",
-          "vendor_provenance_ref",
-          "included_excluded_paths_ref",
-          "dry_run_readback_ref",
-          "input_contract_ref",
-          "adoption_contract_ref",
-          "scope_boundary_ref",
-          "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
-          "owner_gate_handoff_ref"
-        ],
-        "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
-      },
-      "authority_boundary": {
-        "can_claim_domain_ready": false,
-        "can_claim_quality_verdict": false,
-        "can_claim_artifact_authority": false,
-        "can_claim_production_ready": false,
-        "can_claim_runtime_ready": false,
-        "can_claim_publication_readiness": false,
-        "can_claim_owner_acceptance": false,
-        "can_claim_current_package_authority": false,
-        "can_schedule_runtime": false,
-        "can_write_domain_truth": false,
-        "can_write_runtime_state": false,
-        "can_write_memory_body": false,
-        "can_mutate_artifact_body": false,
-        "can_sign_owner_receipt": false,
-        "can_create_typed_blocker": false,
-        "can_replace_domain_owner": false,
-        "can_replace_ai_executor_planning": false
-      },
-      "allowed_writes": [],
-      "forbidden_writes": [
-        "domain truth",
-        "artifact bodies",
-        "runtime queues/outbox/state",
-        "owner receipts",
-        "typed blockers"
-      ],
-      "external_learning_module_fit": {
-        "policy_id": "scholarskills_external_learning_module_fit.v1",
-        "sources": [
-          {
-            "source": "Imbad0202/academic-research-skills-codex",
-            "classification": "adapt_refs_only",
-            "pattern": "adapter handoff should expose input contract, dry-run readback, adoption contract, and scope boundary before writes"
-          },
-          {
-            "source": "Ar9av/PaperOrchestra",
-            "classification": "adapt_refs_only",
-            "pattern": "host-agent executable skills with deterministic helpers, schemas, halt rules, validate-only phases, and package input boundaries"
-          },
-          {
-            "source": "littlepeachs/NaturePanelForge",
-            "classification": "adapt_refs_only",
-            "pattern": "single command modes, source paper metadata, output roots, dry-run/live contract distinction, and generated run logs"
-          }
-        ],
-        "progress_policy": "external_runtime_install_not_required_before_candidate_refs_or_checklists",
-        "no_authority_policy": "candidate_refs_only_requires_domain_owner_gate"
+        "no_authority_policy": "Medical Data Governance may propose closeout refs and catalog shape, but cannot move, thin, delete, compact, publish, sign owner receipt, create typed blocker, or waive reproducibility."
       }
     }
   ],
   "standard_handoff_ref_families": {
     "policy_id": "scholarskills_standard_refs_only_handoff.v1",
-    "applies_to_modules": "all_ten_scholarskills_modules",
+    "applies_to_modules": "active_professional_skill_modules",
     "required_ref_shapes": [
       "source_pack_ref",
       "candidate_package_ref",

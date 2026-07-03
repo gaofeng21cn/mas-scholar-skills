@@ -18,8 +18,10 @@ packages, and publication readiness.
 Sibling skill routes are `medical-manuscript-writing` for manuscript text,
 `medical-manuscript-review` for adversarial critique,
 `medical-table-design` for tables, `medical-figure-design` for figures, and
-`medical-research-lit` for biomedical source support, and
-`medical-statistical-review` for statistical checklist and reporting issues.
+`medical-research-lit` for biomedical source support,
+`medical-statistical-review` for statistical checklist and reporting issues,
+and `medical-data-governance` for clinical data manifests, source readiness
+support, version impact, privacy/access tiers, and lifecycle guardrails.
 
 ## Core Rule
 

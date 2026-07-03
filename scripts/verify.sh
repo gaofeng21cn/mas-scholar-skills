@@ -76,6 +76,9 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+medical-table-design$", table_skill, r
 submit_skill = read_text("skills/medical-submission-prep/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-submission-prep$", submit_skill, re.MULTILINE):
     fail("medical-submission-prep must be a real Codex skill")
+data_governance_skill = read_text("skills/medical-data-governance/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-data-governance$", data_governance_skill, re.MULTILINE):
+    fail("medical-data-governance must be a real Codex skill")
 legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.MULTILINE):
     fail("legacy alias must expose name: opl-scholarskills")
@@ -151,6 +154,7 @@ require_all(
         "medical-statistical-review",
         "medical-table-design",
         "medical-submission-prep",
+        "medical-data-governance",
     ],
 )
 require_all(
@@ -163,6 +167,7 @@ require_all(
         "medical-statistical-review",
         "medical-table-design",
         "medical-submission-prep",
+        "medical-data-governance",
     ],
 )
 require_all(
@@ -179,7 +184,7 @@ expected_specialist_boundary = {
     "stage_specialist_boundary_policy": "MAS_owns_stage_operating_prompts_for_write_review_figure_scout_and_route_authority; mas_scholar_skills_owns_professional_specialist_playbooks_and_refs_only_candidate_outputs",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
     "default_skill_home_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo_next_to_stage_prompts",
-    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_stats_tables_submit_Display_and_source_refs",
+    "external_pack_split_policy": "heavy_cross_workspace_or_independently_released_professional_skills_may_be_split_to_external_pack_repos; mas_scholar_skills_is_the_pack_for_MAS_medical_writing_review_figure_lit_stats_tables_submit_data_governance_Display_and_source_refs",
     "tool_connector_boundary_policy": "tool_connectors_own_tool_or_API_invocation_normalized_read_receipts_and_resource_errors_not_stage_policy_professional_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
 }
 for key, expected in expected_specialist_boundary.items():
@@ -221,12 +226,12 @@ for key in [
     if positioning_policy.get(key) is not False:
         fail(f"positioning authority flag {key} must be false")
 classification_policy = contract.get("capability_module_classification_policy") or {}
-if classification_policy.get("policy_id") != "mas_scholar_skills_capability_module_classification.v1":
-    fail("contract missing capability module classification policy")
+if classification_policy.get("policy_id") != "mas_scholar_skills_professional_skill_classification.v1":
+    fail("contract missing professional skill classification policy")
 require_all(
-    "capability module contracts",
-    classification_policy.get("capability_module_contracts"),
-    ["display", "tables", "stats", "omics", "lit", "write", "review", "submit", "data", "intake"],
+    "active professional skill modules",
+    classification_policy.get("active_professional_skill_modules"),
+    ["display", "tables", "stats", "lit", "write", "review", "submit", "data"],
 )
 require_all(
     "real syncable specialist skills",
@@ -239,12 +244,8 @@ require_all(
         "medical-statistical-review",
         "medical-table-design",
         "medical-submission-prep",
+        "medical-data-governance",
     ],
-)
-require_all(
-    "contract-layer modules",
-    classification_policy.get("contract_layer_modules"),
-    ["omics", "data", "intake"],
 )
 expected_real_skill_backed_modules = {
     "display": "medical-figure-design",
@@ -254,20 +255,29 @@ expected_real_skill_backed_modules = {
     "write": "medical-manuscript-writing",
     "review": "medical-manuscript-review",
     "submit": "medical-submission-prep",
+    "data": "medical-data-governance",
 }
 if classification_policy.get("real_skill_backed_module_map") != expected_real_skill_backed_modules:
-    fail("classification policy must map the seven real-skill-backed modules")
+    fail("classification policy must map the eight real-skill-backed modules")
+if "capability_module_contracts" in classification_policy:
+    fail("classification policy must not keep legacy capability_module_contracts")
+if classification_policy.get("contract_layer_modules"):
+    fail("classification policy must not expose active contract-layer modules")
+retired_or_deferred = classification_policy.get("retired_or_deferred_modules") or {}
+for key in ["omics", "intake"]:
+    if key not in retired_or_deferred:
+        fail(f"classification policy missing retired/deferred note for {key}")
 for token in [
-    "not_from_ten_preexisting_real_MAS_skills",
-    "without_claiming_to_be_active_specialist_skills",
-    "promote_contract_layer_module_to_real_codex_skill_only_when",
+    "not_from_a_fixed_ten_module_catalog",
+    "not_active_in_mas_scholar_skills",
+    "generic_source_or_external_learning_intake_belongs_to_OPL_Framework_or_MAS_stage_source_surfaces",
     "dot_codex_skills_sync_remains_required_for_Codex_discovery",
 ]:
     if token not in json.dumps(classification_policy, ensure_ascii=False):
         fail(f"classification policy missing {token}")
 for key in [
-    "can_claim_contract_layer_modules_are_real_skills",
-    "can_move_contract_layer_modules_back_to_MAS_private_implementation",
+    "can_expose_contract_layer_modules_without_real_skill",
+    "can_claim_retired_or_deferred_modules_are_active",
     "can_replace_mas_stage_prompts",
     "can_claim_owner_acceptance",
     "can_claim_publication_readiness",
@@ -292,6 +302,9 @@ for token in [
     "statistical_action_matrix_ref",
     "table_shell_ref",
     "submission_action_matrix_ref",
+    "medical-data-governance",
+    "data_asset_manifest_ref",
+    "version_diff_impact_ref",
 ]:
     if token not in quality_policy_text:
         fail(f"professional skill quality upgrade policy missing {token}")
@@ -303,6 +316,7 @@ expected_quality_skill_refs = {
     "medical-statistical-review": ["estimand_or_target_parameter_ref", "effect_size_and_uncertainty_ref", "statistical_action_matrix_ref"],
     "medical-table-design": ["table_shell_ref", "table_qc_ref", "claim_table_alignment_ref"],
     "medical-submission-prep": ["journal_instruction_ref", "reporting_guideline_ref", "submission_action_matrix_ref"],
+    "medical-data-governance": ["data_asset_manifest_ref", "data_dictionary_ref", "version_diff_impact_ref", "owner_gate_handoff_ref"],
 }
 for skill_id, refs in expected_quality_skill_refs.items():
     require_all(f"quality refs for {skill_id}", (quality_policy.get("skill_quality_refs") or {}).get(skill_id), refs)
@@ -328,6 +342,7 @@ for relative, text in [
     ("skills/medical-statistical-review/SKILL.md", stats_skill),
     ("skills/medical-table-design/SKILL.md", table_skill),
     ("skills/medical-submission-prep/SKILL.md", submit_skill),
+    ("skills/medical-data-governance/SKILL.md", data_governance_skill),
 ]:
     for token in [
         "MAS Scholar Skills",
@@ -337,6 +352,7 @@ for relative, text in [
         "medical-statistical-review",
         "medical-table-design",
         "medical-submission-prep",
+        "medical-data-governance",
     ]:
         if token not in text:
             fail(f"{relative} missing MAS Scholar Skills positioning token: {token}")
@@ -399,8 +415,12 @@ for token in [
     if token not in contract_text:
         fail(f"contract missing PubMed Connect Lit token: {token}")
 modules = contract.get("modules")
-if not isinstance(modules, list) or len(modules) != 10:
-    fail("contract must contain exactly 10 ScholarSkills modules")
+if not isinstance(modules, list) or len(modules) != 8:
+    fail("contract must contain exactly 8 active ScholarSkills modules")
+active_module_ids = {item.get("module_id") for item in modules}
+for retired_module_id in ["opl.scholarskills.omics", "opl.scholarskills.intake"]:
+    if retired_module_id in active_module_ids:
+        fail(f"{retired_module_id} must not be an active ScholarSkills module")
 
 standard_handoff_refs = [
     "source_pack_ref",
@@ -411,8 +431,8 @@ standard_handoff_refs = [
 standard_handoff = contract.get("standard_handoff_ref_families") or {}
 if standard_handoff.get("policy_id") != "scholarskills_standard_refs_only_handoff.v1":
     fail("contract missing standard refs-only handoff policy")
-if standard_handoff.get("applies_to_modules") != "all_ten_scholarskills_modules":
-    fail("standard handoff policy must apply to all ten modules")
+if standard_handoff.get("applies_to_modules") != "active_professional_skill_modules":
+    fail("standard handoff policy must apply to active professional skill modules")
 require_all("standard handoff refs", standard_handoff.get("required_ref_shapes"), standard_handoff_refs)
 if standard_handoff.get("no_authority_policy") != "source_pack_candidate_package_execution_receipt_and_owner_gate_handoff_refs_only":
     fail("standard handoff policy must stay refs-only/no-authority")
@@ -800,13 +820,6 @@ module_learning_requirements = {
         "sources": ["Ar9av/PaperOrchestra", "Imbad0202/academic-research-skills"],
         "boundary_tokens": ["statistical_conclusion", "domain_truth"],
     },
-    "opl.scholarskills.omics": {
-        "output_schema_refs": ["scholarskills_omics_learned_pattern_refs.v1#feature_matrix_visualization_pathway_review"],
-        "refs": ["feature_matrix_qc_ref", "omics_visualization_plan_ref", "pathway_context_ref", "domain_review_ref"],
-        "policy_id": "scholarskills_omics_external_learning_refs.v1",
-        "sources": ["Marsilea-viz/marsilea", "Boom5426/Awesome-Virtual-Cell"],
-        "boundary_tokens": ["omics_truth", "domain_truth"],
-    },
     "opl.scholarskills.lit": {
         "output_schema_refs": ["scholarskills_lit_external_learning_refs.v1#query_citation_evidence_map"],
         "refs": ["query_ref", "citation_manifest_ref", "source_verification_ref", "citation_coverage_ref", "evidence_map_ref", "metadata_scrape_ref", "claim_support_ref"],
@@ -1014,8 +1027,6 @@ for module_id, requirement in slr_citation_data_requirements.items():
 
 if require_module("opl.scholarskills.stats").get("quality_evidence", {}).get("can_claim_statistical_conclusion") is not False:
     fail("Stats must not claim statistical conclusion")
-if require_module("opl.scholarskills.omics").get("quality_evidence", {}).get("can_claim_omics_truth") is not False:
-    fail("Omics must not claim omics truth")
 submit_policy = require_module("opl.scholarskills.submit").get("learned_pattern_policy", {})
 publication_authority = submit_policy.get("publication_readiness_authority", {})
 if publication_authority.get("can_authorize_publication_readiness") is not False:
@@ -1139,23 +1150,6 @@ for token in [
 ]:
     if token not in skill:
         fail(f"SKILL.md missing standard handoff token: {token}")
-
-intake_refs = [
-    "source_snapshot_ref",
-    "source_manifest_ref",
-    "upstream_commit_ref",
-    "vendor_provenance_ref",
-    "included_excluded_paths_ref",
-    "dry_run_readback_ref",
-    "input_contract_ref",
-    "adoption_contract_ref",
-    "scope_boundary_ref",
-]
-intake_module = require_module("opl.scholarskills.intake")
-require_output_schema(intake_module, ["scholarskills_intake_external_learning_refs.v1"])
-require_quality_refs(intake_module, intake_refs)
-require_artifact_refs(intake_module, ["scholarskills_intake_source_manifest_candidate", "scholarskills_intake_adoption_candidate"])
-require_external_fit(intake_module, ["Imbad0202/academic-research-skills-codex", "Ar9av/PaperOrchestra", "littlepeachs/NaturePanelForge"])
 
 if gallery_manifest.get("status") != "rendered":
     fail("gallery manifest status must be rendered")
@@ -1328,7 +1322,7 @@ required_doc_tokens = {
         "candidate_package_ref",
         "execution_receipt_ref",
         "owner_gate_handoff_ref",
-        "all ten modules",
+        "active professional skill modules",
     ],
     "skills/medical-research-lit/SKILL.md": [
         "PubMed",

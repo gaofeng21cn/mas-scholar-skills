@@ -1,13 +1,13 @@
 ---
 name: mas-scholar-skills
-description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
+description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
 ---
 
 # MAS Scholar Skills
 
 Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry for the OPL-owned MAS medical-paper enhancement pack. The historical `opl-scholarskills` name is a legacy alias only. Treat `contracts/scholar-skills-capability-modules.json` as this skill pack's module catalog snapshot. The executable `opl scholar-skills *` CLI and runtime bridge remain owned by OPL Framework.
 
-This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, and `medical-submission-prep`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, or submission work through these synced professional skills. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
+This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, submission, or clinical data governance work through these synced professional skills. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
 
 For literature discovery, use the real specialist skill `medical-research-lit` when a task needs PubMed-oriented search planning, query iteration, source screening, citation verification, evidence mapping, or a MAS route-back handoff. Do not reduce literature discovery to the `opl.scholarskills.lit` descriptor alone.
 
@@ -19,6 +19,7 @@ Default route:
 MAS overlay or stage operating prompt
   -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design
      / medical-statistical-review / medical-table-design / medical-submission-prep
+     / medical-data-governance
   -> MAS Scholar Skills discovery refs or medical-research-lit
   -> source_pack_ref / candidate_package_ref / quality_floor_ref / owner_gate_handoff_ref
   -> MAS owner gate consume / reject / route back
@@ -39,6 +40,7 @@ This `mas-scholar-skills` repository is the source of truth for the MAS Scholar 
 <workspace_root>/.codex/skills/medical-statistical-review/
 <workspace_root>/.codex/skills/medical-table-design/
 <workspace_root>/.codex/skills/medical-submission-prep/
+<workspace_root>/.codex/skills/medical-data-governance/
 <quest_root>/.codex/skills/mas-scholar-skills/
 <quest_root>/.codex/skills/medical-manuscript-writing/
 <quest_root>/.codex/skills/medical-manuscript-review/
@@ -47,6 +49,7 @@ This `mas-scholar-skills` repository is the source of truth for the MAS Scholar 
 <quest_root>/.codex/skills/medical-statistical-review/
 <quest_root>/.codex/skills/medical-table-design/
 <quest_root>/.codex/skills/medical-submission-prep/
+<quest_root>/.codex/skills/medical-data-governance/
 ```
 
 Use OPL Connect to sync that compact install:
@@ -56,13 +59,13 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The local install is refs-only and authority false. It may include this Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, and `medical-submission-prep`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
+The local install is refs-only and authority false. It may include this Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
 
 ## Boundary
 
 - Keep the authority false boundary explicit: `can_write_domain_truth: false`, `can_write_runtime_state: false`, `can_mutate_artifact_body: false`, `can_sign_owner_receipt: false`, and `can_create_typed_blocker: false`.
-- Treat this repository as the source, contract, and docs home for all ten modules in MAS Scholar Skills, not only Display. Lit, Tables, Stats, Submit, Write, Review, Omics, Data, and Intake use the same refs-only/no-authority boundary.
-- Keep the stage/specialist split single-sourced: MAS stage operating prompts own stage validity, routing, owner gates, and acceptance; `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, and `medical-submission-prep` own the professional playbooks and are maintained in this repository for MAS consumption.
+- Treat this repository as the source, contract, and docs home for the active professional skill modules in MAS Scholar Skills, not only Display. Lit, Tables, Stats, Submit, Write, Review, and Data use the same refs-only/no-authority boundary.
+- Keep the stage/specialist split single-sourced: MAS stage operating prompts own stage validity, routing, owner gates, and acceptance; `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` own the professional playbooks and are maintained in this repository for MAS consumption.
 - Require every module handoff to name `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`; these are candidate refs only and must not be read as runtime authority, owner acceptance, publication readiness, typed blocker creation, or a human gate.
 - Use MAS Scholar Skills outputs as refs-only candidates. Do not present CLI readbacks, materialized packages, or tests as runtime-ready, domain-ready, quality verdict, publication readiness, artifact authority, owner receipt, typed blocker, or production readiness.
 - Respect the MAS owner gate: MAS or another domain owner must consume candidate refs and issue the owner receipt, typed blocker, reviewer receipt, route-back, or domain artifact mutation. Do not write MAS, Yang, runtime DB, queue, owner receipt, typed blocker, current package authority, publication eval, controller decision, or domain truth surfaces from this skill.
@@ -72,15 +75,15 @@ The local install is refs-only and authority false. It may include this Skill en
 
 Keep the physical shape explicit:
 
-- Ten capability-module contracts: `display`, `tables`, `stats`, `omics`, `lit`, `write`, `review`, `submit`, `data`, and `intake`.
-- Seven real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, and `medical-submission-prep`.
-- Three contract-layer modules: `omics`, `data`, and `intake`.
+- Eight active professional skill modules: `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`.
+- Eight real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`.
+- No contract-layer module is active in this repository.
 
-The contract-layer modules provide vocabulary, ref families, checklist items, candidate handoff, receipt shape, quality-floor hints, and owner-gate routing. They are not half-built skills and are not MAS-private implementations. Promote one to a real Codex skill only when MAS needs Codex to actively execute a stable professional workflow.
+Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.
 
 ## Professional Skill Quality Floor
 
-The seven real specialist skills carry the default AI-first quality
+The eight real specialist skills carry the default AI-first quality
 floor for MAS medical-paper work:
 
 - `medical-figure-design`: figure contract, evidence chain, archetype, renderer
@@ -103,6 +106,10 @@ floor for MAS medical-paper work:
 - `medical-submission-prep`: journal instructions, reporting guideline,
   declaration inventory, data/code availability, package consistency, reviewer
   response candidate, author-input list, and submission action matrix.
+- `medical-data-governance`: clinical data asset manifests, data dictionaries,
+  cleaning/normalization readiness, version-diff impact, study binding,
+  privacy/access tiers, lifecycle/retention guardrails, and MAS owner-gate
+  route-back.
 
 These requirements absorb useful patterns from `K-Dense-AI/scientific-agent-skills`
 and `Yuan1z0825/nature-skills` into MAS-consumed professional playbooks. They do
@@ -135,30 +142,28 @@ This adapter cannot sign owner receipts, create typed blockers, claim quality ve
 
 For `opl.scholarskills.review` on observational, cohort, registry, real-world, or descriptive atlas drafts, include `registry_initial_draft_quality_floor_ref` and, for medical SCI initial drafts, `scholarskills_medical_sci_initial_draft_quality_floor.v1` when relevant. It should flag missing enrollment/data-lock windows, missing inclusion/exclusion flow or ethics/consent/funding/COI/data-availability statements, undefined BMI or diagnostic ascertainment, adult/child applicability gaps, selected diagnostic-field positivity being written as prevalence or burden, figure-caption payload drift, too-thin missingness/availability atlas claims, limitation-only discussion, submission-source prose residue, workflow/tool-pipeline prose in the manuscript body, and conclusion self-evaluation instead of evidence-based clinical conclusion. The medical SCI initial-draft floor adds refs-only checks for `reference_integrity_floor_ref`, `manuscript_body_volume_floor_ref`, `figure_table_volume_and_clinical_value_ref`, `internal_report_prose_route_back_ref`, `figure_polish_alignment_ref`, and `registry_descriptive_scientific_boundary_ref`. Use these to produce review hints, `verdict_candidate`, `route_back_candidate`, and `stop_or_continue_recommendation` refs when citations are missing, references are placeholders, the body is below the expected section floor, result figures/tables are too sparse or clinically low-value, manuscript prose reads like an internal workflow report, figure-polish expectations drift from the current skill contract, or a descriptive registry paper overclaims prevalence, burden, prediction, causality, or publication readiness. Concrete route-back triggers include phrases such as "calendar enrollment period is not promoted", "this restriction is intentional", "submission metadata remain incomplete", "TRIPOD is cited only as a boundary reference", "MAS display-pack renderer", and "defensible clinical story" in manuscript body text. This is a refs-only review hint for MAS or the domain owner; it is not a quality verdict, reviewer receipt, typed blocker, owner acceptance, publication readiness claim, or current-package authority.
 
-## Modules
+## Active Modules
 
-The ten MAS Scholar Skills modules use the internal `opl.scholarskills.*` module IDs:
+The active MAS Scholar Skills modules use the internal `opl.scholarskills.*` module IDs:
 
 - `opl.scholarskills.display` - Scholar Display
 - `opl.scholarskills.tables` - Scholar Tables
 - `opl.scholarskills.stats` - Scholar Stats
-- `opl.scholarskills.omics` - Scholar Omics
 - `opl.scholarskills.lit` - Scholar Lit
 - `opl.scholarskills.write` - Scholar Write
 - `opl.scholarskills.review` - Scholar Review
 - `opl.scholarskills.submit` - Scholar Submit
-- `opl.scholarskills.data` - Scholar Data
-- `opl.scholarskills.intake` - Scholar Intake
+- `opl.scholarskills.data` - Medical Data Governance legacy module descriptor
 
 ## External Learning Module Fit
 
-External learning improves module fit by adding candidate refs and checklist items; it does not require installing external runtimes before owner-gated work can move. Display, Tables, Stats, Omics, Lit, Write, Review, Submit, Data, and Intake may all expose learned refs from upstream research-skill, paper-writing, paper-management, figure-QA, and panel-to-code projects, but those refs stay candidate-only.
+External learning improves module fit by adding candidate refs and checklist items; it does not require installing external runtimes before owner-gated work can move. Display, Tables, Stats, Lit, Write, Review, Submit, and Data may all expose learned refs from upstream research-skill, paper-writing, paper-management, figure-QA, and panel-to-code projects, but those refs stay candidate-only.
 
 Keep the progress rule simple: if the consuming agent can produce the module's refs-only checklist, continue toward the MAS/domain owner gate. Missing external runtime installation is not a blocker unless the owner explicitly needs that runtime's executable artifact; the contract policy token is `external_runtime_install_not_required_before_candidate_refs_or_checklists`.
 
-## Scholar Data Storage Guardrails
+## Medical Data Governance Guardrails
 
-For large medical cohort datasets, `opl.scholarskills.data` must keep data management refs explicit instead of treating every file copy as a durable version. The module expects refs that separate:
+For large medical cohort datasets, use `medical-data-governance` as the real MAS Scholar Skills specialist skill. The legacy `opl.scholarskills.data` module id remains a descriptor/readback compatibility key, but new human-facing guidance should foreground `medical-data-governance`. The skill must keep data management refs explicit instead of treating every file copy as a durable version. The module expects refs that separate:
 
 - authoritative release bodies from convenience interchange files, indexed working copies, study-local extracts, reports, caches, and runtime artifacts;
 - hot / warm / cold / external placement and the reason each tier is allowed;

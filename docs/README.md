@@ -15,16 +15,18 @@ docs stay compact: module contracts, quality floors, source packs,
 external-learning refs, professional syncable skills
 `medical-manuscript-writing`, `medical-manuscript-review`,
 `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`,
-`medical-table-design`, `medical-submission-prep`, and gallery review surfaces
-support the MAS overlay. The writing/review/figure/literature/statistics/table/submission
+`medical-table-design`, `medical-submission-prep`, `medical-data-governance`,
+and gallery review surfaces support the MAS overlay. The writing/review/figure/literature/statistics/table/submission/data-governance
 professional skills are maintained here as a single source for MAS consumption;
 stage-prompt routing and generated artifacts remain with their owning runtime or
 domain repo.
 
-Current classification: ten capability-module contracts, seven real syncable
-Codex specialist skills, and three contract-layer modules. `omics`, `data`, and
-`intake` stay as refs/checklist/candidate-handoff contracts until a stable
-active workflow justifies promoting one into a real skill.
+Current classification: eight active professional modules, all backed by real
+syncable Codex specialist skills. Generic source or external-learning intake
+belongs to OPL Framework or MAS stage/source surfaces. Omics belongs in this
+repository only after MAS has a stable real omics specialist workflow to
+maintain. Active data governance now routes to `medical-data-governance`; the
+legacy Data module remains as descriptor/readback compatibility.
 
 For literature access, use `medical-research-lit` for the AI workflow and OPL
 Connect for stable PubMed refs: `opl connect pubmed search --query <query>
@@ -33,7 +35,7 @@ Connect for stable PubMed refs: `opl connect pubmed search --query <query>
 judgment, evidence interpretation, owner receipts, typed blockers, and
 publication decisions.
 
-The current professional quality floor is in the seven real skills. Figure work
+The current professional quality floor is in the eight real skills. Figure work
 requires a figure contract, evidence chain, candidate loop, and visual QA;
 writing requires an argument contract, terminology ledger, paragraph job map,
 and citation/availability audits; review requires reviewer lanes and a
@@ -43,7 +45,9 @@ statistical review requires estimand, denominator, assumption, effect-size,
 and action-matrix checks; table design requires table-shell, source-metric,
 denominator, footnote, QC, and table-to-claim checks; submission prep requires
 journal-instruction, reporting-guideline, declaration, availability,
-reviewer-response, and package-consistency checks.
+reviewer-response, and package-consistency checks; data governance requires
+clinical data manifests, dictionaries, cleaning/normalization readiness, version
+impact review, study binding, privacy/access tier, and lifecycle guardrails.
 
 ## Current Docs
 

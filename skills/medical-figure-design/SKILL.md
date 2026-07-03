@@ -19,7 +19,9 @@ repair, `medical-manuscript-review` for adversarial review,
 `medical-research-lit` for PubMed-oriented literature discovery,
 `medical-statistical-review` for statistical annotation checks,
 `medical-table-design` for table/figure consistency, and
-`medical-submission-prep` for export and submission package checks.
+`medical-submission-prep` for export and submission package checks, and
+`medical-data-governance` for clinical data manifests, source readiness support,
+version impact, privacy/access tiers, and lifecycle guardrails.
 
 MAS `figure-polish` is only the polish/review phase entry for an already scoped
 figure. It is not an independent specialist source.

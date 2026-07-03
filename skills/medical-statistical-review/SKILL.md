@@ -18,7 +18,9 @@ Sibling skill routes are `medical-table-design` for table shells and formatting,
 `medical-figure-design` for figure design, `medical-manuscript-writing` for
 statistical prose repair, `medical-manuscript-review` for full-paper critique,
 `medical-research-lit` for PubMed-oriented literature support, and
-`medical-submission-prep` for submission-facing statistical checklist items.
+`medical-submission-prep` for submission-facing statistical checklist items, and
+`medical-data-governance` for clinical data manifests, source readiness support,
+version impact, privacy/access tiers, and lifecycle guardrails.
 
 ## Core Rule
 
