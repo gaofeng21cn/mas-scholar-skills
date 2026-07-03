@@ -92,9 +92,11 @@ These modules are not separate products and they are not default entries paralle
 
 External projects such as ARS, PaperOrchestra, Research-Paper-Writing-Skills, Paperlib, SciPilot Figure, NaturePanelForge, Marsilea, and curated figure/resource lists inform MAS Scholar Skills as refs-only module fit. The lessons land as stronger candidate refs and checklists for Display, Tables, Stats, Lit, Write, Review, Submit, and Data.
 
-The specialist-skill floor also absorbs maintainable patterns from `K-Dense-AI/scientific-agent-skills` and `Yuan1z0825/nature-skills`: discoverable scientific skill packs, figure contracts, argument-first writing, reviewer fact bases, source routing, citation verification, statistical diagnostics, clinical table discipline, data availability checks, and reviewer-response discipline. These patterns are adapted into MAS-consumed skills instead of imported as a second runtime.
+The specialist-skill floor also absorbs maintainable patterns from `K-Dense-AI/scientific-agent-skills` and `Yuan1z0825/nature-skills`: discoverable scientific skill packs, figure contracts, argument-first writing, reviewer fact bases, critical-thinking validity checks, source-routing and citation verification, retrieval contracts, plotting/export QA, power and experimental-design discipline, venue-instruction mapping, clinical table discipline, data availability checks, database provenance, and reviewer-response discipline. These patterns are adapted into MAS-consumed skills instead of imported as a second runtime.
 
 These additions improve progress without forcing agents to install external runtimes first. They add reviewable candidate surfaces such as visual QA previews, citation verification, claim-evidence maps, submission sanity refs, source lineage, and data lifecycle refs; they do not bypass MAS or another domain owner gate.
+
+The K-Dense-specific intake map is documented in [K-Dense scientific-agent-skills intake](./docs/kdense-scientific-agent-skills-intake.md). It records which patterns landed in the eight real `medical-*` skills and which foreign defaults remain rejected.
 
 ## Default Boundary Defense
 

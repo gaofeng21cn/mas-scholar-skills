@@ -55,6 +55,10 @@ journal-instruction, reporting-guideline, declaration, availability,
 reviewer-response, and package-consistency checks; data governance requires
 clinical data manifests, dictionaries, cleaning/normalization readiness, version
 impact review, study binding, privacy/access tier, and lifecycle guardrails.
+The K-Dense intake note records the latest scientific-agent-skills absorption
+into those same eight real skills, including retrieval contracts, venue
+instructions, plotting/export QA, power/design discipline, and database API
+provenance.
 
 ## Current Docs
 
@@ -63,6 +67,7 @@ impact review, study binding, privacy/access tier, and lifecycle guardrails.
 | [Capability modules](./capability-modules.md) | Canonical human-readable module library overview | Machine truth stays in `contracts/scholar-skills-capability-modules.json`, skill pack files, source, and OPL Framework readback |
 | [MAS Scholar Skills operating model](./mas-scholar-skills-operating-model.md) | MAS overlay routing, professional-skill single-source policy, pack/default ownership, Connect/Fabric sync, and no-dual-source boundary | MAS ledgers, owner receipts, typed blockers, queues, artifact authority, and publication readiness remain outside this repo |
 | [Candidate artifact engines](./candidate-artifact-engines.md) | Candidate artifact body generator boundary and CLI orientation | Candidate artifacts are non-authoritative and require domain owner consumption |
+| [K-Dense scientific-agent-skills intake](./kdense-scientific-agent-skills-intake.md) | External learning absorption map for K-Dense scientific writing, review, literature, visualization, statistics, venue, and database retrieval patterns | Patterns land in existing `medical-*` Skills as refs-only candidate discipline, not as external runtime authority |
 | [Display gallery](./gallery/display-gallery.md) | Human review entry for Scholar Display gallery refs | Pack source and compact review refs live in this repo; consuming MAS/domain owners still own paper truth, visual audit receipts, and publication readiness |
 
 ## Growth Rule

@@ -50,6 +50,15 @@ specialist skills. The floor is adapted from fresh inspection of
 | `medical-submission-prep` | Journal instruction mapping, reporting guideline checklist, declaration inventory, data/code availability, package consistency, cover-letter or reviewer-response candidates, author-input fields, and submission action matrix. |
 | `medical-data-governance` | Data asset manifest, dataset manifest, data dictionary/codebook, cleaning/normalization readiness, source lineage, version-diff impact, study binding, privacy/access tier, lifecycle/retention guardrails, and owner-gate handoff. |
 
+The K-Dense intake is landed into the same eight real skills: writing gets
+outline-to-prose and citation/reporting contracts; review gets critical
+validity/bias and venue-calibration checks; lit gets retrieval contracts and
+identifier provenance; display gets plotting/export QA from scientific
+visualization, Matplotlib, and Seaborn; stats gets power, MDE, experimental
+design, and pseudoreplication discipline; tables get table-vs-figure and
+statistical-display checks; submit gets current venue-instruction provenance;
+data governance gets database endpoint/filter/count/provenance discipline.
+
 Data availability checks are active through `medical-data-governance`. Omics-specific source routing should stay with the relevant MAS/OPL owner surface until MAS needs Codex to actively run that workflow as a standalone specialist skill.
 
 ## Stage / Specialist / Connector / Contract Boundary

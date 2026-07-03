@@ -57,6 +57,12 @@ does not need a mandatory graphical abstract, a fixed Nature voice, or extra
 figures by default. It needs a defendable medical argument with claim-evidence
 traceability.
 
+K-Dense `scientific-writing` contributes only the durable writing discipline:
+two-stage outline-to-prose drafting, IMRAD/reporting guideline awareness,
+citation-style control, and final full-paragraph manuscript prose. Its mandatory
+graphical abstract and high figure-count defaults are rejected unless the target
+journal, study charter, or MAS figure contract requires them.
+
 ## Argument And Reader Contract
 
 Before a substantial section or full draft, write a compact contract:
@@ -65,12 +71,18 @@ Before a substantial section or full draft, write a compact contract:
   advance, using this approach, supported by these evidence refs.
 - `reader_question_ref`: which reader question the section must answer first:
   relevance, novelty, trust, reuse, or clinical meaning.
+- `section_outline_ref`: section-level points, required evidence refs, and
+  source gaps before prose drafting.
 - `terminology_ledger_ref`: canonical terms, abbreviations, endpoint names,
   dataset labels, model names, and statistical terms.
 - `paragraph_job_map_ref`: one job per paragraph: context, gap, approach,
   result, comparison, implication, limitation, or route-back.
 - `claim_strength_calibration_ref`: verbs matched to evidence strength, such as
   show, demonstrate, suggest, indicate, may, or could.
+- `citation_style_ref`: AMA, Vancouver, or journal-specific style source plus
+  any known deviations.
+- `reporting_guideline_check_ref`: STROBE, CONSORT, PRISMA, TRIPOD, RECORD, or
+  other guideline status mapped to sections.
 
 If the core claim, evidence, or boundary is ambiguous, produce an alignment
 block and route back before drafting a full section. If MAS already supplied an
@@ -153,6 +165,8 @@ For each intended claim, answer:
 - What number, table, figure, or model output supports it?
 - What caveat belongs next to it?
 - What claim should be downgraded if that evidence is weaker than hoped?
+- Which citation metadata or source lookup still needs `medical-research-lit`
+  before the claim can enter final prose?
 
 ### 2. Section Contract
 
@@ -218,6 +232,11 @@ Write final manuscript text in full paragraphs. Use bullets only in planning
 surfaces, review ledgers, checklists, or route-back packets. In Results, lead
 with the medical question and evidence answer; use figure/table references as
 support, not as the paragraph's only logic.
+
+Do not leave final manuscript sections as outline bullets. If the evidence is
+not ready for prose, keep the outline as a candidate planning ref and route the
+missing evidence, citation, table, figure, or statistical item to the owning
+skill.
 
 ### 4. Citation Integrity
 

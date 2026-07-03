@@ -47,6 +47,9 @@ scientific-critical-thinking, Nature-style data, and reviewer-response skills:
   ref;
 - preserve the no-authority boundary: this skill proposes candidate judgments,
   while MAS or the domain owner accepts, rejects, or routes them back.
+- use K-Dense statistical-power and experimental-design patterns to check
+  design unit, randomization, blocking, clustering, power/MDE sensitivity, and
+  pseudoreplication before interpreting model output.
 
 ## Review Contract
 
@@ -57,6 +60,14 @@ Before judging the analysis, create or refresh:
 - `estimand_or_target_parameter_ref`: what quantity is being estimated and why.
 - `analysis_plan_ref`: model/test family, covariates, stratification,
   clustering, repeated-measure, censoring, multiplicity, and sensitivity plan.
+- `design_unit_ref`: the unit randomized or sampled, independent replicate
+  level, clustering/nesting, repeated-measure structure, and pseudoreplication
+  risk.
+- `randomization_blocking_ref`: randomization, blocking, stratification,
+  allocation, batch/run-order, or owner-declared nonrandom design caveats.
+- `power_or_mde_ref`: a priori power, minimum detectable effect, or sensitivity
+  analysis when sample-size justification is needed; do not use observed power
+  as evidence of adequacy.
 - `denominator_and_missingness_ref`: analysis set, exclusions, missingness
   pattern, imputation or complete-case strategy, and denominator consistency.
 - `effect_size_and_uncertainty_ref`: effect measure, confidence interval or
@@ -75,18 +86,21 @@ If these refs are missing, route back before polishing statistical language.
    model output, or manuscript sentence that carries it.
 3. Verify denominator, inclusion/exclusion, data window, missingness, and
    endpoint ascertainment before reviewing tests or models.
-4. Check whether the model/test family matches the design: independence,
+4. Check whether the design can support the claim: randomization, blocking,
+   stratification, cluster or repeated-measure structure, independence,
+   confounding, sample size/power, and pseudoreplication risk.
+5. Check whether the model/test family matches the design: independence,
    pairing, repeated measures, clustering, distribution, censoring, competing
    risks, confounding, and sample size.
-5. Require effect size and uncertainty for every inferential claim. P-values
+6. Require effect size and uncertainty for every inferential claim. P-values
    alone are not enough.
-6. Check assumptions and diagnostics. Name the diagnostic that supports or
+7. Check assumptions and diagnostics. Name the diagnostic that supports or
    weakens interpretation.
-7. Check multiplicity, subgroup, sensitivity, and robustness claims. Downgrade
+8. Check multiplicity, subgroup, sensitivity, and robustness claims. Downgrade
    exploratory or underpowered claims.
-8. Check whether figures and tables show the same estimates, denominators, and
+9. Check whether figures and tables show the same estimates, denominators, and
    uncertainty as the manuscript text.
-9. Produce a statistical action matrix and route-back candidate.
+10. Produce a statistical action matrix and route-back candidate.
 
 If a statistical method, reporting claim, guideline statement, or clinical
 interpretation needs biomedical literature support, use:
@@ -122,6 +136,9 @@ Return refs-only candidate output:
 - `statistical_question_ref`
 - `estimand_or_target_parameter_ref`
 - `analysis_plan_ref`
+- `design_unit_ref`
+- `randomization_blocking_ref`
+- `power_or_mde_ref`
 - `denominator_and_missingness_ref`
 - `assumption_diagnostic_ref`
 - `effect_size_and_uncertainty_ref`

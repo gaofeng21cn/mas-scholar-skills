@@ -69,6 +69,8 @@ MAS Scholar Skills 正式承接八个 active 专业模块的 MAS 增强材料 so
 | `medical-submission-prep` | journal instruction、reporting guideline、declaration inventory、data/code availability、package consistency、reviewer response candidate、author-input fields、submission action matrix。 |
 | `medical-data-governance` | data asset manifest、dataset manifest、data dictionary/codebook、cleaning/normalization readiness、source lineage、version-diff impact、study binding、privacy/access tier、lifecycle/retention guardrail、owner-gate handoff。 |
 
+K-Dense 高频模式本轮只进入这些真 Skill：写作吸收提纲到正文、引用和报告规范契约；审阅吸收有效性、偏倚、GRADE 信号和期刊校准；文献吸收论文检索、引用管理和检索契约；图件吸收科研可视化、Matplotlib/Seaborn 出图与导出质检；统计吸收统计效能、最小可检出效应、实验设计、伪重复和假设诊断；表格吸收表图取舍和统计展示纪律；投稿吸收当前期刊指南契约；数据吸收数据库检索的 endpoint、filter、count 和 provenance 契约。详见 `docs/kdense-scientific-agent-skills-intake.md`。
+
 组学专属 source routing 和材料接入专属 adoption check 分别归 MAS/OPL 对应 owner surface；当 MAS 需要 Codex 主动执行稳定、可维护、可同步的独立专业流程时，再升级为新的真实 Skill。
 
 ## MAS 默认入口与技能正文边界

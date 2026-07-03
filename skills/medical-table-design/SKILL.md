@@ -44,6 +44,9 @@ spreadsheet-quality, statistical-analysis, and Nature-style data workflows:
 - make table claims match manuscript and figure claims;
 - keep data availability and source lineage visible without moving authority
   into this skill.
+- use K-Dense scientific-writing/statistical-visualization discipline to choose
+  a table only when exact values, denominators, subgroup structure, or compact
+  multi-metric comparison are more useful than a figure.
 
 ## Table Contract
 
@@ -52,6 +55,8 @@ Before drafting a table, create or refresh:
 - `table_job_ref`: baseline description, cohort flow, primary outcome,
   model result, sensitivity result, missingness atlas, supplementary support, or
   submission checklist.
+- `table_vs_figure_decision_ref`: why the information belongs in a table,
+  figure, supplement, or prose.
 - `table_shell_ref`: rows, columns, stratification, units, denominator columns,
   footnotes, abbreviations, and statistic display format.
 - `source_metric_ref`: source table/model/output refs for every metric.
@@ -72,14 +77,16 @@ or a MAS owner gate before producing final-looking tables.
 2. Choose the minimum useful table type: baseline, cohort flow, result summary,
    model coefficient, subgroup, sensitivity, missingness, data dictionary, or
    submission/admin table.
-3. Define row and column grammar before values are inserted.
-4. Bind every metric to `source_metric_ref` and every denominator to
+3. Decide whether the exact values and denominators need a table, or whether a
+   figure or prose sentence is the clearer display.
+4. Define row and column grammar before values are inserted.
+5. Bind every metric to `source_metric_ref` and every denominator to
    `denominator_ref`.
-5. Normalize units, decimal places, effect-size display, p-value policy,
+6. Normalize units, decimal places, effect-size display, p-value policy,
    confidence intervals, and missingness notation.
-6. Add abbreviations and footnotes only where they remove ambiguity.
-7. Check text/table/figure consistency.
-8. Produce a candidate table manifest and route-back list.
+7. Add abbreviations and footnotes only where they remove ambiguity.
+8. Check text/table/figure consistency.
+9. Produce a candidate table manifest and route-back list.
 
 If a table note, benchmark, guideline, endpoint definition, or clinical
 interpretation needs biomedical literature support, use:
@@ -100,7 +107,8 @@ Check:
 - all denominators are visible or recoverable;
 - percentages have clear denominators;
 - units and transformations are explicit;
-- p-values are not used as the only evidence;
+- p-values are not used as the only evidence and are paired with effect sizes or
+  uncertainty when inferential;
 - CI/SE/SD/IQR choices match the statistic;
 - p-value and multiplicity policy is stated when relevant;
 - abbreviations are defined once and used consistently;
@@ -112,6 +120,7 @@ Check:
 Return refs-only candidate output:
 
 - `table_job_ref`
+- `table_vs_figure_decision_ref`
 - `table_shell_ref`
 - `source_metric_ref`
 - `denominator_ref`

@@ -41,6 +41,8 @@ This skill adapts maintainable patterns from Nature-style data availability,
 reviewer response, citation, and submission workflows:
 
 - load journal instructions and article type before formatting advice;
+- record the current venue instruction source, access date, and template or
+  author-guide version before applying rules;
 - inventory every required file and declaration;
 - separate ready-to-paste text from fields the author must supply;
 - map every reviewer response claim to a manuscript location or explicit
@@ -48,6 +50,8 @@ reviewer response, citation, and submission workflows:
 - treat data/code availability and FAIR metadata as submission surfaces, not as
   decorative end matter;
 - preserve MAS owner gates for readiness and final submission decisions.
+- adapt K-Dense `venue-templates` as an instruction-mapping discipline, not a
+  guarantee that a generic template is current or accepted.
 
 ## Submission Contract
 
@@ -55,6 +59,9 @@ Before preparing the package, create or refresh:
 
 - `journal_instruction_ref`: target journal, article type, word/figure/table
   limits, file format, reporting checklist, and disclosure rules.
+- `journal_instruction_source_ref`: official author instruction URL or local
+  source, access date, article type, template version when present, and whether
+  graphical abstract, highlights, or reporting files are required.
 - `submission_inventory_ref`: manuscript, title page, abstract, figures, tables,
   supplement, cover letter, highlights, graphical abstract, ethics, consent,
   funding, COI, author contributions, data/code availability, acknowledgments,
@@ -75,19 +82,24 @@ produce route-back rather than inventing content.
 
 1. Identify target journal, article type, submission stage, and whether this is
    first submission, revision, resubmission, or appeal-like.
-2. Build a package inventory and classify each item as ready, needs repair,
+2. Read the current journal instructions or accepted local snapshot before
+   formatting advice. Do not rely on memory or a generic template when the
+   target venue is named.
+3. Build a package inventory and classify each item as ready, needs repair,
    needs author input, not applicable, or owner decision needed.
-3. Map reporting guideline items to manuscript locations and missing fields.
-4. Audit data/code availability, source data, supplementary files, and dataset
+4. Map reporting guideline items to manuscript locations and missing fields.
+5. Audit data/code availability, source data, supplementary files, and dataset
    citations. Do not invent DOIs, accession numbers, committees, embargo dates,
    licenses, or repository names.
-5. Check figures and tables against journal format and manuscript claims.
-6. Check declarations: ethics, consent, trial/registry registration when
+6. Check figures and tables against journal format and manuscript claims. Treat
+   graphical abstracts or highlights as required only when the venue instruction
+   or owner request says so.
+7. Check declarations: ethics, consent, trial/registry registration when
    relevant, funding, COI, author contributions, acknowledgments, AI/tool
    disclosure, and data-use restrictions.
-7. Draft candidate cover-letter or response-letter material only when source
+8. Draft candidate cover-letter or response-letter material only when source
    instructions and manuscript changes support it.
-8. Produce a submission action matrix and owner-gate handoff.
+9. Produce a submission action matrix and owner-gate handoff.
 
 If journal-facing background, reporting-standard, data-sharing, guideline, or
 reviewer-response text needs biomedical literature support, use:
@@ -119,6 +131,7 @@ When reviewer comments or editor letters are present:
 Return refs-only candidate output:
 
 - `journal_instruction_ref`
+- `journal_instruction_source_ref`
 - `submission_inventory_ref`
 - `reporting_guideline_ref`
 - `data_code_availability_ref`

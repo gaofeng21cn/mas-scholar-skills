@@ -92,9 +92,11 @@ MAS Scholar Skills 提到的 `owner_receipt_ref`、`typed_blocker_ref`、`review
 
 ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figure、NaturePanelForge、Marsilea 以及科研图示/资源清单里的可迁移做法，只进入 MAS Scholar Skills 的 refs-only 模块映射。落点是八个 active 模块更强的候选引用和检查清单，而不是引入第二套外部 runtime 或 truth source。
 
-专业 Skill 质量地板也吸收 `K-Dense-AI/scientific-agent-skills` 和 `Yuan1z0825/nature-skills` 中可维护的模式：可发现科研技能包、图件契约、先论证后写作、审稿事实基座、来源路由、引用核验、统计诊断、临床表格纪律、数据可用性检查和审稿回复纪律。这些模式会进入 MAS 消费的专业 Skill，而不是作为第二套 runtime 引入。
+专业 Skill 质量地板也吸收 `K-Dense-AI/scientific-agent-skills` 和 `Yuan1z0825/nature-skills` 中可维护的模式：可发现科研技能包、图件契约、先论证后写作、审稿事实基座、批判性思维有效性检查、来源路由与引用核验、检索契约、绘图和导出质检、统计效能与实验设计纪律、期刊指南映射、临床表格纪律、数据可用性检查、数据库来源记录和审稿回复纪律。这些模式会进入 MAS 消费的专业 Skill，而不是作为第二套 runtime 引入。
 
 这些优化优先进度：智能体不需要先安装外部 runtime 才能继续推进。它们增加的是可审阅候选面，例如视觉 QA 预览、引用核查、claim-evidence map、投稿 sanity refs、数据 lineage 和 lifecycle refs；不能绕过 MAS 或其他领域负责人的 owner gate。
+
+K-Dense 专项吸收映射记录在 [K-Dense intake 文档](./docs/kdense-scientific-agent-skills-intake.md)，说明哪些模式已落到八个真实医学专业 Skill，哪些外部默认保持拒绝。
 
 ## 默认边界防线
 

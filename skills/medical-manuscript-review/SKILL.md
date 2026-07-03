@@ -105,6 +105,12 @@ Use these patterns as stricter review discipline, not as a foreign journal
 verdict. The skill may say a Nature-style case is weak, but it cannot claim an
 editorial decision or publication readiness.
 
+K-Dense `scientific-critical-thinking` contributes evidence-quality discipline
+to review, not a separate authority layer. Use it to name internal validity,
+external validity, construct validity, statistical conclusion validity, bias,
+confounding, reproducibility, ethics, and reporting-standard problems when the
+manuscript evidence supports the concern.
+
 ## Fact Base And Reviewer Lanes
 
 Before scoring or writing findings, build `review_fact_base_ref` with:
@@ -125,9 +131,17 @@ For important manuscripts, include three reviewer lanes:
   distinction, and overclaim risk.
 - `reader_reviewer_lane`: title/abstract clarity, nonspecialist readability,
   narrative flow, terminology, and journal/audience fit.
+- `validity_bias_lane`: internal/external/construct/statistical validity,
+  confounding, selection bias, measurement bias, attrition, selective reporting,
+  and causal overreach.
 
 Then write `cross_review_synthesis_ref` that names consensus blockers,
 divergent emphases, and the narrowest next route.
+
+When the target journal or article type is known, add
+`venue_review_expectation_ref`: the reviewer standards being used, their source,
+and which expectations are formatting-only versus scientific blockers. Venue
+templates calibrate the review; they do not authorize acceptance or rejection.
 
 ## Knowledge Obligations
 
@@ -160,6 +174,7 @@ Cover these domains:
 - `variable_ascertainment`
 - `source_heterogeneity`
 - `display_to_claim`
+- `risk_of_bias_or_grade_signal`
 
 Each row should include `concern_id`, `domain`, `status`, `severity`,
 `finding`, `evidence_refs`, and `required_disposition`. Any `major` or
@@ -250,7 +265,7 @@ Write findings as an action matrix. Each row should include:
 - readiness label blocked: `draft-ready`, `paper-ready`, or `submission-ready`
 - owner surface that must record closure
 - reviewer lane: `technical`, `significance`, `reader`, `citation`,
-  `display`, or `submission`
+  `display`, `submission`, or `validity_bias`
 - required evidence to close, not just suggested wording
 
 The matrix should be specific enough for another executor to continue without

@@ -99,29 +99,32 @@ The eight real specialist skills carry the default AI-first quality
 floor for MAS medical-paper work:
 
 - `medical-figure-design`: figure contract, evidence chain, archetype, renderer
-  decision, style brief, candidate set, critic review, and visual QA.
+  decision, style brief, candidate set, critic review, plot/export QA, and
+  visual QA.
 - `medical-manuscript-writing`: one-sentence argument, terminology ledger,
   paragraph job map, section contract, citation integrity, figure/table binding,
-  and data/code availability audit.
+  two-stage outline-to-prose discipline, and data/code availability audit.
 - `medical-manuscript-review`: shared fact base, technical/significance/reader
-  reviewer lanes, cross-review synthesis, reviewer action matrix, and route-back
-  closeout.
+  reviewer lanes, critical-thinking validity/bias checks, cross-review
+  synthesis, reviewer action matrix, and route-back closeout.
 - `medical-research-lit`: PubMed-first source routing, query plan,
   deduplication, retain/reject/watchlist screening, fallback source refs,
-  support-strength matrix, and citation integrity floor.
+  retrieval contract, support-strength matrix, and citation integrity floor.
 - `medical-statistical-review`: statistical question, estimand, analysis plan,
   denominator/missingness, assumption diagnostics, effect size, multiplicity,
-  sensitivity, table/figure consistency, and action matrix.
+  power/design discipline, sensitivity, table/figure consistency, and action
+  matrix.
 - `medical-table-design`: table job, shell, source metrics, denominators,
-  statistical display, table QC, claim-table alignment, and journal table
-  contract.
+  table-vs-figure decision, statistical display, table QC, claim-table
+  alignment, and journal table contract.
 - `medical-submission-prep`: journal instructions, reporting guideline,
   declaration inventory, data/code availability, package consistency, reviewer
-  response candidate, author-input list, and submission action matrix.
+  response candidate, venue instruction provenance, author-input list, and
+  submission action matrix.
 - `medical-data-governance`: clinical data asset manifests, data dictionaries,
   cleaning/normalization readiness, version-diff impact, study binding,
-  privacy/access tiers, lifecycle/retention guardrails, and MAS owner-gate
-  route-back.
+  privacy/access tiers, database retrieval provenance, lifecycle/retention
+  guardrails, and MAS owner-gate route-back.
 
 These requirements absorb useful patterns from `K-Dense-AI/scientific-agent-skills`
 and `Yuan1z0825/nature-skills` into MAS-consumed professional playbooks. They do

@@ -60,6 +60,13 @@ and Nature-style figure skills as workflow references. Do not copy their
 mandatory graphical-abstract or "generate many figures" defaults into MAS.
 Medical figures must earn their place through claim and evidence.
 
+K-Dense `scientific-visualization`, `matplotlib`, and `seaborn` contribute
+plotting discipline: choose the visualization from the data question, preserve a
+stable renderer family, inspect the final exported figure at manuscript scale,
+and verify accessibility and source-data traceability. They do not create a
+requirement to use Python or generate extra figures when MAS has chosen another
+paper-local renderer.
+
 ## Figure Contract
 
 Before writing plotting code, produce or refresh a compact contract:
@@ -72,8 +79,12 @@ Before writing plotting code, produce or refresh a compact contract:
   `clinical_evidence_summary`.
 - `renderer_decision_ref`: chosen renderer family, why it fits, and why
   alternatives were not used.
+- `plot_selection_ref`: why the chart type fits the variable type,
+  comparison, uncertainty, and table-vs-figure tradeoff.
 - `journal_export_contract_ref`: target size, editable text requirement,
   export formats, source-data expectation, and image-integrity notes.
+- `final_size_export_ref`: vector/raster format, DPI where raster is required,
+  final print dimensions, and text-size inspection.
 
 If the contract cannot name the core conclusion and evidence chain, route back
 before drawing. If MAS or the user has not fixed a backend, recommend one from
@@ -181,6 +192,10 @@ Choose the figure grammar only after intent and refs are clear.
 - Evidence figures may use only `python` or `r_ggplot2`.
 - Illustration figures may use `python`, `r_ggplot2`, or `html_svg`.
 - `html_svg` is never allowed for evidence figures.
+- If Python is selected, prefer explicit Matplotlib object-oriented figure/axes
+  code for publication figures. Seaborn is acceptable for statistical draft
+  plots or simple paper figures only when its aggregation, error bars, hue/order,
+  and axis labels are explicit and reproducible.
 
 If the selected backend cannot run, stop and fix the environment or route a
 blocker. Do not silently fallback to a different renderer family.
@@ -192,6 +207,7 @@ Record the selected grammar in a figure manifest before polishing:
 - evidence refs
 - statistics and annotations
 - renderer family
+- plotting library and version when Python is used
 - exports
 - QA checks
 - owner-gate status
@@ -246,8 +262,11 @@ Check:
 - overlap, truncation, clipped legends, duplicate titles, and prose cards
 - whether every visible claim is supported by evidence refs
 - grayscale and color-vision robustness for categorical encodings
+- avoidance of misleading palettes such as rainbow/jet for ordered scientific
+  data
 - figure legend consistency with visible variables, units, sample sizes, and
   statistical annotations
+- vector/source export availability or documented raster DPI reason
 - source-data and code traceability for every evidence panel
 
 Every failed check must be fixed, downgraded to a named caveat, routed back to
