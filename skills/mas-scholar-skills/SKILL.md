@@ -29,12 +29,12 @@ MAS Scholar Skills can improve the material those MAS skills use. It cannot repl
 
 ## Boundary Separation
 
-Keep four surfaces separate:
+Use `docs/no-authority-boundary.md` as the shared human-readable boundary ref. Keep four surfaces separate:
 
 - Stage prompts: MAS `agent/stages/` and `agent/prompts/` own stage entry, routing, evidence thresholds, owner gates, route-back, owner receipts, typed blockers, human gates, publication readiness, and artifact authority.
-- Professional specialist skills: the eight real `medical-*` Codex skills in this repository own the MAS-consumed professional playbooks for writing, review, figure design, literature, statistics, tables, submission, and data governance. They are not descriptors or script functions.
-- Tool connectors: OPL Connect/Fabric owns tool or API calls, normalized read receipts, connector errors, and resource access such as PubMed. It does not own professional judgment or MAS owner acceptance.
-- Contract modules: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy. It does not replace a `medical-*` Skill, stage prompt, connector, owner receipt, typed blocker, human gate, artifact authority, or publication-readiness decision.
+- Professional specialist skills: the eight real `medical-*` Codex skills in this repository own MAS-consumed professional playbooks and refs-only candidate handoffs.
+- Tool connectors: OPL Connect/Fabric owns tool or API calls, normalized read receipts, connector errors, and resource access such as PubMed.
+- Contract modules: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy.
 
 `mas-scholar-skills` is the aggregate entry and discovery layer for the pack. `opl-scholarskills` is only a legacy alias/provenance entry, not a second truth source.
 
@@ -74,14 +74,11 @@ The local install is refs-only and authority false. It may include this Skill en
 
 ## Boundary
 
-- Keep the authority false boundary explicit: `can_write_domain_truth: false`, `can_write_runtime_state: false`, `can_mutate_artifact_body: false`, `can_sign_owner_receipt: false`, and `can_create_typed_blocker: false`.
-- Treat this repository as the source, contract, and docs home for the active professional skill modules in MAS Scholar Skills, not only Display. Lit, Tables, Stats, Submit, Write, Review, and Data use the same refs-only/no-authority boundary.
-- Keep the stage/specialist split single-sourced: MAS stage operating prompts own stage validity, routing, owner gates, and acceptance; `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` own the professional playbooks and are maintained in this repository for MAS consumption.
-- Keep connector and contract ownership narrow: OPL Connect/Fabric supplies external access and normalized read receipts; the contract module supplies ids, maps, refs, and flags. Neither can downgrade a real `medical-*` Skill into a descriptor or take over professional judgment.
-- Require every module handoff to name `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`; these are candidate refs only and must not be read as runtime authority, owner acceptance, publication readiness, typed blocker creation, or a human gate.
-- Use MAS Scholar Skills outputs as refs-only candidates. Do not present CLI readbacks, materialized packages, or tests as runtime-ready, domain-ready, quality verdict, publication readiness, artifact authority, owner receipt, typed blocker, or production readiness.
-- Respect the MAS owner gate: MAS or another domain owner must consume candidate refs and issue the owner receipt, typed blocker, reviewer receipt, route-back, or domain artifact mutation. Do not write MAS, Yang, runtime DB, queue, owner receipt, typed blocker, current package authority, publication eval, controller decision, or domain truth surfaces from this skill.
-- Treat any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref exposed by MAS Scholar Skills as downstream owner-consumption refs only, not as MAS Scholar Skills acceptance, receipt signing, blocker creation, publication readiness, or current package authority.
+The authority false summary is single-sourced in `docs/no-authority-boundary.md`; machine flags remain in `contracts/capability_map.json` and `contracts/scholar-skills-capability-modules.json`.
+
+- Active modules share the refs-only handoff family `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`.
+- MAS Scholar Skills can produce candidate refs, quality hints, and route-back recommendations; it cannot claim owner receipt, typed blocker, quality verdict, owner acceptance, artifact authority, current-package authority, publication readiness, runtime readiness, or production readiness.
+- MAS or the consuming domain owner must consume downstream owner-consumption refs only and issue any owner receipt, typed blocker, reviewer receipt, route-back, current-package update, or artifact mutation from its own authority surface.
 
 ## Capability Module Classification
 

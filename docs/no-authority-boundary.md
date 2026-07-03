@@ -1,0 +1,24 @@
+# MAS Scholar Skills No-Authority Boundary
+
+Owner: `One Person Lab`
+Purpose: Shared human-readable boundary reference for README and Skill guidance.
+State: `active_boundary_ref`
+Machine boundary: Machine truth remains in `contracts/capability_map.json#/authority_boundary`, `contracts/capability_map.json#/owner_closeout_boundary`, `contracts/scholar-skills-capability-modules.json#/standard_handoff_ref_families`, and each module authority boundary in `contracts/scholar-skills-capability-modules.json`.
+
+## Canonical Rule
+
+MAS Scholar Skills is a refs-only, authority false capability pack. It can prepare candidate refs, candidate packages, quality hints, `verdict_candidate`, `route_back_candidate`, `stop_or_continue_recommendation`, and `owner_gate_handoff_ref` for the MAS owner gate.
+
+It must not write domain truth, runtime state, artifact bodies, ledgers, current packages, owner receipt, typed blocker, human gate, quality verdict, owner acceptance, artifact authority, publication readiness, runtime readiness, or production readiness.
+
+## Active Skills
+
+The active professional modules are `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`. They are backed by the syncable real Codex skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`.
+
+Each module uses the standard refs-only handoff family: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`.
+
+## Owner Route
+
+Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref named by MAS Scholar Skills is a downstream owner-consumption target only. MAS or the consuming domain owner must consume the candidate refs and issue any owner receipt, typed blocker, route-back, reviewer receipt, current-package update, artifact mutation, or publication decision from its own authority surface.
+
+Stage prompts in MAS `agent/stages/` and `agent/prompts/` own stage policy, evidence thresholds, route-back, owner gates, and acceptance. A `medical-*` professional specialist skill owns only the AI-first playbook and candidate handoff for its specialty. A Tool connector such as OPL Connect/Fabric owns tool/API access and normalized read-only receipts. A contract module owns ids, maps, ref vocabulary, no-authority flags, and sync policy.

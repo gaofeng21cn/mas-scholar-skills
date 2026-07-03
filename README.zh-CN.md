@@ -69,9 +69,7 @@ MAS Scholar Skills 的设计目标是把这些可复用支持材料变成 active
 - 候选结果可以进入后续人工或领域智能体审阅，但不能自动升级为论文事实。
 - 同一个能力包可以同步到不同 MAS 工作区或 quest，而不复制第二套 source of truth。
 
-这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。
-
-MAS Scholar Skills 提到的 `owner_receipt_ref`、`typed_blocker_ref`、`reviewer_receipt_ref`、`route_back_evidence_ref` 或 current-package ref 只是下游 owner-consumption 目标；它们不表示 MAS Scholar Skills 已采纳、已签回执、已创建 blocker，也不授权 publication/current-package readiness。
+这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。共同的 refs-only / no-authority 规则见 [No-Authority Boundary](./docs/no-authority-boundary.md)。
 
 ## Active 专业模块
 
@@ -102,12 +100,12 @@ K-Dense 专项吸收映射记录在 [K-Dense intake 文档](./docs/kdense-scient
 
 ## 默认边界防线
 
-新增或争议中的 MAS Scholar Skills 能力，默认按四段拆清楚：
+新增或争议中的 MAS Scholar Skills 能力，默认指向 [No-Authority Boundary](./docs/no-authority-boundary.md)，并把四个 owner 拆清楚：
 
 1. **Stage prompt**：MAS `agent/stages/` 和 `agent/prompts/` 负责阶段入口、路由、证据门槛、owner gate、route-back、owner receipt、typed blocker、human gate、publication readiness 和 artifact authority。
-2. **Professional specialist skill**：默认归 domain repo；本仓维护可复用外部包里的 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 以及 Display/source refs。这些是实际可同步的 Codex 专家 Skill，不是 descriptor 或脚本函数；它们可以准备 candidate refs 和专业候选产物，但不能采纳它们。
-3. **Tool connector**：OPL Connect/Fabric 或其他 connector 只负责工具/API 调用、标准化只读回执、connector error 和资源访问；不负责 stage policy、专业判断、owner receipt、typed blocker、human gate、publication readiness 或 artifact authority。
-4. **Contract module**：`contracts/scholar-skills-capability-modules.json` 负责 module id、映射、ref 词汇、无权威标记和同步策略；它不能替代 `medical-*` Skill、stage prompt、connector、owner gate 或 publication-readiness decision。
+2. **Professional specialist skill**：本仓维护可复用外部包里的 `medical-*` 专业 Skill 和 Display/source refs，只产出候选 playbook 与 handoff，不负责采纳。
+3. **Tool connector**：OPL Connect/Fabric 或其他 connector 只负责工具/API 调用、标准化只读回执、connector error 和资源访问。
+4. **Contract module**：`contracts/scholar-skills-capability-modules.json` 负责 module id、映射、ref 词汇、无权威标记和同步策略。
 
 `mas-scholar-skills` 是本包的聚合入口和 discovery 层；`opl-scholarskills` 只是 legacy alias/provenance entry，不是第二套 truth source。
 
@@ -137,9 +135,8 @@ K-Dense 专项吸收映射记录在 [K-Dense intake 文档](./docs/kdense-scient
 - `MAS Scholar Skills` 是本仓和增强包的正式名称，不是通用 OPL 基座，也不是 MAS/MAG/RCA 的领域真相源。
 - 本仓维护可分发的 Codex 插件和技能入口、MAS 消费的医学写作/审阅/图件/文献/统计/表格/投稿/数据治理专业 skill、八模块 active 目录、图库人审包和说明文档。
 - OPL Framework 维护可执行命令、同步、运行环境桥接、Connect/Fabric 资源能力和工作台动作。
-- MAS overlay 仍是 runtime owner 入口。MAS 在本仓外维护 stage 主提示词，并从本仓消费八个 `medical-*` 专业 skill。
-- MAS 等领域智能体继续维护研究事实、论文事实、产物权威、质量裁决、负责人回执、人工门、ledger 和 current package authority。
-- MAS Scholar Skills 的输出只能作为候选引用、候选包或审阅提示；不能单独声明运行就绪、领域就绪、质量裁决、产物权威、负责人已接受、可发表或发表就绪（publication readiness）。
+- MAS overlay 仍是 runtime owner 入口。MAS 在本仓外维护 stage 主提示词，并从本仓消费八个可同步 `medical-*` 专业 skill。
+- MAS Scholar Skills 的输出只能作为候选引用、候选包或审阅提示；[No-Authority Boundary](./docs/no-authority-boundary.md) 是 owner receipt、typed blocker、publication readiness、current package、artifact authority 和 owner acceptance 限制的公共引用。
 
 <details>
   <summary><strong>给技术操作者看的入口</strong></summary>
@@ -224,6 +221,7 @@ scripts/verify.sh
 ## 继续阅读
 
 - [Capability Modules](./docs/capability-modules.md)
+- [No-Authority Boundary](./docs/no-authority-boundary.md)
 - [MAS Scholar Skills Operating Model](./docs/mas-scholar-skills-operating-model.md)
 - [Candidate Artifact Engines](./docs/candidate-artifact-engines.md)
 - [Display Gallery](./docs/gallery/display-gallery.md)

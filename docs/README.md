@@ -65,6 +65,7 @@ provenance.
 | Doc | Role | Boundary |
 | --- | --- | --- |
 | [Capability modules](./capability-modules.md) | Canonical human-readable module library overview | Machine truth stays in `contracts/scholar-skills-capability-modules.json`, skill pack files, source, and OPL Framework readback |
+| [No-Authority Boundary](./no-authority-boundary.md) | Shared README/Skill boundary reference for refs-only candidate handoff and owner-route limits | Machine truth stays in `contracts/capability_map.json`, `contracts/scholar-skills-capability-modules.json`, and consuming MAS/domain owner surfaces |
 | [MAS Scholar Skills operating model](./mas-scholar-skills-operating-model.md) | MAS overlay routing, professional-skill single-source policy, pack/default ownership, Connect/Fabric sync, and no-dual-source boundary | MAS ledgers, owner receipts, typed blockers, queues, artifact authority, and publication readiness remain outside this repo |
 | [Candidate artifact engines](./candidate-artifact-engines.md) | Candidate artifact body generator boundary and CLI orientation | Candidate artifacts are non-authoritative and require domain owner consumption |
 | [K-Dense scientific-agent-skills intake](./kdense-scientific-agent-skills-intake.md) | External learning absorption map for K-Dense scientific writing, review, literature, visualization, statistics, venue, and database retrieval patterns | Patterns land in existing `medical-*` Skills as refs-only candidate discipline, not as external runtime authority |

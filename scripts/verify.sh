@@ -92,6 +92,7 @@ readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
 capability_modules = read_text("docs/capability-modules.md")
+no_authority_boundary = read_text("docs/no-authority-boundary.md")
 professional_ref_templates = read_text("references/professional-quality-ref-templates.md")
 expected_capability_skills = [
     "medical-manuscript-writing",
@@ -515,39 +516,58 @@ for key in [
 ]:
     if quality_policy.get(key) is not False:
         fail(f"professional quality policy flag {key} must be false")
-for relative, text in [
-    ("README.md", readme),
-    ("README.zh-CN.md", readme_zh),
-    ("docs/README.md", docs_index),
-    ("docs/mas-scholar-skills-operating-model.md", operating_model),
-    ("skills/mas-scholar-skills/SKILL.md", skill),
-    ("skills/medical-manuscript-writing/SKILL.md", write_skill),
-    ("skills/medical-manuscript-review/SKILL.md", review_skill),
-    ("skills/medical-figure-design/SKILL.md", figure_skill),
-    ("skills/medical-statistical-review/SKILL.md", stats_skill),
-    ("skills/medical-table-design/SKILL.md", table_skill),
-    ("skills/medical-submission-prep/SKILL.md", submit_skill),
-    ("skills/medical-data-governance/SKILL.md", data_governance_skill),
-]:
-    for token in [
-        "MAS Scholar Skills",
-        "medical-manuscript-writing",
-        "medical-manuscript-review",
-        "medical-figure-design",
-        "medical-statistical-review",
-        "medical-table-design",
-        "medical-submission-prep",
-        "medical-data-governance",
-    ]:
+for relative, text in {
+    "README.md": readme,
+    "README.zh-CN.md": readme_zh,
+    "docs/README.md": docs_index,
+    "docs/mas-scholar-skills-operating-model.md": operating_model,
+    "skills/mas-scholar-skills/SKILL.md": skill,
+}.items():
+    for token in ["MAS Scholar Skills", *expected_capability_skills]:
         if token not in text:
             fail(f"{relative} missing MAS Scholar Skills positioning token: {token}")
-    for token in [
-        "owner receipt",
-        "typed blocker",
-        "publication readiness",
-    ]:
+for relative, expected_ref, text in [
+    ("README.md", "./docs/no-authority-boundary.md", readme),
+    ("README.zh-CN.md", "./docs/no-authority-boundary.md", readme_zh),
+    ("docs/README.md", "./no-authority-boundary.md", docs_index),
+    ("skills/mas-scholar-skills/SKILL.md", "docs/no-authority-boundary.md", skill),
+]:
+    if expected_ref not in text:
+        fail(f"{relative} missing shared no-authority boundary ref {expected_ref}")
+for relative, skill_id, text in [
+    ("skills/medical-manuscript-writing/SKILL.md", "medical-manuscript-writing", write_skill),
+    ("skills/medical-manuscript-review/SKILL.md", "medical-manuscript-review", review_skill),
+    ("skills/medical-figure-design/SKILL.md", "medical-figure-design", figure_skill),
+    ("skills/medical-research-lit/SKILL.md", "medical-research-lit", lit_skill),
+    ("skills/medical-statistical-review/SKILL.md", "medical-statistical-review", stats_skill),
+    ("skills/medical-table-design/SKILL.md", "medical-table-design", table_skill),
+    ("skills/medical-submission-prep/SKILL.md", "medical-submission-prep", submit_skill),
+    ("skills/medical-data-governance/SKILL.md", "medical-data-governance", data_governance_skill),
+]:
+    for token in ["MAS Scholar Skills", skill_id]:
         if token not in text:
-            fail(f"{relative} missing no-authority boundary token: {token}")
+            fail(f"{relative} missing skill identity token: {token}")
+for token in [
+    "contracts/capability_map.json#/authority_boundary",
+    "contracts/capability_map.json#/owner_closeout_boundary",
+    "contracts/scholar-skills-capability-modules.json#/standard_handoff_ref_families",
+    "refs-only",
+    "authority false",
+    "candidate refs",
+    "candidate packages",
+    "source_pack_ref",
+    "candidate_package_ref",
+    "execution_receipt_ref",
+    "owner_gate_handoff_ref",
+    "MAS owner gate",
+    "downstream owner-consumption target only",
+    "owner receipt",
+    "typed blocker",
+    "publication readiness",
+    *expected_capability_skills,
+]:
+    if token not in no_authority_boundary:
+        fail(f"docs/no-authority-boundary.md missing boundary token: {token}")
 for forbidden in [
     "default opl-scholar-write",
     "default opl-scholar-review",
@@ -576,13 +596,7 @@ for relative, text in [
     ("docs/README.md", docs_index),
     ("docs/mas-scholar-skills-operating-model.md", operating_model),
     ("skills/mas-scholar-skills/SKILL.md", skill),
-    ("skills/medical-manuscript-writing/SKILL.md", write_skill),
-    ("skills/medical-manuscript-review/SKILL.md", review_skill),
-    ("skills/medical-figure-design/SKILL.md", figure_skill),
     ("skills/medical-research-lit/SKILL.md", lit_skill),
-    ("skills/medical-statistical-review/SKILL.md", stats_skill),
-    ("skills/medical-table-design/SKILL.md", table_skill),
-    ("skills/medical-submission-prep/SKILL.md", submit_skill),
 ]:
     for token in [
         "opl connect pubmed search",
@@ -862,9 +876,7 @@ for key in [
         fail(f"FeedbackOps authority flag {key} must be false")
 
 for token in [
-    "authority false",
-    "MAS owner gate",
-    "refs-only",
+    "docs/no-authority-boundary.md",
     "materialized_candidate_package",
     "External Learning Module Fit",
     "gallery/medical-display/medical_display_gallery.pdf",
@@ -872,7 +884,6 @@ for token in [
     "brief_first_reference_guided_ai_candidate_not_single_template_reuse",
     "critic_review_ref",
     "external_runtime_install_not_required_before_candidate_refs_or_checklists",
-    "downstream owner-consumption refs only",
     "FeedbackOps Refs-Only Adapter",
     "target_agent_feedback_external_suite",
     "feedbackops_refs_only_adapter_policy",
@@ -1696,7 +1707,6 @@ required_doc_tokens = {
         "verdict_candidate",
         "route_back_candidate",
         "stop/continue recommendations",
-        "downstream owner-consumption target",
         "source_pack_ref",
         "candidate_package_ref",
         "execution_receipt_ref",
@@ -1709,7 +1719,6 @@ required_doc_tokens = {
         "verdict_candidate",
         "route_back_candidate",
         "stop/continue recommendations",
-        "下游 owner-consumption 目标",
         "source_pack_ref",
         "candidate_package_ref",
         "execution_receipt_ref",

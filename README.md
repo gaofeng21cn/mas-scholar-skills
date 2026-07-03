@@ -69,9 +69,7 @@ MAS Scholar Skills turns the reusable support material into active professional 
 - Candidate outputs can move into human or domain-agent review, but they do not become paper truth by themselves.
 - The same skill pack can be synced into different MAS workspaces or quests without copying a second source of truth.
 
-The design keeps reuse and responsibility separate: MAS Scholar Skills prepares the handoff; the domain owner decides what is accepted.
-
-Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref named by MAS Scholar Skills is a downstream owner-consumption target only. It is not evidence that MAS Scholar Skills accepted the work, signed a receipt, created a blocker, or authorized publication/current-package readiness.
+The design keeps reuse and responsibility separate: MAS Scholar Skills prepares the handoff; the domain owner decides what is accepted. The shared refs-only/no-authority rule lives in [No-Authority Boundary](./docs/no-authority-boundary.md).
 
 ## Active Professional Modules
 
@@ -100,12 +98,12 @@ The K-Dense-specific intake map is documented in [K-Dense scientific-agent-skill
 
 ## Default Boundary Defense
 
-Every new or disputed MAS Scholar Skills surface should be defended in four parts:
+Every new or disputed MAS Scholar Skills surface should point back to [No-Authority Boundary](./docs/no-authority-boundary.md) and keep four owners separate:
 
 1. **Stage prompt**: MAS `agent/stages/` and `agent/prompts/` own stage entry, routing, evidence thresholds, owner gates, route-back, owner receipt, typed blocker, human gate, publication readiness, and artifact authority.
-2. **Professional specialist skill**: the domain repo owns it by default; MAS Scholar Skills owns the reusable external-pack specialists `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance`, and Display/source refs. These are real Codex skills, not descriptors or script functions; they can prepare candidate refs and specialist work products, but they cannot accept them.
-3. **Tool connector**: OPL Connect/Fabric or another connector owns tool/API invocation, normalized read receipts, connector errors, and resource access. A connector does not own stage policy, specialist judgment, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
-4. **Contract module**: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy. A contract module does not replace a `medical-*` Skill, stage prompt, connector, owner gate, or publication-readiness decision.
+2. **Professional specialist skill**: MAS Scholar Skills owns the reusable external-pack `medical-*` skills and Display/source refs as candidate-producing playbooks, not acceptance authority.
+3. **Tool connector**: OPL Connect/Fabric or another connector owns tool/API invocation, normalized read receipts, connector errors, and resource access.
+4. **Contract module**: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy.
 
 `mas-scholar-skills` is the aggregate entry and discovery layer for this pack. `opl-scholarskills` is only a legacy alias/provenance entry, not a second truth source.
 
@@ -135,9 +133,8 @@ The gallery keeps only the final review package. Renderer intermediates, single-
 - `MAS Scholar Skills` is the canonical name for this repository and enhancement pack, not a generic OPL base and not a MAS/MAG/RCA domain truth owner.
 - This repository owns the distributable Codex plugin/Skills, the MAS-consumed medical writing/review/figure/literature/statistics/table/submission/data-governance professional skills, the eight-module active capability catalog, the gallery review package, and human-readable guidance.
 - OPL Framework owns executable commands, sync, runtime environment bridges, Connect/Fabric resource plumbing, and workbench actions.
-- MAS overlay remains the runtime owner entry. MAS maintains the stage operating prompts outside this repository and consumes the eight `medical-*` professional specialist skills from this repository.
-- MAS and other domain agents keep ownership of study truth, publication truth, artifact authority, quality verdicts, owner receipts, human gates, ledgers, and current package authority.
-- MAS Scholar Skills outputs are candidate refs, candidate packages, or review hints only. They cannot by themselves claim runtime readiness, domain readiness, quality verdicts, artifact authority, owner acceptance, publication readiness, or publication-ready status.
+- MAS overlay remains the runtime owner entry. MAS maintains the stage operating prompts outside this repository and consumes the eight syncable `medical-*` professional specialist skills from this repository.
+- MAS Scholar Skills outputs are candidate refs, candidate packages, or review hints only; [No-Authority Boundary](./docs/no-authority-boundary.md) is the common reference for owner receipt, typed blocker, publication readiness, current package, artifact authority, and owner acceptance limits.
 
 <details>
   <summary><strong>Technical Operator Entry</strong></summary>
@@ -222,6 +219,7 @@ The verifier checks the plugin manifest, Skill entry, module catalog, gallery pa
 ## Further Reading
 
 - [Capability Modules](./docs/capability-modules.md)
+- [No-Authority Boundary](./docs/no-authority-boundary.md)
 - [MAS Scholar Skills Operating Model](./docs/mas-scholar-skills-operating-model.md)
 - [Candidate Artifact Engines](./docs/candidate-artifact-engines.md)
 - [Display Gallery](./docs/gallery/display-gallery.md)
