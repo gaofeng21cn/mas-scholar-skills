@@ -4,8 +4,10 @@ Owner: `One Person Lab`
 Purpose: `docs_index`
 State: `active_index`
 Machine boundary: Human-readable navigation. Machine truth remains in
-contracts, skill pack files, source, gallery manifests, OPL Framework readback,
-and repo-native verification.
+contracts, especially `contracts/domain_descriptor.json`,
+`contracts/capability_map.json`, and
+`contracts/scholar-skills-capability-modules.json`, skill pack files, source,
+gallery manifests, OPL Framework readback, and repo-native verification.
 
 `MAS Scholar Skills` is the canonical name for the OPL-owned
 `mas-scholar-skills` external enhancement pack. The historical

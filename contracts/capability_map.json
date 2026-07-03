@@ -1,0 +1,220 @@
+{
+  "surface_kind": "oma_capability_pack_map",
+  "schema_version": 1,
+  "domain_id": "mas-scholar-skills",
+  "delivery_domain": "capability_pack",
+  "owner": "One Person Lab",
+  "state": "active_refs_only_capability_map",
+  "updated_at": "2026-07-03",
+  "purpose": "Canonical OMA-readable mapping from MAS and Agent Lab feedback targets to MAS Scholar Skills professional skill sources.",
+  "source_contract_ref": "contracts/scholar-skills-capability-modules.json",
+  "aggregate_skill_ref": "skills/mas-scholar-skills/SKILL.md",
+  "authority_boundary": {
+    "outputs_are_refs_only_candidates": true,
+    "can_write_domain_truth": false,
+    "can_write_runtime_state": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_current_package_authority": false
+  },
+  "capabilities": [
+    {
+      "capability_id": "medical-figure-design",
+      "module_id": "mas-scholar-skills.display",
+      "feedback_targets": [
+        "figure_quality",
+        "display_quality",
+        "visual_quality"
+      ],
+      "canonical_path": "skills/medical-figure-design/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-figure-design/SKILL.md",
+      "tokens": [
+        "medical-figure-design",
+        "mas-scholar-skills.display",
+        "figure_quality",
+        "display_quality",
+        "visual_qa"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/display",
+        "scripts/verify.sh#medical-figure-design-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-manuscript-writing",
+      "module_id": "mas-scholar-skills.write",
+      "feedback_targets": [
+        "manuscript_quality",
+        "medical_manuscript_quality",
+        "writing_quality"
+      ],
+      "canonical_path": "skills/medical-manuscript-writing/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-manuscript-writing/SKILL.md",
+      "tokens": [
+        "medical-manuscript-writing",
+        "mas-scholar-skills.write",
+        "manuscript_quality",
+        "medical_manuscript_quality",
+        "writing_quality"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/write",
+        "scripts/verify.sh#medical-manuscript-writing-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-manuscript-review",
+      "module_id": "mas-scholar-skills.review",
+      "feedback_targets": [
+        "review_quality",
+        "manuscript_review",
+        "quality_review"
+      ],
+      "canonical_path": "skills/medical-manuscript-review/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-manuscript-review/SKILL.md",
+      "tokens": [
+        "medical-manuscript-review",
+        "mas-scholar-skills.review",
+        "review_quality",
+        "quality_review",
+        "route_back"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/review",
+        "scripts/verify.sh#medical-manuscript-review-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-research-lit",
+      "module_id": "mas-scholar-skills.lit",
+      "feedback_targets": [
+        "citation",
+        "literature",
+        "citation_quality",
+        "literature_quality"
+      ],
+      "canonical_path": "skills/medical-research-lit/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-research-lit/SKILL.md",
+      "tokens": [
+        "medical-research-lit",
+        "mas-scholar-skills.lit",
+        "citation",
+        "literature",
+        "pubmed",
+        "evidence_map"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/lit",
+        "scripts/verify.sh#medical-research-lit-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-statistical-review",
+      "module_id": "mas-scholar-skills.stats",
+      "feedback_targets": [
+        "stats",
+        "statistical_review",
+        "stats_quality",
+        "analysis_quality"
+      ],
+      "canonical_path": "skills/medical-statistical-review/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-statistical-review/SKILL.md",
+      "tokens": [
+        "medical-statistical-review",
+        "mas-scholar-skills.stats",
+        "stats",
+        "statistical_review",
+        "analysis_quality"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/stats",
+        "scripts/verify.sh#medical-statistical-review-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-table-design",
+      "module_id": "mas-scholar-skills.tables",
+      "feedback_targets": [
+        "table",
+        "tables",
+        "table_quality",
+        "reporting_table_quality"
+      ],
+      "canonical_path": "skills/medical-table-design/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-table-design/SKILL.md",
+      "tokens": [
+        "medical-table-design",
+        "mas-scholar-skills.tables",
+        "table",
+        "tables",
+        "table_quality",
+        "claim_table_alignment"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/tables",
+        "scripts/verify.sh#medical-table-design-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-submission-prep",
+      "module_id": "mas-scholar-skills.submit",
+      "feedback_targets": [
+        "submission",
+        "submission_quality",
+        "submission_package",
+        "journal_package"
+      ],
+      "canonical_path": "skills/medical-submission-prep/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-submission-prep/SKILL.md",
+      "tokens": [
+        "medical-submission-prep",
+        "mas-scholar-skills.submit",
+        "submission",
+        "submission_quality",
+        "journal_package"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/submit",
+        "scripts/verify.sh#medical-submission-prep-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    },
+    {
+      "capability_id": "medical-data-governance",
+      "module_id": "mas-scholar-skills.data",
+      "feedback_targets": [
+        "data_governance",
+        "data_quality",
+        "source_data_governance",
+        "clinical_data_governance"
+      ],
+      "canonical_path": "skills/medical-data-governance/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-data-governance/SKILL.md",
+      "tokens": [
+        "medical-data-governance",
+        "mas-scholar-skills.data",
+        "data_governance",
+        "source_data_governance",
+        "clinical_data_governance"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/data",
+        "scripts/verify.sh#medical-data-governance-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor"
+      ]
+    }
+  ],
+  "verification_command_refs": [
+    "jq . contracts/domain_descriptor.json contracts/capability_map.json",
+    "scripts/verify.sh"
+  ]
+}

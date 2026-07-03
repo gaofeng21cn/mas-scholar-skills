@@ -1,0 +1,78 @@
+{
+  "surface_kind": "oma_capability_pack_target_descriptor",
+  "schema_version": 1,
+  "domain_id": "mas-scholar-skills",
+  "domain_label": "MAS Scholar Skills",
+  "delivery_domain": "capability_pack",
+  "owner": "One Person Lab",
+  "state": "active_refs_only_target_descriptor",
+  "updated_at": "2026-07-03",
+  "purpose": "OMA-readable target descriptor for the MAS Scholar Skills professional capability pack.",
+  "source_of_truth_refs": [
+    {
+      "ref": "contracts/capability_map.json",
+      "role": "oma_capability_pack_map",
+      "body_included": false
+    },
+    {
+      "ref": "contracts/scholar-skills-capability-modules.json",
+      "role": "canonical_module_catalog_snapshot",
+      "body_included": false
+    },
+    {
+      "ref": "skills/mas-scholar-skills/SKILL.md",
+      "role": "canonical_aggregate_skill",
+      "body_included": false
+    }
+  ],
+  "capability_pack": {
+    "aggregate_skill_id": "mas-scholar-skills",
+    "legacy_aliases": [
+      "opl-scholarskills"
+    ],
+    "active_modules": [
+      "display",
+      "tables",
+      "stats",
+      "lit",
+      "write",
+      "review",
+      "submit",
+      "data"
+    ],
+    "syncable_real_skills": [
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep",
+      "medical-data-governance"
+    ],
+    "default_consumers": [
+      "med-autoscience",
+      "opl-meta-agent",
+      "one-person-lab.agent_lab"
+    ],
+    "consumption_mode": "refs_only_professional_skill_candidate_handoff"
+  },
+  "authority_boundary": {
+    "can_write_domain_truth": false,
+    "can_write_runtime_state": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_owner_acceptance": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_current_package_authority": false
+  },
+  "oma_consumption_policy": {
+    "oma_may_discover_capability_pack": true,
+    "oma_may_route_feedback_to_professional_skill": true,
+    "oma_may_emit_candidate_patch_or_handoff_refs": true,
+    "oma_must_not_treat_pack_output_as_domain_authority": true,
+    "capability_map_ref": "contracts/capability_map.json"
+  }
+}

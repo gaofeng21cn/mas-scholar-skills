@@ -84,12 +84,66 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.
     fail("legacy alias must expose name: opl-scholarskills")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
+domain_descriptor = read_json("contracts/domain_descriptor.json")
+capability_map = read_json("contracts/capability_map.json")
 contract_text = json.dumps(contract, ensure_ascii=False)
 readme = read_text("README.md")
 readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
 capability_modules = read_text("docs/capability-modules.md")
+expected_capability_skills = [
+    "medical-manuscript-writing",
+    "medical-manuscript-review",
+    "medical-figure-design",
+    "medical-research-lit",
+    "medical-statistical-review",
+    "medical-table-design",
+    "medical-submission-prep",
+    "medical-data-governance",
+]
+if domain_descriptor.get("surface_kind") != "oma_capability_pack_target_descriptor":
+    fail("domain descriptor must expose oma_capability_pack_target_descriptor")
+if domain_descriptor.get("domain_id") != "mas-scholar-skills":
+    fail("domain descriptor domain_id must be mas-scholar-skills")
+if domain_descriptor.get("delivery_domain") != "capability_pack":
+    fail("domain descriptor delivery_domain must be capability_pack")
+if domain_descriptor.get("oma_consumption_policy", {}).get("capability_map_ref") != "contracts/capability_map.json":
+    fail("domain descriptor must point OMA to contracts/capability_map.json")
+require_all(
+    "domain descriptor syncable real skills",
+    domain_descriptor.get("capability_pack", {}).get("syncable_real_skills"),
+    expected_capability_skills,
+)
+if capability_map.get("surface_kind") != "oma_capability_pack_map":
+    fail("capability map must expose oma_capability_pack_map")
+if capability_map.get("domain_id") != "mas-scholar-skills":
+    fail("capability map domain_id must be mas-scholar-skills")
+if capability_map.get("delivery_domain") != "capability_pack":
+    fail("capability map delivery_domain must be capability_pack")
+if capability_map.get("source_contract_ref") != "contracts/scholar-skills-capability-modules.json":
+    fail("capability map must point to the canonical module contract")
+capability_by_id = {
+    item.get("capability_id"): item
+    for item in capability_map.get("capabilities", [])
+}
+for skill_id in expected_capability_skills:
+    item = capability_by_id.get(skill_id)
+    if item is None:
+        fail(f"capability map missing {skill_id}")
+    if item.get("canonical_path") != f"skills/{skill_id}/SKILL.md":
+        fail(f"capability map canonical path for {skill_id} must point to its SKILL.md")
+    if item.get("external_repo_ref") != f"external_repo:mas-scholar-skills/skills/{skill_id}/SKILL.md":
+        fail(f"capability map external repo ref for {skill_id} must point to mas-scholar-skills")
+    require_all(f"capability map tokens for {skill_id}", item.get("tokens"), [skill_id])
+if "figure_quality" not in set(capability_by_id["medical-figure-design"].get("feedback_targets", [])):
+    fail("capability map must route figure_quality to medical-figure-design")
+if "manuscript_quality" not in set(capability_by_id["medical-manuscript-writing"].get("feedback_targets", [])):
+    fail("capability map must route manuscript_quality to medical-manuscript-writing")
+if "review_quality" not in set(capability_by_id["medical-manuscript-review"].get("feedback_targets", [])):
+    fail("capability map must route review_quality to medical-manuscript-review")
+if not {"citation", "literature"}.issubset(set(capability_by_id["medical-research-lit"].get("feedback_targets", []))):
+    fail("capability map must route citation/literature to medical-research-lit")
 if "cold_store_catalog_ref" in contract_text:
     fail("contract must use lifecycle_catalog_ref instead of cold_store_catalog_ref")
 if "cold_store_catalog_declared" in contract_text:

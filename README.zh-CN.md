@@ -15,7 +15,7 @@
 Owner: `mas-scholar-skills`
 Purpose: `public_repository_entry_zh`
 State: `public_entry`
-Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.json`、`skills/mas-scholar-skills/SKILL.md`、`skills/medical-manuscript-writing/SKILL.md`、`skills/medical-manuscript-review/SKILL.md`、`skills/medical-figure-design/SKILL.md`、`skills/medical-research-lit/SKILL.md`、`skills/medical-statistical-review/SKILL.md`、`skills/medical-table-design/SKILL.md`、`skills/medical-submission-prep/SKILL.md`、`skills/medical-data-governance/SKILL.md`、`contracts/scholar-skills-capability-modules.json`、gallery manifest/fingerprint、OPL Framework CLI readback 与消费方 domain owner receipt 为准。
+Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.json`、`skills/mas-scholar-skills/SKILL.md`、`skills/medical-manuscript-writing/SKILL.md`、`skills/medical-manuscript-review/SKILL.md`、`skills/medical-figure-design/SKILL.md`、`skills/medical-research-lit/SKILL.md`、`skills/medical-statistical-review/SKILL.md`、`skills/medical-table-design/SKILL.md`、`skills/medical-submission-prep/SKILL.md`、`skills/medical-data-governance/SKILL.md`、`contracts/domain_descriptor.json`、`contracts/capability_map.json`、`contracts/scholar-skills-capability-modules.json`、gallery manifest/fingerprint、OPL Framework CLI readback 与消费方 domain owner receipt 为准。
 -->
 
 <p align="center">
@@ -154,6 +154,8 @@ skills/medical-table-design/SKILL.md   医学表格设计专业 Skill
 skills/medical-submission-prep/SKILL.md 医学投稿准备专业 Skill
 skills/medical-data-governance/SKILL.md 医学数据治理专业 Skill
 skills/opl-scholarskills/SKILL.md      legacy alias
+contracts/domain_descriptor.json       OMA target descriptor
+contracts/capability_map.json          OMA capability target map
 contracts/                             module catalog snapshot
 gallery/medical-display/               紧凑人审 gallery package
 docs/                                  capability 与运维说明

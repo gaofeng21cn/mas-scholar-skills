@@ -15,7 +15,7 @@
 Owner: `mas-scholar-skills`
 Purpose: `public_repository_entry`
 State: `public_entry`
-Machine boundary: Human-readable public entry. Machine truth remains in `.codex-plugin/plugin.json`, `skills/mas-scholar-skills/SKILL.md`, `skills/medical-manuscript-writing/SKILL.md`, `skills/medical-manuscript-review/SKILL.md`, `skills/medical-figure-design/SKILL.md`, `skills/medical-research-lit/SKILL.md`, `skills/medical-statistical-review/SKILL.md`, `skills/medical-table-design/SKILL.md`, `skills/medical-submission-prep/SKILL.md`, `skills/medical-data-governance/SKILL.md`, `contracts/scholar-skills-capability-modules.json`, gallery manifests/fingerprints, OPL Framework CLI readbacks, and domain owner receipts in consuming agents.
+Machine boundary: Human-readable public entry. Machine truth remains in `.codex-plugin/plugin.json`, `skills/mas-scholar-skills/SKILL.md`, `skills/medical-manuscript-writing/SKILL.md`, `skills/medical-manuscript-review/SKILL.md`, `skills/medical-figure-design/SKILL.md`, `skills/medical-research-lit/SKILL.md`, `skills/medical-statistical-review/SKILL.md`, `skills/medical-table-design/SKILL.md`, `skills/medical-submission-prep/SKILL.md`, `skills/medical-data-governance/SKILL.md`, `contracts/domain_descriptor.json`, `contracts/capability_map.json`, `contracts/scholar-skills-capability-modules.json`, gallery manifests/fingerprints, OPL Framework CLI readbacks, and domain owner receipts in consuming agents.
 -->
 
 <p align="center">
@@ -154,6 +154,8 @@ skills/medical-table-design/SKILL.md   Medical table design specialist skill
 skills/medical-submission-prep/SKILL.md Medical submission preparation specialist skill
 skills/medical-data-governance/SKILL.md Medical data governance specialist skill
 skills/opl-scholarskills/SKILL.md      Legacy alias entry
+contracts/domain_descriptor.json       OMA target descriptor
+contracts/capability_map.json          OMA capability target map
 contracts/                             module catalog snapshot
 gallery/medical-display/               compact human-review gallery package
 docs/                                  capability and operations notes
