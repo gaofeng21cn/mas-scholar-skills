@@ -63,6 +63,12 @@ citation-style control, and final full-paragraph manuscript prose. Its mandatory
 graphical abstract and high figure-count defaults are rejected unless the target
 journal, study charter, or MAS figure contract requires them.
 
+For citation-heavy prose or draft repair, read
+`references/professional-quality-ref-templates.md` and use
+`claim_citation_quality_loop_ref`. The loop lets AI judge whether a claim should
+be kept, downgraded, cited, rewritten, or routed back without turning the draft
+into paper truth, owner receipt, typed blocker, or publication readiness.
+
 ## Argument And Reader Contract
 
 Before a substantial section or full draft, write a compact contract:
@@ -81,6 +87,9 @@ Before a substantial section or full draft, write a compact contract:
   show, demonstrate, suggest, indicate, may, or could.
 - `citation_style_ref`: AMA, Vancouver, or journal-specific style source plus
   any known deviations.
+- `claim_citation_quality_loop_ref`: claim, evidence, citation, support
+  strength, wording strength, and route-back action when a paragraph depends on
+  biomedical literature or fragile evidence.
 - `reporting_guideline_check_ref`: STROBE, CONSORT, PRISMA, TRIPOD, RECORD, or
   other guideline status mapped to sections.
 
@@ -167,6 +176,8 @@ For each intended claim, answer:
 - What claim should be downgraded if that evidence is weaker than hoped?
 - Which citation metadata or source lookup still needs `medical-research-lit`
   before the claim can enter final prose?
+- Which `citation_quality_action_matrix_ref` action applies: keep, downgrade,
+  add source, replace source, route to Lit, route to review, human gate, or stop?
 
 ### 2. Section Contract
 

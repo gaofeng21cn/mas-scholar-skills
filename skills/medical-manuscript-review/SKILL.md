@@ -111,6 +111,13 @@ external validity, construct validity, statistical conclusion validity, bias,
 confounding, reproducibility, ethics, and reporting-standard problems when the
 manuscript evidence supports the concern.
 
+For claim/citation disputes, read
+`references/professional-quality-ref-templates.md` and use
+`claim_citation_quality_loop_ref` plus `citation_quality_action_matrix_ref`.
+These refs let the AI reviewer recommend keep, downgrade, replace, route back,
+human gate, or stop without issuing a quality verdict, owner receipt, typed
+blocker, or publication readiness claim.
+
 ## Fact Base And Reviewer Lanes
 
 Before scoring or writing findings, build `review_fact_base_ref` with:
@@ -251,6 +258,12 @@ Open a citation repair request when:
 Do not fabricate citations, infer guideline requirements from memory, or use
 third-party summaries as authority when official or primary sources are needed.
 
+For each citation repair request, add the affected claim to
+`claim_citation_quality_loop_ref` and assign one
+`citation_quality_action_matrix_ref` action: keep, downgrade, add source,
+replace source, route to `medical-research-lit`, route to writing/statistics/
+table/figure repair, human gate, or stop.
+
 ## Reviewer Action Matrix
 
 Write findings as an action matrix. Each row should include:
@@ -259,6 +272,7 @@ Write findings as an action matrix. Each row should include:
 - affected claim, section, figure, table, or citation
 - evidence path or missing evidence path
 - citation path or missing citation path
+- claim-citation-quality loop row and citation-quality action
 - domain and status for `sci_clinical_registry_review` rows
 - severity: `blocker`, `major`, `minor`, or `note`
 - disposition

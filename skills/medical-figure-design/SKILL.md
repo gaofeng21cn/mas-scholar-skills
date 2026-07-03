@@ -67,13 +67,23 @@ and verify accessibility and source-data traceability. They do not create a
 requirement to use Python or generate extra figures when MAS has chosen another
 paper-local renderer.
 
+For a concrete lightweight handoff shape, read
+`references/professional-quality-ref-templates.md` and use
+`figure_contract_template_ref` plus `panel_evidence_chain_ref`. The template is
+refs-only guidance; it is not a MAS figure artifact, visual audit receipt, owner
+receipt, typed blocker, or publication readiness surface.
+
 ## Figure Contract
 
 Before writing plotting code, produce or refresh a compact contract:
 
+- `figure_contract_template_ref`: the filled contract shape used for the
+  figure handoff.
 - `core_conclusion_ref`: the one-sentence claim the figure must defend.
 - `evidence_chain_ref`: data, cohort, statistic, model, table, or prior result
   refs for every panel.
+- `panel_evidence_chain_ref`: per-panel claim, source, statistic, citation, and
+  forbidden-drift refs when the figure has more than one scientific unit.
 - `figure_archetype`: `quantitative_grid`, `schematic_led_composite`,
   `image_plate_plus_quant`, `asymmetric_mixed_modality`, or
   `clinical_evidence_summary`.
@@ -296,6 +306,7 @@ Before handoff, produce a compact reviewer packet:
 
 - figure intent and supported claim
 - evidence refs and data/statistic refs
+- figure contract template and panel evidence chain refs
 - panel plan
 - figure contract, style brief, and renderer decision refs
 - selected template/backend and why it fits

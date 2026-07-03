@@ -188,9 +188,11 @@
     "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_submission_prep_and_data_governance_skills_first; keep_source_intake_in_OPL_Framework_or_MAS_stage_source_surfaces; add_omics_to_mas_scholar_skills_only_when_a_real_stable_professional_skill_workflow_exists",
     "skill_quality_refs": {
       "medical-figure-design": [
+        "figure_contract_template_ref",
         "figure_contract_ref",
         "core_conclusion_ref",
         "evidence_chain_ref",
+        "panel_evidence_chain_ref",
         "renderer_decision_ref",
         "plot_selection_ref",
         "style_brief_ref",
@@ -206,6 +208,8 @@
         "terminology_ledger_ref",
         "paragraph_job_map_ref",
         "claim_strength_calibration_ref",
+        "claim_citation_quality_loop_ref",
+        "citation_quality_action_matrix_ref",
         "citation_style_ref",
         "reporting_guideline_check_ref",
         "data_code_availability_audit_ref"
@@ -216,11 +220,14 @@
         "significance_reviewer_lane",
         "reader_reviewer_lane",
         "validity_bias_lane",
+        "claim_citation_quality_loop_ref",
+        "citation_quality_action_matrix_ref",
         "venue_review_expectation_ref",
         "cross_review_synthesis_ref",
         "reviewer_action_matrix_ref"
       ],
       "medical-research-lit": [
+        "source_ref_chain_template_ref",
         "literature_retrieval_contract_ref",
         "query_plan_ref",
         "fallback_source_refs",
@@ -228,6 +235,7 @@
         "database_endpoint_provenance_ref",
         "retrieval_count_reconciliation_ref",
         "deduplication_ref",
+        "source_acceptance_decision_ref",
         "claim_support_map_ref",
         "support_strength_matrix_ref",
         "citation_integrity_notes"
@@ -444,6 +452,7 @@
         "display-pack-contract.v2#candidate_artifact_refs",
         "scholarskills_execution_receipt.v1#display",
         "scholarskills_display_quality_floor.v1#brief_reference_candidate_critic_refs",
+        "scholarskills_display_professional_ref_templates.v1#figure_contract_panel_evidence_chain",
         "scholarskills_display_learned_pattern_refs.v1#visual_qa_preview_programmatic_audit_panel_code_review"
       ],
       "dependency_profile_refs": [
@@ -482,6 +491,18 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "display_pack_candidate_output",
           "body_policy": "body_owned_by_domain_artifact_surface"
+        },
+        {
+          "ref_id": "figure_contract_template_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "figure_contract_template_candidate",
+          "body_policy": "refs_only_contract_template_not_figure_artifact_authority"
+        },
+        {
+          "ref_id": "panel_evidence_chain_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "panel_to_claim_evidence_chain_candidate",
+          "body_policy": "refs_only_panel_evidence_hint_requires_domain_owner_gate"
         },
         {
           "ref_id": "graphical_abstract_visual_brief",
@@ -564,7 +585,9 @@
         "evidence_kind": "candidate_visual_quality_refs",
         "required_ref_shapes": [
           "template_ref",
+          "figure_contract_template_ref",
           "figure_contract_ref",
+          "panel_evidence_chain_ref",
           "plot_selection_ref",
           "reference_selection_ref",
           "style_brief_ref",
@@ -599,7 +622,9 @@
         "current_gallery_graphical_abstract_status": "lower_bound_design_shell_not_reusable_template_authority",
         "minimum_candidate_refs": [
           "core_claim_and_evidence_chain_ref",
+          "figure_contract_template_ref",
           "figure_contract_ref",
+          "panel_evidence_chain_ref",
           "reference_selection_ref",
           "style_brief_ref",
           "candidate_artifact_ref",
@@ -658,6 +683,8 @@
           "learned_scientific_figure_patterns": [
             "discoverable_skill_pack_with_provenance",
             "figure_contract_before_plotting",
+            "figure_contract_template_before_plotting",
+            "panel_evidence_chain_before_candidate_render",
             "reference_selection_and_style_brief",
             "candidate_generation_before_owner_gate",
             "critic_review_or_route_back",
@@ -676,7 +703,9 @@
           ],
           "required_before_gallery_or_paper_use": [
             "core_claim_and_evidence_chain_ref",
+            "figure_contract_template_ref",
             "figure_contract_ref",
+            "panel_evidence_chain_ref",
             "reference_selection_ref",
             "style_brief_ref",
             "candidate_artifact_ref",
@@ -1092,6 +1121,7 @@
         "scholarskills_lit_external_learning_refs.v1#query_citation_evidence_map",
         "scholarskills_lit_slr_citation_external_refs.v1#protocol_snowball_search_confirm_drop",
         "scholarskills_lit_connect_refs.v1#pubmed_readonly_source_refs",
+        "scholarskills_lit_professional_ref_templates.v1#source_ref_chain",
         "scholarskills_lit_medical_sci_draft_refs.v1#reference_integrity_floor"
       ],
       "dependency_profile_refs": [
@@ -1129,6 +1159,12 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "query_candidate",
           "body_policy": "refs_only_literature_hint_requires_domain_owner_gate"
+        },
+        {
+          "ref_id": "source_ref_chain_template_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "source_route_identifier_screening_claim_support_chain_candidate",
+          "body_policy": "refs_only_source_chain_template_not_literature_verdict"
         },
         {
           "ref_id": "citation_manifest_ref",
@@ -1221,6 +1257,12 @@
           "body_policy": "refs_only_literature_candidate_requires_domain_owner_gate"
         },
         {
+          "ref_id": "source_acceptance_decision_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "retain_reject_watchlist_source_decision_candidate",
+          "body_policy": "refs_only_source_screening_decision_not_citation_authority"
+        },
+        {
           "ref_id": "reference_integrity_floor_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "reference_integrity_and_missing_citation_candidate",
@@ -1245,6 +1287,7 @@
         "evidence_kind": "candidate_literature_quality_refs",
         "required_ref_shapes": [
           "query_ref",
+          "source_ref_chain_template_ref",
           "literature_retrieval_contract_ref",
           "citation_matrix_ref",
           "claim_support_ref",
@@ -1265,6 +1308,7 @@
           "citation_graph_snowball_ref",
           "multi_source_paper_search_ref",
           "confirm_or_drop_source_verification_ref",
+          "source_acceptance_decision_ref",
           "reference_integrity_floor_ref",
           "source_pack_ref",
           "candidate_package_ref",
@@ -1325,6 +1369,7 @@
           "slr_data_extraction_schema_and_quality_appraisal_as_candidate_refs",
           "citation_graph_snowball_and_multi_source_search_before_evidence_map",
           "confirm_or_drop_source_verification_candidate_before_claim_use",
+          "source_acceptance_decision_before_claim_support_map",
           "reference_integrity_floor_before_initial_sci_draft_owner_gate",
           "route_back_missing_or_placeholder_citations_before_manuscript_consumption",
           "ai_may_emit_source_verdict_candidate_or_route_back_candidate_not_literature_verdict"
@@ -1332,6 +1377,7 @@
         "authority_boundary": "refs_only_candidate_evidence_map_not_domain_literature_verdict",
         "required_ref_shapes": [
           "query_ref",
+          "source_ref_chain_template_ref",
           "citation_manifest_ref",
           "source_verification_ref",
           "citation_coverage_ref",
@@ -1347,6 +1393,7 @@
           "citation_graph_snowball_ref",
           "multi_source_paper_search_ref",
           "confirm_or_drop_source_verification_ref",
+          "source_acceptance_decision_ref",
           "reference_integrity_floor_ref"
         ],
         "ai_judgment_policy": "ai_may_generate_confirm_drop_source_verdict_candidate_and_route_back_candidate_but_cannot_sign_domain_truth_owner_receipt_or_publication_readiness"
@@ -1371,6 +1418,7 @@
         "scholarskills_write_output_refs.v1",
         "scholarskills_write_external_learning_refs.v1#outline_trace_draft",
         "scholarskills_write_source_verification_refs.v1#confirm_drop_before_draft_use",
+        "scholarskills_write_professional_ref_templates.v1#claim_citation_quality_loop",
         "scholarskills_write_medical_sci_draft_refs.v1#body_volume_and_prose_floor"
       ],
       "dependency_profile_refs": [
@@ -1438,6 +1486,18 @@
           "body_policy": "refs_only_writing_source_check_not_paper_body_authority"
         },
         {
+          "ref_id": "claim_citation_quality_loop_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "claim_evidence_citation_quality_loop_candidate",
+          "body_policy": "refs_only_writing_judgment_not_paper_body_authority"
+        },
+        {
+          "ref_id": "citation_quality_action_matrix_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "citation_claim_action_matrix_candidate",
+          "body_policy": "refs_only_citation_action_hint_requires_domain_owner_gate"
+        },
+        {
           "ref_id": "manuscript_body_volume_floor_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "manuscript_body_volume_floor_candidate",
@@ -1480,6 +1540,8 @@
           "unsupported_claim_route_back_ref",
           "section_draft_manifest_ref",
           "confirm_or_drop_source_verification_ref",
+          "claim_citation_quality_loop_ref",
+          "citation_quality_action_matrix_ref",
           "manuscript_body_volume_floor_ref",
           "internal_report_prose_route_back_ref",
           "source_pack_ref",
@@ -1533,6 +1595,8 @@
           "source_trace_for_each_section",
           "unsupported_claims_route_back_to_lit_or_owner",
           "confirm_or_drop_source_verification_before_section_draft_consumption",
+          "claim_citation_quality_loop_before_final_prose",
+          "citation_quality_action_matrix_routes_to_lit_review_or_owner_gate",
           "manuscript_body_volume_floor_before_initial_sci_draft_owner_gate",
           "internal_report_prose_route_back_before_manuscript_consumption",
           "ai_route_back_candidate_for_unsupported_or_unverified_sources"
@@ -1546,6 +1610,8 @@
           "unsupported_claim_route_back_ref",
           "section_draft_manifest_ref",
           "confirm_or_drop_source_verification_ref",
+          "claim_citation_quality_loop_ref",
+          "citation_quality_action_matrix_ref",
           "manuscript_body_volume_floor_ref",
           "internal_report_prose_route_back_ref"
         ],
@@ -1571,6 +1637,7 @@
         "scholarskills_review_output_refs.v1",
         "scholarskills_review_external_learning_refs.v1#adversarial_revision_route_back",
         "scholarskills_review_source_verification_refs.v1#confirm_drop_adversarial_check",
+        "scholarskills_review_professional_ref_templates.v1#claim_citation_quality_loop",
         "scholarskills_review_registry_initial_draft_refs.v1#registry_quality_floor",
         "scholarskills_review_medical_sci_initial_draft_refs.v1#citation_body_display_prose_boundary"
       ],
@@ -1637,6 +1704,18 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "confirm_or_drop_source_verification_candidate",
           "body_policy": "refs_only_review_source_check_not_quality_verdict_or_reviewer_receipt"
+        },
+        {
+          "ref_id": "claim_citation_quality_loop_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "adversarial_claim_evidence_citation_quality_loop_candidate",
+          "body_policy": "refs_only_review_judgment_not_quality_verdict_or_reviewer_receipt"
+        },
+        {
+          "ref_id": "citation_quality_action_matrix_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "citation_claim_action_matrix_review_candidate",
+          "body_policy": "refs_only_review_action_hint_requires_domain_owner_gate"
         },
         {
           "ref_id": "registry_initial_draft_quality_floor_ref",
@@ -1748,6 +1827,8 @@
           "route_back_ref",
           "residual_risk_ref",
           "confirm_or_drop_source_verification_ref",
+          "claim_citation_quality_loop_ref",
+          "citation_quality_action_matrix_ref",
           "registry_initial_draft_quality_floor_ref",
           "reference_integrity_floor_ref",
           "manuscript_body_volume_floor_ref",
@@ -1811,6 +1892,8 @@
           "route_back_when_evidence_or_owner_authority_is_missing",
           "residual_risk_register_before_owner_gate",
           "confirm_or_drop_source_verification_in_adversarial_review",
+          "claim_citation_quality_loop_before_readiness_label_clearance",
+          "citation_quality_action_matrix_routes_to_lit_write_or_owner_gate",
           "ai_may_route_back_unverified_source_claims_before_owner_gate",
           "flag_workflow/tool-pipeline prose before owner gate",
           "flag conclusion self-evaluation before owner gate",
@@ -1839,6 +1922,8 @@
           "route_back_ref",
           "residual_risk_ref",
           "confirm_or_drop_source_verification_ref",
+          "claim_citation_quality_loop_ref",
+          "citation_quality_action_matrix_ref",
           "registry_initial_draft_quality_floor_ref",
           "reference_integrity_floor_ref",
           "manuscript_body_volume_floor_ref",

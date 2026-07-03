@@ -92,6 +92,7 @@ readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
 capability_modules = read_text("docs/capability-modules.md")
+professional_ref_templates = read_text("references/professional-quality-ref-templates.md")
 expected_capability_skills = [
     "medical-manuscript-writing",
     "medical-manuscript-review",
@@ -462,8 +463,14 @@ for token in [
     "1e024ea8547ada12039edbe8197aaa959d97763f",
     "c91df241a7a963ea151687ac669c5534404f53e5",
     "figure_contract_ref",
+    "figure_contract_template_ref",
+    "panel_evidence_chain_ref",
     "one_sentence_argument_ref",
+    "claim_citation_quality_loop_ref",
+    "citation_quality_action_matrix_ref",
     "review_fact_base_ref",
+    "source_ref_chain_template_ref",
+    "source_acceptance_decision_ref",
     "support_strength_matrix_ref",
     "data_availability_and_FAIR_metadata_checks",
     "reviewer_response_delta_audit",
@@ -477,10 +484,10 @@ for token in [
     if token not in quality_policy_text:
         fail(f"professional skill quality upgrade policy missing {token}")
 expected_quality_skill_refs = {
-    "medical-figure-design": ["figure_contract_ref", "candidate_set_ref", "critic_review_ref"],
-    "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref"],
-    "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref"],
-    "medical-research-lit": ["fallback_source_refs", "deduplication_ref", "support_strength_matrix_ref"],
+    "medical-figure-design": ["figure_contract_template_ref", "figure_contract_ref", "panel_evidence_chain_ref", "candidate_set_ref", "critic_review_ref"],
+    "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
+    "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
+    "medical-research-lit": ["source_ref_chain_template_ref", "fallback_source_refs", "deduplication_ref", "source_acceptance_decision_ref", "support_strength_matrix_ref"],
     "medical-statistical-review": ["estimand_or_target_parameter_ref", "effect_size_and_uncertainty_ref", "statistical_action_matrix_ref"],
     "medical-table-design": ["table_shell_ref", "table_qc_ref", "claim_table_alignment_ref"],
     "medical-submission-prep": ["journal_instruction_ref", "reporting_guideline_ref", "submission_action_matrix_ref"],
@@ -592,6 +599,75 @@ for token in [
 ]:
     if token not in contract_text:
         fail(f"contract missing PubMed Connect Lit token: {token}")
+
+professional_template_requirements = {
+    "references/professional-quality-ref-templates.md": [
+        "refs_only_lightweight_reference",
+        "figure_contract_template_ref",
+        "panel_evidence_chain_ref",
+        "source_ref_chain_template_ref",
+        "source_acceptance_decision_ref",
+        "claim_citation_quality_loop_ref",
+        "citation_quality_action_matrix_ref",
+        "cannot write domain",
+        "owner receipt",
+        "typed blocker",
+        "publication readiness",
+    ],
+    "skills/mas-scholar-skills/SKILL.md": [
+        "references/professional-quality-ref-templates.md",
+        "figure_contract_template_ref",
+        "source_ref_chain_template_ref",
+        "claim_citation_quality_loop_ref",
+    ],
+    "skills/medical-figure-design/SKILL.md": [
+        "references/professional-quality-ref-templates.md",
+        "figure_contract_template_ref",
+        "panel_evidence_chain_ref",
+    ],
+    "skills/medical-research-lit/SKILL.md": [
+        "references/professional-quality-ref-templates.md",
+        "source_ref_chain_template_ref",
+        "source_acceptance_decision_ref",
+    ],
+    "skills/medical-manuscript-writing/SKILL.md": [
+        "references/professional-quality-ref-templates.md",
+        "claim_citation_quality_loop_ref",
+        "citation_quality_action_matrix_ref",
+    ],
+    "skills/medical-manuscript-review/SKILL.md": [
+        "references/professional-quality-ref-templates.md",
+        "claim_citation_quality_loop_ref",
+        "citation_quality_action_matrix_ref",
+    ],
+    "contracts/scholar-skills-capability-modules.json": [
+        "scholarskills_display_professional_ref_templates.v1#figure_contract_panel_evidence_chain",
+        "scholarskills_lit_professional_ref_templates.v1#source_ref_chain",
+        "scholarskills_write_professional_ref_templates.v1#claim_citation_quality_loop",
+        "scholarskills_review_professional_ref_templates.v1#claim_citation_quality_loop",
+    ],
+    "contracts/capability_map.json": [
+        "references/professional-quality-ref-templates.md#figure-contract-template",
+        "references/professional-quality-ref-templates.md#claim-citation-quality-loop",
+        "references/professional-quality-ref-templates.md#literature-sourceref-chain",
+    ],
+}
+professional_text_by_relative = {
+    "references/professional-quality-ref-templates.md": professional_ref_templates,
+    "skills/mas-scholar-skills/SKILL.md": skill,
+    "skills/medical-figure-design/SKILL.md": figure_skill,
+    "skills/medical-research-lit/SKILL.md": lit_skill,
+    "skills/medical-manuscript-writing/SKILL.md": write_skill,
+    "skills/medical-manuscript-review/SKILL.md": review_skill,
+    "contracts/scholar-skills-capability-modules.json": contract_text,
+    "contracts/capability_map.json": json.dumps(capability_map, ensure_ascii=False),
+}
+for relative, tokens in professional_template_requirements.items():
+    text = professional_text_by_relative[relative]
+    for token in tokens:
+        if token not in text:
+            fail(f"{relative} missing professional quality template token: {token}")
+
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 8:
     fail("contract must contain exactly 8 active ScholarSkills modules")
@@ -1079,6 +1155,31 @@ for module_id, requirement in module_learning_requirements.items():
         source_tokens=requirement["sources"],
         boundary_tokens=requirement["boundary_tokens"],
     )
+
+professional_ref_template_module_requirements = {
+    "mas-scholar-skills.display": {
+        "output_schema_refs": ["scholarskills_display_professional_ref_templates.v1#figure_contract_panel_evidence_chain"],
+        "refs": ["figure_contract_template_ref", "panel_evidence_chain_ref"],
+    },
+    "mas-scholar-skills.lit": {
+        "output_schema_refs": ["scholarskills_lit_professional_ref_templates.v1#source_ref_chain"],
+        "refs": ["source_ref_chain_template_ref", "source_acceptance_decision_ref"],
+    },
+    "mas-scholar-skills.write": {
+        "output_schema_refs": ["scholarskills_write_professional_ref_templates.v1#claim_citation_quality_loop"],
+        "refs": ["claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
+    },
+    "mas-scholar-skills.review": {
+        "output_schema_refs": ["scholarskills_review_professional_ref_templates.v1#claim_citation_quality_loop"],
+        "refs": ["claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
+    },
+}
+
+for module_id, requirement in professional_ref_template_module_requirements.items():
+    module = require_module(module_id)
+    require_output_schema(module, requirement["output_schema_refs"])
+    require_artifact_refs(module, requirement["refs"])
+    require_quality_refs(module, requirement["refs"])
 
 medical_sci_initial_draft_requirements = {
     "mas-scholar-skills.display": {

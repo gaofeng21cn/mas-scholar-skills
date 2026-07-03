@@ -43,10 +43,18 @@ authoritative source set that answers the claim, keep endpoint/filter
 provenance, reconcile identifiers and counts when completeness matters, and
 return screened candidate refs rather than unbounded raw API dumps.
 
+For source/ref chain handoffs that go beyond a single targeted lookup, read
+`references/professional-quality-ref-templates.md` and use
+`source_ref_chain_template_ref` plus `source_acceptance_decision_ref`. These are
+candidate source-screening refs only; they do not create citation authority,
+owner receipts, typed blockers, or publication readiness.
+
 ## Retrieval Contract
 
 Before searching, define `literature_retrieval_contract_ref`:
 
+- `source_ref_chain_template_ref` when the task needs a reusable source route,
+  identifier, screening, and claim-support chain;
 - target claim, biomedical entity, population, endpoint, method, guideline, or
   citation being checked;
 - accepted identifiers such as PMID, PMCID, DOI, trial id, guideline id, title,
@@ -116,6 +124,7 @@ Return a compact structure with:
 - `database_endpoint_provenance_ref`
 - `retrieval_count_reconciliation_ref`
 - `deduplication_ref`
+- `source_acceptance_decision_ref`
 - `retained_sources`
 - `rejected_sources`
 - `watchlist_sources`

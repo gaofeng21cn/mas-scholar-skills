@@ -54,6 +54,7 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/display",
         "scripts/verify.sh#medical-figure-design-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "references/professional-quality-ref-templates.md#figure-contract-template",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -117,6 +118,7 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/write",
         "scripts/verify.sh#medical-manuscript-writing-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "references/professional-quality-ref-templates.md#claim-citation-quality-loop",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -178,6 +180,7 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/review",
         "scripts/verify.sh#medical-manuscript-review-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "references/professional-quality-ref-templates.md#claim-citation-quality-loop",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -241,6 +244,7 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/lit",
         "scripts/verify.sh#medical-research-lit-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "references/professional-quality-ref-templates.md#literature-sourceref-chain",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],

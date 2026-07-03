@@ -131,6 +131,13 @@ and `Yuan1z0825/nature-skills` into MAS-consumed professional playbooks. They do
 not require installing those external runtimes before MAS can produce candidate
 refs, and they do not create a parallel stage authority.
 
+The shared lightweight template reference is
+`references/professional-quality-ref-templates.md`. Use it only when a
+specialist skill needs a concrete refs-only shape for
+`figure_contract_template_ref`, `panel_evidence_chain_ref`,
+`source_ref_chain_template_ref`, `source_acceptance_decision_ref`,
+`claim_citation_quality_loop_ref`, or `citation_quality_action_matrix_ref`.
+
 ## MAS Progress And AI Judgment Rules
 
 - Use progress-first and AI auto-judgment-first routing: AI should continue when available evidence is enough for a candidate judgment, instead of waiting for a human by default.
