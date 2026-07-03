@@ -22,12 +22,16 @@ stage-prompt routing and generated artifacts remain with their owning runtime or
 domain repo.
 
 Current classification: eight active professional modules, all backed by real
-syncable Codex specialist skills. Generic source or external-learning intake
-belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a
-contract placeholder. Omics belongs in this repository only after MAS has a
-stable real omics specialist workflow to maintain. Active data governance now
-routes to `medical-data-governance`; the legacy Data module remains as
-descriptor/readback compatibility.
+syncable Codex specialist skills. Their active ids are
+`mas-scholar-skills.display`, `mas-scholar-skills.tables`,
+`mas-scholar-skills.stats`, `mas-scholar-skills.lit`,
+`mas-scholar-skills.write`, `mas-scholar-skills.review`,
+`mas-scholar-skills.submit`, and `mas-scholar-skills.data`; historical
+`opl.scholarskills.*` ids are legacy aliases/provenance only. Generic source or
+external-learning intake belongs to OPL Framework or MAS stage/source surfaces
+and is not kept here as a contract placeholder. Omics belongs in this repository
+only after MAS has a stable real omics specialist workflow to maintain. Active
+data governance routes to `medical-data-governance`.
 
 For literature access, use `medical-research-lit` for the AI workflow and OPL
 Connect for stable PubMed refs: `opl connect pubmed search --query <query>

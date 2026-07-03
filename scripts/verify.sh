@@ -418,7 +418,34 @@ modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 8:
     fail("contract must contain exactly 8 active ScholarSkills modules")
 active_module_ids = {item.get("module_id") for item in modules}
-for retired_module_id in ["opl.scholarskills.omics", "opl.scholarskills.intake"]:
+expected_active_module_ids = {
+    "mas-scholar-skills.display",
+    "mas-scholar-skills.tables",
+    "mas-scholar-skills.stats",
+    "mas-scholar-skills.lit",
+    "mas-scholar-skills.write",
+    "mas-scholar-skills.review",
+    "mas-scholar-skills.submit",
+    "mas-scholar-skills.data",
+}
+if active_module_ids != expected_active_module_ids:
+    fail("active module ids must use mas-scholar-skills.* canonical ids")
+expected_legacy_module_ids = {
+    "mas-scholar-skills.display": "opl.scholarskills.display",
+    "mas-scholar-skills.tables": "opl.scholarskills.tables",
+    "mas-scholar-skills.stats": "opl.scholarskills.stats",
+    "mas-scholar-skills.lit": "opl.scholarskills.lit",
+    "mas-scholar-skills.write": "opl.scholarskills.write",
+    "mas-scholar-skills.review": "opl.scholarskills.review",
+    "mas-scholar-skills.submit": "opl.scholarskills.submit",
+    "mas-scholar-skills.data": "opl.scholarskills.data",
+}
+for item in modules:
+    module_id = item.get("module_id")
+    expected_legacy = expected_legacy_module_ids.get(module_id)
+    if expected_legacy and expected_legacy not in (item.get("legacy_module_ids") or []):
+        fail(f"{module_id} must retain {expected_legacy} only as a legacy alias")
+for retired_module_id in ["mas-scholar-skills.omics", "mas-scholar-skills.intake"]:
     if retired_module_id in active_module_ids:
         fail(f"{retired_module_id} must not be an active ScholarSkills module")
 
@@ -603,7 +630,7 @@ for token in [
 gallery_manifest = read_json("gallery/medical-display/gallery_manifest.json")
 snapshot = read_json("gallery/medical-display/gallery_snapshot.json")
 display_module = next(
-    (item for item in modules if item.get("module_id") == "opl.scholarskills.display"),
+    (item for item in modules if item.get("module_id") == "mas-scholar-skills.display"),
     None,
 )
 if display_module is None:
@@ -793,7 +820,7 @@ for source in [
         fail(f"Display quality floor missing external learning source {source}")
 
 module_learning_requirements = {
-    "opl.scholarskills.display": {
+    "mas-scholar-skills.display": {
         "output_schema_refs": ["scholarskills_display_learned_pattern_refs.v1#visual_qa_preview_programmatic_audit_panel_code_review"],
         "refs": [
             "visual_qa_preview_ref",
@@ -806,35 +833,35 @@ module_learning_requirements = {
         "sources": ["Haojae/scipilot-figure-skill", "littlepeachs/NaturePanelForge", "Marsilea-viz/marsilea", "Boom5426/Awesome-Virtual-Cell"],
         "boundary_tokens": ["quality_verdict", "publication_ready"],
     },
-    "opl.scholarskills.tables": {
+    "mas-scholar-skills.tables": {
         "output_schema_refs": ["scholarskills_tables_learned_pattern_refs.v1#table_shell_metric_alignment_qc"],
         "refs": ["table_shell_ref", "metric_extraction_ref", "booktabs_or_minimal_ink_table_ref", "table_qc_ref", "claim_table_alignment_ref"],
         "policy_id": "scholarskills_tables_external_learning_refs.v1",
         "sources": ["Master-cai/Research-Paper-Writing-Skills", "Ar9av/PaperOrchestra"],
         "boundary_tokens": ["table_truth", "publication_ready"],
     },
-    "opl.scholarskills.stats": {
+    "mas-scholar-skills.stats": {
         "output_schema_refs": ["scholarskills_stats_learned_pattern_refs.v1#analysis_plan_metric_reproducibility_review"],
         "refs": ["analysis_plan_ref", "effect_size_or_metric_extraction_ref", "reproducibility_check_ref", "statistical_review_ref"],
         "policy_id": "scholarskills_stats_external_learning_refs.v1",
         "sources": ["Ar9av/PaperOrchestra", "Imbad0202/academic-research-skills"],
         "boundary_tokens": ["statistical_conclusion", "domain_truth"],
     },
-    "opl.scholarskills.lit": {
+    "mas-scholar-skills.lit": {
         "output_schema_refs": ["scholarskills_lit_external_learning_refs.v1#query_citation_evidence_map"],
         "refs": ["query_ref", "citation_manifest_ref", "source_verification_ref", "citation_coverage_ref", "evidence_map_ref", "metadata_scrape_ref", "claim_support_ref"],
         "policy_id": "scholarskills_lit_external_learning_policy.v1",
         "sources": ["Imbad0202/academic-research-skills", "Imbad0202/academic-research-skills-codex", "Ar9av/PaperOrchestra", "Future-Scholars/paperlib"],
         "boundary_tokens": ["literature_verdict"],
     },
-    "opl.scholarskills.write": {
+    "mas-scholar-skills.write": {
         "output_schema_refs": ["scholarskills_write_external_learning_refs.v1#outline_trace_draft"],
         "refs": ["section_outline_ref", "reverse_outline_ref", "claim_evidence_map_ref", "source_trace_ref", "unsupported_claim_route_back_ref", "section_draft_manifest_ref"],
         "policy_id": "scholarskills_write_external_learning_policy.v1",
         "sources": ["Master-cai/Research-Paper-Writing-Skills", "Imbad0202/academic-research-skills", "Ar9av/PaperOrchestra"],
         "boundary_tokens": ["paper_body_authority"],
     },
-    "opl.scholarskills.review": {
+    "mas-scholar-skills.review": {
         "output_schema_refs": [
             "scholarskills_review_external_learning_refs.v1#adversarial_revision_route_back",
             "scholarskills_review_registry_initial_draft_refs.v1#registry_quality_floor",
@@ -853,7 +880,7 @@ module_learning_requirements = {
             "defensible clinical story",
         ],
     },
-    "opl.scholarskills.submit": {
+    "mas-scholar-skills.submit": {
         "output_schema_refs": ["scholarskills_submit_external_learning_refs.v1#checklist_disclosure_export"],
         "refs": ["submission_checklist_ref", "journal_rule_ref", "format_sanity_ref", "ai_disclosure_ref", "rebuttal_audit_ref", "export_package_ref"],
         "policy_id": "scholarskills_submit_external_learning_policy.v1",
@@ -876,18 +903,18 @@ for module_id, requirement in module_learning_requirements.items():
     )
 
 medical_sci_initial_draft_requirements = {
-    "opl.scholarskills.display": {
+    "mas-scholar-skills.display": {
         "refs": ["figure_table_volume_and_clinical_value_ref", "figure_polish_alignment_ref"],
     },
-    "opl.scholarskills.lit": {
+    "mas-scholar-skills.lit": {
         "output_schema_refs": ["scholarskills_lit_medical_sci_draft_refs.v1#reference_integrity_floor"],
         "refs": ["reference_integrity_floor_ref"],
     },
-    "opl.scholarskills.write": {
+    "mas-scholar-skills.write": {
         "output_schema_refs": ["scholarskills_write_medical_sci_draft_refs.v1#body_volume_and_prose_floor"],
         "refs": ["manuscript_body_volume_floor_ref", "internal_report_prose_route_back_ref"],
     },
-    "opl.scholarskills.review": {
+    "mas-scholar-skills.review": {
         "output_schema_refs": ["scholarskills_review_medical_sci_initial_draft_refs.v1#citation_body_display_prose_boundary"],
         "refs": [
             "reference_integrity_floor_ref",
@@ -907,7 +934,7 @@ for module_id, requirement in medical_sci_initial_draft_requirements.items():
     require_artifact_refs(module, requirement["refs"])
     require_quality_refs(module, requirement["refs"])
 
-review_medical_floor = require_module("opl.scholarskills.review").get("medical_sci_initial_draft_quality_floor_policy") or {}
+review_medical_floor = require_module("mas-scholar-skills.review").get("medical_sci_initial_draft_quality_floor_policy") or {}
 if review_medical_floor.get("policy_id") != "scholarskills_medical_sci_initial_draft_quality_floor.v1":
     fail("Review missing medical SCI initial draft quality floor policy")
 if review_medical_floor.get("classification") != "adapt_refs_only":
@@ -953,7 +980,7 @@ for key in [
         fail(f"Review medical SCI initial draft authority flag {key} must be false")
 
 slr_citation_data_requirements = {
-    "opl.scholarskills.lit": {
+    "mas-scholar-skills.lit": {
         "output_schema_refs": ["scholarskills_lit_slr_citation_external_refs.v1#protocol_snowball_search_confirm_drop"],
         "refs": [
             "systematic_review_protocol_ref",
@@ -967,19 +994,19 @@ slr_citation_data_requirements = {
         "sources": ["vitorfs/parsifal", "openags/paper-search-mcp", "LocalCitationNetwork", "kennethkhoocy/lit-review-orchestrator"],
         "policy": "learned",
     },
-    "opl.scholarskills.write": {
+    "mas-scholar-skills.write": {
         "output_schema_refs": ["scholarskills_write_source_verification_refs.v1#confirm_drop_before_draft_use"],
         "refs": ["confirm_or_drop_source_verification_ref"],
         "sources": ["kennethkhoocy/lit-review-orchestrator"],
         "policy": "learned",
     },
-    "opl.scholarskills.review": {
+    "mas-scholar-skills.review": {
         "output_schema_refs": ["scholarskills_review_source_verification_refs.v1#confirm_drop_adversarial_check"],
         "refs": ["confirm_or_drop_source_verification_ref"],
         "sources": ["kennethkhoocy/lit-review-orchestrator"],
         "policy": "learned",
     },
-    "opl.scholarskills.data": {
+    "mas-scholar-skills.data": {
         "output_schema_refs": ["scholarskills_data_slr_metric_refs.v1#extraction_schema_quality_appraisal_metric_registry"],
         "refs": [
             "systematic_review_protocol_ref",
@@ -992,13 +1019,13 @@ slr_citation_data_requirements = {
         "sources": ["vitorfs/parsifal", "Papers-with-Code/SOTA"],
         "policy": "external_fit",
     },
-    "opl.scholarskills.stats": {
+    "mas-scholar-skills.stats": {
         "output_schema_refs": ["scholarskills_stats_metric_registry_refs.v1#dataset_metric_benchmark_result_registry"],
         "refs": ["dataset_metric_benchmark_ref", "result_metric_registry_ref"],
         "sources": ["Papers-with-Code/SOTA"],
         "policy": "learned",
     },
-    "opl.scholarskills.tables": {
+    "mas-scholar-skills.tables": {
         "output_schema_refs": ["scholarskills_tables_metric_registry_refs.v1#result_metric_table_alignment"],
         "refs": ["dataset_metric_benchmark_ref", "result_metric_registry_ref"],
         "sources": ["Papers-with-Code/SOTA"],
@@ -1025,9 +1052,9 @@ for module_id, requirement in slr_citation_data_requirements.items():
     if requirement["policy"] == "learned":
         require_ai_judgment_candidate_policy(module, policy)
 
-if require_module("opl.scholarskills.stats").get("quality_evidence", {}).get("can_claim_statistical_conclusion") is not False:
+if require_module("mas-scholar-skills.stats").get("quality_evidence", {}).get("can_claim_statistical_conclusion") is not False:
     fail("Stats must not claim statistical conclusion")
-submit_policy = require_module("opl.scholarskills.submit").get("learned_pattern_policy", {})
+submit_policy = require_module("mas-scholar-skills.submit").get("learned_pattern_policy", {})
 publication_authority = submit_policy.get("publication_readiness_authority", {})
 if publication_authority.get("can_authorize_publication_readiness") is not False:
     fail("Submit learned policy must not authorize publication readiness")
@@ -1057,7 +1084,7 @@ data_refs = [
     "prune_dry_run_ref",
     "lifecycle_catalog_ref",
 ]
-data_module = require_module("opl.scholarskills.data")
+data_module = require_module("mas-scholar-skills.data")
 require_output_schema(
     data_module,
     [

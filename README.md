@@ -32,7 +32,7 @@ The operating rule is progress-first and AI auto-judgment-first. MAS should let 
 
 Display is one active professional module. MAS Scholar Skills is also the source, contract, and documentation home for Lit, Tables, Stats, Submit, Write, Review, and Data Governance. Every active module uses the same refs-only handoff frame: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`. Those refs describe candidate material and the next owner gate; they do not create runtime authority or acceptance.
 
-The current classification is fixed: eight active professional modules, all backed by syncable real Codex specialist skills. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are the active skill sources. Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics will enter MAS Scholar Skills only when MAS has a stable real omics specialist workflow to maintain.
+The current classification is fixed: eight active professional modules, all backed by syncable real Codex specialist skills. Their active ids are `mas-scholar-skills.display`, `mas-scholar-skills.tables`, `mas-scholar-skills.stats`, `mas-scholar-skills.lit`, `mas-scholar-skills.write`, `mas-scholar-skills.review`, `mas-scholar-skills.submit`, and `mas-scholar-skills.data`; historical `opl.scholarskills.*` ids remain legacy aliases/provenance only. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are the active skill sources. Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics will enter MAS Scholar Skills only when MAS has a stable real omics specialist workflow to maintain.
 
 For literature work, `medical-research-lit` now uses the stable OPL Connect PubMed path: `opl connect pubmed search --query <query> --limit <n> --json`. The connector returns `pubmed_source_refs` and `pubmed_connector_invocation_ref`; MAS Scholar Skills keeps the AI workflow around query design, source screening, evidence maps, and route-back handoff.
 
@@ -195,12 +195,12 @@ The target should receive only the Skill entry, plugin/module refs, and compact 
 
 ```bash
 opl scholar-skills list --json
-opl scholar-skills inspect --module opl.scholarskills.display --json
-opl scholar-skills materialize --module opl.scholarskills.display --input-ref <ref> --artifact-root <ref-or-path> --output-root <path> --json
+opl scholar-skills inspect --module mas-scholar-skills.display --json
+opl scholar-skills materialize --module mas-scholar-skills.display --input-ref <ref> --artifact-root <ref-or-path> --output-root <path> --json
 opl connect sync-skills --domain mas-scholar-skills --scope codex --json
 ```
 
-Cloning this repository does not install OPL Framework executable surfaces. Prepare the current `one-person-lab` checkout or release bundle when CLI execution is needed. The legacy `--domain scholarskills` form remains accepted for existing workspaces.
+Cloning this repository does not install OPL Framework executable surfaces. Prepare the current `one-person-lab` checkout or release bundle when CLI execution is needed. The legacy `--domain mas-scholar-skills` form remains accepted for existing workspaces.
 
 </details>
 

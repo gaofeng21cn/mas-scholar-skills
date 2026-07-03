@@ -116,7 +116,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest
 
 The local install should contain the canonical aggregate Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for MAS discovery and review. Do not copy this whole repository, MAS render outputs, caches, single-figure exports, dependency locks, or intermediate gallery workspaces into a paper workspace or quest.
 
-The legacy `--domain scholarskills` command remains a compatibility alias for existing workspaces.
+The legacy `--domain mas-scholar-skills` command remains a compatibility alias for existing workspaces.
 
 Fabric/Connect may expose external resource capability, but external learning remains refs-only unless the MAS owner explicitly requires an executable external artifact. Missing external runtime installation is not a blocker for MAS Scholar Skills candidate refs, quality floors, or route-back recommendations.
 

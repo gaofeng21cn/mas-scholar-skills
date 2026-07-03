@@ -7,7 +7,7 @@ Machine boundary: 本文是 Scholar Display 的人读审阅入口。Pack source 
 
 ## 定位
 
-`opl.scholarskills.display` 以 `packs/medical-display-core/` 作为当前 MAS Scholar Skills-owned source pack，并以 `gallery/medical-display/` 作为 compact human-review package。它的职责是让 MAS 或其他 OPL family agent 在调用 Scholar Display 前，能快速看到默认图件风格、模板覆盖、renderer policy、quality gate 和已知边界。
+`mas-scholar-skills.display` 以 `packs/medical-display-core/` 作为当前 MAS Scholar Skills-owned source pack，并以 `gallery/medical-display/` 作为 compact human-review package。它的职责是让 MAS 或其他 OPL family agent 在调用 Scholar Display 前，能快速看到默认图件风格、模板覆盖、renderer policy、quality gate 和已知边界。
 
 Gallery 放在 MAS Scholar Skills repo，是因为本 repo 是 skill pack、source pack 和 review refs 的 source of truth；它提供可审阅的 published review package。Workspace 或 quest-local install 只需要复制 compact review refs，不需要也不应该把渲染工作区带进每个论文目录。
 

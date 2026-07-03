@@ -95,6 +95,27 @@ project-specific runbook explicitly authorizes an apply command. Even then,
 report the command as an authority route; do not hand-edit registry files or data
 bodies from this skill.
 
+## Yang/MAS Data Compliance Checklist
+
+For Yang/MAS workspaces, include this concise checklist before recommending
+analysis, cleanup, archival, or owner-gate handoff:
+
+- `project_data_plan.yaml` exists or its absence is routed back as the data plan
+  gap.
+- `memory/portfolio/data_assets/index.sqlite`, `runtime/index.sqlite`, and
+  `studies/index.sqlite` are read as indices/read models, not data body truth.
+- `medautosci data-lifecycle inspect --workspace-root <workspace_root>` has a
+  fresh readback or a named reason it cannot run.
+- ScholarSkills install receipt identifies the synced `mas-scholar-skills` and
+  `medical-data-governance` skill sources used for the review.
+- Stale legacy skill detector confirms old `opl-scholarskills` or
+  `opl.scholarskills.*` projections are legacy aliases/provenance only.
+- Cleanup candidates stay behind an owner-review boundary: produce
+  `prune_dry_run_ref`, `owner_decision_ref`, and `post_cleanup_readback_ref`;
+  do not delete, thin, move, or compact clinical data bodies from this skill.
+- Source readiness and owner gate refs are explicit before downstream manuscript,
+  analysis, table, figure, submission, or lifecycle claims rely on the data.
+
 ## Workflow
 
 1. Identify the workspace root, study id, requested analysis stage, and current

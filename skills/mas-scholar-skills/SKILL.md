@@ -9,7 +9,7 @@ Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry f
 
 This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, submission, or clinical data governance work through these synced professional skills. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
 
-For literature discovery, use the real specialist skill `medical-research-lit` when a task needs PubMed-oriented search planning, query iteration, source screening, citation verification, evidence mapping, or a MAS route-back handoff. Do not reduce literature discovery to the `opl.scholarskills.lit` descriptor alone.
+For literature discovery, use the real specialist skill `medical-research-lit` when a task needs PubMed-oriented search planning, query iteration, source screening, citation verification, evidence mapping, or a MAS route-back handoff. Do not reduce literature discovery to the `mas-scholar-skills.lit` descriptor alone.
 
 ## MAS Overlay Call Path
 
@@ -140,20 +140,20 @@ MAS Scholar Skills may act as the OPL FeedbackOps refs-only capability adapter f
 
 This adapter cannot sign owner receipts, create typed blockers, claim quality verdicts, write MAS/current_package, mutate domain artifacts, or claim owner acceptance, current-package authority, or publication readiness. The machine-readable policy is `feedbackops_refs_only_adapter_policy` in `contracts/scholar-skills-capability-modules.json`.
 
-For `opl.scholarskills.review` on observational, cohort, registry, real-world, or descriptive atlas drafts, include `registry_initial_draft_quality_floor_ref` and, for medical SCI initial drafts, `scholarskills_medical_sci_initial_draft_quality_floor.v1` when relevant. It should flag missing enrollment/data-lock windows, missing inclusion/exclusion flow or ethics/consent/funding/COI/data-availability statements, undefined BMI or diagnostic ascertainment, adult/child applicability gaps, selected diagnostic-field positivity being written as prevalence or burden, figure-caption payload drift, too-thin missingness/availability atlas claims, limitation-only discussion, submission-source prose residue, workflow/tool-pipeline prose in the manuscript body, and conclusion self-evaluation instead of evidence-based clinical conclusion. The medical SCI initial-draft floor adds refs-only checks for `reference_integrity_floor_ref`, `manuscript_body_volume_floor_ref`, `figure_table_volume_and_clinical_value_ref`, `internal_report_prose_route_back_ref`, `figure_polish_alignment_ref`, and `registry_descriptive_scientific_boundary_ref`. Use these to produce review hints, `verdict_candidate`, `route_back_candidate`, and `stop_or_continue_recommendation` refs when citations are missing, references are placeholders, the body is below the expected section floor, result figures/tables are too sparse or clinically low-value, manuscript prose reads like an internal workflow report, figure-polish expectations drift from the current skill contract, or a descriptive registry paper overclaims prevalence, burden, prediction, causality, or publication readiness. Concrete route-back triggers include phrases such as "calendar enrollment period is not promoted", "this restriction is intentional", "submission metadata remain incomplete", "TRIPOD is cited only as a boundary reference", "MAS display-pack renderer", and "defensible clinical story" in manuscript body text. This is a refs-only review hint for MAS or the domain owner; it is not a quality verdict, reviewer receipt, typed blocker, owner acceptance, publication readiness claim, or current-package authority.
+For `mas-scholar-skills.review` on observational, cohort, registry, real-world, or descriptive atlas drafts, include `registry_initial_draft_quality_floor_ref` and, for medical SCI initial drafts, `scholarskills_medical_sci_initial_draft_quality_floor.v1` when relevant. It should flag missing enrollment/data-lock windows, missing inclusion/exclusion flow or ethics/consent/funding/COI/data-availability statements, undefined BMI or diagnostic ascertainment, adult/child applicability gaps, selected diagnostic-field positivity being written as prevalence or burden, figure-caption payload drift, too-thin missingness/availability atlas claims, limitation-only discussion, submission-source prose residue, workflow/tool-pipeline prose in the manuscript body, and conclusion self-evaluation instead of evidence-based clinical conclusion. The medical SCI initial-draft floor adds refs-only checks for `reference_integrity_floor_ref`, `manuscript_body_volume_floor_ref`, `figure_table_volume_and_clinical_value_ref`, `internal_report_prose_route_back_ref`, `figure_polish_alignment_ref`, and `registry_descriptive_scientific_boundary_ref`. Use these to produce review hints, `verdict_candidate`, `route_back_candidate`, and `stop_or_continue_recommendation` refs when citations are missing, references are placeholders, the body is below the expected section floor, result figures/tables are too sparse or clinically low-value, manuscript prose reads like an internal workflow report, figure-polish expectations drift from the current skill contract, or a descriptive registry paper overclaims prevalence, burden, prediction, causality, or publication readiness. Concrete route-back triggers include phrases such as "calendar enrollment period is not promoted", "this restriction is intentional", "submission metadata remain incomplete", "TRIPOD is cited only as a boundary reference", "MAS display-pack renderer", and "defensible clinical story" in manuscript body text. This is a refs-only review hint for MAS or the domain owner; it is not a quality verdict, reviewer receipt, typed blocker, owner acceptance, publication readiness claim, or current-package authority.
 
 ## Active Modules
 
-The active MAS Scholar Skills modules use the internal `opl.scholarskills.*` module IDs:
+The active MAS Scholar Skills modules use the `mas-scholar-skills.*` module IDs. Historical `opl.scholarskills.*` IDs are legacy aliases/provenance only:
 
-- `opl.scholarskills.display` - Scholar Display
-- `opl.scholarskills.tables` - Scholar Tables
-- `opl.scholarskills.stats` - Scholar Stats
-- `opl.scholarskills.lit` - Scholar Lit
-- `opl.scholarskills.write` - Scholar Write
-- `opl.scholarskills.review` - Scholar Review
-- `opl.scholarskills.submit` - Scholar Submit
-- `opl.scholarskills.data` - Medical Data Governance legacy module descriptor
+- `mas-scholar-skills.display` - Scholar Display
+- `mas-scholar-skills.tables` - Scholar Tables
+- `mas-scholar-skills.stats` - Scholar Stats
+- `mas-scholar-skills.lit` - Scholar Lit
+- `mas-scholar-skills.write` - Scholar Write
+- `mas-scholar-skills.review` - Scholar Review
+- `mas-scholar-skills.submit` - Scholar Submit
+- `mas-scholar-skills.data` - Medical Data Governance
 
 ## External Learning Module Fit
 
@@ -163,7 +163,7 @@ Keep the progress rule simple: if the consuming agent can produce the module's r
 
 ## Medical Data Governance Guardrails
 
-For large medical cohort datasets, use `medical-data-governance` as the real MAS Scholar Skills specialist skill. The legacy `opl.scholarskills.data` module id remains a descriptor/readback compatibility key, but new human-facing guidance should foreground `medical-data-governance`. The skill must keep data management refs explicit instead of treating every file copy as a durable version. The module expects refs that separate:
+For large medical cohort datasets, use `medical-data-governance` as the real MAS Scholar Skills specialist skill. The active Data module id is `mas-scholar-skills.data`; the legacy `opl.scholarskills.data` id remains an alias/provenance key only. New human-facing guidance should foreground `medical-data-governance`. The skill must keep data management refs explicit instead of treating every file copy as a durable version. The module expects refs that separate:
 
 - authoritative release bodies from convenience interchange files, indexed working copies, study-local extracts, reports, caches, and runtime artifacts;
 - hot / warm / cold / external placement and the reason each tier is allowed;
@@ -203,7 +203,7 @@ opl scholar-skills doctor --json
 
 ## Display Gallery
 
-For `opl.scholarskills.display`, use this repo's compact gallery review package:
+For `mas-scholar-skills.display`, use this repo's compact gallery review package:
 
 - `gallery/medical-display/medical_display_gallery.pdf`
 - `gallery/medical-display/medical_display_gallery_reference.md`
