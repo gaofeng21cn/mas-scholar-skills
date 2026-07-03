@@ -98,11 +98,14 @@ ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figur
 
 ## 默认边界防线
 
-新增或争议中的 MAS Scholar Skills 能力，默认按三段拆清楚：
+新增或争议中的 MAS Scholar Skills 能力，默认按四段拆清楚：
 
 1. **Stage prompt**：MAS `agent/stages/` 和 `agent/prompts/` 负责阶段入口、路由、证据门槛、owner gate、route-back、owner receipt、typed blocker、human gate、publication readiness 和 artifact authority。
-2. **Professional skill**：默认归 domain repo；本仓维护可复用外部包里的 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 以及 Display/source refs。这些 skill 可以准备 candidate refs 和专业候选产物，但不能采纳它们。
-3. **Tool connector**：OPL Connect/Fabric 或其他 connector 只负责工具/API 调用、标准化只读回执和资源错误；不负责 stage policy、专业判断、owner receipt、typed blocker、human gate、publication readiness 或 artifact authority。
+2. **Professional specialist skill**：默认归 domain repo；本仓维护可复用外部包里的 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 以及 Display/source refs。这些是实际可同步的 Codex 专家 Skill，不是 descriptor 或脚本函数；它们可以准备 candidate refs 和专业候选产物，但不能采纳它们。
+3. **Tool connector**：OPL Connect/Fabric 或其他 connector 只负责工具/API 调用、标准化只读回执、connector error 和资源访问；不负责 stage policy、专业判断、owner receipt、typed blocker、human gate、publication readiness 或 artifact authority。
+4. **Contract module**：`contracts/scholar-skills-capability-modules.json` 负责 module id、映射、ref 词汇、无权威标记和同步策略；它不能替代 `medical-*` Skill、stage prompt、connector、owner gate 或 publication-readiness decision。
+
+`mas-scholar-skills` 是本包的聚合入口和 discovery 层；`opl-scholarskills` 只是 legacy alias/provenance entry，不是第二套 truth source。
 
 ## 一句话使用方式
 

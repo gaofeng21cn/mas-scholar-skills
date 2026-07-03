@@ -98,11 +98,14 @@ These additions improve progress without forcing agents to install external runt
 
 ## Default Boundary Defense
 
-Every new or disputed MAS Scholar Skills surface should be defended in three parts:
+Every new or disputed MAS Scholar Skills surface should be defended in four parts:
 
 1. **Stage prompt**: MAS `agent/stages/` and `agent/prompts/` own stage entry, routing, evidence thresholds, owner gates, route-back, owner receipt, typed blocker, human gate, publication readiness, and artifact authority.
-2. **Professional skill**: the domain repo owns it by default; MAS Scholar Skills owns the reusable external-pack specialists `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance`, and Display/source refs. These skills can prepare candidate refs and specialist work products, but they cannot accept them.
-3. **Tool connector**: OPL Connect/Fabric or another connector owns tool/API invocation, normalized read receipts, and resource errors. A connector does not own stage policy, specialist judgment, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
+2. **Professional specialist skill**: the domain repo owns it by default; MAS Scholar Skills owns the reusable external-pack specialists `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance`, and Display/source refs. These are real Codex skills, not descriptors or script functions; they can prepare candidate refs and specialist work products, but they cannot accept them.
+3. **Tool connector**: OPL Connect/Fabric or another connector owns tool/API invocation, normalized read receipts, connector errors, and resource access. A connector does not own stage policy, specialist judgment, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
+4. **Contract module**: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy. A contract module does not replace a `medical-*` Skill, stage prompt, connector, owner gate, or publication-readiness decision.
+
+`mas-scholar-skills` is the aggregate entry and discovery layer for this pack. `opl-scholarskills` is only a legacy alias/provenance entry, not a second truth source.
 
 ## Quick Use
 

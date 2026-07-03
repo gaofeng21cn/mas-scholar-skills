@@ -52,13 +52,15 @@ specialist skills. The floor is adapted from fresh inspection of
 
 Data availability checks are active through `medical-data-governance`. Omics-specific source routing should stay with the relevant MAS/OPL owner surface until MAS needs Codex to actively run that workflow as a standalone specialist skill.
 
-## Stage Source Boundary
+## Stage / Specialist / Connector / Contract Boundary
 
 The canonical MAS stage source is the MAS domain-agent repository, specifically `agent/stages/` and `agent/prompts/`. MAS overlay Skills, local workspace or quest `.codex/skills/` copies, and synced compatibility entries are Codex projection surfaces. They can expose a stage or specialist skill to a Codex session, but they must not be treated as the source for stage routing, evidence thresholds, owner gates, route-back semantics, owner receipts, typed blockers, human gates, publication readiness, or artifact authority.
 
-Default ownership for a professional specialist skill is the consuming domain-agent repo, close to the stage prompt that calls it. A specialist skill should move to an external pack only when it is heavy, cross-workspace, or independently releasable. MAS Scholar Skills is that external pack for MAS medical writing, review, figure design, literature, statistics, table, submission, Display/source refs, and reusable source packs.
+Default ownership for a professional specialist skill is the consuming domain-agent repo, close to the stage prompt that calls it. A specialist skill should move to an external pack only when it is heavy, cross-workspace, or independently releasable. MAS Scholar Skills is that external pack for MAS medical writing, review, figure design, literature, statistics, table, submission, Display/source refs, and reusable source packs. The eight `medical-*` entries in this repository are real Codex specialist skills, not descriptors, routing labels, or script functions. The aggregate `mas-scholar-skills` skill is the entry and discovery layer for the pack; the historical `opl-scholarskills` entry is only a legacy alias.
 
 Tool connectors are the third boundary. OPL Connect/Fabric owns tool or API invocation, normalized read receipts, connector error semantics, and resource access, such as the PubMed command used by `medical-research-lit`. A connector does not own stage policy, professional judgment, route acceptance, owner receipt, typed blocker, human gate, publication readiness, or artifact authority.
+
+Contract modules are the fourth boundary. `contracts/scholar-skills-capability-modules.json` records the module catalog, active ids, ref vocabulary, no-authority flags, and sync policies. A contract module can say that `display` maps to `medical-figure-design` or that `lit` maps to `medical-research-lit`; it cannot perform specialist judgment, replace a `medical-*` Skill, become a stage prompt, call PubMed, accept a candidate, sign an owner receipt, create a typed blocker, or claim publication readiness.
 
 ## MAS Skill Call Path
 
@@ -87,7 +89,7 @@ MAS agent/stages or agent/prompts stage prompt
   -> MAS owner gate consume / reject / route back
 ```
 
-If writing, review, or figure execution quality is weak, update the corresponding professional skill in this repository and let MAS consume the synced skill. If the problem is stage validity, routing, owner gate, or acceptance semantics, update the MAS stage operating prompt. This keeps professional playbooks and MAS stage authority as two clear single sources.
+If writing, review, figure, literature, statistics, table, submission, or data-governance execution quality is weak, update the corresponding `medical-*` professional skill in this repository and let MAS consume the synced skill. If the problem is stage validity, routing, owner gate, or acceptance semantics, update the MAS stage operating prompt. If the problem is only module vocabulary, ids, ref names, sync policy, or no-authority flags, update the contract module. If the problem is external access or readback, update OPL Connect/Fabric. This keeps stage prompts, professional specialists, tool connectors, and contract modules as separate owners.
 
 Use `medical-research-lit` when the task needs PubMed-style external literature discovery, source screening, PMID/DOI verification, or a claim-support map. Literature discovery is external-resource heavy, so it belongs in MAS Scholar Skills as a real specialist skill while MAS still owns citation acceptance and manuscript use.
 
