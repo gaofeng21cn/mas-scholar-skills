@@ -23,10 +23,11 @@ domain repo.
 
 Current classification: eight active professional modules, all backed by real
 syncable Codex specialist skills. Generic source or external-learning intake
-belongs to OPL Framework or MAS stage/source surfaces. Omics belongs in this
-repository only after MAS has a stable real omics specialist workflow to
-maintain. Active data governance now routes to `medical-data-governance`; the
-legacy Data module remains as descriptor/readback compatibility.
+belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a
+contract placeholder. Omics belongs in this repository only after MAS has a
+stable real omics specialist workflow to maintain. Active data governance now
+routes to `medical-data-governance`; the legacy Data module remains as
+descriptor/readback compatibility.
 
 For literature access, use `medical-research-lit` for the AI workflow and OPL
 Connect for stable PubMed refs: `opl connect pubmed search --query <query>

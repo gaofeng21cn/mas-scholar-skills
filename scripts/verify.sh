@@ -263,21 +263,21 @@ if "capability_module_contracts" in classification_policy:
     fail("classification policy must not keep legacy capability_module_contracts")
 if classification_policy.get("contract_layer_modules"):
     fail("classification policy must not expose active contract-layer modules")
-retired_or_deferred = classification_policy.get("retired_or_deferred_modules") or {}
-for key in ["omics", "intake"]:
-    if key not in retired_or_deferred:
-        fail(f"classification policy missing retired/deferred note for {key}")
+if "retired_or_deferred_modules" in classification_policy:
+    fail("classification policy must not keep retired/deferred module placeholders")
+if not classification_policy.get("non_active_scope_policy"):
+    fail("classification policy must state non-active scope without module placeholders")
 for token in [
     "not_from_a_fixed_ten_module_catalog",
-    "not_active_in_mas_scholar_skills",
-    "generic_source_or_external_learning_intake_belongs_to_OPL_Framework_or_MAS_stage_source_surfaces",
+    "source_or_external_learning_intake_belongs_to_OPL_Framework_or_MAS_stage_source_surfaces",
+    "omics_enters_mas_scholar_skills_only_as_a_future_real_professional_skill_when_MAS_has_a_stable_workflow",
     "dot_codex_skills_sync_remains_required_for_Codex_discovery",
 ]:
     if token not in json.dumps(classification_policy, ensure_ascii=False):
         fail(f"classification policy missing {token}")
 for key in [
     "can_expose_contract_layer_modules_without_real_skill",
-    "can_claim_retired_or_deferred_modules_are_active",
+    "can_claim_non_active_scope_is_active",
     "can_replace_mas_stage_prompts",
     "can_claim_owner_acceptance",
     "can_claim_publication_readiness",

@@ -79,7 +79,7 @@ Keep the physical shape explicit:
 - Eight real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`.
 - No contract-layer module is active in this repository.
 
-Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.
+Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.
 
 ## Professional Skill Quality Floor
 

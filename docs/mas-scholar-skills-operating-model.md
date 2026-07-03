@@ -28,7 +28,7 @@ MAS Scholar Skills has eight active professional skill-backed capability modules
 | Active professional modules | `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, `data` | Shared module ids, vocabulary, ref families, checklists, candidate handoff, receipt shape, and owner gates, each backed by a real specialist skill. |
 | Real specialist skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance` | AI-first professional playbooks that Codex can discover and execute after OPL Connect syncs them into a workspace or quest `.codex/skills/` directory. |
 
-Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces. Omics belongs in this repository only after MAS has a stable real omics specialist workflow to maintain. Active clinical data governance now uses `medical-data-governance`; the legacy data module id remains a descriptor/readback compatibility key.
+Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs in this repository only after MAS has a stable real omics specialist workflow to maintain. Active clinical data governance now uses `medical-data-governance`; the legacy data module id remains a descriptor/readback compatibility key.
 
 ## Professional Quality Floor
 
