@@ -73,6 +73,8 @@ K-Dense 高频模式本轮只进入这些真 Skill：写作吸收提纲到正文
 
 预测模型外部验证作为医学论文高频场景进入五个真 Skill 的质量地板：Write 要求 source model、validation cohort、Table 1 / Table 2、grouped calibration、risk-scale compression 与 DCA 取舍写成完整外部验证稿；Review 增加 source-model provenance、固定时限结局、校准/判别、risk-bin collapse 和 clinical utility 边界审阅 lane；Stats 增加 source-model 可复现、删失/IPCW/二分类依据、survey-weighted sensitivity、recalibration 和 threshold-utility 触发项；Tables 增加外部验证 Table 1、Table 2 与 grouped calibration table shell；Display 增加 development risk-bin occupancy、validation self-quantile calibration、risk distribution/support、DCA 证据门槛和 process-panel 禁用规则。这些都是 route-back / candidate floor，不是 MAS publication readiness 或 owner verdict。
 
+表型图谱与治疗缺口描述稿作为当前医学论文高频场景进入 Write / Review / Stats 的质量地板：Write 先要求一句话发现契约、规则层级、缺口定义、药物记录敏感性和图表契约；Stats 检查分母、资格、时间窗、药物来源、缺失性、站点/年份/阈值/年龄敏感性和率/数分离；Review 阻断把记录缺口写成指南不依从、真实未治疗、外部验证或服务绩效证据。这些仍是 route-back / candidate floor，不是 MAS owner verdict。
+
 组学专属 source routing 和材料接入专属 adoption check 分别归 MAS/OPL 对应 owner surface；当 MAS 需要 Codex 主动执行稳定、可维护、可同步的独立专业流程时，再升级为新的真实 Skill。
 
 ## MAS 默认入口与技能正文边界

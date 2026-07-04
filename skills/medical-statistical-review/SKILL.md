@@ -130,6 +130,26 @@ If these refs are missing, route back before polishing statistical language.
    uncertainty as the manuscript text.
 11. Produce a statistical action matrix and route-back candidate.
 
+For descriptive registry, phenotype-atlas, or treatment-gap papers, the
+statistical review should prefer robustness and denominator discipline over
+p-value accumulation. Route back or downgrade when a draft claims medical
+discovery from group counts alone without:
+
+- phenotype x burden x recorded medication-coverage matrix or explicit waiver;
+- exact gap numerator, denominator, eligibility, index/time window, medication
+  source, and class mapping;
+- medication-field-present / any-recorded-medication sensitivity when drug
+  capture is incomplete;
+- variable missingness and plausibility atlas for phenotype-defining fields;
+- site-level gap variability or a reason site variation is out of scope;
+- transition-category, calendar-year, threshold, or age-stratified sensitivity
+  when the text claims trajectory, service variation, or guideline priority;
+- rate/count separation in figures and tables.
+
+Do not interpret selected diagnostic-field positivity, absent recorded drug
+classes, or release-level counts as prevalence, true non-treatment, guideline
+nonadherence, or treatment effect without the required design and evidence.
+
 If a statistical method, reporting claim, guideline statement, or clinical
 interpretation needs biomedical literature support, use:
 

@@ -214,7 +214,8 @@
         "citation_style_ref",
         "reporting_guideline_check_ref",
         "data_code_availability_audit_ref",
-        "external_validation_manuscript_floor_ref"
+        "external_validation_manuscript_floor_ref",
+        "phenotype_treatment_gap_discovery_contract_ref"
       ],
       "medical-manuscript-review": [
         "review_fact_base_ref",
@@ -227,7 +228,8 @@
         "venue_review_expectation_ref",
         "cross_review_synthesis_ref",
         "reviewer_action_matrix_ref",
-        "prediction_model_external_validation_review_ref"
+        "prediction_model_external_validation_review_ref",
+        "phenotype_treatment_gap_review_ref"
       ],
       "medical-research-lit": [
         "source_ref_chain_template_ref",
@@ -255,7 +257,8 @@
         "effect_size_and_uncertainty_ref",
         "multiplicity_and_sensitivity_ref",
         "statistical_action_matrix_ref",
-        "external_validation_statistical_review_ref"
+        "external_validation_statistical_review_ref",
+        "phenotype_treatment_gap_denominator_review_ref"
       ],
       "medical-table-design": [
         "table_job_ref",
@@ -315,7 +318,8 @@
       "journal_instruction_reporting_guideline_declaration_and_response_audit_feed_submit",
       "current_venue_instruction_source_and_template_version_feed_submit_and_review",
       "clinical_data_manifest_dictionary_lineage_version_and_lifecycle_checks_feed_stats_tables_write_review_submit",
-      "prediction_model_external_validation_checks_feed_write_review_stats_tables_display"
+      "prediction_model_external_validation_checks_feed_write_review_stats_tables_display",
+      "phenotype_atlas_treatment_gap_checks_feed_write_review_stats"
     ],
     "can_add_parallel_stage_skill_authority": false,
     "can_require_external_runtime_install_before_candidate_refs": false,
@@ -2009,6 +2013,9 @@
           "wide_table_routing_ref",
           "discussion_theme_compression_ref",
           "prediction_model_external_validation_review_ref",
+          "phenotype_treatment_gap_discovery_contract_ref",
+          "phenotype_treatment_gap_denominator_review_ref",
+          "phenotype_treatment_gap_review_ref",
           "route_back_ref",
           "owner_gate_handoff_ref"
         ],
@@ -2035,7 +2042,11 @@
           "diagnostic_or_prediction_framing_without_corresponding_design",
           "prediction_model_external_validation_missing_source_model_or_validation_cohort",
           "prediction_model_external_validation_mixes_development_bins_and_validation_quantiles",
-          "prediction_model_external_validation_claims_clinical_utility_without_threshold_evidence"
+          "prediction_model_external_validation_claims_clinical_utility_without_threshold_evidence",
+          "phenotype_atlas_lacks_medical_discovery_contract",
+          "treatment_gap_lacks_exact_denominator_or_medication_source",
+          "guideline_linked_treatment_gap_without_eligibility_refs",
+          "site_support_used_as_site_level_gap_variation_evidence"
         ],
         "registry_descriptive_boundary": "Descriptive registry or atlas drafts may present cohort definition, availability, missingness, diagnostic ascertainment, subgroup distribution, and clinical interpretation candidates; they must route back claims that imply causal effects, population prevalence or burden, diagnostic prediction, treatment effect, or publication readiness without domain owner evidence.",
         "no_authority_policy": "Scholar Review may emit review hints, verdict_candidate, route_back_candidate, and stop_or_continue_recommendation refs, but cannot claim MAS publication ready, owner accepted, typed blocker, current_package authority, quality verdict, or reviewer receipt.",

@@ -249,6 +249,16 @@ Red flags include:
   over-wrapped, or should route to supplementary material
 - missingness/availability atlas too thin for the manuscript's registry-atlas
   claim
+- phenotype-atlas or treatment-gap drafts that list groups and rates but do not
+  articulate a medical discovery contract, such as burden-medication
+  discordance, trajectory pattern, site/service variation, or a documented
+  reason these are out of scope
+- recorded medication gaps presented without exact numerator, denominator,
+  medication-source, class-mapping, and medication-field-present sensitivity
+- guideline-linked treatment-gap wording without guideline-specific
+  eligibility, contraindication, age/eGFR target, and source refs
+- site support used as if it were site-level gap variation, external
+  validation, or service-performance evidence
 - discussion that only defends limitations, enumerates too many isolated
   findings, or fails to compress findings into registry structure, adult
   metabolic phenotype, and subcohort clinical-depth themes

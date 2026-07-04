@@ -268,6 +268,29 @@ selected positive fields, missingness, or source availability as prevalence,
 burden, causality, prediction, or clinical deployment unless the design and
 evidence support that claim.
 
+For phenotype-atlas or treatment-gap descriptive drafts, do not let the first
+draft become "we split patients into groups and reported rates." Before prose,
+define the medical pattern the atlas is meant to reveal. Route back if the
+paper lacks:
+
+- a one-sentence discovery contract, such as phenotype-specific recorded
+  burden-medication discordance or service-review priority patterns;
+- a rationale for the rule hierarchy and its ordering;
+- exact gap definitions with numerator, denominator, eligibility, medication
+  source, class mapping, and interpretation label;
+- medication-field-present or any-recorded-medication sensitivity when
+  medication capture is incomplete;
+- a missingness/plausibility table for phenotype-defining variables;
+- site, trajectory, calendar-year, threshold, or age sensitivity when the
+  manuscript asks for more than a local descriptive atlas;
+- figure/table contracts that show the medical pattern rather than only group
+  counts.
+
+Use terms such as recorded medication-coverage gap, treatment-review signal,
+and burden-medication discordance. Avoid guideline nonadherence, true untreated
+status, treatment failure, or individualized treatment allocation unless MAS
+has accepted evidence and guideline-specific eligibility refs.
+
 Write final manuscript text in full paragraphs. Use bullets only in planning
 surfaces, review ledgers, checklists, or route-back packets. In Results, lead
 with the medical question and evidence answer; use figure/table references as
