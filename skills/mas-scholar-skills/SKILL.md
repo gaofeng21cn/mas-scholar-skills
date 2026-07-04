@@ -18,9 +18,9 @@ Default route:
 ```text
 MAS overlay or stage operating prompt
   -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design
-     / medical-statistical-review / medical-table-design / medical-submission-prep
-     / medical-data-governance
-  -> MAS Scholar Skills discovery refs or medical-research-lit
+     / medical-research-lit / medical-statistical-review / medical-table-design
+     / medical-submission-prep / medical-data-governance
+  -> MAS Scholar Skills discovery refs
   -> source_pack_ref / candidate_package_ref / quality_floor_ref / owner_gate_handoff_ref
   -> MAS owner gate consume / reject / route back
 ```

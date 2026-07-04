@@ -1,6 +1,6 @@
 ---
 name: medical-research-lit
-description: "Use for MAS medical-paper literature discovery, especially PubMed-oriented search planning, query refinement, source screening, PMID/DOI verification, citation-support checks, evidence maps, and refs-only handoff back to MAS scout/write/review."
+description: "Use when a MAS medical-paper task needs professional literature discovery, especially PubMed-oriented search planning, query refinement, source screening, PMID/DOI verification, citation-support checks, evidence maps, and refs-only handoff back to MAS scout/write/review. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps citation acceptance, manuscript use, owner receipts, typed blockers, and publication readiness."
 ---
 
 # Medical Research Literature
