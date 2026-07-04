@@ -36,7 +36,9 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 
 文献工作现在使用稳定的 OPL Connect PubMed 路径：`medical-research-lit` 负责检索策略、来源筛选、证据地图和 MAS 回流交接；`opl connect pubmed search --query <query> --limit <n> --json` 负责只读 PubMed 访问，并返回 `pubmed_source_refs` 与 `pubmed_connector_invocation_ref`。
 
-当前专业质量地板集中在这八个真 Skill：图件、写作、审阅和文献继续保持 AI-first contract；图件设计在需要时补上 schematic / infographic 的证据边界；审阅补上 scholar-evaluation lane，用于区分贡献、创新性、临床意义、审稿人接受风险和期刊适配压力，但不生成编辑结论；统计审阅补上 estimand、denominator、EDA profile、model specification、assumption、effect-size、multiplicity 和 action matrix；表格设计补上 table shell、source metric、denominator、footnote、QC 和 table-to-claim；投稿准备补上 journal instruction、reporting checklist、declaration、data/code availability、reviewer response 和 package consistency；数据治理补上临床数据 manifest、dictionary/codebook、清洗归一化 readiness、版本影响、study binding、privacy/access 和 lifecycle guardrail。
+当前专业质量地板放在八个真 Skill 内维护。共享交接形状见
+[`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)，
+让每个 `medical-*` skill 指向公共 refs，而不是复制长 checklist。
 
 <table>
   <tr>
@@ -100,14 +102,12 @@ K-Dense 专项吸收映射记录在 [K-Dense intake 文档](./docs/kdense-scient
 
 ## 默认边界防线
 
-新增或争议中的 MAS Scholar Skills 能力，默认指向 [No-Authority Boundary](./docs/no-authority-boundary.md)，并把四个 owner 拆清楚：
-
-1. **Stage prompt**：MAS `agent/stages/` 和 `agent/prompts/` 负责阶段入口、路由、证据门槛、owner gate、route-back、owner receipt、typed blocker、human gate、publication readiness 和 artifact authority。
-2. **Professional specialist skill**：本仓维护可复用外部包里的 `medical-*` 专业 Skill 和 Display/source refs，只产出候选 playbook 与 handoff，不负责采纳。
-3. **Tool connector**：OPL Connect/Fabric 或其他 connector 只负责工具/API 调用、标准化只读回执、connector error 和资源访问。
-4. **Contract module**：`contracts/scholar-skills-capability-modules.json` 负责 module id、映射、ref 词汇、无权威标记和同步策略。
-
-`mas-scholar-skills` 是本包的聚合入口和 discovery 层；`opl-scholarskills` 只是 legacy alias/provenance entry，不是第二套 truth source。
+新增或争议中的 MAS Scholar Skills 能力，默认指向
+[No-Authority Boundary](./docs/no-authority-boundary.md)：Stage prompt
+来源（`agent/stages/`、`agent/prompts/`）持有 MAS 权威，Professional
+specialist skill 只持有 refs-only 候选 playbook，Tool connector 持有只读访问回执，
+contract module 持有 id/ref 词汇。`opl-scholarskills` 仍只是 legacy
+alias/provenance entry。
 
 ## 一句话使用方式
 

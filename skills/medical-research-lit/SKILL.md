@@ -9,6 +9,11 @@ Use this skill when a MAS paper task needs external literature evidence instead 
 
 This is a real Codex specialist skill in the MAS Scholar Skills pack. It can guide search, screening, verification, evidence mapping, and route-back handoff. It does not own MAS study truth, citation authority, reviewer verdicts, owner receipts, typed blockers, or publication readiness.
 
+Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
+`references/professional-quality-ref-templates.md` for reusable refs-only
+quality-floor handoff shapes. Keep specialty details in this skill; do not copy
+long boundary or checklist text here.
+
 Sibling skill routes are `medical-manuscript-writing` for citation-to-text
 integration, `medical-manuscript-review` for citation and claim critique,
 `medical-figure-design` for literature-supported figure captions,

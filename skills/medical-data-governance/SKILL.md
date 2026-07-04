@@ -15,6 +15,11 @@ MAS still owns study truth, clinical source readiness, cohort acceptance, data
 body mutation, owner receipts, typed blockers, human gates, current packages,
 and publication readiness.
 
+Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
+`references/professional-quality-ref-templates.md` for reusable refs-only
+quality-floor handoff shapes. Keep specialty details in this skill; do not copy
+long boundary or checklist text here.
+
 Sibling skill routes are `medical-statistical-review` for estimand,
 denominator, missingness, and analysis-plan judgment; `medical-table-design` for
 table shells and data-dictionary tables; `medical-figure-design` for data-bound

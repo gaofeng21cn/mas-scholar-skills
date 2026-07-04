@@ -29,12 +29,10 @@ MAS Scholar Skills can improve the material those MAS skills use. It cannot repl
 
 ## Boundary Separation
 
-Use `docs/no-authority-boundary.md` as the shared human-readable boundary ref. Keep four surfaces separate:
-
-- Stage prompts: MAS `agent/stages/` and `agent/prompts/` own stage entry, routing, evidence thresholds, owner gates, route-back, owner receipts, typed blockers, human gates, publication readiness, and artifact authority.
-- Professional specialist skills: the eight real `medical-*` Codex skills in this repository own MAS-consumed professional playbooks and refs-only candidate handoffs.
-- Tool connectors: OPL Connect/Fabric owns tool or API calls, normalized read receipts, connector errors, and resource access such as PubMed.
-- Contract modules: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy.
+Use `docs/no-authority-boundary.md` as the shared human-readable boundary ref:
+MAS stage prompts own stage/owner authority, `medical-*` professional
+specialist skills own refs-only candidate playbooks, Tool connectors own
+read-only access receipts, and contract modules own ids/ref vocabulary.
 
 `mas-scholar-skills` is the aggregate entry and discovery layer for the pack. `opl-scholarskills` is only a legacy alias/provenance entry, not a second truth source.
 
@@ -103,9 +101,13 @@ publication readiness, domain truth, artifact authority, or owner acceptance.
 
 The authority false summary is single-sourced in `docs/no-authority-boundary.md`; machine flags remain in `contracts/capability_map.json` and `contracts/scholar-skills-capability-modules.json`.
 
-- Active modules share the refs-only handoff family `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`.
-- MAS Scholar Skills can produce candidate refs, quality hints, and route-back recommendations; it cannot claim owner receipt, typed blocker, quality verdict, owner acceptance, artifact authority, current-package authority, publication readiness, runtime readiness, or production readiness.
-- MAS or the consuming domain owner must consume downstream owner-consumption refs only and issue any owner receipt, typed blocker, reviewer receipt, route-back, current-package update, or artifact mutation from its own authority surface.
+Active modules share the refs-only handoff family `source_pack_ref`,
+`candidate_package_ref`, `execution_receipt_ref`, and
+`owner_gate_handoff_ref`; MAS Scholar Skills may prepare candidate refs,
+quality hints, and route-back recommendations only, while downstream owners
+issue any owner receipt, typed blocker, quality verdict, acceptance, artifact
+mutation, current-package update, publication readiness, runtime readiness, or
+production readiness from their own authority surface.
 
 ## Capability Module Classification
 
@@ -119,48 +121,20 @@ Generic source or external-learning intake belongs to OPL Framework or MAS stage
 
 ## Professional Skill Quality Floor
 
-The eight real specialist skills carry the default AI-first quality
-floor for MAS medical-paper work:
-
-- `medical-figure-design`: figure contract, evidence chain, archetype, renderer
-  decision, style brief, candidate set, critic review, plot/export QA, and
-  visual QA.
-- `medical-manuscript-writing`: one-sentence argument, terminology ledger,
-  paragraph job map, section contract, citation integrity, figure/table binding,
-  two-stage outline-to-prose discipline, and data/code availability audit.
-- `medical-manuscript-review`: shared fact base, technical/significance/reader
-  reviewer lanes, critical-thinking validity/bias checks, cross-review
-  synthesis, reviewer action matrix, and route-back closeout.
-- `medical-research-lit`: PubMed-first source routing, query plan,
-  deduplication, retain/reject/watchlist screening, fallback source refs,
-  retrieval contract, support-strength matrix, and citation integrity floor.
-- `medical-statistical-review`: statistical question, estimand, analysis plan,
-  denominator/missingness, assumption diagnostics, effect size, multiplicity,
-  power/design discipline, sensitivity, table/figure consistency, and action
-  matrix.
-- `medical-table-design`: table job, shell, source metrics, denominators,
-  table-vs-figure decision, statistical display, table QC, claim-table
-  alignment, and journal table contract.
-- `medical-submission-prep`: journal instructions, reporting guideline,
-  declaration inventory, data/code availability, package consistency, reviewer
-  response candidate, venue instruction provenance, author-input list, and
-  submission action matrix.
-- `medical-data-governance`: clinical data asset manifests, data dictionaries,
-  cleaning/normalization readiness, version-diff impact, study binding,
-  privacy/access tiers, database retrieval provenance, lifecycle/retention
-  guardrails, and MAS owner-gate route-back.
-
-These requirements absorb useful patterns from `K-Dense-AI/scientific-agent-skills`
-and `Yuan1z0825/nature-skills` into MAS-consumed professional playbooks. They do
-not require installing those external runtimes before MAS can produce candidate
-refs, and they do not create a parallel stage authority.
+The eight real specialist skills carry the AI-first quality floor; keep the
+detailed floor in the relevant `medical-*` Skill instead of duplicating it here.
+They absorb useful patterns from `K-Dense-AI/scientific-agent-skills` and
+`Yuan1z0825/nature-skills` without requiring external runtime installation or
+creating parallel stage authority.
 
 The shared lightweight template reference is
-`references/professional-quality-ref-templates.md`. Use it only when a
-specialist skill needs a concrete refs-only shape for
-`figure_contract_template_ref`, `panel_evidence_chain_ref`,
-`source_ref_chain_template_ref`, `source_acceptance_decision_ref`,
-`claim_citation_quality_loop_ref`, or `citation_quality_action_matrix_ref`.
+`references/professional-quality-ref-templates.md`: use it for
+`figure_contract_template_ref` / `panel_evidence_chain_ref`,
+`source_ref_chain_template_ref` / `source_acceptance_decision_ref`, and
+`claim_citation_quality_loop_ref` / `citation_quality_action_matrix_ref`;
+stats, tables, submission, and data governance use their skill-local refs plus
+this shared no-authority template vocabulary when a handoff touches figures,
+sources, or claim-citation quality.
 
 ## MAS Progress And AI Judgment Rules
 

@@ -14,6 +14,11 @@ still owns stage routing, study truth, display registry, figure semantics,
 visual audit receipts, owner receipts, typed blockers, human gates, current
 packages, and publication readiness.
 
+Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
+`references/professional-quality-ref-templates.md` for reusable refs-only
+quality-floor handoff shapes. Keep specialty details in this skill; do not copy
+long boundary or checklist text here.
+
 Sibling skill routes are `medical-manuscript-writing` for manuscript narrative
 repair, `medical-manuscript-review` for adversarial review,
 `medical-research-lit` for PubMed-oriented literature discovery,

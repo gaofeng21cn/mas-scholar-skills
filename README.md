@@ -36,7 +36,11 @@ The current classification is fixed: eight active professional modules, all back
 
 For literature work, `medical-research-lit` now uses the stable OPL Connect PubMed path: `opl connect pubmed search --query <query> --limit <n> --json`. The connector returns `pubmed_source_refs` and `pubmed_connector_invocation_ref`; MAS Scholar Skills keeps the AI workflow around query design, source screening, evidence maps, and route-back handoff.
 
-The current professional quality floor is concentrated in those eight real skills. Figure, writing, review, and literature skills keep their AI-first contracts. Figure design now covers schematic and infographic evidence boundaries when the manuscript needs them. Review adds scholar-evaluation lanes for contribution, novelty, clinical usefulness, reviewer reception, and journal-fit pressure without issuing editorial verdicts. Statistical review adds estimand, denominator, EDA profile, model specification, assumption, effect-size, multiplicity, and action-matrix discipline. Table design adds table shell, source metric, denominator, footnote, QC, and table-to-claim discipline. Submission prep adds journal instruction, reporting checklist, declaration, data/code availability, reviewer response, and package consistency discipline. Data governance adds clinical data manifest, dictionary/codebook, cleaning/normalization readiness, version impact, study binding, privacy/access, and lifecycle guardrail discipline.
+The current professional quality floor lives in the eight real skills. Shared
+handoff shapes live in
+[`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)
+so each `medical-*` skill can point to the common refs instead of copying a long
+checklist.
 
 <table>
   <tr>
@@ -98,14 +102,12 @@ The K-Dense-specific intake map is documented in [K-Dense scientific-agent-skill
 
 ## Default Boundary Defense
 
-Every new or disputed MAS Scholar Skills surface should point back to [No-Authority Boundary](./docs/no-authority-boundary.md) and keep four owners separate:
-
-1. **Stage prompt**: MAS `agent/stages/` and `agent/prompts/` own stage entry, routing, evidence thresholds, owner gates, route-back, owner receipt, typed blocker, human gate, publication readiness, and artifact authority.
-2. **Professional specialist skill**: MAS Scholar Skills owns the reusable external-pack `medical-*` skills and Display/source refs as candidate-producing playbooks, not acceptance authority.
-3. **Tool connector**: OPL Connect/Fabric or another connector owns tool/API invocation, normalized read receipts, connector errors, and resource access.
-4. **Contract module**: `contracts/scholar-skills-capability-modules.json` owns module ids, maps, ref vocabulary, no-authority flags, and sync policy.
-
-`mas-scholar-skills` is the aggregate entry and discovery layer for this pack. `opl-scholarskills` is only a legacy alias/provenance entry, not a second truth source.
+Every new or disputed MAS Scholar Skills surface should point back to
+[No-Authority Boundary](./docs/no-authority-boundary.md): Stage prompt sources
+(`agent/stages/`, `agent/prompts/`) own MAS authority, each Professional
+specialist skill owns refs-only candidate playbooks, each Tool connector owns
+read-only access receipts, and the contract module owns ids/ref vocabulary.
+`opl-scholarskills` remains only a legacy alias/provenance entry.
 
 ## Quick Use
 

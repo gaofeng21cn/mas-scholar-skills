@@ -547,6 +547,12 @@ for relative, skill_id, text in [
     for token in ["MAS Scholar Skills", skill_id]:
         if token not in text:
             fail(f"{relative} missing skill identity token: {token}")
+    for shared_ref in [
+        "docs/no-authority-boundary.md",
+        "references/professional-quality-ref-templates.md",
+    ]:
+        if shared_ref not in text:
+            fail(f"{relative} missing shared skill ref {shared_ref}")
 for token in [
     "contracts/capability_map.json#/authority_boundary",
     "contracts/capability_map.json#/owner_closeout_boundary",
