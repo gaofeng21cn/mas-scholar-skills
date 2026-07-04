@@ -1794,6 +1794,30 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "adult_known_age_bmi_category_sensitivity_review_candidate",
           "body_policy": "refs_only_adult_sensitivity_hint_not_statistical_or_submission_authority"
+        },
+        {
+          "ref_id": "pdf_nonblank_figure_export_qc_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "pdf_export_nonblank_figure_region_review_candidate",
+          "body_policy": "refs_only_pdf_export_qc_hint_not_visual_quality_verdict_or_publication_ready"
+        },
+        {
+          "ref_id": "journal_figure_numbering_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "journal_figure_identifier_consistency_review_candidate",
+          "body_policy": "refs_only_numbering_consistency_hint_not_submission_authority"
+        },
+        {
+          "ref_id": "wide_table_routing_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "wide_main_text_table_route_back_review_candidate",
+          "body_policy": "refs_only_table_routing_hint_not_artifact_authority_or_submission_ready"
+        },
+        {
+          "ref_id": "discussion_theme_compression_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "discussion_theme_compression_review_candidate",
+          "body_policy": "refs_only_discussion_structure_hint_not_quality_verdict_or_publication_ready"
         }
       ],
       "receipt_policy": {
@@ -1842,6 +1866,10 @@
           "figure_caption_content_consistency_ref",
           "supplementary_missingness_atlas_ref",
           "adult_bmi_sensitivity_ref",
+          "pdf_nonblank_figure_export_qc_ref",
+          "journal_figure_numbering_ref",
+          "wide_table_routing_ref",
+          "discussion_theme_compression_ref",
           "source_pack_ref",
           "candidate_package_ref",
           "execution_receipt_ref",
@@ -1911,9 +1939,14 @@
           "flag_diagnostic_field_positivity_without_provenance_caveat_before_owner_gate",
           "flag_figure_caption_domain_not_rendered_in_payload_before_owner_gate",
           "flag_missing_or_nonmaterialized_supplementary_missingness_atlas_before_owner_gate",
-          "flag_missing_adult_known_age_bmi_sensitivity_table_before_owner_gate"
+          "flag_missing_adult_known_age_bmi_sensitivity_table_before_owner_gate",
+          "flag_blank_pdf_figure_region_before_owner_gate",
+          "flag_double_figure_identifier_before_owner_gate",
+          "route_wide_or_wrapped_main_text_table_before_owner_gate",
+          "compress_registry_atlas_discussion_themes_before_owner_gate",
+          "flag_formal_data_lock_residue_before_owner_gate"
         ],
-        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose, conclusion self-evaluation, calendar enrollment period is not promoted, MAS display-pack renderer, TRIPOD is cited only as a boundary reference, defensible clinical story, missing references, too-thin manuscript body, figure/table clinical-value gaps, figure-polish drift, registry descriptive scope drift, missing submission declarations, data-lock/enrollment ambiguity, diagnostic provenance gaps, figure-caption payload drift, nonmaterialized missingness atlas, and missing adult-known-age BMI sensitivity tables only before owner gate",
+        "authority_boundary": "refs_only_review_candidate_not_quality_verdict_or_reviewer_receipt; flags workflow/tool-pipeline prose, conclusion self-evaluation, calendar enrollment period is not promoted, MAS display-pack renderer, TRIPOD is cited only as a boundary reference, defensible clinical story, formal analytic data-lock date remains, missing references, too-thin manuscript body, figure/table clinical-value gaps, figure-polish drift, registry descriptive scope drift, missing submission declarations, data-lock/enrollment ambiguity, diagnostic provenance gaps, figure-caption payload drift, blank PDF figure regions, double figure identifiers, unreadable wide main-text tables, nonmaterialized missingness atlas, missing adult-known-age BMI sensitivity tables, and uncompressed registry-atlas discussion themes only before owner gate",
         "required_ref_shapes": [
           "reviewer_report_ref",
           "adversarial_review_ref",
@@ -1936,7 +1969,11 @@
           "diagnostic_provenance_caveat_ref",
           "figure_caption_content_consistency_ref",
           "supplementary_missingness_atlas_ref",
-          "adult_bmi_sensitivity_ref"
+          "adult_bmi_sensitivity_ref",
+          "pdf_nonblank_figure_export_qc_ref",
+          "journal_figure_numbering_ref",
+          "wide_table_routing_ref",
+          "discussion_theme_compression_ref"
         ],
         "ai_judgment_policy": "ai_may_emit_quality_or_source_verdict_candidate_and_route_back_candidate_but_cannot_claim_quality_verdict_domain_truth_reviewer_receipt_owner_receipt_or_publication_readiness"
       },
@@ -1961,6 +1998,10 @@
           "figure_caption_content_consistency_ref",
           "supplementary_missingness_atlas_ref",
           "adult_bmi_sensitivity_ref",
+          "pdf_nonblank_figure_export_qc_ref",
+          "journal_figure_numbering_ref",
+          "wide_table_routing_ref",
+          "discussion_theme_compression_ref",
           "route_back_ref",
           "owner_gate_handoff_ref"
         ],
@@ -1979,6 +2020,11 @@
           "figure_caption_mentions_domain_not_rendered_in_figure",
           "missing_or_nonmaterialized_supplementary_missingness_atlas",
           "missing_adult_known_age_bmi_sensitivity_table",
+          "blank_pdf_figure_region",
+          "double_figure_identifier_in_caption_or_heading",
+          "main_text_table_unreadable_due_to_width_or_wrapping",
+          "registry_atlas_discussion_not_compressed_into_clinical_themes",
+          "formal_data_lock_residue_in_manuscript_body",
           "diagnostic_or_prediction_framing_without_corresponding_design"
         ],
         "registry_descriptive_boundary": "Descriptive registry or atlas drafts may present cohort definition, availability, missingness, diagnostic ascertainment, subgroup distribution, and clinical interpretation candidates; they must route back claims that imply causal effects, population prevalence or burden, diagnostic prediction, treatment effect, or publication readiness without domain owner evidence.",

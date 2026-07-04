@@ -214,12 +214,19 @@ Red flags include:
 - selected diagnostic-field positivity described as prevalence or burden
 - figure titles, legends, captions, or section headings that claim variables
   not shown or overstate the design
+- PDF figure pages that show a figure heading with a blank figure region, or
+  figure captions that retain double identifiers such as "F1 / Figure 1: F1"
+- main-text PDF tables that are unreadable because the table is too wide,
+  over-wrapped, or should route to supplementary material
 - missingness/availability atlas too thin for the manuscript's registry-atlas
   claim
-- discussion that only defends limitations instead of explaining source
-  heterogeneity, clinical meaning, and data-quality roadmap
+- discussion that only defends limitations, enumerates too many isolated
+  findings, or fails to compress findings into registry structure, adult
+  metabolic phenotype, and subcohort clinical-depth themes
 - internal workflow, tool pipeline, or manuscript self-evaluation language in
   article body
+- residual internal phrases such as "formal analytic data-lock date remains"
+  in manuscript body text
 
 Restrained wording can reduce claim risk, but it cannot clear these red flags
 by itself.
