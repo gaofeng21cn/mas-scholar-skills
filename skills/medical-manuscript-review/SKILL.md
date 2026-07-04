@@ -256,8 +256,13 @@ Red flags include:
 - missing inclusion/exclusion flow, ethics/consent, funding, COI, or data
   availability
 - missing BMI calculation, adult/child standard, or diagnostic ascertainment
+- missing diagnostic-variable ascertainment table when disease-control,
+  hypertension, dyslipidemia, complication-burden, or phenotype labels are
+  derived from structured records
 - adult BMI classes promoted while age distribution or under-18 proportion is
   unresolved
+- adult-focused conclusions without adult/known-age sensitivity when age is
+  missing, implausible, or includes children
 - selected diagnostic-field positivity described as prevalence or burden
 - figure titles, legends, captions, or section headings that claim variables
   not shown or overstate the design

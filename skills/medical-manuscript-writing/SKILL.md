@@ -280,9 +280,12 @@ paper lacks:
   source, class mapping, and interpretation label;
 - medication-field-present or any-recorded-medication sensitivity when
   medication capture is incomplete;
+- diagnostic ascertainment table when diagnostic state, uncontrolled disease,
+  hypertension, dyslipidemia, or complication burden is derived from structured
+  records;
 - a missingness/plausibility table for phenotype-defining variables;
-- site, trajectory, calendar-year, threshold, or age sensitivity when the
-  manuscript asks for more than a local descriptive atlas;
+- site, trajectory, calendar-year, threshold, adult/known-age, or age-stratified
+  sensitivity when the manuscript asks for more than a local descriptive atlas;
 - figure/table contracts that show the medical pattern rather than only group
   counts.
 

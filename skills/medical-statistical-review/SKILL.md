@@ -154,10 +154,14 @@ discovery from group counts alone without:
   source, and class mapping;
 - medication-field-present / any-recorded-medication sensitivity when drug
   capture is incomplete;
+- diagnostic-variable ascertainment table when disease control, hypertension,
+  dyslipidemia, complication burden, or phenotype assignment depends on
+  structured diagnostic or measurement fields;
 - variable missingness and plausibility atlas for phenotype-defining fields;
 - site-level gap variability or a reason site variation is out of scope;
-- transition-category, calendar-year, threshold, or age-stratified sensitivity
-  when the text claims trajectory, service variation, or guideline priority;
+- transition-category, calendar-year, threshold, adult/known-age, or
+  age-stratified sensitivity when the text claims trajectory, service
+  variation, or guideline priority;
 - rate/count separation in figures and tables.
 
 Do not interpret selected diagnostic-field positivity, absent recorded drug
