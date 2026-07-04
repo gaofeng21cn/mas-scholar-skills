@@ -61,7 +61,8 @@ scientific-critical-thinking, Nature-style data, and reviewer-response skills:
   reproducible formula/contrast refs before trusting downstream estimates.
 
 When a statistical review needs a specialty outside the default MAS Scholar
-Skills package, such as omics statistics, single-cell analysis, Nextflow,
+Skills package, such as omics statistics, single-cell analysis, survival-model
+tooling (`scikit-survival`), classical ML (`scikit-learn` / `shap`), Nextflow,
 RDKit, PyHealth, or a named database/API workflow, first run
 `opl connect external-skills search --query "<need>" --json`, inspect the
 candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
@@ -155,6 +156,22 @@ Route back when:
 - subgroup or sensitivity claims are stronger than their design allows;
 - statistical prose claims causality, clinical deployment, or treatment benefit
   without supporting design.
+
+For prediction-model external validation, also route back when:
+
+- source-model coefficients, feature order/coding, baseline survival, unit
+  conversions, or absolute-risk extraction are not reproducible;
+- 5-year or fixed-horizon outcome handling does not state complete follow-up,
+  censoring, Kaplan-Meier/IPCW policy, or why a binary endpoint is acceptable;
+- NHANES or other complex-survey data are analyzed without an explicit
+  unweighted boundary and, when needed, a survey-weighted sensitivity plan;
+- calibration slope is extreme but not interpreted as possible effect-size
+  compression, support mismatch, or risk-scale narrowing;
+- recalibration claims are made without intercept-only and intercept+slope
+  evidence or a clear decision to leave recalibration as future work;
+- threshold utility or decision-curve claims are made without verified threshold
+  range, net-benefit calculation, calibration basis, and clinical action
+  scenario.
 
 ## Handoff Shape
 

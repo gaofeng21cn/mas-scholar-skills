@@ -21,6 +21,13 @@ repo-native verification.
   `statistical-analysis`, `statistical-power`, `experimental-design`,
   `exploratory-data-analysis`, `statsmodels`, `venue-templates`,
   `database-lookup`, `get-available-resources`, `modal`, and `nextflow`.
+- Additional source-index families checked for on-demand OPL Connect routing:
+  `pydicom`, `scikit-survival`, `scikit-learn`, `pyzotero`, `scanpy`,
+  `pydeseq2`, `scvi-tools`, `scvelo`, `rdkit`, `pathway-enrichment`,
+  `biopython`, `pysam`, `dask`, `zarr-python`, and medical imaging /
+  clinical AI / omics / chemistry / document automation entries visible in
+  the upstream skill index. These remain on-demand external candidates unless
+  MAS develops a stable professional workflow that belongs in the default pack.
 
 ## Intake Boundary
 
@@ -43,7 +50,8 @@ source that Codex may discover through OPL Connect when the default eight
 Valid MAS triggers include an explicit user request for a specialist tool or
 workflow, a route-back candidate from a default `medical-*` skill, or a MAS
 stage prompt identifying a required specialty such as omics, single-cell
-analysis, Nextflow, RDKit, PyHealth, or a named scientific database/API.
+analysis, survival-model tooling, DICOM imaging, Nextflow, RDKit, PyHealth,
+Zotero, or a named scientific database/API.
 
 Use read-only discovery first:
 
@@ -80,6 +88,10 @@ publication readiness.
 | `venue-templates` and reviewer-response workflow | Current journal instruction contract, article type, file/declaration inventory, graphical abstract only when required, reviewer-response trace | `medical-submission-prep` |
 | `database-lookup` retrieval contract | Named authoritative database, accepted identifiers, server/local filter split, pagination/count reconciliation, provenance, untrusted payload handling | `medical-data-governance` |
 | `get-available-resources`, `modal`, `nextflow` | Keep as external capability discovery or Fabric/Compute/Environment trigger; do not add to the default MAS medical-paper pack | OPL Connect / Fabric |
+| `pydicom`, imaging and PACS-related skills | Keep as on-demand external discovery for medical imaging source intake, anonymization, metadata extraction, and policy review; promote only after MAS has a stable imaging-paper workflow | OPL Connect / Fabric |
+| `scikit-survival`, `scikit-learn`, `shap`, survival / classical ML skills | Keep as on-demand external discovery for specific model validation or ML analysis tooling; default MAS stats skill owns the review contract and route-back | `medical-statistical-review` + OPL Connect |
+| `pyzotero` and reference-library automation skills | Keep as on-demand external discovery for managed library operations that exceed PubMed/source-ref planning; default Lit skill owns citation integrity and source acceptance routing | `medical-research-lit` + OPL Connect |
+| `scanpy`, `pydeseq2`, `scvi-tools`, `scvelo`, `biopython`, `pysam`, pathway and omics skills | Keep as on-demand external discovery; add a MAS omics professional skill only after a stable MAS omics manuscript workflow exists | OPL Connect / Fabric |
 
 ## Explicit Rejects
 

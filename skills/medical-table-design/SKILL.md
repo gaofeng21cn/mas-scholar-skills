@@ -120,6 +120,23 @@ Check:
 - table body avoids internal workflow labels and runtime names;
 - main tables are not overloaded with supplementary-only detail.
 
+For prediction-model external-validation manuscripts, require table shells to
+separate three jobs instead of compressing them into prose:
+
+- Table 1: development and validation cohort characteristics, endpoint counts,
+  key predictor distributions, units, missingness or available N, and SMD or a
+  clear reason SMD cannot be computed;
+- Table 2: validation performance, including validation N, event count, mean
+  predicted risk, observed risk, C-statistic, O:E, Brier or prediction error,
+  calibration intercept/slope, and uncertainty where available;
+- grouped calibration table: group or decile, N, events, mean predicted risk,
+  observed risk with interval, and O:E or risk difference when it supports the
+  central claim.
+
+If development-cohort individual data are unavailable, make the source of
+summary statistics explicit and route missing rows to review or human gate
+rather than inventing comparable Table 1 cells.
+
 ## Handoff Shape
 
 Return refs-only candidate output:

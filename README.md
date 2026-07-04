@@ -98,7 +98,7 @@ The specialist-skill floor also absorbs maintainable patterns from `K-Dense-AI/s
 
 These additions improve progress without forcing agents to install external runtimes first. They add reviewable candidate surfaces such as visual QA previews, citation verification, claim-evidence maps, submission sanity refs, source lineage, and data lifecycle refs; they do not bypass MAS or another domain owner gate.
 
-The K-Dense-specific intake map is documented in [K-Dense scientific-agent-skills intake](./docs/kdense-scientific-agent-skills-intake.md). It records which patterns landed in the eight real `medical-*` skills and which foreign defaults remain rejected.
+The K-Dense-specific intake map is documented in [K-Dense scientific-agent-skills intake](./docs/kdense-scientific-agent-skills-intake.md). It records which patterns landed in the eight real `medical-*` skills, which biomedical specialist families stay discoverable through OPL Connect on demand, and which foreign defaults remain rejected.
 
 ## Default Boundary Defense
 

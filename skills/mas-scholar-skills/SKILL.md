@@ -75,7 +75,9 @@ The local install is refs-only and authority false. It may include this Skill en
 Use OPL Connect external-skill discovery only when the default eight `medical-*`
 skills do not cover a named scientific specialty, tool, database, API, or
 workflow, such as omics, single-cell analysis, Nextflow, RDKit, PyHealth, or a
-specialized database connector.
+specialized database connector. Typical on-demand candidates include `scanpy`,
+`pydeseq2`, `scikit-survival`, `pydicom`, `pyzotero`, `rdkit`, `nextflow`, and
+specialized database/API skills.
 
 Start read-only:
 

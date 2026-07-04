@@ -114,6 +114,22 @@ before drawing. If MAS or the user has not fixed a backend, recommend one from
 the paper-local contract and record the reason; once recorded, keep it exclusive
 for rendering, preview, export, and visual QA.
 
+For prediction-model external-validation figures, keep the figure grammar tied
+to the validation question:
+
+- show discrimination, absolute calibration, and risk distribution/support as
+  separate visual jobs unless a contract proves a combined panel is clearer;
+- when development-cohort risk bins collapse in the validation cohort, split
+  occupancy by development bins from validation-cohort self-quantile grouped
+  calibration rather than labeling one as the other;
+- show observed and predicted risk with denominators or intervals when grouped
+  calibration carries the claim;
+- do not keep a decision-curve or threshold-utility figure unless the accepted
+  evidence includes threshold range, net benefit, calibration basis, and a
+  clinical action scenario;
+- avoid governance cards or process-summary panels when numeric calibration,
+  support overlap, or risk-scale compression is the scientific point.
+
 ## MAS Authority Boundary
 
 Use MAS owner surfaces before declaring a figure accepted:

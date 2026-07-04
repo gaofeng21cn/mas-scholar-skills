@@ -182,6 +182,35 @@ If reference context or citation ledger refs are missing, record that as a
 review blocker and create a citation repair request. Do not fill the gap with
 memory-only claims.
 
+## Prediction Model External Validation Review
+
+For prediction-model external-validation manuscripts, run a specific review
+lane before clearing draft, paper, or submission readiness. Major or blocker
+findings include:
+
+- unclear source-model origin, missing equation, missing coefficient table,
+  missing predictor coding, or missing baseline survival / absolute-risk
+  extraction;
+- validation cohort described without source years, eligibility, diabetes or
+  disease definition, endpoint ascertainment, follow-up completeness, censoring
+  policy, missingness, or survey-weighting policy when relevant;
+- discrimination reported as if it proves calibrated absolute risk;
+- calibration slope, O:E, Brier score, grouped calibration, or recalibration
+  claims lacking uncertainty or denominator support;
+- risk groups that mix development-cohort bins with validation self-quantiles
+  without showing occupancy and calibration separately;
+- decision-curve or threshold-utility figures shown while Methods/Results say
+  clinical utility was not estimated, or while severe miscalibration makes the
+  threshold basis unverified;
+- discussion that stops at "transportability failed" without explaining the
+  bounded interpretation, case-mix/support possibilities, baseline-risk
+  mismatch, and why clinical deployment or absolute-risk communication is not
+  supported.
+
+Route these findings to `medical-statistical-review`, `medical-table-design`,
+`medical-figure-design`, `medical-manuscript-writing`, `analysis-campaign`, or
+human gate as appropriate. Do not smooth them into prose-only caveats.
+
 ## SCI Clinical Registry Review
 
 For observational, cohort, registry, real-world, or descriptive atlas

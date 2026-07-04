@@ -238,6 +238,30 @@ candidate predictors, missing-data handling, model family, tuning, validation,
 calibration, uncertainty, and clinical utility before claiming package
 readiness.
 
+For prediction-model external-validation manuscripts, the first complete draft
+must read as an external-validation paper rather than a brief metric note. It
+should include:
+
+- source-model provenance, full equation or coefficient table, predictor coding,
+  unit conversions, and baseline survival or absolute-risk extraction;
+- validation-cohort source years, eligibility, endpoint ascertainment, follow-up
+  completeness or censoring policy, missing-data strategy, and weighting policy;
+- visible Table 1 cohort comparison, Table 2 validation metrics, and a grouped
+  calibration table when grouped calibration drives the claim;
+- discrimination and calibration reported separately, with uncertainty for
+  C-statistic, observed/expected ratio, Brier or prediction error, calibration
+  intercept/slope, and grouped observed risk where available;
+- plain-language interpretation of risk-scale compression when predicted risk
+  occupies a narrow range but observed risk separates across groups;
+- recalibration or model-updating policy stated as future/required work unless
+  verified recalibration evidence is already accepted;
+- decision-curve or threshold-utility displays omitted unless threshold range,
+  net-benefit calculation, and calibration basis are verified.
+
+If any of these items are missing, route the gap to statistical review, table
+design, figure design, analysis-campaign, or a MAS owner gate before writing a
+submission-shaped conclusion.
+
 For registry, real-world, phenotype-atlas, or descriptive manuscripts, use
 recorded/available diagnostic fields and denominators carefully. Do not promote
 selected positive fields, missingness, or source availability as prevalence,

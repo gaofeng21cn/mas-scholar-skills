@@ -98,7 +98,7 @@ ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figur
 
 这些优化优先进度：智能体不需要先安装外部 runtime 才能继续推进。它们增加的是可审阅候选面，例如视觉 QA 预览、引用核查、claim-evidence map、投稿 sanity refs、数据 lineage 和 lifecycle refs；不能绕过 MAS 或其他领域负责人的 owner gate。
 
-K-Dense 专项吸收映射记录在 [K-Dense intake 文档](./docs/kdense-scientific-agent-skills-intake.md)，说明哪些模式已落到八个真实医学专业 Skill，哪些外部默认保持拒绝。
+K-Dense 专项吸收映射记录在 [K-Dense intake 文档](./docs/kdense-scientific-agent-skills-intake.md)，说明哪些模式已落到八个真实医学专业 Skill，哪些生物医学专科能力通过 OPL Connect 保持按需发现，哪些外部默认保持拒绝。
 
 ## 默认边界防线
 
