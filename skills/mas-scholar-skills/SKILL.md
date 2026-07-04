@@ -25,7 +25,7 @@ MAS overlay or stage operating prompt
   -> MAS owner gate consume / reject / route back
 ```
 
-MAS Scholar Skills can improve the material those MAS skills use. It cannot replace the MAS overlay, issue MAS owner receipts, create typed blockers, update ledgers, mutate current packages, write runtime queues, or claim publication readiness.
+MAS Scholar Skills can improve the material those MAS skills use. It cannot replace the MAS overlay or cross the authority limits summarized in `docs/no-authority-boundary.md`.
 
 ## Boundary Separation
 
@@ -99,15 +99,14 @@ publication readiness, domain truth, artifact authority, or owner acceptance.
 
 ## Boundary
 
-The authority false summary is single-sourced in `docs/no-authority-boundary.md`; machine flags remain in `contracts/capability_map.json` and `contracts/scholar-skills-capability-modules.json`.
+The authority false summary is single-sourced in `docs/no-authority-boundary.md`; machine flags and routing remain in `contracts/capability_map.json` and `contracts/scholar-skills-capability-modules.json`.
 
 Active modules share the refs-only handoff family `source_pack_ref`,
 `candidate_package_ref`, `execution_receipt_ref`, and
-`owner_gate_handoff_ref`; MAS Scholar Skills may prepare candidate refs,
-quality hints, and route-back recommendations only, while downstream owners
-issue any owner receipt, typed blocker, quality verdict, acceptance, artifact
-mutation, current-package update, publication readiness, runtime readiness, or
-production readiness from their own authority surface.
+`owner_gate_handoff_ref`. MAS Scholar Skills prepares candidate refs, quality
+hints, and route-back recommendations; downstream owners issue owner receipt,
+typed blocker, quality verdict, acceptance, current-package update,
+publication readiness, runtime readiness, and production readiness decisions.
 
 ## Capability Module Classification
 
@@ -158,7 +157,7 @@ Record connector output as `pubmed_source_refs` and `pubmed_connector_invocation
 
 MAS Scholar Skills may act as the OPL FeedbackOps refs-only capability adapter for evidence profile `target_agent_feedback_external_suite`. From delivery feedback it may generate `candidate_refs`, quality hints, display/write/review capability suggestions, `route_back_candidate_ref`, and `stop_or_continue_recommendation_ref` as evidence input. MAS or OMA may consume `feedbackops_intake_ref` and route-back refs from this adapter, then issue any owner receipt, typed blocker, quality verdict, artifact mutation, or current-package update from their own authority surface.
 
-This adapter cannot sign owner receipts, create typed blockers, claim quality verdicts, write MAS/current_package, mutate domain artifacts, or claim owner acceptance, current-package authority, or publication readiness. The machine-readable policy is `feedbackops_refs_only_adapter_policy` in `contracts/scholar-skills-capability-modules.json`.
+This adapter follows the same `docs/no-authority-boundary.md` owner limits. The machine-readable policy is `feedbackops_refs_only_adapter_policy` in `contracts/scholar-skills-capability-modules.json`.
 
 For `mas-scholar-skills.review` on observational, cohort, registry, real-world, or descriptive atlas drafts, include `registry_initial_draft_quality_floor_ref` and, for medical SCI initial drafts, `scholarskills_medical_sci_initial_draft_quality_floor.v1` when relevant. It should flag missing enrollment/data-lock windows, missing inclusion/exclusion flow or ethics/consent/funding/COI/data-availability statements, undefined BMI or diagnostic ascertainment, adult/child applicability gaps, selected diagnostic-field positivity being written as prevalence or burden, figure-caption payload drift, too-thin missingness/availability atlas claims, limitation-only discussion, submission-source prose residue, workflow/tool-pipeline prose in the manuscript body, and conclusion self-evaluation instead of evidence-based clinical conclusion. The medical SCI initial-draft floor adds refs-only checks for `reference_integrity_floor_ref`, `manuscript_body_volume_floor_ref`, `figure_table_volume_and_clinical_value_ref`, `internal_report_prose_route_back_ref`, `figure_polish_alignment_ref`, and `registry_descriptive_scientific_boundary_ref`. Use these to produce review hints, `verdict_candidate`, `route_back_candidate`, and `stop_or_continue_recommendation` refs when citations are missing, references are placeholders, the body is below the expected section floor, result figures/tables are too sparse or clinically low-value, manuscript prose reads like an internal workflow report, figure-polish expectations drift from the current skill contract, or a descriptive registry paper overclaims prevalence, burden, prediction, causality, or publication readiness. Concrete route-back triggers include phrases such as "calendar enrollment period is not promoted", "this restriction is intentional", "submission metadata remain incomplete", "TRIPOD is cited only as a boundary reference", "MAS display-pack renderer", and "defensible clinical story" in manuscript body text. This is a refs-only review hint for MAS or the domain owner; it is not a quality verdict, reviewer receipt, typed blocker, owner acceptance, publication readiness claim, or current-package authority.
 
@@ -201,7 +200,7 @@ These refs follow FAIR-style metadata discipline and data package resource inven
 
 For completed projects, prefer semantic reproducibility over byte preservation of historical process bodies: keep current cohort bodies hot, migrate useful historical information into semantic reproducible capsules when documented sources and commands can reproduce important results, keep byte-level capsules only when exact restore is required by active analysis, legal/regulatory retention, external handoff, or an explicit owner decision, use audit-only tombstones only after an explicit owner waiver, and delete covered raw history and rebuildable caches.
 
-Every module should expose the standard refs-only handoff family when materialized: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`. These are handoff refs only; they do not sign an owner receipt, create a typed blocker, authorize publication readiness, or make MAS Scholar Skills a domain owner.
+Every module should expose the standard refs-only handoff family when materialized: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`. These are handoff refs only; the owner-authority limits stay centralized in `docs/no-authority-boundary.md`.
 
 ## CLI
 

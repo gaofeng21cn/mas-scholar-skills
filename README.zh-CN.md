@@ -26,7 +26,7 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
 
 MAS 的 stage 主提示词留在 MAS domain-agent 仓：canonical stage source 是 MAS `agent/stages/` 和 `agent/prompts/`。MAS overlay Skill、工作区或 quest 内 `.codex/skills/` 同步副本是 Codex discovery projection / 兼容面，不是 stage authority 的源头；这个同步动作本身必须保留，因为 Codex 依靠 `.codex/skills/` 稳定发现本地技能。`write`、`review`、`figure`、`scout` 等阶段负责什么时候进入、证据够不够、交给谁、怎样 route-back、什么算 owner gate。本仓八个 `medical-*` 技能负责把已经分配下来的写作、审稿、图件、文献、统计、表格、投稿和临床数据治理任务做得更专业。
 
-简单说：MAS Scholar Skills 负责把“可以帮忙做什么、需要什么材料、会交出什么候选结果、最后由谁确认”讲清楚。最终论文真相、成果采纳、质量判断和投稿决策仍然回到对应的领域负责人或智能体。
+简单说：MAS Scholar Skills 负责把“可以帮忙做什么、需要什么材料、会交出什么候选结果、最后由谁确认”讲清楚。公共 owner 边界统一看 [No-Authority Boundary](./docs/no-authority-boundary.md)；机器路由和 false-authority 标记以 `contracts/capability_map.json` 为准。
 
 运行原则是 progress-first 和 AI auto-judgment-first。MAS 不是“AI 只执行、人类才判断”：只要现有证据足够形成候选判断，AI 就应继续给出 AI-consumable evidence、`verdict_candidate`、`route_back_candidate` 和 stop/continue recommendations。只有下一步会越权写入 domain truth、publication readiness、owner receipt、typed blocker，或遇到真实 human gate，才交回 domain owner 或人类。
 
@@ -71,7 +71,7 @@ MAS Scholar Skills 的设计目标是把这些可复用支持材料变成 active
 - 候选结果可以进入后续人工或领域智能体审阅，但不能自动升级为论文事实。
 - 同一个能力包可以同步到不同 MAS 工作区或 quest，而不复制第二套 source of truth。
 
-这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。共同的 refs-only / no-authority 规则见 [No-Authority Boundary](./docs/no-authority-boundary.md)。
+这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。共同的 refs-only / no-authority 规则见 [No-Authority Boundary](./docs/no-authority-boundary.md)，各模块不再重复展开同一套边界清单。
 
 ## Active 专业模块
 
@@ -136,7 +136,7 @@ alias/provenance entry。
 - 本仓维护可分发的 Codex 插件和技能入口、MAS 消费的医学写作/审阅/图件/文献/统计/表格/投稿/数据治理专业 skill、八模块 active 目录、图库人审包和说明文档。
 - OPL Framework 维护可执行命令、同步、运行环境桥接、Connect/Fabric 资源能力和工作台动作。
 - MAS overlay 仍是 runtime owner 入口。MAS 在本仓外维护 stage 主提示词，并从本仓消费八个可同步 `medical-*` 专业 skill。
-- MAS Scholar Skills 的输出只能作为候选引用、候选包或审阅提示；[No-Authority Boundary](./docs/no-authority-boundary.md) 是 owner receipt、typed blocker、publication readiness、current package、artifact authority 和 owner acceptance 限制的公共引用。
+- MAS Scholar Skills 的输出只能作为候选引用、候选包或审阅提示；[No-Authority Boundary](./docs/no-authority-boundary.md) 是公共 owner 边界引用，`contracts/capability_map.json` 是机器可读路由和 false-authority 来源。
 
 <details>
   <summary><strong>给技术操作者看的入口</strong></summary>

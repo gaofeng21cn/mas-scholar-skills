@@ -26,7 +26,7 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
 
 The MAS stage operating prompts stay in the MAS domain-agent repository. The canonical stage sources are MAS `agent/stages/` and `agent/prompts/`; MAS overlay Skills and workspace or quest `.codex/skills/` copies are Codex discovery projections and compatibility surfaces, not the source of stage authority. That sync step must stay because Codex discovers local skills through `.codex/skills/`. `write`, `review`, `figure`, `scout`, and related stages decide when the stage is valid, what evidence is enough, where the output goes next, what routes back, and what needs an owner gate. The eight `medical-*` skills in this repository are professional skills for doing the assigned writing, review, figure, literature, statistics, table, submission, and clinical data governance work well.
 
-In practical terms, MAS Scholar Skills says what each capability can help with, what material it needs, what candidate handoff it can prepare, and who must review the result. The domain owner still owns study truth, artifact authority, quality judgment, acceptance, and publication decisions.
+In practical terms, MAS Scholar Skills says what each capability can help with, what material it needs, what candidate handoff it can prepare, and who must review the result. The reusable owner-boundary summary is [No-Authority Boundary](./docs/no-authority-boundary.md); machine routing and false-authority flags live in `contracts/capability_map.json`.
 
 The operating rule is progress-first and AI auto-judgment-first. MAS should let AI judge everything that can be judged from available evidence, and MAS Scholar Skills should supply AI-consumable evidence, `verdict_candidate`, `route_back_candidate`, and stop/continue recommendations. Work goes to the domain owner or human only when the next action would cross into domain truth, publication readiness, owner receipt, typed blocker creation, or a real human gate.
 
@@ -73,7 +73,7 @@ MAS Scholar Skills turns the reusable support material into active professional 
 - Candidate outputs can move into human or domain-agent review, but they do not become paper truth by themselves.
 - The same skill pack can be synced into different MAS workspaces or quests without copying a second source of truth.
 
-The design keeps reuse and responsibility separate: MAS Scholar Skills prepares the handoff; the domain owner decides what is accepted. The shared refs-only/no-authority rule lives in [No-Authority Boundary](./docs/no-authority-boundary.md).
+The design keeps reuse and responsibility separate: MAS Scholar Skills prepares the handoff; the domain owner decides what is accepted. Use [No-Authority Boundary](./docs/no-authority-boundary.md) for the shared refs-only/no-authority rule instead of restating it in each module.
 
 ## Active Professional Modules
 
@@ -136,7 +136,7 @@ The gallery keeps only the final review package. Renderer intermediates, single-
 - This repository owns the distributable Codex plugin/Skills, the MAS-consumed medical writing/review/figure/literature/statistics/table/submission/data-governance professional skills, the eight-module active capability catalog, the gallery review package, and human-readable guidance.
 - OPL Framework owns executable commands, sync, runtime environment bridges, Connect/Fabric resource plumbing, and workbench actions.
 - MAS overlay remains the runtime owner entry. MAS maintains the stage operating prompts outside this repository and consumes the eight syncable `medical-*` professional specialist skills from this repository.
-- MAS Scholar Skills outputs are candidate refs, candidate packages, or review hints only; [No-Authority Boundary](./docs/no-authority-boundary.md) is the common reference for owner receipt, typed blocker, publication readiness, current package, artifact authority, and owner acceptance limits.
+- MAS Scholar Skills outputs are candidate refs, candidate packages, or review hints only; [No-Authority Boundary](./docs/no-authority-boundary.md) is the common owner-boundary reference, and `contracts/capability_map.json` is the machine-readable routing and false-authority source.
 
 <details>
   <summary><strong>Technical Operator Entry</strong></summary>
