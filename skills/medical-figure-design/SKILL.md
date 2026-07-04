@@ -67,6 +67,14 @@ and verify accessibility and source-data traceability. They do not create a
 requirement to use Python or generate extra figures when MAS has chosen another
 paper-local renderer.
 
+K-Dense `scientific-schematics` and `infographics` contribute a useful
+schematic discipline for mechanism, workflow, and graphical-abstract candidates:
+define the message hierarchy, separate evidence-bearing panels from explanatory
+illustration, preserve source refs for every quantitative element, and keep
+icons or simplified shapes subordinate to the manuscript claim. Use this only
+when the figure contract calls for a schematic or explanatory shell; do not turn
+an evidence figure into a decorative infographic.
+
 For a concrete lightweight handoff shape, read
 `references/professional-quality-ref-templates.md` and use
 `figure_contract_template_ref` plus `panel_evidence_chain_ref`. The template is
@@ -218,6 +226,8 @@ Record the selected grammar in a figure manifest before polishing:
 - statistics and annotations
 - renderer family
 - plotting library and version when Python is used
+- schematic or infographic role, if any, with explicit evidence-bearing versus
+  explanatory-only panel boundaries
 - exports
 - QA checks
 - owner-gate status
@@ -271,6 +281,8 @@ Check:
 - text size after likely manuscript scaling
 - overlap, truncation, clipped legends, duplicate titles, and prose cards
 - whether every visible claim is supported by evidence refs
+- whether schematic icons, arrows, or explanatory simplifications preserve the
+  evidence boundary instead of implying unshown mechanism or causality
 - grayscale and color-vision robustness for categorical encodings
 - avoidance of misleading palettes such as rainbow/jet for ordered scientific
   data

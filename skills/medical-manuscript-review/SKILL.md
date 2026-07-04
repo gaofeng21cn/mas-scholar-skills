@@ -111,6 +111,13 @@ external validity, construct validity, statistical conclusion validity, bias,
 confounding, reproducibility, ethics, and reporting-standard problems when the
 manuscript evidence supports the concern.
 
+K-Dense `scholar-evaluation` contributes evaluation discipline for positioning,
+novelty, rigor, and likely reviewer reception. Use it to make the review
+decision more explicit: separate "interesting but unsupported", "technically
+adequate but low contribution", "clinically useful but under-explained", and
+"submission-fit issue" findings. These are route-back labels, not editorial
+accept/reject decisions.
+
 For claim/citation disputes, read
 `references/professional-quality-ref-templates.md` and use
 `claim_citation_quality_loop_ref` plus `citation_quality_action_matrix_ref`.
@@ -141,6 +148,9 @@ For important manuscripts, include three reviewer lanes:
 - `validity_bias_lane`: internal/external/construct/statistical validity,
   confounding, selection bias, measurement bias, attrition, selective reporting,
   and causal overreach.
+- `scholar_evaluation_lane`: contribution, novelty, clinical usefulness,
+  reviewer reception risk, and journal-fit pressure without issuing an
+  editorial verdict.
 
 Then write `cross_review_synthesis_ref` that names consensus blockers,
 divergent emphases, and the narrowest next route.
@@ -279,7 +289,7 @@ Write findings as an action matrix. Each row should include:
 - readiness label blocked: `draft-ready`, `paper-ready`, or `submission-ready`
 - owner surface that must record closure
 - reviewer lane: `technical`, `significance`, `reader`, `citation`,
-  `display`, `submission`, or `validity_bias`
+  `display`, `submission`, `validity_bias`, or `scholar_evaluation`
 - required evidence to close, not just suggested wording
 
 The matrix should be specific enough for another executor to continue without

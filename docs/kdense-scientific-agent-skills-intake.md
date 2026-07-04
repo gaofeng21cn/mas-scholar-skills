@@ -15,10 +15,12 @@ repo-native verification.
 - Source: `/tmp/kdense-scientific-agent-skills`
 - Commit: `1e024ea8547ada12039edbe8197aaa959d97763f`
 - Relevant skills inspected: `scientific-writing`, `peer-review`,
-  `scientific-critical-thinking`, `literature-review`, `paper-lookup`,
-  `citation-management`, `scientific-visualization`, `matplotlib`, `seaborn`,
+  `scientific-critical-thinking`, `scholar-evaluation`, `literature-review`,
+  `paper-lookup`, `citation-management`, `scientific-visualization`,
+  `matplotlib`, `seaborn`, `scientific-schematics`, `infographics`,
   `statistical-analysis`, `statistical-power`, `experimental-design`,
-  `venue-templates`, and `database-lookup`.
+  `exploratory-data-analysis`, `statsmodels`, `venue-templates`,
+  `database-lookup`, `get-available-resources`, `modal`, and `nextflow`.
 
 ## Intake Boundary
 
@@ -69,12 +71,15 @@ publication readiness.
 | --- | --- | --- |
 | `scientific-writing` two-stage outline to prose, IMRAD, citation style, reporting guidelines | Argument/reader contract, section outline, paragraph job map, final full-prose rule, reporting and citation checks | `medical-manuscript-writing` |
 | `peer-review` plus `scientific-critical-thinking` validity, bias, evidence-quality, reproducibility, ethics, and reviewer calibration | Review fact base, validity/bias grid, reviewer lanes, action matrix, venue-calibrated but non-editorial route-back | `medical-manuscript-review` |
+| `scholar-evaluation` | Contribution, novelty, clinical usefulness, reviewer reception risk, and journal-fit pressure as route-back labels, not editorial decisions | `medical-manuscript-review` |
 | `literature-review`, `paper-lookup`, `citation-management` | Retrieval contract, source routing, multi-source fallback, identifier verification, dedupe, retain/reject/watchlist screening, claim-support matrix | `medical-research-lit` |
 | `scientific-visualization`, `matplotlib`, `seaborn` | Plot-selection contract, stable renderer decision, final-size export QA, color/grayscale accessibility, source-data and statistical annotation trace | `medical-figure-design` |
-| `statistical-analysis`, `statistical-power`, `experimental-design` | Design unit, estimand, randomization/blocking, power or MDE sensitivity, assumption diagnostics, effect-size/uncertainty, no observed-power shortcut | `medical-statistical-review` |
+| `scientific-schematics`, `infographics` | Message hierarchy, evidence-bearing versus explanatory-only panel boundary, schematic simplification guard, visual reviewer packet | `medical-figure-design` |
+| `statistical-analysis`, `statistical-power`, `experimental-design`, `exploratory-data-analysis`, `statsmodels` | Design unit, estimand, randomization/blocking, power or MDE sensitivity, EDA profile, model specification refs, assumption diagnostics, effect-size/uncertainty, no observed-power shortcut | `medical-statistical-review` |
 | Table and statistical display guidance from writing/visualization/statistics skills | Table-vs-figure decision, shell before values, exact metric/denominator trace, no p-value-only evidence, manuscript/figure consistency | `medical-table-design` |
 | `venue-templates` and reviewer-response workflow | Current journal instruction contract, article type, file/declaration inventory, graphical abstract only when required, reviewer-response trace | `medical-submission-prep` |
 | `database-lookup` retrieval contract | Named authoritative database, accepted identifiers, server/local filter split, pagination/count reconciliation, provenance, untrusted payload handling | `medical-data-governance` |
+| `get-available-resources`, `modal`, `nextflow` | Keep as external capability discovery or Fabric/Compute/Environment trigger; do not add to the default MAS medical-paper pack | OPL Connect / Fabric |
 
 ## Explicit Rejects
 

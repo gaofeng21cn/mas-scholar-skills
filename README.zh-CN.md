@@ -36,7 +36,7 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 
 文献工作现在使用稳定的 OPL Connect PubMed 路径：`medical-research-lit` 负责检索策略、来源筛选、证据地图和 MAS 回流交接；`opl connect pubmed search --query <query> --limit <n> --json` 负责只读 PubMed 访问，并返回 `pubmed_source_refs` 与 `pubmed_connector_invocation_ref`。
 
-当前专业质量地板集中在这八个真 Skill：图件、写作、审阅和文献继续保持 AI-first contract；统计审阅补上 estimand、denominator、assumption、effect-size、multiplicity 和 action matrix；表格设计补上 table shell、source metric、denominator、footnote、QC 和 table-to-claim；投稿准备补上 journal instruction、reporting checklist、declaration、data/code availability、reviewer response 和 package consistency；数据治理补上临床数据 manifest、dictionary/codebook、清洗归一化 readiness、版本影响、study binding、privacy/access 和 lifecycle guardrail。
+当前专业质量地板集中在这八个真 Skill：图件、写作、审阅和文献继续保持 AI-first contract；图件设计在需要时补上 schematic / infographic 的证据边界；审阅补上 scholar-evaluation lane，用于区分贡献、创新性、临床意义、审稿人接受风险和期刊适配压力，但不生成编辑结论；统计审阅补上 estimand、denominator、EDA profile、model specification、assumption、effect-size、multiplicity 和 action matrix；表格设计补上 table shell、source metric、denominator、footnote、QC 和 table-to-claim；投稿准备补上 journal instruction、reporting checklist、declaration、data/code availability、reviewer response 和 package consistency；数据治理补上临床数据 manifest、dictionary/codebook、清洗归一化 readiness、版本影响、study binding、privacy/access 和 lifecycle guardrail。
 
 <table>
   <tr>
@@ -90,7 +90,7 @@ MAS Scholar Skills 的设计目标是把这些可复用支持材料变成 active
 
 ARS、PaperOrchestra、Research-Paper-Writing-Skills、Paperlib、SciPilot Figure、NaturePanelForge、Marsilea 以及科研图示/资源清单里的可迁移做法，只进入 MAS Scholar Skills 的 refs-only 模块映射。落点是八个 active 模块更强的候选引用和检查清单，而不是引入第二套外部 runtime 或 truth source。
 
-专业 Skill 质量地板也吸收 `K-Dense-AI/scientific-agent-skills` 和 `Yuan1z0825/nature-skills` 中可维护的模式：可发现科研技能包、图件契约、先论证后写作、审稿事实基座、批判性思维有效性检查、来源路由与引用核验、检索契约、绘图和导出质检、统计效能与实验设计纪律、期刊指南映射、临床表格纪律、数据可用性检查、数据库来源记录和审稿回复纪律。这些模式会进入 MAS 消费的专业 Skill，而不是作为第二套 runtime 引入。
+专业 Skill 质量地板也吸收 `K-Dense-AI/scientific-agent-skills` 和 `Yuan1z0825/nature-skills` 中可维护的模式：可发现科研技能包、图件契约、schematic 边界、先论证后写作、审稿事实基座、批判性思维与 scholar-evaluation 检查、来源路由与引用核验、检索契约、绘图和导出质检、EDA / model specification 纪律、统计效能与实验设计纪律、期刊指南映射、临床表格纪律、数据可用性检查、数据库来源记录和审稿回复纪律。这些模式会进入 MAS 消费的专业 Skill，而不是作为第二套 runtime 引入。
 
 轻量模板入口见 [`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)：图件使用 `figure_contract_template_ref` / `panel_evidence_chain_ref`，文献使用 `source_ref_chain_template_ref` / `source_acceptance_decision_ref`，写作与审阅共用 `claim_citation_quality_loop_ref` / `citation_quality_action_matrix_ref`，全部保持 refs-only、no-authority。
 

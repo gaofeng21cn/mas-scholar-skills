@@ -41,23 +41,25 @@ specialist skills. The floor is adapted from fresh inspection of
 
 | Skill | Quality floor |
 | --- | --- |
-| `medical-figure-design` | Figure contract, evidence chain, archetype, renderer decision, style brief, candidate set, critic review, final-scale visual QA, and reviewer packet. |
+| `medical-figure-design` | Figure contract, evidence chain, archetype, renderer decision, schematic/infographic evidence boundary, style brief, candidate set, critic review, final-scale visual QA, and reviewer packet. |
 | `medical-manuscript-writing` | One-sentence argument, terminology ledger, paragraph job map, section contract, claim-strength calibration, citation integrity, figure/table binding, and data/code availability audit. |
-| `medical-manuscript-review` | Shared fact base, technical/significance/reader reviewer lanes, cross-review synthesis, reviewer action matrix, citation repair, revision-delta audit, and route-back closeout. |
+| `medical-manuscript-review` | Shared fact base, technical/significance/reader/validity/scholar-evaluation reviewer lanes, cross-review synthesis, reviewer action matrix, citation repair, revision-delta audit, and route-back closeout. |
 | `medical-research-lit` | PubMed-first source routing, query plan, fallback source refs, deduplication, retain/reject/watchlist screening, source verification, support-strength matrix, and citation integrity floor. |
-| `medical-statistical-review` | Statistical question, estimand/target parameter, analysis plan fit, denominator and missingness review, assumption diagnostics, effect-size and uncertainty reporting, multiplicity/sensitivity review, table/figure consistency, and statistical action matrix. |
+| `medical-statistical-review` | Statistical question, estimand/target parameter, analysis plan fit, EDA profile, model specification refs, denominator and missingness review, assumption diagnostics, effect-size and uncertainty reporting, multiplicity/sensitivity review, table/figure consistency, and statistical action matrix. |
 | `medical-table-design` | Table job, table shell, source-metric binding, denominator checks, statistical display policy, table QC, claim-table alignment, footnote/abbreviation discipline, and journal table contract. |
 | `medical-submission-prep` | Journal instruction mapping, reporting guideline checklist, declaration inventory, data/code availability, package consistency, cover-letter or reviewer-response candidates, author-input fields, and submission action matrix. |
 | `medical-data-governance` | Data asset manifest, dataset manifest, data dictionary/codebook, cleaning/normalization readiness, source lineage, version-diff impact, study binding, privacy/access tier, lifecycle/retention guardrails, and owner-gate handoff. |
 
 The K-Dense intake is landed into the same eight real skills: writing gets
 outline-to-prose and citation/reporting contracts; review gets critical
-validity/bias and venue-calibration checks; lit gets retrieval contracts and
-identifier provenance; display gets plotting/export QA from scientific
-visualization, Matplotlib, and Seaborn; stats gets power, MDE, experimental
-design, and pseudoreplication discipline; tables get table-vs-figure and
-statistical-display checks; submit gets current venue-instruction provenance;
-data governance gets database endpoint/filter/count/provenance discipline.
+validity/bias, scholar-evaluation, and venue-calibration checks; lit gets
+retrieval contracts and identifier provenance; display gets plotting/export QA
+from scientific visualization, Matplotlib, Seaborn, schematics, and
+infographics; stats gets power, MDE, experimental design, exploratory data
+analysis, statsmodels-style model specification, and pseudoreplication
+discipline; tables get table-vs-figure and statistical-display checks; submit
+gets current venue-instruction provenance; data governance gets database
+endpoint/filter/count/provenance discipline.
 
 K-Dense also seeds the external scientific Skill router. When MAS needs a
 specialized capability outside these eight skills, Codex should discover and

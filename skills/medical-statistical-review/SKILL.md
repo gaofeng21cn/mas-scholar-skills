@@ -50,6 +50,10 @@ scientific-critical-thinking, Nature-style data, and reviewer-response skills:
 - use K-Dense statistical-power and experimental-design patterns to check
   design unit, randomization, blocking, clustering, power/MDE sensitivity, and
   pseudoreplication before interpreting model output.
+- use K-Dense exploratory-data-analysis and `statsmodels` patterns as review
+  discipline: require data profiling, coding distribution checks, missingness
+  maps, influential-observation review, model specification trace, and
+  reproducible formula/contrast refs before trusting downstream estimates.
 
 When a statistical review needs a specialty outside the default MAS Scholar
 Skills package, such as omics statistics, single-cell analysis, Nextflow,
@@ -82,6 +86,12 @@ Before judging the analysis, create or refresh:
 - `effect_size_and_uncertainty_ref`: effect measure, confidence interval or
   credible interval, p-value policy, and clinically meaningful threshold.
 - `assumption_diagnostic_ref`: required diagnostics and observed concerns.
+- `eda_profile_ref`: sample size by analysis set, variable distributions,
+  missingness pattern, outlier/influence candidates, coding-system checks, and
+  implausible-value screen.
+- `model_specification_ref`: formula, link/function family, contrast coding,
+  reference groups, covariate handling, interaction policy, and software
+  package/version when a statistical library such as `statsmodels` is used.
 - `claim_strength_calibration_ref`: wording allowed by the evidence.
 
 If these refs are missing, route back before polishing statistical language.
@@ -103,13 +113,16 @@ If these refs are missing, route back before polishing statistical language.
    risks, confounding, and sample size.
 6. Require effect size and uncertainty for every inferential claim. P-values
    alone are not enough.
-7. Check assumptions and diagnostics. Name the diagnostic that supports or
+7. Inspect the exploratory data profile before accepting the model path: missing
+   data structure, implausible values, sparse levels, separation, influential
+   observations, and codebook-to-analysis mismatches.
+8. Check assumptions and diagnostics. Name the diagnostic that supports or
    weakens interpretation.
-8. Check multiplicity, subgroup, sensitivity, and robustness claims. Downgrade
+9. Check multiplicity, subgroup, sensitivity, and robustness claims. Downgrade
    exploratory or underpowered claims.
-9. Check whether figures and tables show the same estimates, denominators, and
+10. Check whether figures and tables show the same estimates, denominators, and
    uncertainty as the manuscript text.
-10. Produce a statistical action matrix and route-back candidate.
+11. Produce a statistical action matrix and route-back candidate.
 
 If a statistical method, reporting claim, guideline statement, or clinical
 interpretation needs biomedical literature support, use:
@@ -150,6 +163,8 @@ Return refs-only candidate output:
 - `power_or_mde_ref`
 - `denominator_and_missingness_ref`
 - `assumption_diagnostic_ref`
+- `eda_profile_ref`
+- `model_specification_ref`
 - `effect_size_and_uncertainty_ref`
 - `multiplicity_and_sensitivity_ref`
 - `table_figure_consistency_ref`
