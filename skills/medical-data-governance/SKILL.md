@@ -47,6 +47,21 @@ authoritative databases, separate server-side filters from local checks,
 reconcile counts when completeness matters, and keep API payloads as untrusted
 source data until MAS or the domain owner accepts them.
 
+OpenScience main `f120290` contributes local-first `claimType` +
+`graphWarnings` source traceability patterns, not data authority or a second
+skill catalog. Use refs-only `claim_type_ref` and
+`graph_warnings_ref` when a data, source-readiness, extraction, or lifecycle
+claim needs classification and unsupported, stale, circular, missing-source, or
+source/body drift warnings. Use `annotation_to_source_regeneration_ref` to map a
+reviewer annotation back to dataset manifests, dictionaries, source lineage,
+claim-evidence refs, or the missing ref family. Use
+`project_local_ledger_pointer_ref` only to record a local ledger pointer/hash and
+workspace locator for provenance. Use `skill_pack_governance_policy_ref` only
+for allowed scope, dependency/permission notes, and stage-use policy. None of
+these refs can sign source readiness, mutate data bodies, create owner receipts
+or typed blockers, claim publication readiness, or define a parallel skill
+catalog.
+
 When data governance needs a specialty outside the default MAS Scholar Skills
 package, such as omics resources, single-cell data, DICOM imaging (`pydicom`),
 Nextflow pipelines, RDKit, PyHealth, OMOP/FHIR, or a named database/API
@@ -222,6 +237,11 @@ Return refs-only candidate output:
 
 - `data_asset_manifest_ref`
 - `dataset_manifest_ref`
+- `claim_type_ref`
+- `graph_warnings_ref`
+- `annotation_to_source_regeneration_ref`
+- `project_local_ledger_pointer_ref`
+- `skill_pack_governance_policy_ref`
 - `database_retrieval_contract_ref`
 - `database_endpoint_provenance_ref`
 - `retrieval_count_reconciliation_ref`

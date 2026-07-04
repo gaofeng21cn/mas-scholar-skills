@@ -86,6 +86,20 @@ For a concrete lightweight handoff shape, read
 refs-only guidance; it is not a MAS figure artifact, visual audit receipt, owner
 receipt, typed blocker, or publication readiness surface.
 
+OpenScience main `f120290` contributes `claimType` + `graphWarnings`
+claim-warning and annotation-repair patterns for figure work, not an additional
+figure runtime or skill catalog.
+When a figure contract, caption, panel label, or reviewer annotation carries a
+scientific claim, add refs-only `claim_type_ref` and `graph_warnings_ref` to
+classify the claim and flag unsupported, stale, circular, missing-source, or
+visible-payload drift risks. If a reviewer annotation must be traced back to
+evidence, data, source, or claim-evidence refs, add
+`annotation_to_source_regeneration_ref` as a repair hint. Use
+`skill_pack_governance_policy_ref` only for allowed scope, dependency/
+permission notes, and stage-use policy. These refs do not create visual-audit
+authority, owner receipt, typed blocker, publication readiness, or a second
+skill catalog.
+
 ## Figure Contract
 
 Before writing plotting code, produce or refresh a compact contract:
@@ -342,6 +356,8 @@ Before handoff, produce a compact reviewer packet:
 - figure contract template and panel evidence chain refs
 - panel plan
 - figure contract, style brief, and renderer decision refs
+- claim type, graph warning, and annotation-to-source regeneration refs for any
+  figure claim at risk
 - selected template/backend and why it fits
 - candidate set and selected draft/final export refs
 - visual QA findings and fixes

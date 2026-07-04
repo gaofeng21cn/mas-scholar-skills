@@ -130,6 +130,24 @@ These refs let the AI reviewer recommend keep, downgrade, replace, route back,
 human gate, or stop without issuing a quality verdict, owner receipt, typed
 blocker, or publication readiness claim.
 
+OpenScience main `f120290` contributes local-first claim-warning discipline, not
+a second skill catalog. For disputed manuscript, figure/table, or citation
+claims, add refs-only `claim_type_ref` and `graph_warnings_ref` before the
+reviewer action matrix when source material permits it. Use `claimType` to
+separate descriptive, association, prediction, causal, methods, and governance
+claims; use `graphWarnings` for unsupported, stale, circular, missing-source, or
+source/body drift risks. When a reviewer annotation points at a claim gap, add
+`annotation_to_source_regeneration_ref` that maps the annotation back to source
+refs, claim-evidence refs, citation refs, or the missing ref family, then emit
+`claim_warning_route_back_candidate_ref` if repair is needed. These refs are
+review hints only: they are not reviewer receipts, MAS owner receipts, typed
+blockers, publication verdicts, or quality verdicts.
+
+`skill_pack_governance_policy_ref` may record allowed scope, dependency or
+permission notes, and stage-use policy for the synced skill pack. Do not copy an
+OpenScience skill catalog, create a new MAS default skill source, or treat this
+governance ref as owner acceptance.
+
 ## Fact Base And Reviewer Lanes
 
 Before scoring or writing findings, build `review_fact_base_ref` with:
@@ -334,6 +352,8 @@ Write findings as an action matrix. Each row should include:
 - evidence path or missing evidence path
 - citation path or missing citation path
 - claim-citation-quality loop row and citation-quality action
+- claim type, graph warnings, and annotation-to-source regeneration refs when a
+  finding depends on claim/source repair
 - domain and status for `sci_clinical_registry_review` rows
 - severity: `blocker`, `major`, `minor`, or `note`
 - disposition
@@ -386,6 +406,7 @@ Before leaving review, write or refresh a closeout packet with:
 - claim downgrades with old claim, new claim, evidence refs, and affected text
   or display locations
 - contradiction flags used, each marked as review signal only
+- claim-warning refs used, each marked as refs-only review signal
 - remaining blockers and blocked readiness label
 - reusable critique lesson, if any
 - route-back recommendation with the narrowest next route

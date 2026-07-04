@@ -70,6 +70,20 @@ then sync only that one skill into the active workspace or quest if needed.
 Keep the output as refs-only method support; it does not replace this skill,
 the analysis plan owner, or MAS statistical acceptance authority.
 
+OpenScience main `f120290` contributes a refs-only `claimType` +
+`graphWarnings` claim-warning floor for statistical claims. Add
+`claim_type_ref` when a result sentence, table, figure,
+or methods claim needs classification as descriptive, association, prediction,
+causal, methods, or governance. Add `graph_warnings_ref` for unsupported,
+stale, circular, missing-source, denominator-drift, or analysis-output/source
+drift risks. If a reviewer annotation identifies a statistical claim gap, add
+`annotation_to_source_regeneration_ref` that maps it back to analysis outputs,
+data/source refs, claim-evidence refs, or the missing ref family. Keep
+`skill_pack_governance_policy_ref` limited to allowed scope, dependency/
+permission notes, and stage-use policy. These refs can drive
+`route_back_candidate`, but cannot claim statistical conclusion, quality
+verdict, owner receipt, typed blocker, or publication readiness.
+
 ## Review Contract
 
 Before judging the analysis, create or refresh:
@@ -210,6 +224,10 @@ Return refs-only candidate output:
 - `effect_size_and_uncertainty_ref`
 - `multiplicity_and_sensitivity_ref`
 - `table_figure_consistency_ref`
+- `claim_type_ref`
+- `graph_warnings_ref`
+- `annotation_to_source_regeneration_ref`
+- `skill_pack_governance_policy_ref`
 - `statistical_action_matrix_ref`
 - `claim_strength_calibration_ref`
 - `route_back_candidate`

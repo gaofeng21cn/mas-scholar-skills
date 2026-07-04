@@ -60,14 +60,14 @@ MAS Scholar Skills 正式承接八个 active 专业模块的 MAS 增强材料 so
 
 | Skill | 新增质量要求 |
 | --- | --- |
-| `medical-figure-design` | figure contract、core conclusion、evidence chain、figure archetype、renderer decision、schematic / infographic evidence boundary、style brief、candidate set、critic review、final-scale visual QA 和 reviewer packet。 |
+| `medical-figure-design` | figure contract、core conclusion、evidence chain、figure archetype、renderer decision、schematic / infographic evidence boundary、style brief、candidate set、critic review、claimType / graphWarnings claim-drift check、annotation-to-source-regeneration repair hint、final-scale visual QA 和 reviewer packet。 |
 | `medical-manuscript-writing` | one-sentence argument、terminology ledger、paragraph job map、section contract、claim-strength calibration、citation integrity、figure/table binding、data/code availability audit。 |
-| `medical-manuscript-review` | review fact base、technical/significance/reader/validity/scholar-evaluation reviewer lanes、cross-review synthesis、reviewer action matrix、citation repair、revision delta audit、route-back closeout。 |
+| `medical-manuscript-review` | review fact base、technical/significance/reader/validity/scholar-evaluation reviewer lanes、claimType / graphWarnings claim-warning check、annotation-to-source-regeneration repair hint、cross-review synthesis、reviewer action matrix、citation repair、revision delta audit、route-back closeout。 |
 | `medical-research-lit` | PubMed-first source routing、query plan、fallback source refs、deduplication、retain/reject/watchlist screening、source verification、support-strength matrix、citation integrity floor。 |
-| `medical-statistical-review` | statistical question、estimand/target parameter、analysis plan fit、EDA profile、model specification refs、denominator/missingness、assumption diagnostics、effect size/uncertainty、multiplicity/sensitivity、statistical action matrix。 |
+| `medical-statistical-review` | statistical question、estimand/target parameter、analysis plan fit、EDA profile、model specification refs、denominator/missingness、assumption diagnostics、effect size/uncertainty、multiplicity/sensitivity、claimType / graphWarnings statistical-claim warning、annotation-to-source-regeneration repair hint、statistical action matrix。 |
 | `medical-table-design` | table job、table shell、source metric、denominator、statistical display、table QC、claim-table alignment、journal table contract。 |
 | `medical-submission-prep` | journal instruction、reporting guideline、declaration inventory、data/code availability、package consistency、reviewer response candidate、author-input fields、submission action matrix。 |
-| `medical-data-governance` | data asset manifest、dataset manifest、data dictionary/codebook、cleaning/normalization readiness、source lineage、version-diff impact、study binding、privacy/access tier、lifecycle/retention guardrail、owner-gate handoff。 |
+| `medical-data-governance` | data asset manifest、dataset manifest、data dictionary/codebook、cleaning/normalization readiness、source lineage、version-diff impact、annotation-to-source-regeneration repair hint、project-local ledger pointer/hash、claimType / graphWarnings source-warning check、study binding、privacy/access tier、lifecycle/retention guardrail、owner-gate handoff。 |
 
 K-Dense 高频模式本轮只进入这些真 Skill：写作吸收提纲到正文、引用和报告规范契约；审阅吸收有效性、偏倚、GRADE 信号、scholar-evaluation 和期刊校准；文献吸收论文检索、引用管理和检索契约；图件吸收科研可视化、Matplotlib/Seaborn 出图、schematic / infographic 边界和导出质检；统计吸收统计效能、最小可检出效应、实验设计、EDA、statsmodels-style model specification、伪重复和假设诊断；表格吸收表图取舍和统计展示纪律；投稿吸收当前期刊指南契约；数据吸收数据库检索的 endpoint、filter、count 和 provenance 契约。详见 `docs/kdense-scientific-agent-skills-intake.md`。
 
@@ -131,6 +131,8 @@ Display 的 quality floor 现在覆盖通用科研做图，不只 graphical abst
 新增外部学习同样覆盖 Tables、Stats、Lit、Write、Review、Submit、Data 和 Display 这八个 active module，并落到 refs-only module contract 与 deterministic candidate engine。进度优先：智能体可以先产出 candidate refs/checklists 并继续进入 owner gate；缺少外部 runtime 安装不阻塞推进，除非 owner 明确要求那个 runtime 生成的可执行 artifact。
 
 本轮外部学习还吸收 Parsifal、paper-search-mcp、LocalCitationNetwork、lit-review-orchestrator、AI-Scientist、FAROS 和 AutoR 的可迁移模式。落点是文献筛选/排除理由、检索与 citation graph 证据、local citation-network audit、literature-review orchestration、自动实验/写作流程中的 reviewer loop、route-back budget 和 stop/continue decision pattern；不接入这些项目的 runtime，不把它们变成 MAS authority，也不要求先安装外部服务才能推进 MAS Scholar Skills candidate refs。
+
+OpenScience main `f120290` 只作为 local-first workspace pattern source：`claimType` + `graphWarnings` 落为 Review / Display / Stats / Data 的 refs-only claim-warning quality-floor，用于提示 unsupported、stale、circular 或 missing-source 风险；`annotation-to-source-regeneration` 落为从 reviewer annotation 回到 source/data/evidence refs 的 repair hint；`skill pack governance` 只约束 pack descriptor、allowed scope、dependency/permission note 和 stage-use policy。它不复制 OpenScience skill catalog，不新增 MAS 默认 skill source，不产生 MAS owner receipt、typed blocker、publication verdict、source readiness verdict 或 current-package authority。
 
 MAS 消费 MAS Scholar Skills 时采用 `progress_first_ai_auto_judgment_first`：AI 能根据 evidence refs 判断的内容应尽量自动判断，并输出 AI-consumable evidence、`verdict_candidate`、`route_back_candidate` 和 `stop_or_continue_recommendation`。只有判断会越权到 domain truth、publication readiness、owner receipt、typed blocker、artifact authority、current package authority 或真实 human gate 时，才停止在 MAS Scholar Skills 侧并交给 MAS/domain owner。
 
