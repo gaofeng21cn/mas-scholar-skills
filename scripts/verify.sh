@@ -881,6 +881,57 @@ for key in [
     if feedbackops.get(key) is not False:
         fail(f"FeedbackOps authority flag {key} must be false")
 
+trigger = contract.get("feedback_self_evolution_trigger") or {}
+if trigger.get("surface_kind") != "opl_foundry_agent_feedback_self_evolution_trigger":
+    fail("contract missing feedback_self_evolution_trigger surface")
+if trigger.get("series_membership") != "framework_capability_package":
+    fail("feedback self evolution trigger must declare framework_capability_package membership")
+if trigger.get("policy_id") != "standard_agent_feedback_self_evolution_trigger.v1":
+    fail("feedback self evolution trigger must pin the standard policy id")
+if trigger.get("feedbackops_event_kind") != "target_agent_feedback_external_suite":
+    fail("feedback self evolution trigger must consume target_agent_feedback_external_suite")
+if trigger.get("accepted_feedback_profile") != "target_agent_feedback_external_suite":
+    fail("feedback self evolution trigger accepted profile must stay target_agent_feedback_external_suite")
+if trigger.get("adapter_kind") != "framework_capability_feedback_adapter":
+    fail("feedback self evolution trigger must expose framework_capability_feedback_adapter")
+if trigger.get("repo_fix_execution_requires_opl_developer_mode") is not True:
+    fail("feedback self evolution trigger must require OPL developer mode for repo fixes")
+require_all(
+    "feedback self evolution trigger developer mode gate refs",
+    trigger.get("developer_mode_execution_gate_refs"),
+    [
+        "opl-developer-mode:repo-fix-execution",
+        "opl-developer-mode:direct-fix-or-fork-pr-route",
+    ],
+)
+require_all(
+    "feedback self evolution trigger owner closeout readback refs",
+    trigger.get("owner_closeout_readback_refs"),
+    [
+        "contracts/scholar-skills-capability-modules.json#/feedbackops_refs_only_adapter_policy/route_back_ref_policy",
+        "contracts/capability_map.json#/owner_closeout_boundary",
+        "docs/no-authority-boundary.md",
+    ],
+)
+if trigger.get("contract_can_trigger_execution") is not False:
+    fail("feedback self evolution trigger contract must stay non-executing")
+trigger_boundary = trigger.get("authority_boundary") or {}
+for key in [
+    "refs_only",
+]:
+    if trigger_boundary.get(key) is not True:
+        fail(f"feedback self evolution trigger authority flag {key} must be true")
+for key in [
+    "can_write_domain_truth",
+    "can_mutate_artifact_body",
+    "can_authorize_quality_or_export",
+    "can_create_owner_receipt",
+    "can_create_typed_blocker",
+    "can_execute_repo_patch_without_developer_mode",
+]:
+    if trigger_boundary.get(key) is not False:
+        fail(f"feedback self evolution trigger authority flag {key} must be false")
+
 for token in [
     "docs/no-authority-boundary.md",
     "materialized_candidate_package",
@@ -893,6 +944,7 @@ for token in [
     "FeedbackOps Refs-Only Adapter",
     "target_agent_feedback_external_suite",
     "feedbackops_refs_only_adapter_policy",
+    "feedback_self_evolution_trigger",
     "medical-research-lit",
 ]:
     if token not in skill:
