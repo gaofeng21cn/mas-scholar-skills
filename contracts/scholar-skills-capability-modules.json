@@ -901,7 +901,7 @@
         "policy_id": "scholarskills_display_external_learning_refs.v1",
         "classification": "adapt_refs_only",
         "source_patterns": [
-          "Haojae/scipilot-figure-skill: argument-first chart recommendation, visual QA preview, programmatic audit, and grayscale/color-vision checks",
+          "Haojae/scipilot-figure-skill@43098ddb9e6a6d142218540c114f9ed38922fc42: data-question-first plot selection, small-n/dual-axis/pie/3D/rainbow/errorbar/chartjunk/CJK-glyph warnings, final-size export, programmatic audit, AI visual review, and grayscale/color-vision checks as refs-only hints",
           "littlepeachs/NaturePanelForge: panel image to executable plotting code review loop",
           "Marsilea-viz/marsilea: declarative composable complex heatmap and oncoprint planning",
           "Boom5426/Awesome-Virtual-Cell: curated scientific figure reference examples for style brief and visual QA",

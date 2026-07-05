@@ -72,6 +72,17 @@ and verify accessibility and source-data traceability. They do not create a
 requirement to use Python or generate extra figures when MAS has chosen another
 paper-local renderer.
 
+SciPilot Figure contributes data-question-first plot selection and visual QA
+discipline: profile the available variables, sample sizes, grouping structure,
+missingness, distributions, outliers, and intended reader question before
+choosing a chart; warn on small-n mean bars, dual axes, pie charts, 3D charts,
+rainbow/jet palettes, unexplained error bars, chartjunk, categorical lines,
+and missing continuous colorbars; inspect final-size exports; split
+programmatic QA from AI visual review; and treat CJK glyphs, special symbols,
+and negative signs as export risks. These are refs-only quality checks and
+route-back hints, not a requirement to install SciPilot, import its scripts,
+make Python the default backend, or accept any external runtime as authority.
+
 K-Dense `scientific-schematics` and `infographics` contribute a useful
 schematic discipline for mechanism, workflow, and graphical-abstract candidates:
 define the message hierarchy, separate evidence-bearing panels from explanatory
@@ -117,11 +128,13 @@ Before writing plotting code, produce or refresh a compact contract:
 - `renderer_decision_ref`: chosen renderer family, why it fits, and why
   alternatives were not used.
 - `plot_selection_ref`: why the chart type fits the variable type,
-  comparison, uncertainty, and table-vs-figure tradeoff.
+  comparison, uncertainty, sample size, distribution shape, and
+  table-vs-figure tradeoff.
 - `journal_export_contract_ref`: target size, editable text requirement,
   export formats, source-data expectation, and image-integrity notes.
 - `final_size_export_ref`: vector/raster format, DPI where raster is required,
-  final print dimensions, and text-size inspection.
+  final print dimensions, text-size inspection, and final-scale preview
+  readback.
 
 If the contract cannot name the core conclusion and evidence chain, route back
 before drawing. If MAS or the user has not fixed a backend, recommend one from
@@ -265,6 +278,8 @@ Choose the figure grammar only after intent and refs are clear.
   evidence figures.
 - Use ScholarSkills display refs as enhancement or reference material, not MAS
   owner authority.
+- Do not import SciPilot scripts, requirements, or Python helpers as authority;
+  adapt only the reusable review pattern into the paper-local renderer contract.
 - Prefer `r_ggplot2` for manuscript evidence figures when the current display
   contract supports it.
 - Use `python` or `html_svg` only when the figure class and contract allow it.
@@ -333,27 +348,46 @@ The first render is a draft, not acceptance.
 
 Open the rendered output and inspect the actual figure, not only logs or code.
 
+Keep two QA lanes separate:
+
+- `programmatic_figure_audit_ref`: deterministic checks for missing glyphs,
+  CJK/negative-sign rendering, clipped text, overlapping ticks, file format,
+  DPI, font embedding, final dimensions, and source/export traceability.
+- `visual_qa_preview_ref` / `critic_review_ref`: AI or human visual review of
+  the rasterized preview for legend/data overlap, panel alignment, visual
+  hierarchy, grayscale/color-vision separation, and whether the chart answers
+  the intended data question.
+
 Check:
 
 - whether the main comparison is obvious in a few seconds
+- whether the chart type follows the data question, variable types, grouping,
+  sample size, and distribution rather than habit or template reuse
 - labels, units, sample sizes, uncertainty, and baselines
 - panel order and visual hierarchy
 - color accessibility and grayscale robustness
 - text size after likely manuscript scaling
 - overlap, truncation, clipped legends, duplicate titles, and prose cards
+- missing glyphs, CJK tofu boxes, special-symbol loss, or negative-sign boxes
 - whether every visible claim is supported by evidence refs
 - whether schematic icons, arrows, or explanatory simplifications preserve the
   evidence boundary instead of implying unshown mechanism or causality
 - grayscale and color-vision robustness for categorical encodings
 - avoidance of misleading palettes such as rainbow/jet for ordered scientific
   data
+- avoidance of small-n mean bars, dual Y axes, pie or 3D charts, chartjunk,
+  categorical lines, unexplained error bars, and missing colorbars for
+  continuous mappings
 - figure legend consistency with visible variables, units, sample sizes, and
   statistical annotations
 - vector/source export availability or documented raster DPI reason
 - source-data and code traceability for every evidence panel
 
-Every failed check must be fixed, downgraded to a named caveat, routed back to
-the correct owner, or carried as a human gate.
+Warnings alone are not default blockers. Route back only when hard evidence
+shows missing refs, unsupported claims, unreadable or misleading visual output,
+programmatic audit failure, or an AI/human visual review failure that cannot be
+repaired inside the figure contract. Otherwise record the warning as a
+refs-only caveat or reviewer hint.
 
 ### 7. Polish
 
@@ -398,6 +432,10 @@ package work.
 
 - Do not create a figure before claim and evidence refs are named.
 - Do not switch renderer family because a package or environment fails.
+- Do not make Python, SciPilot, Matplotlib, Seaborn, SciencePlots, Plotly, or
+  any external plotting runtime the default backend unless the paper-local
+  figure contract selected it.
+- Do not import external scripts or generated checks as MAS owner authority.
 - Do not make synthetic data look like evidence.
 - Do not use ScholarSkills display refs, gallery screenshots, or template
   matches as visual quality authority.

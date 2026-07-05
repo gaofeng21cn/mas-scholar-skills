@@ -22,6 +22,8 @@ Minimum fields:
 - `panel_evidence_chain_ref`: panel-by-panel data, cohort, statistic, model,
   table, prior result, or citation refs.
 - `forbidden_claim_drift`: claims the figure must not imply.
+- `plot_selection_ref`: data-question-first chart choice using variable type,
+  grouping, sample size, distribution, uncertainty, and table-vs-figure fit.
 - `figure_archetype`: evidence grid, mechanism schematic, mixed-modality
   composite, clinical evidence summary, or image-plus-quant panel set.
 - `renderer_decision_ref`: selected renderer family and rejected alternatives.
@@ -32,13 +34,28 @@ Minimum fields:
 - `critic_review_ref`: evidence fit, readability, accessibility, export, and
   reviewer-risk findings.
 - `final_size_export_ref`: target dimensions, text size, vector/raster format,
-  DPI if raster is required, and source preservation.
+  DPI if raster is required, final-scale preview readback, and source
+  preservation.
+- `programmatic_figure_audit_ref`: deterministic audit result for missing
+  glyphs, CJK/negative-sign rendering, clipping, overlapping ticks, file
+  format, DPI, font embedding, and dimensions.
+- `visual_qa_preview_ref`: AI or human visual review of the rasterized preview
+  for legend/data overlap, panel alignment, visual hierarchy, grayscale or
+  color-vision separation, and whether the chart answers the data question.
 - `owner_gate_handoff_ref`: MAS/domain owner target for accept, reject, or
   route-back.
 
 Stop before plotting if `core_conclusion_ref` or `panel_evidence_chain_ref` is
 missing. A visual reference is a style target, not data truth or template
 authority.
+
+Warnings such as small-n mean bars, dual axes, pie or 3D charts, rainbow/jet
+palettes, unexplained error bars, chartjunk, categorical lines, or missing
+continuous colorbars remain refs-only reviewer hints unless hard evidence shows
+unsupported claims, unreadable output, or audit/visual-review failure. External
+plotting runtimes and scripts may inform the pattern, but they do not become
+the default backend, MAS authority, owner receipt, typed blocker, or publication
+readiness evidence.
 
 ## Literature Source/Ref Chain
 
