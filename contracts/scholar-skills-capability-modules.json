@@ -194,6 +194,17 @@
           "project_local_ledger_pointer_hash",
           "skill_pack_governance"
         ]
+      },
+      {
+        "repo": "Haojae/scipilot-figure-skill",
+        "commit": "43098ddb9e6a6d142218540c114f9ed38922fc42",
+        "inspected_patterns": [
+          "data_profile_before_chart_choice",
+          "plot_selection_candidate_from_reader_question",
+          "export_lint_and_final_size_grayscale_preview",
+          "programmatic_audit_separate_from_ai_visual_review",
+          "warnings_route_back_only_on_hard_evidence_fail"
+        ]
       }
     ],
     "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_submission_prep_and_data_governance_skills_first; keep_source_intake_in_OPL_Framework_or_MAS_stage_source_surfaces; add_omics_to_mas_scholar_skills_only_when_a_real_stable_professional_skill_workflow_exists",
@@ -205,12 +216,19 @@
         "evidence_chain_ref",
         "panel_evidence_chain_ref",
         "renderer_decision_ref",
+        "data_profile_ref",
         "plot_selection_ref",
+        "plot_selection_candidate_ref",
         "style_brief_ref",
         "candidate_set_ref",
         "critic_review_ref",
+        "export_lint_ref",
         "final_size_export_ref",
+        "final_size_grayscale_preview_ref",
+        "programmatic_figure_audit_ref",
+        "ai_visual_review_ref",
         "visual_qa_findings_ref",
+        "route_back_hard_evidence_ref",
         "prediction_model_validation_figure_contract_ref",
         "claim_type_ref",
         "graph_warnings_ref",
@@ -609,6 +627,18 @@
           "body_policy": "refs_only_panel_evidence_hint_requires_domain_owner_gate"
         },
         {
+          "ref_id": "data_profile_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "data_question_profile_before_plot_choice",
+          "body_policy": "refs_only_data_profile_hint_not_source_or_data_truth"
+        },
+        {
+          "ref_id": "plot_selection_candidate_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "data_question_first_plot_selection_candidate",
+          "body_policy": "refs_only_chart_choice_hint_not_renderer_or_artifact_authority"
+        },
+        {
           "ref_id": "graphical_abstract_visual_brief",
           "ref_kind": "candidate_artifact_ref",
           "role": "graphical_abstract_brief_and_storyboard",
@@ -637,6 +667,30 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "automated_figure_audit_hint",
           "body_policy": "audit_hint_requires_domain_owner_consumption"
+        },
+        {
+          "ref_id": "export_lint_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "export_format_dpi_font_dimension_traceability_lint",
+          "body_policy": "refs_only_export_lint_hint_not_submission_or_publication_authority"
+        },
+        {
+          "ref_id": "final_size_grayscale_preview_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "final_size_preview_and_grayscale_readback_hint",
+          "body_policy": "refs_only_preview_readback_not_visual_quality_verdict"
+        },
+        {
+          "ref_id": "ai_visual_review_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "ai_visual_review_separate_from_programmatic_audit",
+          "body_policy": "refs_only_ai_review_hint_not_visual_audit_authority"
+        },
+        {
+          "ref_id": "route_back_hard_evidence_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "hard_evidence_route_back_threshold_candidate",
+          "body_policy": "refs_only_route_back_hint_not_typed_blocker_or_owner_receipt"
         },
         {
           "ref_id": "grayscale_color_vision_check_ref",
@@ -716,7 +770,9 @@
           "figure_contract_template_ref",
           "figure_contract_ref",
           "panel_evidence_chain_ref",
+          "data_profile_ref",
           "plot_selection_ref",
+          "plot_selection_candidate_ref",
           "reference_selection_ref",
           "style_brief_ref",
           "dependency_run_context_ref",
@@ -726,6 +782,10 @@
           "final_size_inspection_ref",
           "visual_qa_preview_ref",
           "programmatic_figure_audit_ref",
+          "export_lint_ref",
+          "final_size_grayscale_preview_ref",
+          "ai_visual_review_ref",
+          "route_back_hard_evidence_ref",
           "grayscale_color_vision_check_ref",
           "panel_to_code_review_ref",
           "complex_heatmap_or_oncoprint_ref",
@@ -757,11 +817,15 @@
           "figure_contract_template_ref",
           "figure_contract_ref",
           "panel_evidence_chain_ref",
+          "data_profile_ref",
+          "plot_selection_candidate_ref",
           "reference_selection_ref",
           "style_brief_ref",
           "candidate_artifact_ref",
           "critic_review_ref",
           "final_size_inspection_ref",
+          "export_lint_ref",
+          "final_size_grayscale_preview_ref",
           "domain_owner_gate_ref"
         ],
         "ai_executor_freedom": "AI may choose the most suitable figure form, layout, panel hierarchy, and rendering backend from paper-local claims and evidence; this policy only raises the quality floor.",
@@ -803,6 +867,12 @@
             "pattern": "small hard plotting rules for vector export, color, size, typography, and parameter blocks"
           },
           {
+            "source": "Haojae/scipilot-figure-skill",
+            "observed_head": "43098ddb9e6a6d142218540c114f9ed38922fc42",
+            "classification": "adapt_refs_only",
+            "pattern": "data profile, plot selection candidate, export lint, final-size grayscale preview, and programmatic-vs-AI visual review split as non-authority refs"
+          },
+          {
             "source": "OpenScience",
             "observed_head": "f120290",
             "classification": "adapt_refs_only",
@@ -823,16 +893,22 @@
             "figure_contract_before_plotting",
             "figure_contract_template_before_plotting",
             "panel_evidence_chain_before_candidate_render",
+            "data_profile_before_plot_selection",
+            "plot_selection_candidate_before_render",
             "reference_selection_and_style_brief",
             "candidate_generation_before_owner_gate",
             "critic_review_or_route_back",
             "reference_target_preserve_list",
             "final_size_readability_inspection",
+            "export_lint_before_owner_handoff",
+            "final_size_grayscale_preview_before_owner_gate",
             "vector_export_when_possible",
             "semantic_palette_and_color_vision_check",
             "source_data_statistics_and_claim_refs_preserved",
             "visual_qa_preview_before_owner_gate",
             "programmatic_figure_audit_before_gallery_use",
+            "programmatic_audit_split_from_ai_visual_review",
+            "route_back_only_on_hard_evidence_fail",
             "grayscale_and_color_vision_check",
             "panel_to_code_review_for_reproducibility",
             "complex_heatmap_or_oncoprint_composable_plan",
@@ -847,6 +923,8 @@
             "figure_contract_template_ref",
             "figure_contract_ref",
             "panel_evidence_chain_ref",
+            "data_profile_ref",
+            "plot_selection_candidate_ref",
             "reference_selection_ref",
             "style_brief_ref",
             "candidate_artifact_ref",
@@ -856,6 +934,10 @@
             "domain_owner_gate_ref",
             "visual_qa_preview_ref",
             "programmatic_figure_audit_ref",
+            "export_lint_ref",
+            "final_size_grayscale_preview_ref",
+            "ai_visual_review_ref",
+            "route_back_hard_evidence_ref",
             "grayscale_color_vision_check_ref",
             "panel_to_code_review_ref",
             "complex_heatmap_or_oncoprint_ref",
@@ -901,7 +983,7 @@
         "policy_id": "scholarskills_display_external_learning_refs.v1",
         "classification": "adapt_refs_only",
         "source_patterns": [
-          "Haojae/scipilot-figure-skill@43098ddb9e6a6d142218540c114f9ed38922fc42: data-question-first plot selection, small-n/dual-axis/pie/3D/rainbow/errorbar/chartjunk/CJK-glyph warnings, final-size export, programmatic audit, AI visual review, and grayscale/color-vision checks as refs-only hints",
+          "Haojae/scipilot-figure-skill@43098ddb9e6a6d142218540c114f9ed38922fc42: data_profile_ref, plot_selection_candidate_ref, export_lint_ref, final_size_grayscale_preview_ref, programmatic_figure_audit_ref, ai_visual_review_ref, and route_back_hard_evidence_ref as refs-only hints",
           "littlepeachs/NaturePanelForge: panel image to executable plotting code review loop",
           "Marsilea-viz/marsilea: declarative composable complex heatmap and oncoprint planning",
           "Boom5426/Awesome-Virtual-Cell: curated scientific figure reference examples for style brief and visual QA",
@@ -910,6 +992,12 @@
         "required_ref_shapes": [
           "visual_qa_preview_ref",
           "programmatic_figure_audit_ref",
+          "data_profile_ref",
+          "plot_selection_candidate_ref",
+          "export_lint_ref",
+          "final_size_grayscale_preview_ref",
+          "ai_visual_review_ref",
+          "route_back_hard_evidence_ref",
           "grayscale_color_vision_check_ref",
           "panel_to_code_review_ref",
           "complex_heatmap_or_oncoprint_ref",

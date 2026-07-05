@@ -22,8 +22,13 @@ Minimum fields:
 - `panel_evidence_chain_ref`: panel-by-panel data, cohort, statistic, model,
   table, prior result, or citation refs.
 - `forbidden_claim_drift`: claims the figure must not imply.
+- `data_profile_ref`: variable types, usable n, grouping structure, missingness,
+  distribution shape, outliers, and the intended reader question.
 - `plot_selection_ref`: data-question-first chart choice using variable type,
   grouping, sample size, distribution, uncertainty, and table-vs-figure fit.
+- `plot_selection_candidate_ref`: refs-only chart recommendation plus warnings
+  such as small-n mean bars, dual axes, pie/3D charts, rainbow/jet palettes,
+  unexplained error bars, chartjunk, categorical lines, and missing colorbars.
 - `figure_archetype`: evidence grid, mechanism schematic, mixed-modality
   composite, clinical evidence summary, or image-plus-quant panel set.
 - `renderer_decision_ref`: selected renderer family and rejected alternatives.
@@ -36,12 +41,21 @@ Minimum fields:
 - `final_size_export_ref`: target dimensions, text size, vector/raster format,
   DPI if raster is required, final-scale preview readback, and source
   preservation.
+- `export_lint_ref`: file format, DPI, font embedding, final dimensions,
+  CJK/symbol/negative-sign glyph risk, clipping, and source/export traceability.
+- `final_size_grayscale_preview_ref`: final-size raster preview and grayscale or
+  color-vision separation readback.
 - `programmatic_figure_audit_ref`: deterministic audit result for missing
   glyphs, CJK/negative-sign rendering, clipping, overlapping ticks, file
   format, DPI, font embedding, and dimensions.
 - `visual_qa_preview_ref`: AI or human visual review of the rasterized preview
   for legend/data overlap, panel alignment, visual hierarchy, grayscale or
   color-vision separation, and whether the chart answers the data question.
+- `ai_visual_review_ref`: AI visual-review findings kept separate from
+  deterministic export/programmatic audit results.
+- `route_back_hard_evidence_ref`: only missing source/data/evidence refs,
+  unsupported claims, unreadable output, or export lint/programmatic/visual
+  review FAIL conditions that cannot be repaired inside the figure contract.
 - `owner_gate_handoff_ref`: MAS/domain owner target for accept, reject, or
   route-back.
 
@@ -52,10 +66,10 @@ authority.
 Warnings such as small-n mean bars, dual axes, pie or 3D charts, rainbow/jet
 palettes, unexplained error bars, chartjunk, categorical lines, or missing
 continuous colorbars remain refs-only reviewer hints unless hard evidence shows
-unsupported claims, unreadable output, or audit/visual-review failure. External
-plotting runtimes and scripts may inform the pattern, but they do not become
-the default backend, MAS authority, owner receipt, typed blocker, or publication
-readiness evidence.
+missing source/data/evidence refs, unsupported claims, unreadable output, or
+export lint/programmatic/visual-review failure. External plotting runtimes and
+scripts may inform the pattern, but they do not become the default backend, MAS
+authority, owner receipt, typed blocker, or publication readiness evidence.
 
 ## Literature Source/Ref Chain
 

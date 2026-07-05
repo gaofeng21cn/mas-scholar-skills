@@ -73,15 +73,18 @@ requirement to use Python or generate extra figures when MAS has chosen another
 paper-local renderer.
 
 SciPilot Figure contributes data-question-first plot selection and visual QA
-discipline: profile the available variables, sample sizes, grouping structure,
-missingness, distributions, outliers, and intended reader question before
-choosing a chart; warn on small-n mean bars, dual axes, pie charts, 3D charts,
-rainbow/jet palettes, unexplained error bars, chartjunk, categorical lines,
-and missing continuous colorbars; inspect final-size exports; split
-programmatic QA from AI visual review; and treat CJK glyphs, special symbols,
-and negative signs as export risks. These are refs-only quality checks and
-route-back hints, not a requirement to install SciPilot, import its scripts,
-make Python the default backend, or accept any external runtime as authority.
+discipline: use `data_profile_ref` to profile variables, sample sizes, grouping
+structure, missingness, distributions, outliers, and the intended reader
+question before choosing a chart; record `plot_selection_candidate_ref` for the
+chart choice; warn on small-n mean bars, dual axes, pie charts, 3D charts,
+rainbow/jet palettes, unexplained error bars, chartjunk, categorical lines, and
+missing continuous colorbars; use `export_lint_ref` plus
+`final_size_grayscale_preview_ref` to inspect final-size exports; split
+`programmatic_figure_audit_ref` from `ai_visual_review_ref`; and treat CJK
+glyphs, special symbols, and negative signs as export risks. These are
+refs-only quality checks and route-back hints, not a requirement to install
+SciPilot, import its scripts, make Python the default backend, or accept any
+external runtime as authority.
 
 K-Dense `scientific-schematics` and `infographics` contribute a useful
 schematic discipline for mechanism, workflow, and graphical-abstract candidates:
@@ -127,14 +130,23 @@ Before writing plotting code, produce or refresh a compact contract:
   `clinical_evidence_summary`.
 - `renderer_decision_ref`: chosen renderer family, why it fits, and why
   alternatives were not used.
+- `data_profile_ref`: variable types, usable sample sizes, grouping structure,
+  missingness, distribution shape, outliers, and the intended reader question.
 - `plot_selection_ref`: why the chart type fits the variable type,
   comparison, uncertainty, sample size, distribution shape, and
   table-vs-figure tradeoff.
+- `plot_selection_candidate_ref`: refs-only chart choice candidate, including
+  warnings that should remain reviewer hints unless they hit the route-back
+  threshold.
 - `journal_export_contract_ref`: target size, editable text requirement,
   export formats, source-data expectation, and image-integrity notes.
+- `export_lint_ref`: format, DPI, font embedding, dimensions, CJK/symbol glyph,
+  clipping, and source/export traceability audit result.
 - `final_size_export_ref`: vector/raster format, DPI where raster is required,
   final print dimensions, text-size inspection, and final-scale preview
   readback.
+- `final_size_grayscale_preview_ref`: final manuscript-scale raster preview and
+  grayscale/color-vision separation readback.
 
 If the contract cannot name the core conclusion and evidence chain, route back
 before drawing. If MAS or the user has not fixed a backend, recommend one from
@@ -353,10 +365,14 @@ Keep two QA lanes separate:
 - `programmatic_figure_audit_ref`: deterministic checks for missing glyphs,
   CJK/negative-sign rendering, clipped text, overlapping ticks, file format,
   DPI, font embedding, final dimensions, and source/export traceability.
+- `export_lint_ref`: export-contract lint for file format, DPI, font embedding,
+  final dimensions, and traceability before any owner handoff.
 - `visual_qa_preview_ref` / `critic_review_ref`: AI or human visual review of
   the rasterized preview for legend/data overlap, panel alignment, visual
   hierarchy, grayscale/color-vision separation, and whether the chart answers
   the intended data question.
+- `ai_visual_review_ref`: the AI visual-review lane only; it cannot replace the
+  deterministic audit lane or owner visual-audit authority.
 
 Check:
 
@@ -387,7 +403,8 @@ Warnings alone are not default blockers. Route back only when hard evidence
 shows missing refs, unsupported claims, unreadable or misleading visual output,
 programmatic audit failure, or an AI/human visual review failure that cannot be
 repaired inside the figure contract. Otherwise record the warning as a
-refs-only caveat or reviewer hint.
+refs-only caveat or reviewer hint. Use `route_back_hard_evidence_ref` for that
+threshold; do not create a MAS typed blocker or owner receipt from this skill.
 
 ### 7. Polish
 
