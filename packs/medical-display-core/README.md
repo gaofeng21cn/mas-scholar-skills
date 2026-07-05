@@ -91,6 +91,14 @@ study-design or participant-accounting meaning. MAS visual audit uses those fiel
 page inspection; `renderer_family = "r_ggplot2"` or `uses_ggconsort = true` alone is not enough evidence
 that Figure 1 meets the purpose-first contract.
 
+## DPCC treatment-gap alignment policy
+
+`treatment_gap_alignment_figure` must not mix a percentage x-axis with count-only bar labels. When the
+x-axis encodes a recorded review-signal percentage, labels must include both the percentage and the
+absolute patient count, for example `46.9% (n=49,008)`. If a consuming paper wants count-only labels, the
+x-axis must be changed to a count scale instead. This prevents a final PDF from appearing numerically
+updated while still carrying an axis/label mismatch.
+
 ## Gallery review maintenance
 
 The compact human-review package is maintained in:
