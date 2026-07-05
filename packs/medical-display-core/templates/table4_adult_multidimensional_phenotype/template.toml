@@ -1,0 +1,14 @@
+template_id = "table4_adult_multidimensional_phenotype"
+full_template_id = "fenggaolab.org.medical-display-core::table4_adult_multidimensional_phenotype"
+kind = "table_shell"
+display_name = "Adult Multidimensional Phenotype Table"
+paper_family_ids = ["H"]
+audit_family = "Publication Shells and Tables"
+renderer_family = "n/a"
+input_schema_ref = "adult_multidimensional_phenotype_schema_v1"
+qc_profile_ref = "publication_table_adult_multidimensional_phenotype"
+required_exports = ["csv", "md"]
+allowed_paper_roles = ["main_text", "supplementary"]
+execution_mode = "python_plugin"
+entrypoint = "fenggaolab_org_medical_display_core.table_shells:render_table_shell"
+paper_proven = true

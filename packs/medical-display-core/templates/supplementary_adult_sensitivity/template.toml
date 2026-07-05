@@ -1,0 +1,14 @@
+template_id = "supplementary_adult_sensitivity"
+full_template_id = "fenggaolab.org.medical-display-core::supplementary_adult_sensitivity"
+kind = "table_shell"
+display_name = "Supplementary Adult Sensitivity Table"
+paper_family_ids = ["H"]
+audit_family = "Publication Shells and Tables"
+renderer_family = "n/a"
+input_schema_ref = "adult_sensitivity_schema_v1"
+qc_profile_ref = "publication_table_sensitivity"
+required_exports = ["csv", "md"]
+allowed_paper_roles = ["supplementary"]
+execution_mode = "python_plugin"
+entrypoint = "fenggaolab_org_medical_display_core.table_shells:render_table_shell"
+paper_proven = true

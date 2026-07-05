@@ -244,6 +244,12 @@ should include:
 
 - source-model provenance, full equation or coefficient table, predictor coding,
   unit conversions, and baseline survival or absolute-risk extraction;
+- when the source model survives mainly as an archived fixed equation, state
+  that boundary in a neutral Methods sentence, foreground the preserved
+  coefficients plus baseline survival needed for transport, and move missing
+  development-package details such as exact penalty form or incomplete
+  development provenance into Limitations rather than centering them in the main
+  story;
 - validation-cohort source years, eligibility, endpoint ascertainment, follow-up
   completeness or censoring policy, missing-data strategy, and weighting policy;
 - visible Table 1 cohort comparison, Table 2 validation metrics, and a grouped
@@ -258,6 +264,12 @@ should include:
 - decision-curve or threshold-utility displays omitted unless threshold range,
   net-benefit calculation, and calibration basis are verified.
 
+For near-submission external-validation revisions, prefer a discrete
+`Limitations` paragraph when the draft already has stable Methods, Results, and
+main displays. Keep the final Conclusion clinically operational: whether the
+score can be used for absolute-risk communication, thresholds, or deployment in
+the target population.
+
 If any of these items are missing, route the gap to statistical review, table
 design, figure design, analysis-campaign, or a MAS owner gate before writing a
 submission-shaped conclusion.
@@ -268,31 +280,74 @@ selected positive fields, missingness, or source availability as prevalence,
 burden, causality, prediction, or clinical deployment unless the design and
 evidence support that claim.
 
+For descriptive registry figure titles, legends, captions, table titles, and
+table notes, treat `burden` as a red flag when the numerator comes from selected
+or populated diagnostic fields, variable availability, or subcohort-only
+screening instruments. Prefer wording such as `recorded diagnostic fields`,
+`positive status among populated records`, `available-record denominators`,
+`instrument availability`, `symptom status`, or `screening-instrument
+co-occurrence`. Use manuscript-ready declarative boundaries such as
+`percentages exclude unknown values and are not prevalence estimates` rather
+than instruction-style wording such as `should not be interpreted as`.
+
+Before packaging a descriptive registry manuscript, run a final medical-SCI
+language polish pass. Remove internal report phrasing from the article body,
+including authoring-status statements, submission TODO prose, repeated
+defensive caveats, revision-response phrases such as `reviewer-triggered`, and
+nonstandard terms such as `analytic surface` or `data surface`. Write Methods
+as completed study methods when evidence exists, move
+unconfirmed ethics, funding, COI, author, data-availability, enrollment-period,
+and data-lock facts to submission checklists or human-gate TODO surfaces, and
+keep Results finding-led rather than explanation-led. For non-model registry
+papers, use headings such as `Analytical scope` and `Data checks and sensitivity
+analysis` instead of `Model building` and `Validation framework`. Compress
+figure legends to the visible variables, denominator, and interpretation
+boundary only; do not let figure semantics fields such as `direct_message`,
+panel messages, or glossary notes spill into submission legends as internal
+instructions.
+
 For phenotype-atlas or treatment-gap descriptive drafts, do not let the first
 draft become "we split patients into groups and reported rates." Before prose,
 define the medical pattern the atlas is meant to reveal. Route back if the
 paper lacks:
 
 - a one-sentence discovery contract, such as phenotype-specific recorded
-  burden-medication discordance or service-review priority patterns;
+  burden-medication discordance, structured risk-treatment mismatch, or
+  service-review priority patterns;
 - a rationale for the rule hierarchy and its ordering;
+- a primary finding framed as a medical mismatch pattern, such as severe
+  glycemic burden with low recorded glucose-lowering intensity, cardiometabolic
+  risk context with low recorded preventive medication coverage, or dynamic
+  transition between glycemic, adiposity-linked, and cardiometabolic profiles;
 - exact gap definitions with numerator, denominator, eligibility, medication
   source, class mapping, and interpretation label;
+- exact low-intensity definitions for high-risk subgroups, including which
+  diabetes medication classes count, whether insulin, GLP-1RA, SGLT2i,
+  metformin, ACEI/ARB, statins, age, eGFR, contraindications, and single-lab
+  abnormalities were considered or explicitly unavailable;
 - medication-field-present or any-recorded-medication sensitivity when
   medication capture is incomplete;
 - diagnostic ascertainment table when diagnostic state, uncontrolled disease,
   hypertension, dyslipidemia, or complication burden is derived from structured
   records;
 - a missingness/plausibility table for phenotype-defining variables;
-- site, trajectory, calendar-year, threshold, adult/known-age, or age-stratified
-  sensitivity when the manuscript asks for more than a local descriptive atlas;
+- site-level gap variability, transition trajectory categories, calendar-year,
+  threshold, adult/known-age, medication-source, renal-risk/cardiometabolic
+  protection, or age-stratified sensitivity when the manuscript asks for more
+  than a local descriptive atlas;
+- a clear decision on whether service-priority tiers, cardiometabolic-renal
+  protection gaps, medication-intensity patterns, or potential overtreatment
+  signals are in scope, waived, or routed to follow-up analysis;
 - figure/table contracts that show the medical pattern rather than only group
   counts.
 
 Use terms such as recorded medication-coverage gap, treatment-review signal,
-and burden-medication discordance. Avoid guideline nonadherence, true untreated
-status, treatment failure, or individualized treatment allocation unless MAS
-has accepted evidence and guideline-specific eligibility refs.
+burden-medication discordance, and risk-treatment mismatch. Use
+`guideline-linked` only for tiered review signals with explicit guideline
+source, eligibility, age/eGFR boundary, contraindication, and medication-source
+refs. Avoid guideline nonadherence, true untreated status, treatment failure, or
+individualized treatment allocation unless MAS has accepted evidence and
+guideline-specific eligibility refs.
 
 Write final manuscript text in full paragraphs. Use bullets only in planning
 surfaces, review ledgers, checklists, or route-back packets. In Results, lead

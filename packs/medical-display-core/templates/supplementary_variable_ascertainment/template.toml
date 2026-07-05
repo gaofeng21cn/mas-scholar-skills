@@ -1,0 +1,14 @@
+template_id = "supplementary_variable_ascertainment"
+full_template_id = "fenggaolab.org.medical-display-core::supplementary_variable_ascertainment"
+kind = "table_shell"
+display_name = "Supplementary Variable Ascertainment Table"
+paper_family_ids = ["H"]
+audit_family = "Publication Shells and Tables"
+renderer_family = "n/a"
+input_schema_ref = "variable_ascertainment_schema_v1"
+qc_profile_ref = "publication_table_variable_definition"
+required_exports = ["csv", "md"]
+allowed_paper_roles = ["supplementary"]
+execution_mode = "python_plugin"
+entrypoint = "fenggaolab_org_medical_display_core.table_shells:render_table_shell"
+paper_proven = true

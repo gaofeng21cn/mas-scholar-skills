@@ -152,6 +152,10 @@ discovery from group counts alone without:
 - phenotype x burden x recorded medication-coverage matrix or explicit waiver;
 - exact gap numerator, denominator, eligibility, index/time window, medication
   source, and class mapping;
+- exact high-risk low-intensity definitions for severe glycemia and other
+  service-priority signals, including how many medication classes count as
+  low intensity and whether organ-protective drugs, contraindication proxies,
+  age/eGFR boundaries, or single-measurement abnormalities are handled;
 - medication-field-present / any-recorded-medication sensitivity when drug
   capture is incomplete;
 - diagnostic-variable ascertainment table when disease control, hypertension,
@@ -159,9 +163,17 @@ discovery from group counts alone without:
   structured diagnostic or measurement fields;
 - variable missingness and plausibility atlas for phenotype-defining fields;
 - site-level gap variability or a reason site variation is out of scope;
+- transition trajectory categories, such as persistent high burden, glycemic
+  improvement/de-escalation, cardiometabolic risk accumulation, lower-burden
+  stable, or documentation-sensitive transition, when stability or repeated
+  visits are interpreted clinically;
+- cardiometabolic-renal protection or medication-intensity summaries when the
+  Results claim risk-treatment mismatch rather than simple record gaps;
 - transition-category, calendar-year, threshold, adult/known-age, or
   age-stratified sensitivity when the text claims trajectory, service
   variation, or guideline priority;
+- rate/count separation for gap figures, and site-adjusted or phenotype-mix
+  checks when the paper claims site/service variation;
 - rate/count separation in figures and tables.
 
 Do not interpret selected diagnostic-field positivity, absent recorded drug

@@ -96,15 +96,25 @@ produce route-back rather than inventing content.
 5. Audit data/code availability, source data, supplementary files, and dataset
    citations. Do not invent DOIs, accession numbers, committees, embargo dates,
    licenses, or repository names.
-6. Check figures and tables against journal format and manuscript claims. Treat
+6. Check figures and tables against journal format and manuscript claims. For a
+   medical prediction or external-validation paper, absence of supplementary
+   tables/figures should be an explicit inventory decision, not a silent
+   default; route back when cohort construction details, variable
+   ascertainment, additional calibration or sensitivity displays, or
+   claim-evidence traceability no longer fit cleanly in the main text.
+   When supplementary figures or tables are retained, the human review package
+   should expose a readable supplementary PDF and a combined review PDF/DOCX
+   when the exporter supports it, rather than leaving only hidden source
+   markdown, CSV, or generated image files.
+7. Treat
    graphical abstracts or highlights as required only when the venue instruction
    or owner request says so.
-7. Check declarations: ethics, consent, trial/registry registration when
+8. Check declarations: ethics, consent, trial/registry registration when
    relevant, funding, COI, author contributions, acknowledgments, AI/tool
    disclosure, and data-use restrictions.
-8. Draft candidate cover-letter or response-letter material only when source
+9. Draft candidate cover-letter or response-letter material only when source
    instructions and manuscript changes support it.
-9. Produce a submission action matrix and owner-gate handoff.
+10. Produce a submission action matrix and owner-gate handoff.
 
 If journal-facing background, reporting-standard, data-sharing, guideline, or
 reviewer-response text needs biomedical literature support, use:

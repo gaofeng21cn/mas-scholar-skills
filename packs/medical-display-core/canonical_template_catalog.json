@@ -736,6 +736,171 @@
       ]
     },
     {
+      "family_id": "dot_range_summary_panel",
+      "category": "Matrix Pattern",
+      "title": "Registry Dot Range Summary",
+      "figure_archetype": "registry_available_denominator_dot_range_summary",
+      "canonical_template_id": "dot_range_summary_panel",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A denominator-aware dot-range panel for descriptive registry fields, used when point size or labels carry available-record denominators.",
+      "analysis_responsibility": "validated_summary_required",
+      "analysis_input_state": "validated_display_payload",
+      "medical_family_ids": [
+        "registry_denominator_dot_range"
+      ]
+    },
+    {
+      "family_id": "availability_bar_panel",
+      "category": "Publication Shells and Tables",
+      "title": "Registry Availability Bar Panel",
+      "figure_archetype": "registry_field_availability_bar_panel",
+      "canonical_template_id": "availability_bar_panel",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A registry variable availability panel for separating broad cohort fields from source-specific high-dimensional fields.",
+      "analysis_responsibility": "validated_summary_required",
+      "analysis_input_state": "validated_display_payload",
+      "medical_family_ids": [
+        "registry_variable_availability"
+      ]
+    },
+    {
+      "family_id": "adult_multidimensional_phenotype_heatmap",
+      "category": "Matrix Pattern",
+      "title": "Adult Multidimensional Phenotype Heatmap",
+      "figure_archetype": "adult_bmi_category_multidimensional_phenotype_heatmap",
+      "canonical_template_id": "adult_multidimensional_phenotype_heatmap",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A descriptive adult phenotype heatmap for BMI-category summaries with feature-specific denominators and bounded interpretation.",
+      "analysis_responsibility": "validated_summary_required",
+      "analysis_input_state": "validated_display_payload",
+      "medical_family_ids": [
+        "phenotype_atlas_heatmap"
+      ]
+    },
+    {
+      "family_id": "xiangya_psychobehavioral_overlap_heatmap",
+      "category": "Matrix Pattern",
+      "title": "Psychobehavioral Overlap Heatmap",
+      "figure_archetype": "psychobehavioral_symptom_overlap_heatmap",
+      "canonical_template_id": "xiangya_psychobehavioral_overlap_heatmap",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A row-denominator overlap heatmap for screening-instrument co-occurrence in a source-specific clinical subcohort.",
+      "analysis_responsibility": "validated_summary_required",
+      "analysis_input_state": "validated_display_payload",
+      "medical_family_ids": [
+        "screening_instrument_overlap"
+      ]
+    },
+    {
+      "family_id": "adult_bmi_waist_central_adiposity_bar",
+      "category": "Publication Shells and Tables",
+      "title": "Adult BMI-Waist Central Adiposity Bar",
+      "figure_archetype": "adult_bmi_waist_central_adiposity_bar",
+      "canonical_template_id": "adult_bmi_waist_central_adiposity_bar",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A sex-threshold waist profile bar panel for descriptive adult BMI-waist phenotype reporting.",
+      "analysis_responsibility": "validated_summary_required",
+      "analysis_input_state": "validated_display_payload",
+      "medical_family_ids": [
+        "central_adiposity_profile"
+      ]
+    },
+    {
+      "family_id": "table4_adult_multidimensional_phenotype",
+      "category": "Publication Shells and Tables",
+      "title": "Adult Multidimensional Phenotype Table",
+      "figure_archetype": "adult_multidimensional_phenotype_table_shell",
+      "canonical_template_id": "table4_adult_multidimensional_phenotype",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A phenotype-atlas table shell for adult anthropometric, glycemic, lipid, and liver-enzyme summaries by BMI category.",
+      "analysis_responsibility": "table_shell",
+      "analysis_input_state": "validated_table_values",
+      "medical_family_ids": [
+        "table_one_baseline"
+      ]
+    },
+    {
+      "family_id": "table5_xiangya_psychometabolic_profile",
+      "category": "Publication Shells and Tables",
+      "title": "Xiangya Psychometabolic Profile Table",
+      "figure_archetype": "xiangya_psychometabolic_profile_table_shell",
+      "canonical_template_id": "table5_xiangya_psychometabolic_profile",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A table shell for source-specific PHQ-9/GAD-7 symptom burden and co-occurrence summaries.",
+      "analysis_responsibility": "table_shell",
+      "analysis_input_state": "validated_table_values",
+      "medical_family_ids": [
+        "table_one_baseline"
+      ]
+    },
+    {
+      "family_id": "table6_adult_bmi_waist_central_adiposity",
+      "category": "Publication Shells and Tables",
+      "title": "Adult BMI-Waist Central Adiposity Table",
+      "figure_archetype": "adult_bmi_waist_central_adiposity_table_shell",
+      "canonical_template_id": "table6_adult_bmi_waist_central_adiposity",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A table shell for adult BMI-waist central-adiposity summaries with sex-specific waist thresholds.",
+      "analysis_responsibility": "table_shell",
+      "analysis_input_state": "validated_table_values",
+      "medical_family_ids": [
+        "table_one_baseline"
+      ]
+    },
+    {
+      "family_id": "supplementary_missingness_atlas",
+      "category": "Publication Shells and Tables",
+      "title": "Supplementary Missingness Atlas",
+      "figure_archetype": "supplementary_missingness_atlas_table_shell",
+      "canonical_template_id": "supplementary_missingness_atlas",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A supplementary table shell for registry variable missingness and available-record denominators.",
+      "analysis_responsibility": "table_shell",
+      "analysis_input_state": "validated_table_values",
+      "medical_family_ids": [
+        "missingness_atlas"
+      ]
+    },
+    {
+      "family_id": "supplementary_variable_ascertainment",
+      "category": "Publication Shells and Tables",
+      "title": "Supplementary Variable Ascertainment Table",
+      "figure_archetype": "supplementary_variable_ascertainment_table_shell",
+      "canonical_template_id": "supplementary_variable_ascertainment",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A supplementary table shell for source, allowed wording, and provenance caveats of registry variables.",
+      "analysis_responsibility": "table_shell",
+      "analysis_input_state": "validated_table_values",
+      "medical_family_ids": [
+        "variable_ascertainment"
+      ]
+    },
+    {
+      "family_id": "supplementary_adult_sensitivity",
+      "category": "Publication Shells and Tables",
+      "title": "Supplementary Adult Sensitivity Table",
+      "figure_archetype": "supplementary_adult_sensitivity_table_shell",
+      "canonical_template_id": "supplementary_adult_sensitivity",
+      "default_visible": true,
+      "aliases": [],
+      "migration_reason": "A supplementary table shell for adult-known-age sensitivity analyses in mixed-age registry exports.",
+      "analysis_responsibility": "table_shell",
+      "analysis_input_state": "validated_table_values",
+      "medical_family_ids": [
+        "adult_sensitivity"
+      ]
+    },
+    {
       "family_id": "table1_baseline_characteristics",
       "category": "Publication Shells and Tables",
       "title": "Table 1 Baseline Characteristics",

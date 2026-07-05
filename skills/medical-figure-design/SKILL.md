@@ -133,9 +133,29 @@ to the validation question:
 
 - show discrimination, absolute calibration, and risk distribution/support as
   separate visual jobs unless a contract proves a combined panel is clearer;
+- do not use a one-arrow "cohort flow" to compare two cohorts; if the figure is
+  a cohort-flow figure, use side-by-side cohort construction columns with
+  source population, exclusions or analysis-set restrictions, final analysis n,
+  endpoint/event counts, and the shared model-input boundary in the caption or
+  a compact final row;
+- for cohort-level observed-versus-predicted calibration, choose an axis window
+  from the observed and predicted risks being compared; avoid a default 0-1
+  probability frame when all informative points occupy the lower-left corner;
+- for discrimination summaries such as C-index, do not use a 0-1 bar axis when
+  the scientific comparison is a narrow difference around the observed
+  estimates; prefer point-style displays with a data-driven y-axis and an
+  explicit 0.5 reference only when it helps interpretation;
+- for risk probability panels, keep zero when bars encode risk magnitudes, but
+  set the upper axis bound from the displayed predicted and observed risks
+  rather than defaulting to 0-1 unless the full probability range is the
+  scientific message;
 - when development-cohort risk bins collapse in the validation cohort, split
   occupancy by development bins from validation-cohort self-quantile grouped
   calibration rather than labeling one as the other;
+- when grouped calibration is repaired into a single-panel validation-cohort
+  decile plot, make the legend state the decile basis, observed-risk interval,
+  and no-threshold caveat directly; do not inherit stale Panel A/Panel B
+  legend boilerplate from an older multi-panel variant;
 - show observed and predicted risk with denominators or intervals when grouped
   calibration carries the claim;
 - do not keep a decision-curve or threshold-utility figure unless the accepted
@@ -143,6 +163,12 @@ to the validation question:
   clinical action scenario;
 - avoid governance cards or process-summary panels when numeric calibration,
   support overlap, or risk-scale compression is the scientific point.
+- before retaining a study-design or cohort-flow main figure, state the
+  figure's specific job. If it only restates two cohort sizes already reported
+  in text or tables, drop it from the main manuscript or demote it to
+  supplementary context; if retained, it must show a real design boundary such
+  as fixed-model derivation, harmonization, no-refit validation, endpoint
+  accounting, or analysis-set construction.
 
 ## MAS Authority Boundary
 
