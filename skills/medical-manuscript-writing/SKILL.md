@@ -261,6 +261,10 @@ should include:
   calibration, frame the manuscript around the usable property first
   (higher-risk identification or risk stratification) and then state the
   recalibration boundary for absolute-risk communication or threshold decisions;
+- write the title for the medical contribution rather than the implementation
+  status: avoid foregrounding words such as `fixed` or `locked` in the title
+  unless the target journal or study design makes them clinically essential;
+  keep model-locking details in Methods;
 - use each quantitative anchor once in Results: put risk-gradient evidence under
   discrimination/risk stratification, put O:E, predicted-risk compression,
   calibration slope/intercept, and Brier under absolute calibration, and avoid

@@ -215,6 +215,9 @@ findings include:
 - discrimination reported as if it proves calibrated absolute risk;
 - calibration slope, O:E, Brier score, grouped calibration, or recalibration
   claims lacking uncertainty or denominator support;
+- a title that foregrounds implementation status such as "fixed" or "locked"
+  when the clinically useful contribution is higher-risk identification,
+  recalibration need, or external validation;
 - a results narrative that repeats the same grouped-risk-gradient sentence in
   adjacent subsections instead of separating risk stratification from absolute
   calibration;
