@@ -11,8 +11,8 @@ candidate refs before MAS/domain owner consumption.
 
 This skill is refs-only and no-authority. It can prepare display QC refs,
 support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
-mutate artifacts, sign visual audit receipts, create typed blockers, accept
-figures, or claim publication readiness.
+mutate artifacts, write MAS truth, sign visual audit receipts or owner receipt,
+create typed blockers, accept figures, or claim publication readiness.
 
 ## Workflow
 

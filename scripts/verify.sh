@@ -8,6 +8,11 @@ if [[ "${MAS_SCHOLAR_SKILLS_SKIP_DISPLAY_GALLERY:-0}" != "1" ]]; then
   python3 scripts/verify-display-gallery-pack.py --check
 fi
 
+for skill_kernel in skills/*/kernel.py; do
+  [[ -e "$skill_kernel" ]] || continue
+  python3 "$skill_kernel"
+done
+
 python3 - <<'PY'
 import hashlib
 import json
@@ -96,11 +101,28 @@ advanced_specialist_skill_ids = [
     "research-pdf-evidence-explorer",
     "scientific-compute-runner",
 ]
+medical_method_specialist_skill_ids = [
+    "medical-protocol-and-sap-planner",
+    "medical-cohort-phenotyping",
+    "medical-evidence-synthesis-and-claim-map",
+    "medical-reference-integrity-auditor",
+    "medical-rebuttal-strategy",
+    "medical-display-qc",
+    "medical-causal-inference-plan",
+    "medical-survival-analysis-plan",
+]
 advanced_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in advanced_specialist_skill_ids
 }
+medical_method_specialist_skills = {
+    skill_id: read_text(f"skills/{skill_id}/SKILL.md")
+    for skill_id in medical_method_specialist_skill_ids
+}
 for skill_id, text in advanced_specialist_skills.items():
+    if not re.search(rf"^---\n[\s\S]*?^name:\s+{re.escape(skill_id)}$", text, re.MULTILINE):
+        fail(f"{skill_id} must be a real Codex skill")
+for skill_id, text in medical_method_specialist_skills.items():
     if not re.search(rf"^---\n[\s\S]*?^name:\s+{re.escape(skill_id)}$", text, re.MULTILINE):
         fail(f"{skill_id} must be a real Codex skill")
 legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
@@ -150,6 +172,13 @@ require_all(
 )
 if domain_descriptor.get("capability_pack", {}).get("advanced_specialists_block_core_progress_when_missing") is not False:
     fail("advanced specialists must not block core progress when missing")
+require_all(
+    "domain descriptor medical-method specialist skills",
+    domain_descriptor.get("capability_pack", {}).get("medical_method_specialist_skills"),
+    medical_method_specialist_skill_ids,
+)
+if domain_descriptor.get("capability_pack", {}).get("medical_method_specialists_block_core_progress_when_missing") is not False:
+    fail("medical-method specialists must not block core progress when missing")
 if capability_map.get("surface_kind") != "oma_capability_pack_map":
     fail("capability map must expose oma_capability_pack_map")
 if capability_map.get("domain_id") != "mas-scholar-skills":
@@ -276,6 +305,40 @@ advanced_expected = {
         "refs": ["compute_requirement_ref", "environment_probe_ref", "deterministic_receipt_ref"],
     },
 }
+method_expected = {
+    "medical-protocol-and-sap-planner": {
+        "tokens": ["protocol", "SAP", "statistical_analysis_plan", "estimand", "analysis_sets"],
+        "refs": ["protocol_question_ref", "sap_candidate_ref", "support_map_ref", "owner_gate_handoff_ref"],
+    },
+    "medical-cohort-phenotyping": {
+        "tokens": ["cohort", "phenotype", "EHR", "registry", "code_list", "ascertainment"],
+        "refs": ["phenotype_question_ref", "cohort_definition_ref", "phenotype_logic_ref", "validation_check_ref"],
+    },
+    "medical-evidence-synthesis-and-claim-map": {
+        "tokens": ["claim_map", "evidence_synthesis", "support_strength", "source_support", "overclaim"],
+        "refs": ["claim_inventory_ref", "source_support_ref", "support_strength_map_ref", "owner_gate_handoff_ref"],
+    },
+    "medical-reference-integrity-auditor": {
+        "tokens": ["reference_integrity", "PMID", "DOI", "citation_support", "retraction", "placeholder_reference"],
+        "refs": ["reference_inventory_ref", "identifier_integrity_ref", "claim_citation_support_map_ref", "support_gap_ref"],
+    },
+    "medical-rebuttal-strategy": {
+        "tokens": ["rebuttal", "reviewer_response", "revision_strategy", "manuscript_delta", "editorial_comment"],
+        "refs": ["review_comment_inventory_ref", "response_route_ref", "evidence_response_map_ref", "rebuttal_strategy_ref"],
+    },
+    "medical-display-qc": {
+        "tokens": ["display_qc", "figure_qc", "nonblank_export", "panel_caption", "visual_QA", "PDF_figure"],
+        "refs": ["display_artifact_inventory_ref", "export_integrity_ref", "panel_caption_consistency_ref", "claim_display_alignment_ref"],
+    },
+    "medical-causal-inference-plan": {
+        "tokens": ["causal_inference", "target_trial", "DAG", "confounding", "positivity", "bias"],
+        "refs": ["causal_question_ref", "target_trial_candidate_ref", "dag_or_confounder_map_ref", "sensitivity_plan_ref"],
+    },
+    "medical-survival-analysis-plan": {
+        "tokens": ["survival_analysis", "time_to_event", "censoring", "competing_risk", "risk_set", "Cox"],
+        "refs": ["survival_question_ref", "time_origin_and_risk_set_ref", "endpoint_and_censoring_ref", "model_plan_ref"],
+    },
+}
 for skill_id, expected in advanced_expected.items():
     item = advanced_capability_by_id.get(skill_id)
     if item is None:
@@ -301,6 +364,33 @@ for skill_id, expected in advanced_expected.items():
     ]:
         if (item.get("authority_boundary") or {}).get(key) is not False:
             fail(f"optional specialist authority flag {key} must be false for {skill_id}")
+for skill_id, expected in method_expected.items():
+    item = advanced_capability_by_id.get(skill_id)
+    if item is None:
+        fail(f"capability map optional medical-method specialists missing {skill_id}")
+    if item.get("canonical_path") != f"skills/{skill_id}/SKILL.md":
+        fail(f"optional medical-method specialist canonical path for {skill_id} must point to its SKILL.md")
+    require_all(f"optional medical-method specialist tokens for {skill_id}", item.get("tokens"), [skill_id, *expected["tokens"]])
+    require_all(f"optional medical-method specialist refs for {skill_id}", item.get("candidate_ref_families"), expected["refs"])
+    if item.get("optional_medical_method_specialist") is not True:
+        fail(f"{skill_id} must be marked optional medical-method specialist")
+    if item.get("blocks_core_progress_when_missing") is not False:
+        fail(f"{skill_id} must not block core progress when missing")
+    for key in [
+        "can_replace_default_eight_skills",
+        "can_block_default_core_progress_when_missing",
+        "can_write_domain_truth",
+        "can_write_runtime_state",
+        "can_mutate_artifact_body",
+        "can_sign_owner_receipt",
+        "can_create_typed_blocker",
+        "can_claim_quality_verdict",
+        "can_claim_publication_readiness",
+        "can_claim_current_package_authority",
+        "can_claim_owner_closeout",
+    ]:
+        if (item.get("authority_boundary") or {}).get(key) is not False:
+            fail(f"optional medical-method specialist authority flag {key} must be false for {skill_id}")
 for skill_id in expected_capability_skills:
     item = capability_by_id.get(skill_id)
     if item is None:
@@ -588,6 +678,13 @@ require_all(
 )
 if "do_not_block_default_core_progress" not in classification_policy.get("optional_external_specialist_policy", ""):
     fail("classification optional specialist policy must not block default core progress")
+require_all(
+    "classification optional medical-method specialist skills",
+    classification_policy.get("optional_medical_method_specialist_skills"),
+    medical_method_specialist_skill_ids,
+)
+if "do_not_block_default_core_progress" not in classification_policy.get("optional_medical_method_specialist_policy", ""):
+    fail("classification optional medical-method specialist policy must not block default core progress")
 advanced_policy = contract.get("advanced_specialist_pack_policy") or {}
 if advanced_policy.get("policy_id") != "mas_scholar_skills_advanced_specialist_pack.v1":
     fail("contract missing advanced specialist pack policy")
@@ -646,6 +743,48 @@ for key in [
 ]:
     if advanced_policy.get(key) is not False:
         fail(f"advanced specialist pack authority flag {key} must be false")
+method_policy = contract.get("medical_method_specialist_pack_policy") or {}
+if method_policy.get("policy_id") != "mas_scholar_skills_medical_method_specialist_pack.v1":
+    fail("contract missing medical-method specialist pack policy")
+if method_policy.get("classification") != "optional_medical_method_specialist_skills_refs_only_no_authority":
+    fail("medical-method specialist pack must be optional refs-only no-authority")
+if "do not add active professional modules" not in method_policy.get("relationship_to_active_modules", ""):
+    fail("medical-method specialist pack must not add active modules")
+method_policy_by_id = {
+    item.get("skill_id"): item
+    for item in method_policy.get("optional_specialist_skills", [])
+}
+for skill_id, expected in method_expected.items():
+    item = method_policy_by_id.get(skill_id)
+    if item is None:
+        fail(f"medical-method specialist policy missing {skill_id}")
+    if item.get("canonical_path") != f"skills/{skill_id}/SKILL.md":
+        fail(f"medical-method specialist policy path wrong for {skill_id}")
+    require_all(f"medical-method specialist routing tokens for {skill_id}", item.get("routing_tokens"), expected["tokens"])
+    require_all(f"medical-method specialist candidate refs for {skill_id}", item.get("candidate_ref_families"), expected["refs"])
+require_all(
+    "medical-method specialist required handoff refs",
+    method_policy.get("required_handoff_refs"),
+    ["candidate_package_ref", "route_back_candidate", "owner_gate_handoff_ref"],
+)
+for key in [
+    "can_replace_default_eight_skills",
+    "can_block_default_core_progress_when_missing",
+    "can_write_domain_truth",
+    "can_write_runtime_state",
+    "can_mutate_artifact_body",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_quality_verdict",
+    "can_claim_source_readiness",
+    "can_claim_runtime_readiness",
+    "can_claim_publication_readiness",
+    "can_claim_production_readiness",
+    "can_claim_current_package_authority",
+    "can_claim_owner_closeout",
+]:
+    if method_policy.get(key) is not False:
+        fail(f"medical-method specialist pack authority flag {key} must be false")
 quality_policy = contract.get("professional_skill_quality_upgrade_policy") or {}
 if quality_policy.get("policy_id") != "mas_scholar_skills_professional_quality_upgrade.v1":
     fail("contract missing professional skill quality upgrade policy")
@@ -767,6 +906,19 @@ for skill_id, text in advanced_specialist_skills.items():
     for token in advanced_expected[skill_id]["sources"]:
         if token not in text:
             fail(f"skills/{skill_id}/SKILL.md missing AcademicForge source token: {token}")
+for skill_id, text in medical_method_specialist_skills.items():
+    for token in [
+        skill_id,
+        "refs-only",
+        "no-authority",
+        "owner_gate_handoff_ref",
+        "MAS truth",
+        "owner receipt",
+        "typed blocker",
+        "publication readiness",
+    ]:
+        if token not in text:
+            fail(f"skills/{skill_id}/SKILL.md missing medical-method specialist no-authority token: {token}")
 for relative, text in {
     "skills/mas-scholar-skills/SKILL.md": skill,
     "README.md": readme,
@@ -789,6 +941,20 @@ for relative, text in {
     for token in ["optional", "refs-only", "no-authority"]:
         if token.lower() not in text.lower():
             fail(f"{relative} missing advanced specialist boundary token: {token}")
+for relative, text in {
+    "skills/mas-scholar-skills/SKILL.md": skill,
+    "README.md": readme,
+    "README.zh-CN.md": readme_zh,
+    "docs/README.md": docs_index,
+    "docs/capability-modules.md": capability_modules,
+    "docs/no-authority-boundary.md": no_authority_boundary,
+}.items():
+    for token in medical_method_specialist_skill_ids:
+        if token not in text:
+            fail(f"{relative} missing medical-method specialist token: {token}")
+    for token in ["medical-method", "optional", "refs-only", "no-authority"]:
+        if token.lower() not in text.lower():
+            fail(f"{relative} missing medical-method specialist boundary token: {token}")
 for token in [
     "contracts/capability_map.json#/authority_boundary",
     "contracts/capability_map.json#/owner_closeout_boundary",

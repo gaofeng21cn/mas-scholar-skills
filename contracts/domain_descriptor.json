@@ -6,7 +6,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_target_descriptor",
-  "updated_at": "2026-07-03",
+  "updated_at": "2026-07-06",
   "purpose": "OMA-readable target descriptor for the MAS Scholar Skills professional capability pack.",
   "source_of_truth_refs": [
     {
@@ -69,7 +69,20 @@
     ],
     "advanced_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
     "advanced_specialist_consumption_mode": "optional_refs_only_external_specialist_candidate_handoff",
-    "advanced_specialists_block_core_progress_when_missing": false
+    "advanced_specialists_block_core_progress_when_missing": false,
+    "medical_method_specialist_skills": [
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan"
+    ],
+    "medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
+    "medical_method_specialist_consumption_mode": "optional_refs_only_medical_method_candidate_handoff",
+    "medical_method_specialists_block_core_progress_when_missing": false
   },
   "authority_boundary": {
     "can_write_domain_truth": false,
