@@ -20,6 +20,10 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
 
+Optional local helper: `kernel.py` provides deterministic stdlib-only package
+manifest, required-document checklist, file-label normalization, and required
+document lint helpers. It is refs-only and cannot submit or claim readiness.
+
 Sibling skill routes are `medical-manuscript-writing` for manuscript text,
 `medical-manuscript-review` for adversarial critique,
 `medical-table-design` for tables, `medical-figure-design` for figures, and

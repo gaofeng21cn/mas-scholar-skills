@@ -20,6 +20,11 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
 
+Optional local helper: `kernel.py` provides deterministic stdlib-only data
+dictionary, source-readiness, sensitive-field, missingness, and provenance
+skeleton/lint helpers. It is refs-only and cannot mutate data or claim source
+readiness.
+
 Sibling skill routes are `medical-statistical-review` for estimand,
 denominator, missingness, and analysis-plan judgment; `medical-table-design` for
 table shells and data-dictionary tables; `medical-figure-design` for data-bound
