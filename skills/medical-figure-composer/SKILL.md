@@ -19,6 +19,12 @@ Claude Science figure-composer discipline already absorbed in MAS Scholar
 Skills: outline -> panel render receipt -> composite review, with existing
 panels treated as inputs rather than data to redraw.
 
+Optional helper: use `kernel.py` for deterministic outline schema, grid
+geometry, panel boxes/crops, optional Pillow composition from existing panel
+exports, and composite review prompt/ref skeletons. The helper is a refs-only
+style/composition aid; it must not redraw data, mutate artifacts, or decide
+publication quality.
+
 ## Boundary
 
 This subskill owns only refs-only multi-panel assembly and composite QA

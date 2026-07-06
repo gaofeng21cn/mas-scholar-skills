@@ -21,6 +21,12 @@ data fidelity before chart judgment, claim-title truth, excluded-row handling,
 comparable-condition separation, displayed `n` and fixed context, label
 economy, color-vision robustness, and render-then-verify.
 
+Optional helper: use `kernel.py` for deterministic style utilities such as
+matplotlib rcParams, focal palettes, panel-letter placement refs, frame helpers,
+crop-box refs, and lightweight contrast/readability lint. The helper is a
+refs-only style/composition aid; it must not redraw data, mutate artifacts, or
+decide publication quality.
+
 ## Boundary
 
 This subskill owns only refs-only visual grammar and style QA guidance. It must
