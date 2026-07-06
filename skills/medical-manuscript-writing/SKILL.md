@@ -19,6 +19,12 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
 
+Optional skill-local helper: use `kernel.py` for deterministic paper brief
+schemas, section scaffolds, paragraph job maps, figure arc prompts, and
+claim-strength lint hints. It is a no-authority scaffold/lint helper only; MAS
+or the consuming workspace still owns evidence, artifacts, owner receipts, typed
+blockers, and readiness labels.
+
 Sibling skill routes are `medical-manuscript-review` for adversarial review,
 `medical-figure-design` for material figure work, `medical-research-lit` for
 PubMed-oriented literature discovery, `medical-statistical-review` for

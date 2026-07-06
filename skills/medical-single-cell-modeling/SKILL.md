@@ -17,6 +17,12 @@ annotation refs, DE candidate refs, model/env/receipt refs, and
 sign owner receipt, create typed blocker, claim source readiness, or claim
 publication readiness.
 
+Optional skill-local helper: use `kernel.py` for deterministic AnnData key
+sanitizing, obs metadata summaries, metadata schema scaffolds, and
+batch/label-key diagnostics. It is a no-authority scaffold/diagnostic helper
+only; the consuming workspace or compute owner still owns data truth, execution,
+model outputs, owner receipts, typed blockers, and readiness labels.
+
 ## Workflow
 
 1. Define the single-cell question: annotation, batch correction, latent
