@@ -36,7 +36,7 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 
 三层语义固定为：专业 Skill 负责医学判断、playbook、rubric、route-back 和候选 refs；Skill-local deterministic helper 随 Skill 同目录分发，通常是 `kernel.py`，只做解析、归一化、lint、skeleton、manifest / receipt shaping 或 self-check；程序化基座和 authority surface 归 MAS / OPL Framework，负责 connector、credential、runtime、receipt、owner gate、artifact authority、publication readiness 和 App/operator projection。本仓可以维护前两层的 source 和 refs，但不持有 MAS domain truth、owner receipt、typed blocker、runtime queue、provider lifecycle 或 publication/export readiness。
 
-文献工作现在使用稳定的 OPL Connect PubMed 路径：`medical-research-lit` 负责检索策略、来源筛选、证据地图和 MAS 回流交接；`opl connect pubmed search --query <query> --limit <n> --json` 负责只读 PubMed 访问，并返回 `pubmed_source_refs` 与 `pubmed_connector_invocation_ref`。
+文献工作由真实 AI-first 专业 Skill `medical-research-lit` 承接，它消费 OPL Connect scientific connector refs，而不是把 provider client 复制进 Skill。PubMed/PMC 仍是生物医学来源优先路径；Crossref 和 OpenAlex 只在 metadata、coverage 或 citation graph fallback 需要时作为候选 refs 使用。OPL Connect 负责 provider access、归一化 `scientific_connector_source_refs`、`scientific_connector_invocation_refs`、receipt candidates、cache/retry metadata 和 no-authority flags；`medical-research-lit` 负责 query strategy、来源筛选、fallback reason、`claim_support_map_ref` 和 `owner_gate_handoff_ref`；MAS 负责 citation acceptance 和 manuscript use。
 
 当前专业质量地板放在真实 Skill 内维护。共享交接形状见
 [`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)，
@@ -89,12 +89,12 @@ MAS Scholar Skills 的设计目标是把这些可复用支持材料变成 active
 
 - MAS overlay 和 MAS medical-research skills 可以按同一套语言请求图示、表格、统计、文献、写作、审阅、投稿或数据治理支持。
 - 每个模块都说明适合处理什么材料、会产出什么候选结果、需要哪些审阅。
-- `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 都是本仓真实 Codex Skill，不只是模块 descriptor。
+- `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 都是本 source repo 的真实 Codex Skill，不只是模块 descriptor、plugin mirror 或 connector descriptor。
 - 可选 advanced 和 medical-method specialist skills 也是真实 Codex discovery skills，但不属于八个 active 专业模块，只在明确专科任务中使用。
 - Source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不作为本仓 active module 或合同占位；未来组学支持只有在 MAS 形成稳定专业 workflow 后，才作为真实专业 Skill 加入本仓。
 - 默认情况下，professional specialist skill 应放在消费它的 domain-agent 仓、贴近 stage 主提示词；只有重型、跨 workspace 复用或需要独立发布/同步时，才拆到外部 pack。本仓就是 MAS 写作、审阅、图件、文献、统计、表格、投稿、Display/source refs 的外部 pack 单源。
 - 候选结果可以进入后续人工或领域智能体审阅，但不能自动升级为论文事实。
-- 同一个能力包可以同步到不同 MAS 工作区或 quest，而不复制第二套 source of truth。
+- 同一个能力包可以同步到不同 MAS 工作区或 quest，而不复制第二套 source of truth。OPL plugin install 和 MAS mirror 只是这个仓库的 sync/discovery projection，不是第二套 skill source。
 
 这种设计让学术能力可以被复用，也让权责边界保持清楚：能力模块负责准备和交接，领域负责人负责采纳和定稿。共同的 refs-only / no-authority 规则见 [No-Authority Boundary](./docs/no-authority-boundary.md)，各模块不再重复展开同一套边界清单。
 

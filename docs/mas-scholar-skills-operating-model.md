@@ -47,7 +47,7 @@ specialist skills. The floor is adapted from fresh inspection of
 | `medical-figure-composer` | Compose-only multi-panel outline, existing panel render receipt review, layout, panel-letter/gutter/resized-text checks, composite review, and export QA. |
 | `medical-manuscript-writing` | One-sentence argument, terminology ledger, paragraph job map, section contract, claim-strength calibration, citation integrity, figure/table binding, and data/code availability audit. |
 | `medical-manuscript-review` | Shared fact base, technical/significance/reader/validity/scholar-evaluation reviewer lanes, cross-review synthesis, reviewer action matrix, citation repair, revision-delta audit, and route-back closeout. |
-| `medical-research-lit` | PubMed-first source routing, query plan, fallback source refs, deduplication, retain/reject/watchlist screening, source verification, support-strength matrix, and citation integrity floor. |
+| `medical-research-lit` | PubMed/PMC-first source routing, OPL Connect scientific connector ref consumption, query plan, fallback source refs, fallback reasons, deduplication, retain/reject/watchlist screening, source verification, support-strength matrix, claim-support map, and citation integrity floor. |
 | `medical-statistical-review` | Statistical question, estimand/target parameter, analysis plan fit, EDA profile, model specification refs, denominator and missingness review, assumption diagnostics, effect-size and uncertainty reporting, multiplicity/sensitivity review, table/figure consistency, and statistical action matrix. |
 | `medical-table-design` | Table job, table shell, source-metric binding, denominator checks, statistical display policy, table QC, claim-table alignment, footnote/abbreviation discipline, and journal table contract. |
 | `medical-submission-prep` | Journal instruction mapping, reporting guideline checklist, declaration inventory, data/code availability, package consistency, cover-letter or reviewer-response candidates, author-input fields, and submission action matrix. |
@@ -77,9 +77,9 @@ The canonical MAS stage source is the MAS domain-agent repository, specifically 
 
 Default ownership for a professional specialist skill is the consuming domain-agent repo, close to the stage prompt that calls it. A specialist skill should move to an external pack only when it is heavy, cross-workspace, or independently releasable. MAS Scholar Skills is that external pack for MAS medical writing, review, figure design, literature, statistics, table, submission, Display/source refs, and reusable source packs. The `medical-*` entries in this repository are real Codex specialist skills, not descriptors, routing labels, or script functions. The aggregate `mas-scholar-skills` skill is the entry and discovery layer for the pack; the historical `opl-scholarskills` entry is only a legacy alias.
 
-Tool connectors are the third boundary. OPL Connect/Fabric owns tool or API invocation, normalized read receipts, connector error semantics, and resource access, such as the PubMed command used by `medical-research-lit`. A connector does not own stage policy, professional judgment, route acceptance, owner receipt, typed blocker, human gate, publication readiness, or artifact authority.
+Tool connectors are the third boundary. OPL Connect/Fabric owns tool or API invocation, normalized read receipts, connector error semantics, cache/retry metadata, no-authority flags, and resource access. For `medical-research-lit`, the OPL Connect scientific connector profile owns PubMed/PMC, Crossref, and OpenAlex provider access, normalized `scientific_connector_source_refs`, `scientific_connector_invocation_refs`, provider-specific source refs such as `pubmed_source_refs`, and read-only receipt candidates. A connector does not own stage policy, professional judgment, source screening, claim-support mapping, route acceptance, owner receipt, typed blocker, human gate, publication readiness, or artifact authority.
 
-Contract modules are the fourth boundary. `contracts/scholar-skills-capability-modules.json` records the module catalog, active ids, ref vocabulary, no-authority flags, and sync policies. A contract module can say that `display` maps to `medical-figure-design` or that `lit` maps to `medical-research-lit`; it cannot perform specialist judgment, replace a `medical-*` Skill, become a stage prompt, call PubMed, accept a candidate, sign an owner receipt, create a typed blocker, or claim publication readiness.
+Contract modules are the fourth boundary. `contracts/scholar-skills-capability-modules.json` records the module catalog, active ids, ref vocabulary, no-authority flags, and sync policies. A contract module can say that `display` maps to `medical-figure-design` or that `lit` maps to `medical-research-lit`; it cannot perform specialist judgment, replace a `medical-*` Skill, become a stage prompt, call scientific providers, accept a candidate, sign an owner receipt, create a typed blocker, or claim publication readiness.
 
 ## MAS Skill Call Path
 
@@ -107,22 +107,22 @@ MAS agent/stages or agent/prompts stage prompt
      / medical-data-governance
   -> optional OPL Connect external-skills search / inspect / single-skill sync
   -> MAS Scholar Skills module refs, packs, templates, and quality floors
-  -> optional tool connector readback, such as OPL Connect PubMed
+  -> optional OPL Connect scientific connector readback
   -> refs-only candidate package or route-back hint
   -> MAS owner gate consume / reject / route back
 ```
 
 If writing, review, figure, literature, statistics, table, submission, or data-governance execution quality is weak, update the corresponding `medical-*` professional skill in this repository and let MAS consume the synced skill. If the problem is stage validity, routing, owner gate, or acceptance semantics, update the MAS stage operating prompt. If the problem is only module vocabulary, ids, ref names, sync policy, or no-authority flags, update the contract module. If the problem is external access or readback, update OPL Connect/Fabric. This keeps stage prompts, professional specialists, tool connectors, and contract modules as separate owners.
 
-Use `medical-research-lit` when the task needs PubMed-style external literature discovery, source screening, PMID/DOI verification, or a claim-support map. Literature discovery is external-resource heavy, so it belongs in MAS Scholar Skills as a real specialist skill while MAS still owns citation acceptance and manuscript use.
+Use `medical-research-lit` when the task needs external literature discovery, source screening, PMID/DOI/PMCID verification, fallback-source reasoning, or a claim-support map. Literature discovery is external-resource heavy, so it belongs in MAS Scholar Skills as a real specialist skill while OPL Connect owns provider access and MAS still owns citation acceptance and manuscript use.
 
-The stable PubMed execution path is:
+The stable default PubMed/PMC execution path is:
 
 ```bash
 opl connect pubmed search --query "<query>" --limit <n> --json
 ```
 
-`medical-research-lit` records the returned normalized metadata as `pubmed_source_refs` and the connector read receipt as `pubmed_connector_invocation_ref`. MAS Scholar Skills owns query strategy, screening, evidence maps, and route-back handoff. OPL Connect owns the PubMed API call, source-ref normalization, connector error semantics, and read-only receipt candidate. MAS owns citation judgment, manuscript use, review ledger updates, owner receipts, typed blockers, and publication decisions.
+`medical-research-lit` records returned normalized metadata as `scientific_connector_source_refs` and `pubmed_source_refs`, and connector read receipts as `scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`. When PubMed/PMC does not cover the task, Crossref and OpenAlex connector refs may be used for metadata, coverage, or citation graph fallback and recorded as `fallback_source_refs`; those refs are not citation acceptance. MAS Scholar Skills owns query strategy, screening, fallback reasons, evidence maps, `claim_support_map_ref`, and route-back handoff. OPL Connect owns the provider calls, source-ref normalization, connector invocation refs, receipt candidates, cache/retry metadata, connector error semantics, and no-authority flags. MAS owns citation judgment, manuscript use, review ledger updates, owner receipts, typed blockers, and publication decisions. This repo does not claim live provider readiness.
 
 When the default medical-paper professional skills do not cover a named external
 scientific capability, such as omics, single-cell analysis, Nextflow, RDKit,

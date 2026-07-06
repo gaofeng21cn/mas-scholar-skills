@@ -143,12 +143,22 @@ def handoff_skeleton(literature_question: str = "") -> dict[str, object]:
         "literature_retrieval_contract_ref": "",
         "query_plan_ref": "",
         "search_command_ref": "",
+        "scientific_connector_source_refs": [],
+        "scientific_connector_invocation_refs": [],
         "pubmed_source_refs": [],
         "pubmed_connector_invocation_ref": "",
         "fallback_source_refs": [],
+        "connector_receipt_candidate_refs": [],
+        "cache_retry_metadata_ref": "",
+        "connector_no_authority_flags_ref": "",
         "identifier_resolution_ref": "",
+        "database_endpoint_provenance_ref": "",
+        "retrieval_count_reconciliation_ref": "",
         "deduplication_ref": "",
         "source_acceptance_decision_ref": "",
+        "citation_graph_expansion_ref": "",
+        "doi_retraction_version_check_ref": "",
+        "pdf_evidence_extraction_ref": "",
         "claim_support_map_ref": "",
         "support_strength_matrix_ref": "",
         "citation_integrity_notes": [],
@@ -175,6 +185,7 @@ def _self_check() -> None:
     assert len(deduped["duplicates"]) == 1
     assert lint_citation_support("PMID: TBD\npublication ready")
     assert handoff_skeleton("x")["literature_question"] == "x"
+    assert handoff_skeleton()["scientific_connector_source_refs"] == []
 
 
 if __name__ == "__main__":

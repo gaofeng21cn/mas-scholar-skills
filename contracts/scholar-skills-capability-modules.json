@@ -361,7 +361,13 @@
         "source_ref_chain_template_ref",
         "literature_retrieval_contract_ref",
         "query_plan_ref",
+        "scientific_connector_source_refs",
+        "scientific_connector_invocation_refs",
+        "pubmed_source_refs",
         "fallback_source_refs",
+        "connector_receipt_candidate_refs",
+        "cache_retry_metadata_ref",
+        "connector_no_authority_flags_ref",
         "identifier_resolution_ref",
         "database_endpoint_provenance_ref",
         "retrieval_count_reconciliation_ref",
@@ -1490,7 +1496,7 @@
         "scholarskills_lit_output_refs.v1",
         "scholarskills_lit_external_learning_refs.v1#query_citation_evidence_map",
         "scholarskills_lit_slr_citation_external_refs.v1#protocol_snowball_search_confirm_drop",
-        "scholarskills_lit_connect_refs.v1#pubmed_readonly_source_refs",
+        "scholarskills_lit_connect_refs.v1#scientific_connector_readonly_source_refs",
         "scholarskills_lit_professional_ref_templates.v1#source_ref_chain",
         "scholarskills_lit_medical_sci_draft_refs.v1#reference_integrity_floor"
       ],
@@ -1509,12 +1515,21 @@
           "descriptor_only": true
         },
         {
-          "entry_id": "connect_pubmed_search",
+          "entry_id": "connect_scientific_source_search",
+          "legacy_entry_ids": [
+            "connect_pubmed_search"
+          ],
           "entry_kind": "external_source_connector",
           "command": "opl connect pubmed search --query <query> --limit <n> --json",
           "mutation": false,
           "descriptor_only": false,
-          "authority_boundary": "read_only_normalized_source_refs_not_literature_verdict_or_domain_truth"
+          "provider_priority": [
+            "pubmed_pmc_first",
+            "crossref_metadata_fallback",
+            "openalex_coverage_or_citation_graph_fallback"
+          ],
+          "authority_boundary": "read_only_scientific_connector_refs_not_citation_acceptance_literature_verdict_or_domain_truth",
+          "legacy_authority_boundary_alias": "read_only_normalized_source_refs_not_literature_verdict_or_domain_truth"
         }
       ],
       "artifact_refs": [
@@ -1567,6 +1582,18 @@
           "body_policy": "refs_only_literature_hint_requires_domain_owner_gate"
         },
         {
+          "ref_id": "scientific_connector_source_refs",
+          "ref_kind": "external_source_ref",
+          "role": "opl_connect_normalized_pubmed_crossref_openalex_source_refs",
+          "body_policy": "refs_only_scientific_connector_metadata_not_citation_acceptance_or_literature_verdict"
+        },
+        {
+          "ref_id": "scientific_connector_invocation_refs",
+          "ref_kind": "execution_receipt_ref",
+          "role": "opl_connect_scientific_connector_invocation_read_receipt_candidates",
+          "body_policy": "connect_invocation_receipt_candidates_not_owner_receipts_or_live_readiness_claims"
+        },
+        {
           "ref_id": "pubmed_source_refs",
           "ref_kind": "external_source_ref",
           "role": "pubmed_normalized_metadata_refs_from_opl_connect",
@@ -1577,6 +1604,36 @@
           "ref_kind": "execution_receipt_ref",
           "role": "opl_connect_pubmed_request_read_receipt_candidate",
           "body_policy": "connect_invocation_receipt_candidate_not_owner_receipt"
+        },
+        {
+          "ref_id": "fallback_source_refs",
+          "ref_kind": "external_source_ref",
+          "role": "crossref_openalex_or_other_approved_metadata_coverage_citation_graph_fallback_refs",
+          "body_policy": "fallback_refs_are_not_citation_acceptance_or_literature_verdict"
+        },
+        {
+          "ref_id": "connector_receipt_candidate_refs",
+          "ref_kind": "execution_receipt_ref",
+          "role": "read_only_scientific_connector_receipt_candidates",
+          "body_policy": "connector_receipt_candidates_not_owner_receipts"
+        },
+        {
+          "ref_id": "cache_retry_metadata_ref",
+          "ref_kind": "connector_metadata_ref",
+          "role": "provider_cache_retry_metadata_candidate",
+          "body_policy": "connector_operational_metadata_not_provider_readiness_claim"
+        },
+        {
+          "ref_id": "connector_no_authority_flags_ref",
+          "ref_kind": "authority_boundary_ref",
+          "role": "scientific_connector_no_authority_flags",
+          "body_policy": "connector_flags_confirm_no_citation_acceptance_or_owner_authority"
+        },
+        {
+          "ref_id": "claim_support_map_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "claim_to_source_support_map_candidate",
+          "body_policy": "refs_only_claim_support_map_not_citation_acceptance"
         },
         {
           "ref_id": "claim_support_ref",
@@ -1661,6 +1718,7 @@
           "literature_retrieval_contract_ref",
           "citation_matrix_ref",
           "claim_support_ref",
+          "claim_support_map_ref",
           "citation_manifest_ref",
           "source_verification_ref",
           "citation_coverage_ref",
@@ -1669,8 +1727,14 @@
           "identifier_resolution_ref",
           "database_endpoint_provenance_ref",
           "retrieval_count_reconciliation_ref",
+          "scientific_connector_source_refs",
+          "scientific_connector_invocation_refs",
           "pubmed_source_refs",
           "pubmed_connector_invocation_ref",
+          "fallback_source_refs",
+          "connector_receipt_candidate_refs",
+          "cache_retry_metadata_ref",
+          "connector_no_authority_flags_ref",
           "systematic_review_protocol_ref",
           "inclusion_exclusion_criteria_ref",
           "data_extraction_schema_ref",
@@ -1753,9 +1817,16 @@
           "citation_coverage_ref",
           "evidence_map_ref",
           "metadata_scrape_ref",
+          "scientific_connector_source_refs",
+          "scientific_connector_invocation_refs",
           "pubmed_source_refs",
           "pubmed_connector_invocation_ref",
+          "fallback_source_refs",
+          "connector_receipt_candidate_refs",
+          "cache_retry_metadata_ref",
+          "connector_no_authority_flags_ref",
           "claim_support_ref",
+          "claim_support_map_ref",
           "systematic_review_protocol_ref",
           "inclusion_exclusion_criteria_ref",
           "data_extraction_schema_ref",

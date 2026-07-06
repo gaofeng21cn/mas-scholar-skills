@@ -376,6 +376,10 @@
         "citation",
         "literature",
         "pubmed",
+        "scientific_connector",
+        "crossref",
+        "openalex",
+        "claim_support_map",
         "evidence_map"
       ],
       "verification_refs": [
@@ -394,6 +398,10 @@
         "citation_quality",
         "literature_quality",
         "pubmed",
+        "scientific_connector",
+        "crossref",
+        "openalex",
+        "claim_support_map",
         "evidence_map"
       ],
       "failure_tokens": [
