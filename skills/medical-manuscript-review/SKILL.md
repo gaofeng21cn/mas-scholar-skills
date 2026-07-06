@@ -215,6 +215,16 @@ findings include:
 - discrimination reported as if it proves calibrated absolute risk;
 - calibration slope, O:E, Brier score, grouped calibration, or recalibration
   claims lacking uncertainty or denominator support;
+- a results narrative that repeats the same grouped-risk-gradient sentence in
+  adjacent subsections instead of separating risk stratification from absolute
+  calibration;
+- discussion that invokes population transportability without anchoring the
+  interpretation to Table 1 case-mix or event-rate differences when those
+  differences are available;
+- performance tables that label development-cohort external-validation-only
+  calibration intercept/slope as "not estimated" instead of "not applicable";
+- a cohort-level two-point calibration figure presented as if it were the
+  calibration plot when grouped calibration by validation quantile is available;
 - risk groups that mix development-cohort bins with validation self-quantiles
   without showing occupancy and calibration separately;
 - decision-curve or threshold-utility figures shown while Methods/Results say

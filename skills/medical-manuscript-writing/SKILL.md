@@ -257,8 +257,26 @@ should include:
 - discrimination and calibration reported separately, with uncertainty for
   C-statistic, observed/expected ratio, Brier or prediction error, calibration
   intercept/slope, and grouped observed risk where available;
+- when the transported model retains useful ranking but has poor absolute
+  calibration, frame the manuscript around the usable property first
+  (higher-risk identification or risk stratification) and then state the
+  recalibration boundary for absolute-risk communication or threshold decisions;
+- use each quantitative anchor once in Results: put risk-gradient evidence under
+  discrimination/risk stratification, put O:E, predicted-risk compression,
+  calibration slope/intercept, and Brier under absolute calibration, and avoid
+  repeating the same fold-change sentence across adjacent subsections;
+- ground cross-population interpretation in Table 1 differences, such as age,
+  smoking, observed event rate, HbA1c, comorbidity, treatment context, or other
+  accepted descriptive evidence, rather than relying on generic country
+  language;
 - plain-language interpretation of risk-scale compression when predicted risk
   occupies a narrow range but observed risk separates across groups;
+- mark development-cohort calibration intercept/slope as `Not applicable` when
+  the row is an external-validation calibration metric rather than a skipped
+  estimate for the development cohort;
+- keep figure hierarchy explicit: grouped calibration is the primary calibration
+  evidence when available; cohort-level two-point calibration displays can stay
+  as overview figures only when the text names that limited role;
 - recalibration or model-updating policy stated as future/required work unless
   verified recalibration evidence is already accepted;
 - decision-curve or threshold-utility displays omitted unless threshold range,
