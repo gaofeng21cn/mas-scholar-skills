@@ -15,6 +15,11 @@ outline refs, page/region refs, crop refs, deterministic receipt refs, and
 `owner_gate_handoff_ref`; it cannot write citation authority, domain truth,
 owner receipt, typed blocker, quality verdict, or publication readiness.
 
+Use `kernel.py` only as a skill-local deterministic helper for path
+fingerprints, page-text normalization, outline guesses, lexical scans, regex
+grep, and page/crop ref skeletons. It uses no credentials, providers, OCR
+service, or authority surfaces; optional PDF parser imports are best-effort.
+
 ## Workflow
 
 1. Parse once and record `pdf_parse_manifest_ref`, `pdf_sha256_ref`, page count,

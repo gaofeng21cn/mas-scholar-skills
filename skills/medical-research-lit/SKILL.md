@@ -74,6 +74,11 @@ to extract evidence without treating the extraction as citation acceptance. Its
 Crossref/OpenAlex helpers are optional retrieval aids, not MAS defaults; keep
 PubMed or the project-approved source route as the primary path when it fits.
 
+Use `kernel.py` only as a skill-local deterministic helper for DOI extraction,
+identifier/title normalization, deduplication, citation-support lint, and
+refs-only handoff skeletons. It uses no credentials, providers, network calls,
+or MAS authority surfaces.
+
 ## Retrieval Contract
 
 Before searching, define `literature_retrieval_contract_ref`:
