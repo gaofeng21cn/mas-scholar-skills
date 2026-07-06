@@ -15,6 +15,9 @@ analysis readiness refs, support maps, `route_back_candidate`, and
 sign an owner receipt, create a typed blocker, mutate clinical data bodies, or
 claim publication readiness.
 
+Optional skill-local helper: use `kernel.py` for deterministic data-freeze
+review skeletons, lineage rows, and forbidden-authority lint.
+
 ## Workflow
 
 1. Build `data_freeze_inventory_ref`: authoritative body ref, extract refs,

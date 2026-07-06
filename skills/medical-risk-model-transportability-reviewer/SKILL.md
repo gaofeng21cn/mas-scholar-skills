@@ -14,6 +14,9 @@ review refs, support maps, `route_back_candidate`, and
 `owner_gate_handoff_ref`; it cannot accept a model, write MAS truth, sign an
 owner receipt, create a typed blocker, or claim publication readiness.
 
+Optional skill-local helper: use `kernel.py` for deterministic transportability
+review skeletons, predictor mapping normalization, and forbidden-authority lint.
+
 ## Workflow
 
 1. Build `source_model_ref`: model source, endpoint, time horizon, predictors,

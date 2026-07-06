@@ -14,6 +14,9 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 write MAS truth, sign an owner receipt, create a typed blocker, accept a
 handoff, or claim publication readiness.
 
+Optional skill-local helper: use `kernel.py` for deterministic handoff inventory
+skeletons, evidence-to-owner rows, and forbidden-authority lint.
+
 ## Workflow
 
 1. Build `handoff_inventory_ref`: candidate refs, artifacts, source refs,

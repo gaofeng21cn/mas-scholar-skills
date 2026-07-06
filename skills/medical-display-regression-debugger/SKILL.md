@@ -14,6 +14,9 @@ diagnostic refs, support maps, `route_back_candidate`, and
 `owner_gate_handoff_ref`; it cannot mutate artifacts, write MAS truth, sign an
 owner receipt, create a typed blocker, or claim publication readiness.
 
+Optional skill-local helper: use `kernel.py` for deterministic display
+regression skeletons, artifact diff rows, and forbidden-authority lint.
+
 ## Workflow
 
 1. Build `display_regression_symptom_ref`: observed regression, affected
