@@ -68,14 +68,15 @@ Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
 
 组学能力如需进入默认核心目录，仍需 MAS 形成稳定、可维护、可同步的真实组学专业 workflow 后，再作为 active 专业 Skill/模块升级；当前 `medical-genomics-foundation-models` 与 `medical-single-cell-modeling` 属于可选 advanced specialist。通用 source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不在 MAS Scholar Skills 默认核心专业 Skill 库中占位。
 
-## 模块与 Skill 分层
+## 三层语义与物理形态
 
-当前固定采用两类物理形态，避免把能力目录误读成“假 Skill”：
+当前固定采用三层语义，避免把能力目录误读成“假 Skill”，也避免把小工具或程序化基座误读成专业判断：
 
 | 层级 | 当前对象 | 作用 |
 | --- | --- | --- |
 | Active 专业模块合同 | `display`、`tables`、`stats`、`lit`、`write`、`review`、`submit`、`data` | 统一 module id、vocabulary、ref family、checklist、candidate handoff、receipt shape 和 owner gate，并明确对应真实专业 Skill。 |
 | 真实专业 Skill | `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` | 给 Codex 执行稳定医学论文专业流程的 AI-first playbook，并通过 OPL Connect 同步到 workspace / quest `.codex/skills/`；`medical-figure-style` 和 `medical-figure-composer` 是 `display` 模块下的薄子能力，不新增 active module。 |
+| Skill-local deterministic helper | 各 `skills/<skill-id>/kernel.py`，以及必要的同目录轻量 refs、templates 或 scripts | 只做 DOI/PMID 归一化、schema skeleton、lint、manifest / receipt shaping、env/log diagnostics、self-check 等低成本确定性辅助；跟随 Skill 分发，不升级为 module、runtime worker、provider lifecycle、MAS authority function 或 publication helper owner。 |
 | 可选专科 Skill | advanced scientific specialists 与 medical-method specialists | 只在 named specialty task 中被发现和同步；它们是真实 Codex Skill，但不是 active module，不阻断默认 MAS 医学论文流程。 |
 
 主动临床数据治理已经升级为 `medical-data-governance`，历史 Data module id 只保留 descriptor/readback 兼容。MAS Scholar Skills 只维护这八个有真实专业 Skill 单源的 active module；没有稳定专业 Skill 的能力不在本仓预留占位。

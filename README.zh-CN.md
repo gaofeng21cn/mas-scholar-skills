@@ -34,6 +34,8 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 
 当前分层固定为：8 个 active 专业模块，全部由真实可同步 Codex 专业 Skill 支撑。active module id 是 `mas-scholar-skills.display`、`mas-scholar-skills.tables`、`mas-scholar-skills.stats`、`mas-scholar-skills.lit`、`mas-scholar-skills.write`、`mas-scholar-skills.review`、`mas-scholar-skills.submit` 和 `mas-scholar-skills.data`；历史 `opl.scholarskills.*` id 只保留为 legacy alias/provenance。`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 是可同步 skill source；其中 `medical-figure-style` 和 `medical-figure-composer` 是 `display` 下的薄子能力，不新增 active module。通用 source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不在本仓保留合同占位；组学能力等 MAS 有稳定真实专业 workflow 时，再作为真实专业 Skill 进入本仓。
 
+三层语义固定为：专业 Skill 负责医学判断、playbook、rubric、route-back 和候选 refs；Skill-local deterministic helper 随 Skill 同目录分发，通常是 `kernel.py`，只做解析、归一化、lint、skeleton、manifest / receipt shaping 或 self-check；程序化基座和 authority surface 归 MAS / OPL Framework，负责 connector、credential、runtime、receipt、owner gate、artifact authority、publication readiness 和 App/operator projection。本仓可以维护前两层的 source 和 refs，但不持有 MAS domain truth、owner receipt、typed blocker、runtime queue、provider lifecycle 或 publication/export readiness。
+
 文献工作现在使用稳定的 OPL Connect PubMed 路径：`medical-research-lit` 负责检索策略、来源筛选、证据地图和 MAS 回流交接；`opl connect pubmed search --query <query> --limit <n> --json` 负责只读 PubMed 访问，并返回 `pubmed_source_refs` 与 `pubmed_connector_invocation_ref`。
 
 当前专业质量地板放在真实 Skill 内维护。共享交接形状见
