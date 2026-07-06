@@ -42,6 +42,34 @@ def sanitize_anndata_keys(keys: Sequence[Any] | Mapping[Any, Any]) -> dict[str, 
     return mapping
 
 
+def h5ad_safe_obs(df: Any) -> Any:
+    """Return a copied obs/var dataframe safe for AnnData H5AD string writing.
+
+    The helper imports pandas/numpy lazily, never writes files, and never mutates
+    the input dataframe. Callers must assign or pass the returned copy explicitly.
+    """
+
+    import numpy as np
+    import pandas as pd
+
+    out = df.copy()
+    out.index = pd.Index(
+        np.asarray(out.index, dtype=object).astype(str), name=out.index.name
+    )
+    for column in out.columns:
+        dtype = str(out[column].dtype)
+        if dtype in {"object", "str"} or "string" in dtype:
+            mask = out[column].notna()
+            values = np.asarray(
+                out[column].astype(object).where(mask, None), dtype=object
+            ).copy()
+            values[mask.to_numpy()] = np.asarray(
+                out[column][mask].astype(str), dtype=object
+            )
+            out[column] = pd.Categorical(values)
+    return out
+
+
 def safe_obs_summary(obs: Any, max_values: int = 8) -> dict[str, Any]:
     """Summarize dict or dataframe-like obs without importing pandas."""
 
@@ -170,7 +198,33 @@ def _self_check() -> None:
     assert sanitize_anndata_keys(["a b", "a-b"]) == {"a b": "a_b", "a-b": "a_b_2"}
     assert safe_obs_summary(obs)["n_obs"] == 3
     assert batch_label_key_diagnostics(obs, "Batch ID", "cell type")["missing_keys"] == []
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
+    optional = _self_check_h5ad_safe_obs()
+    print(json.dumps({"ok": True, "checks": 6, "h5ad_safe_obs": optional}, indent=2, sort_keys=True))
+
+
+def _self_check_h5ad_safe_obs() -> dict[str, Any]:
+    assert callable(h5ad_safe_obs)
+    try:
+        import pandas as pd
+    except ImportError as exc:
+        return {"status": "skipped", "reason": str(exc)}
+    obs = pd.DataFrame(
+        {
+            "label": ["T", None, "B"],
+            "sample": pd.array(["s1", pd.NA, "s2"], dtype="string"),
+            "count": [1, 2, 3],
+        },
+        index=pd.Index([101, "cell-2", 303], name="cell_id"),
+    )
+    out = h5ad_safe_obs(obs)
+    assert out is not obs
+    assert list(out.index) == ["101", "cell-2", "303"]
+    assert str(out["label"].dtype) == "category"
+    assert str(out["sample"].dtype) == "category"
+    assert str(out["count"].dtype) == "int64"
+    assert out["label"].isna().tolist() == [False, True, False]
+    assert out["sample"].isna().tolist() == [False, True, False]
+    return {"status": "checked"}
 
 
 if __name__ == "__main__":

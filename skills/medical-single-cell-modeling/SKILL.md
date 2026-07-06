@@ -23,6 +23,15 @@ batch/label-key diagnostics. It is a no-authority scaffold/diagnostic helper
 only; the consuming workspace or compute owner still owns data truth, execution,
 model outputs, owner receipts, typed blockers, and readiness labels.
 
+`kernel.py` also exposes `h5ad_safe_obs(df)`, a skill-local deterministic helper
+for preparing copied AnnData `.obs`/`.var` dataframes before a caller writes
+H5AD. It copies the dataframe, coerces the index to strings, preserves missing
+values in object/string columns, converts non-missing values to strings, and
+stores those columns as `pandas.Categorical`. It does not write files, mutate
+AnnData, mutate the input dataframe, create MAS truth, or claim artifact
+authority; it only takes effect when the caller explicitly uses the returned
+copy.
+
 ## Workflow
 
 1. Define the single-cell question: annotation, batch correction, latent
