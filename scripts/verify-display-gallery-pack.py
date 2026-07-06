@@ -274,6 +274,9 @@ def verify_source_pack() -> dict:
         "renderer_dependency_profile.json",
         "renderer_migration_ledger.json",
         "rlib/medicaldisplaycore/evidence_renderer.R",
+        "rlib/medicaldisplaycore/evidence_renderer_parts/data_frames.R",
+        "rlib/medicaldisplaycore/evidence_renderer_parts/layouts.R",
+        "rlib/medicaldisplaycore/evidence_renderer_parts/style.R",
         "rlib/medicaldisplaycore/candidate_renderer.R",
         "src/fenggaolab_org_medical_display_core/__init__.py",
     ]:
