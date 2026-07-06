@@ -17,6 +17,9 @@ receipt refs, and `owner_gate_handoff_ref`; it cannot write MAS study truth,
 mutate artifacts, sign owner receipt, create typed blocker, claim quality
 verdict, or claim publication readiness.
 
+Optional deterministic helper: `kernel.py` provides design constraint hygiene,
+handoff shells, sequence candidate summaries, and authority lints.
+
 ## Workflow
 
 1. Define the design target: fixed-backbone sequence recovery, interface

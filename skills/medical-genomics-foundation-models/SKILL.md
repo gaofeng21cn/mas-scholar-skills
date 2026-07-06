@@ -15,6 +15,9 @@ refs, track prediction refs, model/env/receipt refs, and `owner_gate_handoff_ref
 it cannot write MAS study truth, mutate clinical data, sign owner receipt,
 create typed blocker, claim source readiness, or claim publication readiness.
 
+Optional deterministic helper: `kernel.py` provides interval normalization,
+genomics handoff shells, variant candidate shells, and authority/source lints.
+
 ## Workflow
 
 1. Define the genomics question: variant effect, promoter/enhancer track,

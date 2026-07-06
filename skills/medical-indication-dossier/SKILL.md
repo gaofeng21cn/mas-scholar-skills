@@ -15,6 +15,9 @@ waypoint refs, evidence synthesis refs, deterministic receipt refs, and
 `owner_gate_handoff_ref`; it cannot write MAS study truth, clinical strategy
 truth, owner receipt, typed blocker, quality verdict, or publication readiness.
 
+Optional deterministic helper: `kernel.py` provides dossier handoff shells,
+waypoint matrices, source manifest summaries, and authority lints.
+
 ## Waypoint Workflow
 
 1. Define `indication_scope_ref`, target geography, timeframe, population, and

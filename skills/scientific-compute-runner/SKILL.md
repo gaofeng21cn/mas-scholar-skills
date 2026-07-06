@@ -23,6 +23,9 @@ deterministic helper receipts, and `owner_gate_handoff_ref`; it cannot write
 runtime state, domain truth, owner receipt, typed blocker, quality verdict, or
 publication readiness.
 
+Optional deterministic helper: `kernel.py` normalizes env specs, provider intent
+envelopes, compute log summaries, unsigned receipt skeletons, and authority lints.
+
 ## Workflow
 
 1. State the workload question, expected inputs/outputs, hardware need, time

@@ -16,6 +16,9 @@ diagnostic notes, deterministic receipt refs, and `owner_gate_handoff_ref`; it
 cannot write MAS study truth, mutate artifacts, sign owner receipt, create typed
 blocker, claim quality verdict, or claim publication readiness.
 
+Optional deterministic helper: `kernel.py` provides sequence hygiene, structure
+candidate shells, confidence summaries, manifest shells, and authority lints.
+
 ## Workflow
 
 1. Define the structural question: monomer fold, multimer interface,
