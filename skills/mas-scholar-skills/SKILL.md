@@ -188,13 +188,13 @@ sources, or claim-citation quality.
 
 ## Scholar Lit And OPL Connect
 
-For PubMed-oriented literature work, use `medical-research-lit` for the AI workflow and OPL Connect for stable external source access:
+For PubMed-oriented literature work, use `medical-research-lit` for the AI workflow and OPL Connect for stable external source access. Prefer the unified scientific connector entry:
 
 ```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
+opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json
 ```
 
-Record connector output as `pubmed_source_refs` and `pubmed_connector_invocation_ref` in the Lit handoff. MAS Scholar Skills owns query strategy, citation-map guidance, reference-integrity floors, route-back hints, and AI candidate judgments. OPL Connect owns the PubMed API call, normalized `pubmed:<pmid>` refs, request metadata, connector errors, and read-only receipt candidate.
+`opl connect pubmed search --query "<query>" --limit <n> --json` is only the PubMed compatibility entry. Record connector output as `pubmed_source_refs` and `pubmed_connector_invocation_ref` in the Lit handoff. Crossref and OpenAlex connector refs are allowed only for metadata, coverage, or citation graph fallback; they are not citation acceptance. MAS Scholar Skills owns query strategy, citation-map guidance, reference-integrity floors, route-back hints, and AI candidate judgments. OPL Connect owns provider API calls, normalized refs, request metadata, connector errors, and read-only receipt candidates. MAS owns citation acceptance and manuscript use.
 
 ## FeedbackOps Refs-Only Adapter
 

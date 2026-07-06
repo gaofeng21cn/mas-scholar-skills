@@ -116,13 +116,13 @@ If writing, review, figure, literature, statistics, table, submission, or data-g
 
 Use `medical-research-lit` when the task needs external literature discovery, source screening, PMID/DOI/PMCID verification, fallback-source reasoning, or a claim-support map. Literature discovery is external-resource heavy, so it belongs in MAS Scholar Skills as a real specialist skill while OPL Connect owns provider access and MAS still owns citation acceptance and manuscript use.
 
-The stable default PubMed/PMC execution path is:
+The stable default PubMed/PMC execution path uses the unified scientific connector entry:
 
 ```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
+opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json
 ```
 
-`medical-research-lit` records returned normalized metadata as `scientific_connector_source_refs` and `pubmed_source_refs`, and connector read receipts as `scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`. When PubMed/PMC does not cover the task, Crossref and OpenAlex connector refs may be used for metadata, coverage, or citation graph fallback and recorded as `fallback_source_refs`; those refs are not citation acceptance. MAS Scholar Skills owns query strategy, screening, fallback reasons, evidence maps, `claim_support_map_ref`, and route-back handoff. OPL Connect owns the provider calls, source-ref normalization, connector invocation refs, receipt candidates, cache/retry metadata, connector error semantics, and no-authority flags. MAS owns citation judgment, manuscript use, review ledger updates, owner receipts, typed blockers, and publication decisions. This repo does not claim live provider readiness.
+`opl connect pubmed search --query "<query>" --limit <n> --json` remains only the PubMed compatibility entry. `medical-research-lit` records returned normalized metadata as `scientific_connector_source_refs` and `pubmed_source_refs`, and connector read receipts as `scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`. When PubMed/PMC does not cover the task, Crossref and OpenAlex connector refs may be used for metadata, coverage, or citation graph fallback and recorded as `fallback_source_refs`; those refs are not citation acceptance. MAS Scholar Skills owns query strategy, screening, fallback reasons, evidence maps, `claim_support_map_ref`, and route-back handoff. OPL Connect owns the provider calls, source-ref normalization, connector invocation refs, receipt candidates, cache/retry metadata, connector error semantics, and no-authority flags. MAS owns citation judgment, manuscript use, review ledger updates, owner receipts, typed blockers, and publication decisions. This repo does not claim live provider readiness.
 
 When the default medical-paper professional skills do not cover a named external
 scientific capability, such as omics, single-cell analysis, Nextflow, RDKit,

@@ -152,9 +152,11 @@ need, preprint/published-version check, or official-source requirement.
    useful, Boolean structure, date/language limits only when justified, and
    explicit exclusion criteria.
 3. Run the OPL Connect scientific connector profile when available, preferring
-   PubMed/PMC:
-   `opl connect pubmed search --query "<query>" --limit <n> --json`. Record
-   returned `scientific_connector_source_refs`, `pubmed_source_refs`,
+   PubMed/PMC through the unified connector entry:
+   `opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json`.
+   Use `opl connect pubmed search --query "<query>" --limit <n> --json` only
+   as the PubMed compatibility entry when the current Connect surface requires
+   it. Record returned `scientific_connector_source_refs`, `pubmed_source_refs`,
    `scientific_connector_invocation_refs`, connector receipt candidates, and
    cache/retry/no-authority metadata when present. If the connector is
    unavailable, record the missing connector ref as a fallback reason and use
