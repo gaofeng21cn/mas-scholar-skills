@@ -8,6 +8,8 @@ dist/
 build/
 coverage/
 .cache/
+__pycache__/
+*.pyc
 .tmp/
 tmp/
 outputs/

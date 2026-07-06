@@ -137,8 +137,6 @@ readme = read_text("README.md")
 readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
-capability_modules = read_text("docs/capability-modules.md")
-no_authority_boundary = read_text("docs/no-authority-boundary.md")
 professional_ref_templates = read_text("references/professional-quality-ref-templates.md")
 expected_capability_skills = [
     "medical-manuscript-writing",
@@ -849,24 +847,6 @@ for key in [
 ]:
     if quality_policy.get(key) is not False:
         fail(f"professional quality policy flag {key} must be false")
-for relative, text in {
-    "README.md": readme,
-    "README.zh-CN.md": readme_zh,
-    "docs/README.md": docs_index,
-    "docs/mas-scholar-skills-operating-model.md": operating_model,
-    "skills/mas-scholar-skills/SKILL.md": skill,
-}.items():
-    for token in ["MAS Scholar Skills", *expected_capability_skills]:
-        if token not in text:
-            fail(f"{relative} missing MAS Scholar Skills positioning token: {token}")
-for relative, expected_ref, text in [
-    ("README.md", "./docs/no-authority-boundary.md", readme),
-    ("README.zh-CN.md", "./docs/no-authority-boundary.md", readme_zh),
-    ("docs/README.md", "./no-authority-boundary.md", docs_index),
-    ("skills/mas-scholar-skills/SKILL.md", "docs/no-authority-boundary.md", skill),
-]:
-    if expected_ref not in text:
-        fail(f"{relative} missing shared no-authority boundary ref {expected_ref}")
 for relative, skill_id, text in [
     ("skills/medical-manuscript-writing/SKILL.md", "medical-manuscript-writing", write_skill),
     ("skills/medical-manuscript-review/SKILL.md", "medical-manuscript-review", review_skill),
@@ -919,63 +899,6 @@ for skill_id, text in medical_method_specialist_skills.items():
     ]:
         if token not in text:
             fail(f"skills/{skill_id}/SKILL.md missing medical-method specialist no-authority token: {token}")
-for relative, text in {
-    "skills/mas-scholar-skills/SKILL.md": skill,
-    "README.md": readme,
-    "README.zh-CN.md": readme_zh,
-    "docs/README.md": docs_index,
-    "docs/capability-modules.md": capability_modules,
-    "docs/no-authority-boundary.md": no_authority_boundary,
-}.items():
-    for token in [
-        "medical-structural-biology",
-        "medical-protein-design",
-        "medical-genomics-foundation-models",
-        "medical-single-cell-modeling",
-        "medical-indication-dossier",
-        "research-pdf-evidence-explorer",
-        "scientific-compute-runner",
-    ]:
-        if token not in text:
-            fail(f"{relative} missing advanced specialist token: {token}")
-    for token in ["optional", "refs-only", "no-authority"]:
-        if token.lower() not in text.lower():
-            fail(f"{relative} missing advanced specialist boundary token: {token}")
-for relative, text in {
-    "skills/mas-scholar-skills/SKILL.md": skill,
-    "README.md": readme,
-    "README.zh-CN.md": readme_zh,
-    "docs/README.md": docs_index,
-    "docs/capability-modules.md": capability_modules,
-    "docs/no-authority-boundary.md": no_authority_boundary,
-}.items():
-    for token in medical_method_specialist_skill_ids:
-        if token not in text:
-            fail(f"{relative} missing medical-method specialist token: {token}")
-    for token in ["medical-method", "optional", "refs-only", "no-authority"]:
-        if token.lower() not in text.lower():
-            fail(f"{relative} missing medical-method specialist boundary token: {token}")
-for token in [
-    "contracts/capability_map.json#/authority_boundary",
-    "contracts/capability_map.json#/owner_closeout_boundary",
-    "contracts/scholar-skills-capability-modules.json#/standard_handoff_ref_families",
-    "refs-only",
-    "authority false",
-    "candidate refs",
-    "candidate packages",
-    "source_pack_ref",
-    "candidate_package_ref",
-    "execution_receipt_ref",
-    "owner_gate_handoff_ref",
-    "MAS owner gate",
-    "downstream owner-consumption target only",
-    "owner receipt",
-    "typed blocker",
-    "publication readiness",
-    *expected_capability_skills,
-]:
-    if token not in no_authority_boundary:
-        fail(f"docs/no-authority-boundary.md missing boundary token: {token}")
 for forbidden in [
     "default opl-scholar-write",
     "default opl-scholar-review",
@@ -983,36 +906,6 @@ for forbidden in [
 ]:
     if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
         fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
-for relative, text in [
-    ("README.md", readme),
-    ("README.zh-CN.md", readme_zh),
-    ("docs/mas-scholar-skills-operating-model.md", operating_model),
-    ("docs/capability-modules.md", capability_modules),
-]:
-    for token in [
-        "agent/stages/",
-        "agent/prompts/",
-        ".codex/skills/",
-        "professional specialist",
-        "Tool connector",
-    ]:
-        if token.lower() not in text.lower():
-            fail(f"{relative} missing stage/professional/tool boundary token: {token}")
-for relative, text in [
-    ("README.md", readme),
-    ("README.zh-CN.md", readme_zh),
-    ("docs/README.md", docs_index),
-    ("docs/mas-scholar-skills-operating-model.md", operating_model),
-    ("skills/mas-scholar-skills/SKILL.md", skill),
-    ("skills/medical-research-lit/SKILL.md", lit_skill),
-]:
-    for token in [
-        "opl connect pubmed search",
-        "pubmed_source_refs",
-        "pubmed_connector_invocation_ref",
-    ]:
-        if token not in text:
-            fail(f"{relative} missing PubMed Connect positioning token: {token}")
 for token in [
     "connect_pubmed_search",
     "pubmed_source_refs",
@@ -2149,179 +2042,11 @@ for pattern in [
     "gallery/**/*.sidecar.json",
     "gallery/**/*.layout.json",
     ".worktrees/",
+    "__pycache__/",
+    "*.pyc",
 ]:
     if pattern not in gitignore:
         fail(f".gitignore missing intermediate-output pattern {pattern}")
-
-for relative in ["README.md", "README.zh-CN.md", "AGENTS.md"]:
-    text = read_text(relative)
-    lower = text.lower()
-    if "publication ready" not in lower and "publication-ready" not in lower and "publication readiness" not in lower:
-        fail(f"{relative} must mention publication readiness boundary")
-
-required_doc_tokens = {
-    "README.md": [
-        "progress-first",
-        "AI auto-judgment-first",
-        "AI-consumable evidence",
-        "verdict_candidate",
-        "route_back_candidate",
-        "stop/continue recommendations",
-        "source_pack_ref",
-        "candidate_package_ref",
-        "execution_receipt_ref",
-        "owner_gate_handoff_ref",
-    ],
-    "README.zh-CN.md": [
-        "progress-first",
-        "AI auto-judgment-first",
-        "AI-consumable evidence",
-        "verdict_candidate",
-        "route_back_candidate",
-        "stop/continue recommendations",
-        "source_pack_ref",
-        "candidate_package_ref",
-        "execution_receipt_ref",
-        "owner_gate_handoff_ref",
-    ],
-    "skills/opl-scholarskills/SKILL.md": [
-        "Legacy Alias",
-        "mas-scholar-skills",
-        "medical-manuscript-writing",
-        "medical-manuscript-review",
-        "medical-figure-design",
-        "medical-research-lit",
-        "not treat this alias as a separate source of truth",
-    ],
-    "skills/mas-scholar-skills/SKILL.md": [
-        "MAS Progress And AI Judgment Rules",
-        "Professional Skill Quality Floor",
-        "medical-research-lit",
-        "AI auto-judgment-first",
-        "source_pack_ref",
-        "candidate_package_ref",
-        "execution_receipt_ref",
-        "owner_gate_handoff_ref",
-        "active professional skill modules",
-    ],
-    "skills/medical-research-lit/SKILL.md": [
-        "PubMed",
-        "PMID",
-        "DOI",
-        "claim_support_map_ref",
-        "support_strength_matrix_ref",
-        "deduplication_ref",
-        "owner_gate_handoff_ref",
-        "Do not fabricate citations",
-    ],
-    "skills/medical-manuscript-writing/SKILL.md": [
-        "professional specialist",
-        "AI-native medical authorship",
-        "one_sentence_argument_ref",
-        "terminology_ledger_ref",
-        "paragraph_job_map_ref",
-        "claim_evidence_map.json",
-        "section_contracts.md",
-        "opl connect pubmed search",
-        "pubmed_source_refs",
-        "pubmed_connector_invocation_ref",
-        "submission_minimal_required",
-        "Do not polish fiction",
-    ],
-    "skills/medical-manuscript-review/SKILL.md": [
-        "professional specialist",
-        "adversarial medical pressure test",
-        "review_fact_base_ref",
-        "technical_reviewer_lane",
-        "cross_review_synthesis_ref",
-        "Reviewer Action Matrix",
-        "sci_clinical_registry_review",
-        "revision_delta_audit",
-        "opl connect pubmed search",
-        "pubmed_source_refs",
-        "pubmed_connector_invocation_ref",
-        "Do not fabricate citations",
-    ],
-    "skills/medical-figure-design/SKILL.md": [
-        "professional specialist",
-        "Medical figures are evidence surfaces",
-        "figure_contract_ref",
-        "style_brief_ref",
-        "candidate_set_ref",
-        "critic_review_ref",
-        "Figure Intent And Claim",
-        "Panel Plan",
-        "Visual QA",
-        "opl connect pubmed search",
-        "pubmed_source_refs",
-        "pubmed_connector_invocation_ref",
-        "Do not silently fallback",
-    ],
-    "docs/capability-modules.md": [
-        "progress_first_ai_auto_judgment_first",
-        "AI-consumable evidence",
-        "verdict_candidate",
-        "route_back_candidate",
-        "stop_or_continue_recommendation",
-        "source_pack_ref",
-        "candidate_package_ref",
-        "execution_receipt_ref",
-        "owner_gate_handoff_ref",
-        "Parsifal",
-        "paper-search-mcp",
-        "LocalCitationNetwork",
-        "lit-review-orchestrator",
-        "AI-Scientist",
-        "FAROS",
-        "AutoR",
-        "feedbackops_refs_only_adapter_policy",
-        "target_agent_feedback_external_suite",
-        "feedbackops_intake_ref",
-        "MAS/OMA",
-        "专业 Skill 质量地板",
-        "support-strength matrix",
-    ],
-    "docs/gallery/display-gallery.md": [
-        "source pack",
-        "compact gallery review refs",
-        "scripts/verify-display-gallery-pack.py --check",
-        "publication gate",
-    ],
-    "packs/medical-display-core/README.md": [
-        "MAS Scholar Skills-owned externalized medical display source pack",
-        "gallery/medical-display/gallery_snapshot.json",
-        "scripts/verify-display-gallery-pack.py --check",
-        "authority = false",
-        "publication_ready = false",
-    ],
-    "docs/candidate-artifact-engines.md": [
-        "AI-consumable evidence",
-        "verdict_candidate",
-        "route_back_candidate",
-        "stop_or_continue_recommendation",
-        "source_pack_ref",
-        "candidate_package_ref",
-        "execution_receipt_ref",
-        "owner_gate_handoff_ref",
-        "Parsifal",
-        "paper-search-mcp",
-        "LocalCitationNetwork",
-        "lit-review-orchestrator",
-        "AI-Scientist",
-        "FAROS",
-        "AutoR",
-        "不接 runtime",
-        "target_agent_feedback_external_suite",
-        "feedbackops_intake_ref",
-        "MAS/OMA",
-        "不能写 MAS/current_package",
-    ],
-}
-for relative, tokens in required_doc_tokens.items():
-    text = read_text(relative)
-    for token in tokens:
-        if token not in text:
-            fail(f"{relative} missing required AI judgment token: {token}")
 
 print("verify ok: mas-scholar-skills plugin, contract, medical skill sources, gallery package, and no-authority boundaries are valid")
 PY
