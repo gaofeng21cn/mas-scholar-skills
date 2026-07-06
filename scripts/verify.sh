@@ -295,6 +295,26 @@ method_expected = {
         "tokens": ["survival_analysis", "time_to_event", "censoring", "competing_risk", "risk_set", "Cox"],
         "refs": ["survival_question_ref", "time_origin_and_risk_set_ref", "endpoint_and_censoring_ref", "model_plan_ref"],
     },
+    "medical-risk-model-transportability-reviewer": {
+        "tokens": ["risk_model", "transportability", "external_validation", "calibration", "DCA", "TRIPOD"],
+        "refs": ["source_model_ref", "target_population_ref", "predictor_mapping_ref", "transportability_assessment_ref"],
+    },
+    "medical-registry-atlas-story-architect": {
+        "tokens": ["registry_atlas", "descriptive_registry", "phenotype_atlas", "data_lock", "treatment_gap", "story_contract"],
+        "refs": ["registry_story_contract_ref", "cohort_and_data_lock_ref", "figure_table_story_map_ref", "claim_boundary_ref"],
+    },
+    "medical-owner-gate-handoff-reviewer": {
+        "tokens": ["owner_gate", "handoff_review", "authority_boundary", "route_back", "residual_risk", "owner_receipt"],
+        "refs": ["handoff_inventory_ref", "authority_boundary_ref", "evidence_to_owner_map_ref", "residual_risk_ref"],
+    },
+    "medical-display-regression-debugger": {
+        "tokens": ["display_regression", "renderer", "artifact_diff", "source_renderer", "nonblank_export", "visual_QA"],
+        "refs": ["display_regression_symptom_ref", "artifact_diff_ref", "renderer_path_ref", "source_renderer_boundary_ref"],
+    },
+    "medical-data-freeze-and-analysis-readiness-reviewer": {
+        "tokens": ["data_freeze", "analysis_readiness", "data_lock", "dataset_boundary", "lineage", "missingness"],
+        "refs": ["data_freeze_inventory_ref", "data_lock_window_ref", "analysis_dataset_boundary_ref", "analysis_readiness_gap_ref"],
+    },
 }
 for skill_id, expected in advanced_expected.items():
     item = advanced_capability_by_id.get(skill_id)

@@ -57,10 +57,14 @@ Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
 `medical-evidence-synthesis-and-claim-map`、
 `medical-reference-integrity-auditor`、`medical-rebuttal-strategy`、
 `medical-display-qc`、`medical-causal-inference-plan` 和
-`medical-survival-analysis-plan`。它们用于明确的方法学专科任务，只输出
-candidate refs、support map、`route_back_candidate` 和
-`owner_gate_handoff_ref`；不新增 active core module，不签 owner receipt，不创建
-typed blocker，不写 MAS truth，也不声明 source / runtime / publication ready。
+`medical-survival-analysis-plan`，以及
+`medical-risk-model-transportability-reviewer`、
+`medical-registry-atlas-story-architect`、
+`medical-owner-gate-handoff-reviewer`、`medical-display-regression-debugger`
+和 `medical-data-freeze-and-analysis-readiness-reviewer`。它们用于明确的
+方法学专科任务，只输出 candidate refs、support map、`route_back_candidate`
+和 `owner_gate_handoff_ref`；不新增 active core module，不签 owner receipt，
+不创建 typed blocker，不写 MAS truth，也不声明 source / runtime / publication ready。
 
 组学能力如需进入默认核心目录，仍需 MAS 形成稳定、可维护、可同步的真实组学专业 workflow 后，再作为 active 专业 Skill/模块升级；当前 `medical-genomics-foundation-models` 与 `medical-single-cell-modeling` 属于可选 advanced specialist。通用 source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不在 MAS Scholar Skills 默认核心专业 Skill 库中占位。
 

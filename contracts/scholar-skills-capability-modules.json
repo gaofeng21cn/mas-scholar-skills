@@ -126,7 +126,12 @@
       "medical-rebuttal-strategy",
       "medical-display-qc",
       "medical-causal-inference-plan",
-      "medical-survival-analysis-plan"
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer"
     ],
     "optional_medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
   },
@@ -199,7 +204,12 @@
       "medical-rebuttal-strategy",
       "medical-display-qc",
       "medical-causal-inference-plan",
-      "medical-survival-analysis-plan"
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer"
     ],
     "optional_medical_method_specialist_policy": "optional_medical_method_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress"
   },
@@ -3314,6 +3324,115 @@
           "competing_risk",
           "risk_set",
           "Cox"
+        ]
+      },
+      {
+        "skill_id": "medical-risk-model-transportability-reviewer",
+        "canonical_path": "skills/medical-risk-model-transportability-reviewer/SKILL.md",
+        "specialist_family": "risk_model_transportability_review",
+        "candidate_ref_families": [
+          "source_model_ref",
+          "target_population_ref",
+          "predictor_mapping_ref",
+          "transportability_assessment_ref",
+          "calibration_and_performance_ref",
+          "clinical_utility_boundary_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "risk_model",
+          "transportability",
+          "external_validation",
+          "calibration",
+          "DCA",
+          "TRIPOD"
+        ]
+      },
+      {
+        "skill_id": "medical-registry-atlas-story-architect",
+        "canonical_path": "skills/medical-registry-atlas-story-architect/SKILL.md",
+        "specialist_family": "registry_atlas_story_architecture",
+        "candidate_ref_families": [
+          "registry_story_contract_ref",
+          "cohort_and_data_lock_ref",
+          "phenotype_axis_ref",
+          "figure_table_story_map_ref",
+          "claim_boundary_ref",
+          "discussion_theme_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "registry_atlas",
+          "descriptive_registry",
+          "phenotype_atlas",
+          "data_lock",
+          "treatment_gap",
+          "story_contract"
+        ]
+      },
+      {
+        "skill_id": "medical-owner-gate-handoff-reviewer",
+        "canonical_path": "skills/medical-owner-gate-handoff-reviewer/SKILL.md",
+        "specialist_family": "owner_gate_handoff_review",
+        "candidate_ref_families": [
+          "handoff_inventory_ref",
+          "authority_boundary_ref",
+          "evidence_to_owner_map_ref",
+          "candidate_package_consistency_ref",
+          "residual_risk_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "owner_gate",
+          "handoff_review",
+          "authority_boundary",
+          "route_back",
+          "residual_risk",
+          "owner_receipt"
+        ]
+      },
+      {
+        "skill_id": "medical-display-regression-debugger",
+        "canonical_path": "skills/medical-display-regression-debugger/SKILL.md",
+        "specialist_family": "medical_display_regression_debugging",
+        "candidate_ref_families": [
+          "display_regression_symptom_ref",
+          "artifact_diff_ref",
+          "renderer_path_ref",
+          "source_renderer_boundary_ref",
+          "reproduction_probe_ref",
+          "repair_route_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "display_regression",
+          "renderer",
+          "artifact_diff",
+          "source_renderer",
+          "nonblank_export",
+          "visual_QA"
+        ]
+      },
+      {
+        "skill_id": "medical-data-freeze-and-analysis-readiness-reviewer",
+        "canonical_path": "skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
+        "specialist_family": "data_freeze_and_analysis_readiness_review",
+        "candidate_ref_families": [
+          "data_freeze_inventory_ref",
+          "data_lock_window_ref",
+          "analysis_dataset_boundary_ref",
+          "dictionary_and_lineage_ref",
+          "missingness_and_exclusion_ref",
+          "analysis_readiness_gap_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "data_freeze",
+          "analysis_readiness",
+          "data_lock",
+          "dataset_boundary",
+          "lineage",
+          "missingness"
         ]
       }
     ],

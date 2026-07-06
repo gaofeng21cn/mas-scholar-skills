@@ -30,11 +30,14 @@ Optional medical-method specialist skills such as
 `medical-evidence-synthesis-and-claim-map`,
 `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
 `medical-display-qc`, `medical-causal-inference-plan`, and
-`medical-survival-analysis-plan` follow the same boundary. They may emit
-candidate refs, support maps, `route_back_candidate`, and
-`owner_gate_handoff_ref` for named method tasks; they are not active module
-owners and cannot sign owner receipts, create typed blockers, write MAS truth,
-or claim source, runtime, publication, or production readiness.
+`medical-survival-analysis-plan`, plus `medical-risk-model-transportability-reviewer`,
+`medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`,
+`medical-display-regression-debugger`, and
+`medical-data-freeze-and-analysis-readiness-reviewer`, follow the same boundary.
+They may emit candidate refs, support maps, `route_back_candidate`, and
+`owner_gate_handoff_ref` for named method tasks; they are not active module owners
+and cannot sign owner receipts, create typed blockers, write MAS truth, or claim
+source, runtime, publication, or production readiness.
 
 ## Owner Route
 

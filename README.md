@@ -56,9 +56,13 @@ Optional medical-method specialist skills follow the same rule:
 `medical-evidence-synthesis-and-claim-map`,
 `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
 `medical-display-qc`, `medical-causal-inference-plan`, and
-`medical-survival-analysis-plan` are real Codex discovery skills for named
-method tasks. They emit candidate refs, support maps, route-back candidates,
-and `owner_gate_handoff_ref`; they do not add active modules or owner authority.
+`medical-survival-analysis-plan`, plus `medical-risk-model-transportability-reviewer`,
+`medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`,
+`medical-display-regression-debugger`, and
+`medical-data-freeze-and-analysis-readiness-reviewer`, are real Codex
+discovery skills for named method tasks. They emit candidate refs, support maps,
+route-back candidates, and `owner_gate_handoff_ref`; they do not add active
+modules or owner authority.
 
 <table>
   <tr>
