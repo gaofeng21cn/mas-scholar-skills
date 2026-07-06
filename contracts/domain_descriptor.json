@@ -55,7 +55,19 @@
       "opl-meta-agent",
       "one-person-lab.agent_lab"
     ],
-    "consumption_mode": "refs_only_professional_skill_candidate_handoff"
+    "consumption_mode": "refs_only_professional_skill_candidate_handoff",
+    "advanced_specialist_skills": [
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner"
+    ],
+    "advanced_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+    "advanced_specialist_consumption_mode": "optional_refs_only_external_specialist_candidate_handoff",
+    "advanced_specialists_block_core_progress_when_missing": false
   },
   "authority_boundary": {
     "can_write_domain_truth": false,

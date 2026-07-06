@@ -22,7 +22,7 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills 学术能力流转示意图" width="100%" />
 </p>
 
-`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为兼容别名。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，以及 `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能的单源。
+`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为兼容别名。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及结构生物学、蛋白设计、基因组 foundation model、单细胞建模、indication dossier、PDF 证据探索和科学计算诊断这些可选 advanced specialist skills 的单源。
 
 MAS 的 stage 主提示词留在 MAS domain-agent 仓：canonical stage source 是 MAS `agent/stages/` 和 `agent/prompts/`。MAS overlay Skill、工作区或 quest 内 `.codex/skills/` 同步副本是 Codex discovery projection / 兼容面，不是 stage authority 的源头；这个同步动作本身必须保留，因为 Codex 依靠 `.codex/skills/` 稳定发现本地技能。`write`、`review`、`figure`、`scout` 等阶段负责什么时候进入、证据够不够、交给谁、怎样 route-back、什么算 owner gate。本仓八个 `medical-*` 技能负责把已经分配下来的写作、审稿、图件、文献、统计、表格、投稿和临床数据治理任务做得更专业。
 
@@ -39,6 +39,14 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 当前专业质量地板放在八个真 Skill 内维护。共享交接形状见
 [`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)，
 让每个 `medical-*` skill 指向公共 refs，而不是复制长 checklist。
+
+可选 optional advanced specialist skills 只有在任务明确需要该专科时才使用：
+`medical-structural-biology`、`medical-protein-design`、
+`medical-genomics-foundation-models`、`medical-single-cell-modeling`、
+`medical-indication-dossier`、`research-pdf-evidence-explorer` 和
+`scientific-compute-runner`。它们是真实可发现 Codex Skill，但只提供
+refs-only / no-authority 候选帮助；不替代八个默认技能，不成为 MAS
+authority owner，缺失时也不阻断 MAS ordinary progress。
 
 <table>
   <tr>

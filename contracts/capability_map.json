@@ -544,5 +544,320 @@
   "verification_command_refs": [
     "jq . contracts/domain_descriptor.json contracts/capability_map.json",
     "scripts/verify.sh"
-  ]
+  ],
+  "optional_specialist_skills": [
+    {
+      "skill_id": "medical-structural-biology",
+      "canonical_path": "skills/medical-structural-biology/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-structural-biology/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "medical-structural-biology",
+        "structure",
+        "docking",
+        "alphafold2",
+        "openfold3",
+        "boltz",
+        "chai1",
+        "esmfold2",
+        "diffdock"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-structural-biology-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "structure_candidate_ref",
+        "docking_candidate_ref",
+        "model_output_manifest_ref",
+        "confidence_metrics_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "medical-protein-design",
+      "canonical_path": "skills/medical-protein-design/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-protein-design/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "medical-protein-design",
+        "protein_design",
+        "sequence_design",
+        "proteinmpnn",
+        "ligandmpnn",
+        "solublempnn",
+        "fair-esm2"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-protein-design-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "sequence_candidate_refs",
+        "design_score_ref",
+        "embedding_ref",
+        "fold_back_validation_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "medical-genomics-foundation-models",
+      "canonical_path": "skills/medical-genomics-foundation-models/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-genomics-foundation-models/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "medical-genomics-foundation-models",
+        "genomics",
+        "dna_scoring",
+        "track_prediction",
+        "borzoi",
+        "evo2"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-genomics-foundation-models-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "dna_scoring_candidate_ref",
+        "track_prediction_candidate_ref",
+        "model_checkpoint_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "medical-single-cell-modeling",
+      "canonical_path": "skills/medical-single-cell-modeling/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-single-cell-modeling/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "medical-single-cell-modeling",
+        "single_cell",
+        "anndata",
+        "embedding",
+        "annotation",
+        "differential_expression",
+        "scgpt",
+        "scvi-tools"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-single-cell-modeling-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "embedding_candidate_ref",
+        "annotation_candidate_ref",
+        "differential_expression_candidate_ref",
+        "batch_diagnostic_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "medical-indication-dossier",
+      "canonical_path": "skills/medical-indication-dossier/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-indication-dossier/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "medical-indication-dossier",
+        "indication_dossier",
+        "patient_population_waypoint",
+        "epidemiology",
+        "standard_of_care",
+        "regulatory_trials",
+        "indication-dossier"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-indication-dossier-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "population_definition_ref",
+        "epidemiology_waypoint_ref",
+        "biology_soc_waypoint_ref",
+        "regulatory_trials_waypoint_ref",
+        "patient_population_waypoint_ref",
+        "synthesis_candidate_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "research-pdf-evidence-explorer",
+      "canonical_path": "skills/research-pdf-evidence-explorer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/research-pdf-evidence-explorer/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "research-pdf-evidence-explorer",
+        "pdf_explore",
+        "parse_once",
+        "outline",
+        "scan",
+        "grep",
+        "crop",
+        "page_evidence",
+        "pdf-explore"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#research-pdf-evidence-explorer-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "pdf_parse_manifest_ref",
+        "pdf_outline_ref",
+        "pdf_scan_ref",
+        "pdf_grep_ref",
+        "pdf_crop_ref",
+        "page_evidence_refs",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "scientific-compute-runner",
+      "canonical_path": "skills/scientific-compute-runner/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/scientific-compute-runner/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+      "tokens": [
+        "scientific-compute-runner",
+        "compute_env_setup",
+        "remote_compute_ssh",
+        "remote_compute_modal",
+        "managed_model_endpoints",
+        "using_model_endpoint",
+        "OPL_Runway_Connect_owns_substrate",
+        "compute-env-setup",
+        "remote-compute-ssh",
+        "remote-compute-modal",
+        "managed-model-endpoints",
+        "using-model-endpoint"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#scientific-compute-runner-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "compute_requirement_ref",
+        "provider_selection_ref",
+        "environment_probe_ref",
+        "job_plan_ref",
+        "endpoint_request_ref",
+        "deterministic_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false
+    }
+  ],
+  "advanced_specialist_pack_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
 }

@@ -4,7 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-python3 scripts/verify-display-gallery-pack.py --check
+if [[ "${MAS_SCHOLAR_SKILLS_SKIP_DISPLAY_GALLERY:-0}" != "1" ]]; then
+  python3 scripts/verify-display-gallery-pack.py --check
+fi
 
 python3 - <<'PY'
 import hashlib
@@ -79,6 +81,22 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+medical-submission-prep$", submit_skil
 data_governance_skill = read_text("skills/medical-data-governance/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-data-governance$", data_governance_skill, re.MULTILINE):
     fail("medical-data-governance must be a real Codex skill")
+advanced_specialist_skill_ids = [
+    "medical-structural-biology",
+    "medical-protein-design",
+    "medical-genomics-foundation-models",
+    "medical-single-cell-modeling",
+    "medical-indication-dossier",
+    "research-pdf-evidence-explorer",
+    "scientific-compute-runner",
+]
+advanced_specialist_skills = {
+    skill_id: read_text(f"skills/{skill_id}/SKILL.md")
+    for skill_id in advanced_specialist_skill_ids
+}
+for skill_id, text in advanced_specialist_skills.items():
+    if not re.search(rf"^---\n[\s\S]*?^name:\s+{re.escape(skill_id)}$", text, re.MULTILINE):
+        fail(f"{skill_id} must be a real Codex skill")
 legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.MULTILINE):
     fail("legacy alias must expose name: opl-scholarskills")
@@ -117,6 +135,13 @@ require_all(
     domain_descriptor.get("capability_pack", {}).get("syncable_real_skills"),
     expected_capability_skills,
 )
+require_all(
+    "domain descriptor advanced specialist skills",
+    domain_descriptor.get("capability_pack", {}).get("advanced_specialist_skills"),
+    advanced_specialist_skill_ids,
+)
+if domain_descriptor.get("capability_pack", {}).get("advanced_specialists_block_core_progress_when_missing") is not False:
+    fail("advanced specialists must not block core progress when missing")
 if capability_map.get("surface_kind") != "oma_capability_pack_map":
     fail("capability map must expose oma_capability_pack_map")
 if capability_map.get("domain_id") != "mas-scholar-skills":
@@ -195,6 +220,65 @@ for key in [
 ]:
     if owner_closeout_boundary.get(key) is not False:
         fail(f"owner closeout boundary flag {key} must be false")
+advanced_capability_by_id = {
+    item.get("skill_id"): item
+    for item in capability_map.get("optional_specialist_skills", [])
+}
+advanced_expected = {
+    "medical-structural-biology": {
+        "sources": ["alphafold2", "openfold3", "boltz", "chai1", "esmfold2", "diffdock"],
+        "refs": ["structure_candidate_ref", "docking_candidate_ref", "confidence_metrics_ref"],
+    },
+    "medical-protein-design": {
+        "sources": ["proteinmpnn", "ligandmpnn", "solublempnn", "fair-esm2"],
+        "refs": ["sequence_candidate_refs", "embedding_ref", "fold_back_validation_ref"],
+    },
+    "medical-genomics-foundation-models": {
+        "sources": ["borzoi", "evo2"],
+        "refs": ["dna_scoring_candidate_ref", "track_prediction_candidate_ref"],
+    },
+    "medical-single-cell-modeling": {
+        "sources": ["scgpt", "scvi-tools"],
+        "refs": ["embedding_candidate_ref", "annotation_candidate_ref", "differential_expression_candidate_ref"],
+    },
+    "medical-indication-dossier": {
+        "sources": ["indication-dossier"],
+        "refs": ["patient_population_waypoint_ref", "synthesis_candidate_ref"],
+    },
+    "research-pdf-evidence-explorer": {
+        "sources": ["pdf-explore"],
+        "refs": ["pdf_parse_manifest_ref", "pdf_outline_ref", "pdf_grep_ref", "pdf_crop_ref"],
+    },
+    "scientific-compute-runner": {
+        "sources": ["compute-env-setup", "remote-compute-ssh", "remote-compute-modal", "managed-model-endpoints", "using-model-endpoint"],
+        "refs": ["compute_requirement_ref", "environment_probe_ref", "deterministic_receipt_ref"],
+    },
+}
+for skill_id, expected in advanced_expected.items():
+    item = advanced_capability_by_id.get(skill_id)
+    if item is None:
+        fail(f"capability map optional specialists missing {skill_id}")
+    if item.get("canonical_path") != f"skills/{skill_id}/SKILL.md":
+        fail(f"optional specialist canonical path for {skill_id} must point to its SKILL.md")
+    require_all(f"optional specialist tokens for {skill_id}", item.get("tokens"), [skill_id, *expected["sources"]])
+    require_all(f"optional specialist refs for {skill_id}", item.get("candidate_ref_families"), expected["refs"])
+    if item.get("optional_external_specialist") is not True:
+        fail(f"{skill_id} must be marked optional external specialist")
+    if item.get("blocks_core_progress_when_missing") is not False:
+        fail(f"{skill_id} must not block core progress when missing")
+    for key in [
+        "can_write_domain_truth",
+        "can_write_runtime_state",
+        "can_mutate_artifact_body",
+        "can_sign_owner_receipt",
+        "can_create_typed_blocker",
+        "can_claim_quality_verdict",
+        "can_claim_publication_readiness",
+        "can_claim_current_package_authority",
+        "can_claim_owner_closeout",
+    ]:
+        if (item.get("authority_boundary") or {}).get(key) is not False:
+            fail(f"optional specialist authority flag {key} must be false for {skill_id}")
 for skill_id in expected_capability_skills:
     item = capability_by_id.get(skill_id)
     if item is None:
@@ -454,6 +538,71 @@ for key in [
 ]:
     if classification_policy.get(key) is not False:
         fail(f"classification policy flag {key} must be false")
+require_all(
+    "classification optional external specialist skills",
+    classification_policy.get("optional_external_specialist_skills"),
+    advanced_specialist_skill_ids,
+)
+if "do_not_block_default_core_progress" not in classification_policy.get("optional_external_specialist_policy", ""):
+    fail("classification optional specialist policy must not block default core progress")
+advanced_policy = contract.get("advanced_specialist_pack_policy") or {}
+if advanced_policy.get("policy_id") != "mas_scholar_skills_advanced_specialist_pack.v1":
+    fail("contract missing advanced specialist pack policy")
+if advanced_policy.get("source_head_commit") != "54a2f333973147a1fd703caea6f12252e1f227d6":
+    fail("advanced specialist pack must pin AcademicForge source head")
+if advanced_policy.get("classification") != "optional_external_specialist_skills_refs_only_no_authority":
+    fail("advanced specialist pack must be optional refs-only no-authority")
+if "do not replace the eight default medical-paper skills" not in advanced_policy.get("relationship_to_active_modules", ""):
+    fail("advanced specialist pack must not replace the default eight skills")
+if "OPL_Runway_Connect_Fabric" not in advanced_policy.get("runtime_substrate_owner_policy", ""):
+    fail("advanced compute boundary must keep OPL substrate ownership")
+advanced_policy_by_id = {
+    item.get("skill_id"): item
+    for item in advanced_policy.get("optional_specialist_skills", [])
+}
+for skill_id, expected in advanced_expected.items():
+    item = advanced_policy_by_id.get(skill_id)
+    if item is None:
+        fail(f"advanced specialist policy missing {skill_id}")
+    if item.get("canonical_path") != f"skills/{skill_id}/SKILL.md":
+        fail(f"advanced specialist policy path wrong for {skill_id}")
+    require_all(f"advanced specialist upstream refs for {skill_id}", item.get("upstream_skill_refs"), expected["sources"])
+    require_all(f"advanced specialist candidate refs for {skill_id}", item.get("candidate_ref_families"), expected["refs"])
+    require_all(
+        f"advanced specialist required handoff refs for {skill_id}",
+        item.get("required_handoff_refs"),
+        ["candidate_package_ref", "execution_receipt_ref", "owner_gate_handoff_ref"],
+    )
+    for key in [
+        "can_replace_default_eight_skills",
+        "can_block_default_core_progress_when_missing",
+        "can_write_domain_truth",
+        "can_write_runtime_state",
+        "can_mutate_artifact_body",
+        "can_sign_owner_receipt",
+        "can_create_typed_blocker",
+        "can_claim_quality_verdict",
+        "can_claim_publication_readiness",
+        "can_claim_current_package_authority",
+        "can_claim_owner_closeout",
+    ]:
+        if (item.get("authority_boundary") or {}).get(key) is not False:
+            fail(f"advanced specialist policy authority flag {key} must be false for {skill_id}")
+for key in [
+    "can_replace_default_eight_skills",
+    "can_block_default_core_progress_when_missing",
+    "can_write_domain_truth",
+    "can_write_runtime_state",
+    "can_mutate_artifact_body",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_quality_verdict",
+    "can_claim_publication_readiness",
+    "can_claim_current_package_authority",
+    "can_claim_owner_closeout",
+]:
+    if advanced_policy.get(key) is not False:
+        fail(f"advanced specialist pack authority flag {key} must be false")
 quality_policy = contract.get("professional_skill_quality_upgrade_policy") or {}
 if quality_policy.get("policy_id") != "mas_scholar_skills_professional_quality_upgrade.v1":
     fail("contract missing professional skill quality upgrade policy")
@@ -553,6 +702,46 @@ for relative, skill_id, text in [
     ]:
         if shared_ref not in text:
             fail(f"{relative} missing shared skill ref {shared_ref}")
+for skill_id, text in advanced_specialist_skills.items():
+    for token in [
+        skill_id,
+        "refs-only",
+        "no-authority",
+        "owner_gate_handoff_ref",
+        "cannot write",
+        "domain truth",
+        "owner receipt",
+        "typed blocker",
+        "publication readiness",
+        "54a2f333973147a1fd703caea6f12252e1f227d6",
+    ]:
+        if token not in text:
+            fail(f"skills/{skill_id}/SKILL.md missing advanced specialist no-authority token: {token}")
+    for token in advanced_expected[skill_id]["sources"]:
+        if token not in text:
+            fail(f"skills/{skill_id}/SKILL.md missing AcademicForge source token: {token}")
+for relative, text in {
+    "skills/mas-scholar-skills/SKILL.md": skill,
+    "README.md": readme,
+    "README.zh-CN.md": readme_zh,
+    "docs/README.md": docs_index,
+    "docs/capability-modules.md": capability_modules,
+    "docs/no-authority-boundary.md": no_authority_boundary,
+}.items():
+    for token in [
+        "medical-structural-biology",
+        "medical-protein-design",
+        "medical-genomics-foundation-models",
+        "medical-single-cell-modeling",
+        "medical-indication-dossier",
+        "research-pdf-evidence-explorer",
+        "scientific-compute-runner",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing advanced specialist token: {token}")
+    for token in ["optional", "refs-only", "no-authority"]:
+        if token.lower() not in text.lower():
+            fail(f"{relative} missing advanced specialist boundary token: {token}")
 for token in [
     "contracts/capability_map.json#/authority_boundary",
     "contracts/capability_map.json#/owner_closeout_boundary",

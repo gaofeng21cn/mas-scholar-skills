@@ -23,6 +23,18 @@ professional skills are maintained here as a single source for MAS consumption;
 stage-prompt routing and generated artifacts remain with their owning runtime or
 domain repo.
 
+The optional advanced specialist pack adds Codex-discoverable refs-only helpers
+for structural biology, protein design, genomics foundation models, single-cell
+modeling, indication dossiers, PDF evidence exploration, and scientific compute
+diagnostics. These skills are outside the eight active modules; they do not
+replace core skills and missing optional specialists do not block ordinary MAS
+progress.
+Current optional advanced specialist ids are `medical-structural-biology`,
+`medical-protein-design`, `medical-genomics-foundation-models`,
+`medical-single-cell-modeling`, `medical-indication-dossier`,
+`research-pdf-evidence-explorer`, and `scientific-compute-runner`; each remains
+refs-only / no-authority.
+
 Current classification: eight active professional modules, all backed by real
 syncable Codex specialist skills. Their active ids are
 `mas-scholar-skills.display`, `mas-scholar-skills.tables`,

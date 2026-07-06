@@ -17,6 +17,14 @@ The active professional modules are `display`, `tables`, `stats`, `lit`, `write`
 
 Each module uses the standard refs-only handoff family: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`.
 
+Optional advanced specialist skills such as `medical-structural-biology`,
+`medical-protein-design`, `medical-genomics-foundation-models`,
+`medical-single-cell-modeling`, `medical-indication-dossier`,
+`research-pdf-evidence-explorer`, and `scientific-compute-runner` are
+external specialist helpers, not active module owners. Their absence does not
+block the default eight skills or MAS ordinary progress. They may emit
+specialty candidate refs and deterministic receipt refs only.
+
 ## Owner Route
 
 Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref named by MAS Scholar Skills is a downstream owner-consumption target only. MAS or the consuming domain owner must consume the candidate refs and issue any owner receipt, typed blocker, route-back, reviewer receipt, current-package update, artifact mutation, or publication decision from its own authority surface.

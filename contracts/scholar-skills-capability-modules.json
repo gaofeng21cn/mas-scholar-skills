@@ -103,7 +103,17 @@
     "can_claim_figure_artifact_authority": false,
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
-    "can_claim_publication_readiness": false
+    "can_claim_publication_readiness": false,
+    "optional_external_specialist_skills": [
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner"
+    ],
+    "optional_external_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
   },
   "capability_module_classification_policy": {
     "policy_id": "mas_scholar_skills_professional_skill_classification.v1",
@@ -144,7 +154,17 @@
     "can_claim_non_active_scope_is_active": false,
     "can_replace_mas_stage_prompts": false,
     "can_claim_owner_acceptance": false,
-    "can_claim_publication_readiness": false
+    "can_claim_publication_readiness": false,
+    "optional_external_specialist_skills": [
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner"
+    ],
+    "optional_external_specialist_policy": "optional_external_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress"
   },
   "professional_skill_quality_upgrade_policy": {
     "policy_id": "mas_scholar_skills_professional_quality_upgrade.v1",
@@ -3045,5 +3065,355 @@
     "can_claim_publication_readiness": false,
     "can_claim_owner_acceptance": false,
     "can_claim_current_package_authority": false
+  },
+  "advanced_specialist_pack_policy": {
+    "policy_id": "mas_scholar_skills_advanced_specialist_pack.v1",
+    "source_of_truth_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+    "source_head_commit": "54a2f333973147a1fd703caea6f12252e1f227d6",
+    "classification": "optional_external_specialist_skills_refs_only_no_authority",
+    "relationship_to_active_modules": "advanced specialist skills are optional and external; they do not add active professional modules, do not replace the eight default medical-paper skills, and their absence does not block MAS ordinary progress",
+    "codex_discovery_policy": "each optional specialist is a real Codex skill with SKILL.md frontmatter under skills/<skill_id>/SKILL.md",
+    "runtime_substrate_owner_policy": "OPL_Runway_Connect_Fabric_or_consuming_workspace_compute_owner_owns_substrate_credentials_execution_and_harvest; optional skills own AI diagnostic playbooks and refs_only_candidate_handoff",
+    "optional_specialist_skills": [
+      {
+        "skill_id": "medical-structural-biology",
+        "canonical_path": "skills/medical-structural-biology/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "structure_and_docking",
+        "upstream_skill_refs": [
+          "alphafold2",
+          "openfold3",
+          "boltz",
+          "chai1",
+          "esmfold2",
+          "diffdock"
+        ],
+        "candidate_ref_families": [
+          "structure_candidate_ref",
+          "docking_candidate_ref",
+          "model_output_manifest_ref",
+          "confidence_metrics_ref",
+          "environment_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "structure",
+          "docking",
+          "alphafold2",
+          "openfold3",
+          "boltz",
+          "chai1",
+          "esmfold2",
+          "diffdock"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      },
+      {
+        "skill_id": "medical-protein-design",
+        "canonical_path": "skills/medical-protein-design/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "protein_design",
+        "upstream_skill_refs": [
+          "proteinmpnn",
+          "ligandmpnn",
+          "solublempnn",
+          "fair-esm2"
+        ],
+        "candidate_ref_families": [
+          "sequence_candidate_refs",
+          "design_score_ref",
+          "embedding_ref",
+          "fold_back_validation_ref",
+          "environment_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "protein_design",
+          "sequence_design",
+          "proteinmpnn",
+          "ligandmpnn",
+          "solublempnn",
+          "fair-esm2"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      },
+      {
+        "skill_id": "medical-genomics-foundation-models",
+        "canonical_path": "skills/medical-genomics-foundation-models/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "genomics_foundation_models",
+        "upstream_skill_refs": [
+          "borzoi",
+          "evo2"
+        ],
+        "candidate_ref_families": [
+          "dna_scoring_candidate_ref",
+          "track_prediction_candidate_ref",
+          "model_checkpoint_ref",
+          "environment_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "genomics",
+          "dna_scoring",
+          "track_prediction",
+          "borzoi",
+          "evo2"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      },
+      {
+        "skill_id": "medical-single-cell-modeling",
+        "canonical_path": "skills/medical-single-cell-modeling/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "single_cell_modeling",
+        "upstream_skill_refs": [
+          "scgpt",
+          "scvi-tools"
+        ],
+        "candidate_ref_families": [
+          "embedding_candidate_ref",
+          "annotation_candidate_ref",
+          "differential_expression_candidate_ref",
+          "batch_diagnostic_ref",
+          "environment_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "single_cell",
+          "anndata",
+          "embedding",
+          "annotation",
+          "differential_expression",
+          "scgpt",
+          "scvi-tools"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      },
+      {
+        "skill_id": "medical-indication-dossier",
+        "canonical_path": "skills/medical-indication-dossier/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "indication_dossier",
+        "upstream_skill_refs": [
+          "indication-dossier"
+        ],
+        "candidate_ref_families": [
+          "population_definition_ref",
+          "epidemiology_waypoint_ref",
+          "biology_soc_waypoint_ref",
+          "regulatory_trials_waypoint_ref",
+          "patient_population_waypoint_ref",
+          "synthesis_candidate_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "indication_dossier",
+          "patient_population_waypoint",
+          "epidemiology",
+          "standard_of_care",
+          "regulatory_trials"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      },
+      {
+        "skill_id": "research-pdf-evidence-explorer",
+        "canonical_path": "skills/research-pdf-evidence-explorer/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "pdf_evidence_exploration",
+        "upstream_skill_refs": [
+          "pdf-explore"
+        ],
+        "candidate_ref_families": [
+          "pdf_parse_manifest_ref",
+          "pdf_outline_ref",
+          "pdf_scan_ref",
+          "pdf_grep_ref",
+          "pdf_crop_ref",
+          "page_evidence_refs",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "pdf_explore",
+          "parse_once",
+          "outline",
+          "scan",
+          "grep",
+          "crop",
+          "page_evidence"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      },
+      {
+        "skill_id": "scientific-compute-runner",
+        "canonical_path": "skills/scientific-compute-runner/SKILL.md",
+        "source_ref": "/tmp/AcademicForge@54a2f333973147a1fd703caea6f12252e1f227d6",
+        "specialist_family": "scientific_compute_diagnostics",
+        "upstream_skill_refs": [
+          "compute-env-setup",
+          "remote-compute-ssh",
+          "remote-compute-modal",
+          "managed-model-endpoints",
+          "using-model-endpoint"
+        ],
+        "candidate_ref_families": [
+          "compute_requirement_ref",
+          "provider_selection_ref",
+          "environment_probe_ref",
+          "job_plan_ref",
+          "endpoint_request_ref",
+          "deterministic_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "compute_env_setup",
+          "remote_compute_ssh",
+          "remote_compute_modal",
+          "managed_model_endpoints",
+          "using_model_endpoint",
+          "OPL_Runway_Connect_owns_substrate"
+        ],
+        "candidate_role": "refs_only_external_specialist_candidate_helper",
+        "required_handoff_refs": [
+          "candidate_package_ref",
+          "execution_receipt_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "authority_boundary": {
+          "can_replace_default_eight_skills": false,
+          "can_block_default_core_progress_when_missing": false,
+          "can_write_domain_truth": false,
+          "can_write_runtime_state": false,
+          "can_mutate_artifact_body": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_publication_readiness": false,
+          "can_claim_current_package_authority": false,
+          "can_claim_owner_closeout": false
+        }
+      }
+    ],
+    "missing_skill_policy": "missing optional specialist skill does not block the eight core syncable skills or MAS ordinary progress",
+    "default_core_skill_policy": "default core remains medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, and medical-data-governance",
+    "can_replace_default_eight_skills": false,
+    "can_block_default_core_progress_when_missing": false,
+    "can_write_domain_truth": false,
+    "can_write_runtime_state": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_current_package_authority": false,
+    "can_claim_owner_closeout": false
   }
 }

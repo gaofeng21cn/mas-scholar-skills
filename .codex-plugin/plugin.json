@@ -1,7 +1,7 @@
 {
   "name": "mas-scholar-skills",
   "version": "0.1.0",
-  "description": "Repo-tracked Codex plugin for MAS Scholar Skills active medical-paper professional specialist skills.",
+  "description": "Repo-tracked Codex plugin for MAS Scholar Skills active medical-paper professional specialist skills and optional advanced specialist skills.",
   "author": {
     "name": "One Person Lab"
   },
@@ -17,7 +17,7 @@
   "interface": {
     "displayName": "MAS Scholar Skills",
     "shortDescription": "MAS medical-paper specialist skills and refs.",
-    "longDescription": "Provides the maintained professional Codex skills for MAS medical writing, review, figure, literature, statistics, table, submission, and clinical data governance workflows, plus the active MAS Scholar Skills catalog, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries.",
+    "longDescription": "Provides the maintained professional Codex skills for MAS medical writing, review, figure, literature, statistics, table, submission, and clinical data governance workflows, optional advanced specialist skills for structural biology, protein design, genomics foundation models, single-cell modeling, indication dossiers, PDF evidence exploration, and scientific compute diagnostics, plus the active MAS Scholar Skills catalog, standard opl scholar-skills CLI readbacks, refs-only materialized candidate packages, and MAS owner-gated authority boundaries.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -29,6 +29,7 @@
       "Use MAS Scholar Skills to inspect active medical-paper professional skills.",
       "Use medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance for MAS medical-paper specialist workflows.",
       "Use medical-research-lit to plan PubMed-backed literature discovery.",
+      "Use optional advanced specialist skills only when a named specialty is needed; their absence does not block the default eight MAS Scholar Skills.",
       "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],
     "brandColor": "#2563EB"

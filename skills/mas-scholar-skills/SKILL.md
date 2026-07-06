@@ -1,6 +1,6 @@
 ---
 name: mas-scholar-skills
-description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
+description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, optional advanced specialist skills, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
 ---
 
 # MAS Scholar Skills
@@ -10,6 +10,28 @@ Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry f
 This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, submission, or clinical data governance work through these synced professional skills. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
 
 For literature discovery, use the real specialist skill `medical-research-lit` when a task needs PubMed-oriented search planning, query iteration, source screening, citation verification, evidence mapping, or a MAS route-back handoff. Do not reduce literature discovery to the `mas-scholar-skills.lit` descriptor alone.
+
+## Optional Advanced Specialist Pack
+
+MAS Scholar Skills also includes optional external specialist skills inspired by
+AcademicForge HEAD `54a2f333973147a1fd703caea6f12252e1f227d6`:
+`medical-structural-biology`, `medical-protein-design`,
+`medical-genomics-foundation-models`, `medical-single-cell-modeling`,
+`medical-indication-dossier`, `research-pdf-evidence-explorer`, and
+`scientific-compute-runner`.
+
+These are real Codex discovery skills with `SKILL.md` frontmatter, but they are
+not MAS authority owners and they are not additional active core modules.
+Use them only when a named specialty is needed. Missing optional advanced
+specialists do not block the default eight skills or MAS ordinary progress.
+Their outputs stay refs-only candidate refs: structure/docking candidate refs,
+sequence/design/embedding/fold-back validation refs, DNA scoring/track
+prediction candidate refs, AnnData embedding/annotation/DE candidate refs,
+patient-population waypoint dossier refs, parse-once PDF evidence refs, and
+scientific compute diagnostic receipts. OPL Runway, Connect, Fabric, managed
+endpoints, or the consuming workspace compute owner owns substrate, credentials,
+execution, harvest, and provider errors; the optional skills own only AI
+diagnostic playbooks and deterministic receipt refs.
 
 ## MAS Overlay Call Path
 
