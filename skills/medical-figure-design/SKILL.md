@@ -114,6 +114,23 @@ permission notes, and stage-use policy. These refs do not create visual-audit
 authority, owner receipt, typed blocker, publication readiness, or a second
 skill catalog.
 
+AcademicForge/Claude Science figure-style and figure-composer contribute
+figure-correctness patterns only. Absorb them as refs-only design discipline:
+data fidelity before chart choice, claim-title truth checks, excluded-row
+handling, comparable-condition separation, displayed `n` and fixed context,
+label economy, color-vision robustness, render-then-verify, and a multi-panel
+outline -> panel render -> composite review loop. Do not copy their Python
+helpers, runtime setup, or full style guide into MAS; use MAS/paper-local
+renderers and only the minimum professional checks needed for the current
+figure. If a helper is unavailable, keep the same judgment loop with current
+repo tools instead of adding a dependency.
+
+When `medical-manuscript-writing` or `medical-manuscript-review` supplies a
+`paper_narrative_arc_ref`, treat its `fig1_hook_ref`, `figure_moves_ref`,
+`missing_panels_ref`, and `kill_list_ref` as inputs to the figure contract. The
+figure skill can turn a defensible figure claim into panels; it cannot decide
+the paper's final story or publication readiness.
+
 ## Figure Contract
 
 Before writing plotting code, produce or refresh a compact contract:
@@ -147,6 +164,28 @@ Before writing plotting code, produce or refresh a compact contract:
   readback.
 - `final_size_grayscale_preview_ref`: final manuscript-scale raster preview and
   grayscale/color-vision separation readback.
+- `data_fidelity_ref`: included/excluded rows, grouping rule, summary statistic
+  source, and one canonical value per quantitative claim.
+- `excluded_rows_ref`: rows excluded or drawn as exclusions, with proof they
+  did not enter plotted summaries.
+- `comparability_ref`: whether compared arms share cohort, measurement,
+  protocol, denominator, and analysis window, or how the figure separates
+  non-comparable conditions.
+- `replication_and_fixed_context_ref`: displayed `n`, replication unit, and
+  any value held fixed in a summary mark or small multiple.
+- `claim_title_truth_ref`: each title, threshold, legend label, and panel label
+  checked against all plotted rows; any contradiction downgrades the title or
+  moves the claim to caption.
+- `label_economy_ref`: non-removable identity labels, removable annotations,
+  caption-only context, and the final panel label budget.
+- `color_vision_check_ref`: grayscale and color-vision separation result for
+  categorical and opposing encodings.
+- `multi_panel_outline_ref`: one figure claim, hook/hero panel, panel jobs,
+  panel order, and layout intent before rendering.
+- `panel_render_receipt_ref`: per-panel data refs, code/command refs, output,
+  and known limits.
+- `composite_review_ref`: panel-letter, gutter, resized-text, cross-panel
+  consistency, and crop-level violation review.
 
 If the contract cannot name the core conclusion and evidence chain, route back
 before drawing. If MAS or the user has not fixed a backend, recommend one from
@@ -282,6 +321,21 @@ panels that do not carry a distinct job. For a multi-panel figure, choose the
 hero panel first and make the remaining panels support or qualify that hero
 claim.
 
+For main-text multi-panel figures, use this minimal loop:
+
+1. Write `multi_panel_outline_ref`: one sentence the figure must make true,
+   Figure-1-style hook or hero panel, claim-carrying panel, supporting or
+   limiting panels, and panel jobs.
+2. Render panels as separate scientific units. Each `panel_render_receipt_ref`
+   must name its own data refs and visible claim.
+3. Compose the figure and inspect the composite plus per-panel crops before
+   review handoff.
+4. Record `composite_review_ref` findings as outline-level fixes or panel-level
+   fixes, then rerender only affected panels.
+
+Stop the loop when remaining findings are minor refs-only reviewer hints. Do
+not regenerate clean panels or add labels to a passing panel.
+
 ### 4. Template And Backend Selection
 
 Choose the figure grammar only after intent and refs are clear.
@@ -379,6 +433,16 @@ Check:
 - whether the main comparison is obvious in a few seconds
 - whether the chart type follows the data question, variable types, grouping,
   sample size, and distribution rather than habit or template reuse
+- whether excluded rows are omitted from summaries or visibly marked as
+  exclusions
+- whether compared conditions are genuinely comparable or visually separated
+- whether summary marks state `n`, replication unit, and fixed context when
+  those affect interpretation
+- whether sentence-style titles and panel labels are true for every plotted row
+- whether each quantitative claim uses the same canonical value in panel,
+  caption, and manuscript
+- whether the label set meets the floor for mark identity and the ceiling for
+  narrative annotations
 - labels, units, sample sizes, uncertainty, and baselines
 - panel order and visual hierarchy
 - color accessibility and grayscale robustness

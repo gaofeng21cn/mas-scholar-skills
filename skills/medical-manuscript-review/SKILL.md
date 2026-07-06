@@ -148,6 +148,23 @@ permission notes, and stage-use policy for the synced skill pack. Do not copy an
 OpenScience skill catalog, create a new MAS default skill source, or treat this
 governance ref as owner acceptance.
 
+AcademicForge/Claude Science paper-narrative contributes a handling-editor deck
+review pattern. Use it when the draft has figures, captions, or a manuscript
+PDF: infer the pitch and figure claims from the work itself, then review the
+full deck for `fig1_hook_ref`, `deck_arc_ref`, `figure_moves_ref`,
+`missing_panels_ref`, and `kill_list_ref`. These are action-matrix inputs only;
+they do not create editorial acceptance, reviewer receipt, publication
+readiness, or a MAS owner verdict.
+
+AcademicForge/Claude Science pdf-explore contributes a PDF evidence-extraction
+boundary. For long PDFs or supplements, parse once, then use outline, scan,
+grep, and crop refs to find evidence. Keep extraction separate from judgment:
+`pdf_evidence_extraction_ref` can support review findings, but MAS still owns
+source acceptance, citation acceptance, claim repair, and readiness labels. Do
+not block review on Claude Science helper availability; use the current
+workspace's PDF reader, text extraction, image crop, or manual page readback and
+record the method as part of the extraction ref.
+
 ## Fact Base And Reviewer Lanes
 
 Before scoring or writing findings, build `review_fact_base_ref` with:
@@ -174,6 +191,8 @@ For important manuscripts, include three reviewer lanes:
 - `scholar_evaluation_lane`: contribution, novelty, clinical usefulness,
   reviewer reception risk, and journal-fit pressure without issuing an
   editorial verdict.
+- `handling_editor_deck_lane`: Figure 1 hook, deck arc, figure moves, missing
+  panels, kill list, and boldest defensible main-figure claim.
 
 Then write `cross_review_synthesis_ref` that names consensus blockers,
 divergent emphases, and the narrowest next route.
@@ -195,6 +214,8 @@ Before reviewing, recover and name:
 - prior reviewer findings and unresolved concerns
 - current publication eval and controller decision refs when present
 - known contradiction flags and their provenance
+- PDF parse/outline/scan/grep/crop refs when the review relies on a manuscript
+  PDF, supplement, or external article PDF rather than canonical text files.
 
 If reference context or citation ledger refs are missing, record that as a
 review blocker and create a citation repair request. Do not fill the gap with
@@ -445,6 +466,9 @@ Before leaving review, write or refresh a closeout packet with:
 
 - reviewer action matrix
 - evidence repair and citation repair requests
+- paper narrative arc findings: Fig 1 hook, deck arc, figure moves, missing
+  panels, and kill list when figures drive the review
+- PDF evidence extraction refs used, each marked as extraction evidence only
 - claim downgrades with old claim, new claim, evidence refs, and affected text
   or display locations
 - contradiction flags used, each marked as review signal only

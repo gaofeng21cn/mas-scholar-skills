@@ -74,6 +74,18 @@ For citation-heavy prose or draft repair, read
 be kept, downgraded, cited, rewritten, or routed back without turning the draft
 into paper truth, owner receipt, typed blocker, or publication readiness.
 
+AcademicForge/Claude Science paper-narrative contributes one useful writing
+pattern: judge the whole manuscript/figure deck like a handling editor before
+adding prose. Use `paper_narrative_arc_ref` from
+`references/professional-quality-ref-templates.md` when the draft's story is
+unclear: derive the deck arc from the current abstract, intro, captions, and
+figure/table claims; identify `fig1_hook_ref`, `figure_moves_ref`,
+`missing_panels_ref`, and `kill_list_ref`; then route concrete figure claims to
+`medical-figure-design` and prose repairs back into the section contract. This
+is editorial judgment and route planning, not publication readiness. The
+AcademicForge prompt builders are optional aids; do the editorial pass directly
+from the current manuscript and figure refs when no helper is installed.
+
 ## Argument And Reader Contract
 
 Before a substantial section or full draft, write a compact contract:
@@ -225,6 +237,9 @@ For a high-impact or SCI-facing draft, also record:
 - figure/table narrative map showing where each display supports a text claim;
 - expected supplementary material when missingness, source heterogeneity, model
   details, or sensitivity analyses need space.
+- `paper_narrative_arc_ref` when the figure deck rather than a single section is
+  the main weakness: hook, main-figure order, figure moves, missing panels, and
+  kill list.
 
 ### 3. Draft From Evidence
 
@@ -427,6 +442,12 @@ Before placing a display in the manuscript:
 
 Do not let a main-text claim-bound figure disappear from the current package
 only to make a smaller bundle compile.
+
+When a figure deck is weak, do not compensate with more explanatory prose.
+First ask whether Figure 1 carries the hook, whether the main figures follow a
+coherent arc, whether panels belong in a different figure, whether concrete
+missing panels must be produced, and which panels should be killed or demoted.
+Only then draft the surrounding Results and Discussion narrative.
 
 ### 6. Reviewer-First Revision
 

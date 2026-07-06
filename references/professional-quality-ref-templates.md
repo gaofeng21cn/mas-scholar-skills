@@ -53,6 +53,28 @@ Minimum fields:
   color-vision separation, and whether the chart answers the data question.
 - `ai_visual_review_ref`: AI visual-review findings kept separate from
   deterministic export/programmatic audit results.
+- `data_fidelity_ref`: row inclusion/exclusion rule, grouping rule, summary
+  statistic source, and the single canonical value for each quantitative claim.
+- `excluded_rows_ref`: rows excluded from analysis or plotted as exclusions,
+  with proof they did not enter plotted summaries.
+- `comparability_ref`: whether compared arms share cohort, measurement,
+  protocol, denominator, and analysis window, or how non-comparable conditions
+  are visually separated.
+- `replication_and_fixed_context_ref`: displayed `n`, unit of replication, and
+  any variable held fixed for a summary mark or small multiple.
+- `claim_title_truth_ref`: every title, panel title, legend threshold, and
+  label tested against all plotted rows; failed rows force title downgrade or
+  caption qualification.
+- `label_economy_ref`: non-removable labels, removable labels, caption-only
+  context, and the final in-panel label budget.
+- `color_vision_check_ref`: grayscale and color-vision separation readback,
+  especially for binary/opposing categories.
+- `multi_panel_outline_ref`: one figure claim, hook/hero panel, panel jobs,
+  panel order, and layout intent.
+- `panel_render_receipt_ref`: one receipt per rendered panel with data refs,
+  code/command refs, output path, and panel-level known limits.
+- `composite_review_ref`: post-composition review of panel-letter placement,
+  gutters, resized text, cross-panel consistency, and panel-level violations.
 - `route_back_hard_evidence_ref`: only missing source/data/evidence refs,
   unsupported claims, unreadable output, or export lint/programmatic/visual
   review FAIL conditions that cannot be repaired inside the figure contract.
@@ -70,6 +92,62 @@ missing source/data/evidence refs, unsupported claims, unreadable output, or
 export lint/programmatic/visual-review failure. External plotting runtimes and
 scripts may inform the pattern, but they do not become the default backend, MAS
 authority, owner receipt, typed blocker, or publication readiness evidence.
+
+For multi-panel main figures, use a light outline -> panel render -> composite
+review loop: first write the figure claim and panel outline, then render only
+the affected panels, then review the composed figure and crops before handoff.
+Do not regenerate clean panels just to make the package look more active.
+
+## Paper Narrative / Figure Deck Arc
+
+Use `paper_narrative_arc_ref` when a draft or figure deck needs story-level
+judgment before more prose or more plotting.
+
+Minimum fields:
+
+- `handling_editor_brief_ref`: pitch, audience, central contribution, and the
+  most reviewer-salient asset inferred from the current manuscript and captions.
+- `fig1_hook_ref`: whether Figure 1 would make a handling editor keep reading,
+  plus the boldest defensible Figure 1 claim.
+- `deck_arc_ref`: main-figure order such as hook, mechanism, evidence,
+  robustness, and application, with supplement/demotion decisions.
+- `figure_moves_ref`: panels or claims that belong in a different figure.
+- `missing_panels_ref`: concrete analyses, panels, tables, or evidence refs that
+  must be produced before the story can carry the claim.
+- `kill_list_ref`: figures, panels, repeated claims, or decorative material to
+  delete or demote.
+- `figure_claim_handoff_ref`: per-figure claims routed to
+  `medical-figure-design` for the figure contract and render loop.
+
+The narrative arc is a candidate editorial judgment. It can route work to
+writing, review, figure design, statistics, tables, literature, or a human gate;
+it cannot issue a manuscript verdict or publication readiness.
+
+## PDF Evidence Extraction Boundary
+
+Use `pdf_evidence_extraction_ref` when a PDF, supplement, report, or article is
+source material for literature, review, data governance, or claim repair.
+
+Minimum fields:
+
+- `pdf_parse_once_ref`: parser/tool, file path or source ref, parse time, page
+  count, and whether text or image mode was needed.
+- `pdf_outline_ref`: embedded outline or manually sampled section map.
+- `pdf_scan_ref`: lexical scan terms, candidate pages, and relevance decision.
+- `pdf_grep_ref`: exhaustive regex extraction for identifiers such as DOI,
+  PMID, accession, figure/table labels, dates, or registry ids.
+- `pdf_crop_ref`: page image and crop refs used for figures, tables, axis
+  labels, legends, or small values that text extraction cannot preserve.
+- `pdf_claim_extract_ref`: extracted claim/value/source plus page, section,
+  figure/table, and uncertainty.
+
+PDF extraction is evidence acquisition, not source acceptance. Claude Science
+helpers, local parsers, browser/PDF tools, or manual page crops may all produce
+these refs; none is mandatory and none replaces the AI evidence judgment. If
+parsing, outline, scan, grep, or crop tooling is unavailable, keep the attempt
+and reason as a connector/tool gap and continue with the smallest available
+readback. Route back only for missing source/data/evidence, authority, or human
+hard gates.
 
 ## Literature Source/Ref Chain
 

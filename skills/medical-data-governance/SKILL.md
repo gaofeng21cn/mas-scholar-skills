@@ -72,6 +72,17 @@ then sync only that one skill into the active workspace or quest if needed.
 Keep the result as refs-only source-readiness support; it does not replace this
 skill, MAS data-owner decisions, source readiness, or clinical data authority.
 
+AcademicForge/Claude Science pdf-explore contributes a narrow evidence
+extraction pattern for data governance: parse a PDF, data dictionary, protocol,
+guideline, or supplement once; use outline, scan, grep, and crop refs to locate
+dataset definitions, variables, cohorts, dates, accession ids, tables, and
+figure labels; then map extracted text or values to candidate data refs. The
+parse is acquisition evidence only. MAS still owns source readiness, data body
+truth, clinical semantic mapping, and any data mutation or release decision.
+Do not make Claude Science `pdf-explore` helpers mandatory; use whichever
+project-approved parser, PDF reader, page crop, or manual readback is available
+and record its limits in the candidate ref.
+
 ## Active Data Identity
 
 The active MAS Scholar Skills Data module id is `mas-scholar-skills.data`; the
@@ -168,22 +179,26 @@ analysis, cleanup, archival, or owner-gate handoff:
    `database_retrieval_contract_ref`: target entity, accepted identifiers,
    source database, endpoint/command, filters, expected fields, pagination or
    batch plan, access date, and completeness requirement.
-3. Read existing data asset manifests, dataset manifests, dictionaries,
+3. If a PDF is part of source evidence, define `pdf_evidence_extraction_ref`:
+   `pdf_parse_once_ref`, `pdf_outline_ref`, `pdf_scan_ref`, `pdf_grep_ref`,
+   `pdf_crop_ref` where needed, and `pdf_claim_extract_ref` for every extracted
+   dataset, variable, cohort, date, table, or figure value.
+4. Read existing data asset manifests, dataset manifests, dictionaries,
    codebooks, lineage refs, source readiness receipts, and data lifecycle
    readbacks.
-4. Classify every referenced body or copy as authoritative body, accepted
+5. Classify every referenced body or copy as authoritative body, accepted
    derived asset, study-local extract, interchange file, working index, runtime
    cache, report output, or tombstone candidate.
-5. Check layer and version discipline: source layer, version id, checksum or
+6. Check layer and version discipline: source layer, version id, checksum or
    fingerprint, provenance, data dictionary, cleaning/normalization notes,
    derived-variable definitions, privacy tier, and access tier.
-6. Review study binding: inclusion/exclusion cohort lock, endpoint/outcome
+7. Review study binding: inclusion/exclusion cohort lock, endpoint/outcome
    definitions, variable ascertainment, analysis window, missingness scope,
    denominator availability, and source readiness receipt refs.
-7. Compare version changes when an update is proposed. Flag impact on cohorts,
+8. Compare version changes when an update is proposed. Flag impact on cohorts,
    denominators, derived variables, statistical analysis, tables, figures,
    manuscript claims, and submission data/code availability.
-8. Produce a refs-only governance handoff with missing inputs, safe next command,
+9. Produce a refs-only governance handoff with missing inputs, safe next command,
    owner gate target, and route-back recommendation.
 
 ## Machine Assessment Refs
@@ -215,6 +230,8 @@ Check:
 - every dataset body has a declared layer, version, owner, and manifest ref;
 - external database refs name their source, endpoint/command, filters, access
   date, and identifier conversions;
+- PDF-derived refs name the parse, page, section, figure/table/crop, extracted
+  value or label, and uncertainty;
 - exhaustive retrievals reconcile expected and retrieved counts before they are
   used downstream;
 - data dictionary/codebook covers variables used by the study;
@@ -243,6 +260,13 @@ Return refs-only candidate output:
 - `project_local_ledger_pointer_ref`
 - `skill_pack_governance_policy_ref`
 - `database_retrieval_contract_ref`
+- `pdf_evidence_extraction_ref`
+- `pdf_parse_once_ref`
+- `pdf_outline_ref`
+- `pdf_scan_ref`
+- `pdf_grep_ref`
+- `pdf_crop_ref`
+- `pdf_claim_extract_ref`
 - `database_endpoint_provenance_ref`
 - `retrieval_count_reconciliation_ref`
 - `data_dictionary_ref`

@@ -63,6 +63,17 @@ For source/ref chain handoffs that go beyond a single targeted lookup, read
 candidate source-screening refs only; they do not create citation authority,
 owner receipts, typed blockers, or publication readiness.
 
+AcademicForge/Claude Science literature-review contributes a retrieve-first
+discipline: memory can frame the question, but retained citations must come from
+retrieved source refs; DOI/PMID/PMCID metadata is resolved rather than
+pattern-completed; surprising or high-profile sources get retraction/version
+checks; and a real review synthesizes evidence by claim, contrast, and gap
+rather than listing papers. AcademicForge pdf-explore contributes the PDF
+boundary: parse a source PDF once, then use outline, scan, grep, and crop refs
+to extract evidence without treating the extraction as citation acceptance. Its
+Crossref/OpenAlex helpers are optional retrieval aids, not MAS defaults; keep
+PubMed or the project-approved source route as the primary path when it fits.
+
 ## Retrieval Contract
 
 Before searching, define `literature_retrieval_contract_ref`:
@@ -82,6 +93,12 @@ Before searching, define `literature_retrieval_contract_ref`:
   exhaustive search;
 - pagination/count reconciliation plan when the retrieval claims completeness;
 - access date, command/ref, and connector or API provenance.
+- DOI/PMID/PMCID/retraction/version-check plan when the source is surprising,
+  high-profile, recent, contested, or manuscript-critical.
+- citation graph expansion plan when keyword retrieval may miss seminal,
+  extending, or contradictory work.
+- `pdf_evidence_extraction_ref` when the task depends on a PDF, supplement,
+  guideline PDF, or full-text article rather than metadata alone.
 
 Do not query every possible database by default. Add a fallback only for a
 specific coverage gap, identifier conversion, full-text need, citation graph
@@ -108,20 +125,35 @@ need, preprint/published-version check, or official-source requirement.
    standards, and Zotero/local library only when the project has such refs.
    For DOI/PMID/PMCID conversion, record the identifier route instead of
    guessing from memory.
-5. Deduplicate results by PMID, DOI, normalized title, year, and preprint or
+5. Expand the citation graph only when it answers the task: backward references
+   for seminal sources, forward citations for newer extensions or disputes, and
+   related sources for methods or guidelines. Keep the expansion bounded to the
+   claim.
+6. For retained or claim-critical sources, verify DOI/PMID/PMCID/title/year and
+   check retraction, correction, preprint-to-journal, or version status when the
+   claim could be overturned by source status.
+7. For PDF source material, create `pdf_evidence_extraction_ref`: parse once,
+   use outline or scan to find sections, grep identifiers exhaustively when a
+   pattern exists, and crop figures/tables only when text extraction cannot
+   preserve the needed evidence. Use whatever parser or page reader the current
+   workspace already supports; do not make a Claude Science helper a hard gate.
+8. Deduplicate results by PMID, DOI, normalized title, year, and preprint or
    registry id. Keep both preprint and journal versions only when they differ in
    evidence relevance.
-6. Screen results into `retain`, `reject`, and `watchlist` with a short reason
+9. Screen results into `retain`, `reject`, and `watchlist` with a short reason
    for every promoted or rejected source.
-7. Verify identifiers for retained sources: PMID, DOI, title, journal, year,
+10. Verify identifiers for retained sources: PMID, DOI, title, journal, year,
    source URL, article type, population, endpoint, and whether the source is
    primary, review, guideline, preprint, registry, or commentary.
-8. Grade support strength for each claim: `direct_primary`, `direct_guideline`,
+11. Grade support strength for each claim: `direct_primary`, `direct_guideline`,
    `method_precedent`, `contextual_background`, `contradictory`, `weak`, or
    `not_applicable`.
-9. Map each retained source to the exact claim, sentence, figure/table, methods
+12. Map each retained source to the exact claim, sentence, figure/table, methods
    detail, or limitation it supports.
-10. Produce a refs-only handoff for MAS `scout`, `write`, or `review`.
+13. Synthesize by question: what is established, contested, superseded, weakly
+    supported, or still missing. Do not return an annotated bibliography as the
+    final answer unless the user asked for one.
+14. Produce a refs-only handoff for MAS `scout`, `write`, or `review`.
 
 ## Handoff Shape
 
@@ -139,6 +171,9 @@ Return a compact structure with:
 - `retrieval_count_reconciliation_ref`
 - `deduplication_ref`
 - `source_acceptance_decision_ref`
+- `citation_graph_expansion_ref`
+- `doi_retraction_version_check_ref`
+- `pdf_evidence_extraction_ref`
 - `retained_sources`
 - `rejected_sources`
 - `watchlist_sources`
@@ -164,6 +199,11 @@ Open a citation repair route when:
 - a guideline or reporting-standard claim lacks an official or primary source;
 - several sources are relevant but the claim needs a structured evidence map
   rather than a single citation.
+- a source PDF must be parsed or cropped to support a figure/table/value claim;
+- a source is high-profile, surprising, recent, or disputed and lacks
+  retraction/version readback;
+- the output is only a list of papers and does not synthesize what the evidence
+  collectively supports.
 
 ## MAS Boundary
 
