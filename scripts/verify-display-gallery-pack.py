@@ -15,6 +15,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACK_ROOT = ROOT / "packs" / "medical-display-core"
 GALLERY_ROOT = ROOT / "gallery" / "medical-display"
 PACK_LEVEL_EXECUTION_MODE = "declared_by_template"
+EXPECTED_EXAMPLE_TEMPLATE_IDS = [
+    "roc_curve_binary",
+    "submission_graphical_abstract",
+    "table1_baseline_characteristics",
+]
 
 
 def fail(message: str) -> None:
@@ -376,6 +381,35 @@ def verify_source_pack() -> dict:
     }
 
 
+def verify_template_examples() -> dict:
+    for template_id in EXPECTED_EXAMPLE_TEMPLATE_IDS:
+        template_dir = PACK_ROOT / "templates" / template_id
+        descriptor = read_toml(template_dir / "template.toml")
+        example_input = read_json(template_dir / "example_input.json")
+        example_receipt = read_json(template_dir / "example_render_receipt.json")
+        if example_input.get("example_only") is not True:
+            fail(f"{template_id} example_input.json must keep example_only=true")
+        if example_input.get("template_id") != template_id:
+            fail(f"{template_id} example_input.json template_id mismatch")
+        if example_receipt.get("example_only") is not True:
+            fail(f"{template_id} example_render_receipt.json must keep example_only=true")
+        for key in ["authority", "publication_ready"]:
+            if example_receipt.get(key) is not False:
+                fail(f"{template_id} example_render_receipt.json must keep {key}=false")
+        for key in ["template_id", "renderer_family", "execution_mode"]:
+            if example_receipt.get(key) != descriptor.get(key):
+                fail(f"{template_id} example_render_receipt.json {key} mismatch")
+        if example_receipt.get("pack_id") != "fenggaolab.org.medical-display-core":
+            fail(f"{template_id} example_render_receipt.json pack_id mismatch")
+        if example_receipt.get("render_mode") not in ["final", "candidate"]:
+            fail(f"{template_id} example_render_receipt.json render_mode must be final/candidate")
+        if not isinstance(example_receipt.get("outputs"), dict) or not example_receipt["outputs"]:
+            fail(f"{template_id} example_render_receipt.json must declare output refs")
+        if not str(example_receipt.get("layout_sidecar_ref") or "").startswith("repo-local:examples/not-rendered/"):
+            fail(f"{template_id} example_render_receipt.json must use not-rendered layout sidecar ref")
+    return {"example_template_count": len(EXPECTED_EXAMPLE_TEMPLATE_IDS)}
+
+
 def sync_opl_pack() -> None:
     display_pack = load_display_pack()
     opl_pack = load_opl_pack(display_pack)
@@ -469,12 +503,14 @@ def main() -> None:
 
     verify_receipt_templates()
     pack_summary = verify_source_pack()
+    example_summary = verify_template_examples()
     gallery_summary = verify_gallery_review_package()
     print(
         "display gallery pack verify ok: "
         f"{pack_summary['catalog_template_count']} catalog templates, "
         f"{pack_summary['opl_template_resource_count']} opl template resources, "
         f"renderer families {format_counts(pack_summary['renderer_counts'])}, "
+        f"{example_summary['example_template_count']} template examples, "
         f"{gallery_summary['visual_gallery_template_count']} gallery visuals, "
         f"{gallery_summary['included_file_count']} review files"
     )
