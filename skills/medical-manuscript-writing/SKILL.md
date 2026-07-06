@@ -349,14 +349,25 @@ paper lacks:
   abnormalities were considered or explicitly unavailable;
 - medication-field-present or any-recorded-medication sensitivity when
   medication capture is incomplete;
+- medication-record sensitivity written as a core result when it separates
+  documentation-sensitive glycemic no-drug signals from persistent lipid,
+  renal, or cardiometabolic prevention gaps;
+- an absolute-burden plus relative-rate contrast when the largest service
+  workload phenotype differs from the highest proportional gap phenotype;
 - diagnostic ascertainment table when diagnostic state, uncontrolled disease,
   hypertension, dyslipidemia, or complication burden is derived from structured
   records;
 - a missingness/plausibility table for phenotype-defining variables;
+- site-variability wording that treats site patterns as service-system
+  heterogeneity or route-back evidence, not facility ranking or causal site
+  performance;
 - site-level gap variability, transition trajectory categories, calendar-year,
   threshold, adult/known-age, medication-source, renal-risk/cardiometabolic
   protection, or age-stratified sensitivity when the manuscript asks for more
   than a local descriptive atlas;
+- clear route-back decisions for mixed-effects/site-vs-phenotype analyses,
+  calendar-year sensitivity, age/sex/eGFR stratification, and repeated-visit gap
+  resolution when the current evidence package cannot support them;
 - a clear decision on whether service-priority tiers, cardiometabolic-renal
   protection gaps, medication-intensity patterns, or potential overtreatment
   signals are in scope, waived, or routed to follow-up analysis;
