@@ -96,6 +96,10 @@ produce route-back rather than inventing content.
 5. Audit data/code availability, source data, supplementary files, and dataset
    citations. Do not invent DOIs, accession numbers, committees, embargo dates,
    licenses, or repository names.
+   For BibTeX-backed exports, protect proper nouns and acronyms that CSL
+   sentence-casing may lowercase, such as country/place names, cohort names,
+   population labels, tool names, and abbreviations (`{Hong Kong}`,
+   `{Nanjing, China}`, `{U.S. adults}`, `{NHANES}`, `{HbA1c}`).
 6. Check figures and tables against journal format and manuscript claims. For a
    medical prediction or external-validation paper, absence of supplementary
    tables/figures should be an explicit inventory decision, not a silent
