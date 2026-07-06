@@ -13,7 +13,7 @@ Machine boundary: 本文是人读导航。机器真相以 `src/scholar-skills.ts
 - 协同模块：`Atlas` 发现 module descriptor，`Runway` 承载 invocation / execution receipt candidate 形状，`Ledger` 承载 refs、lineage 和 evidence refs，`Console` 读取 CLI JSON readback。
 - 不触碰范围：`Connect` / system install surfaces、MAS/Yang/domain authority、runtime DB、runtime queues、owner receipts、typed blockers、publication readiness、domain truth 和 paper truth。
 
-MAS 默认 runtime 入口仍是 MAS overlay，写作、审阅、图件、文献、统计、表格、投稿和临床数据治理的专业 skill 由本仓八个 `medical-*` Skill 单源维护并同步给 MAS 消费。Candidate engines 只为这些入口提供 refs-only candidate bodies、quality floors 和 route-back hints；不新增 `opl-scholar-write/review/display/data` 并列默认入口。
+MAS 默认 runtime 入口仍是 MAS overlay，写作、审阅、图件、图件风格、图件构图、文献、统计、表格、投稿和临床数据治理的专业 skill 由本仓 `medical-*` Skill 单源维护并同步给 MAS 消费；`medical-figure-style` / `medical-figure-composer` 只是 Display module 子 Skill，不新增 active module。Candidate engines 只为这些入口提供 refs-only candidate bodies、quality floors 和 route-back hints；不新增 `opl-scholar-write/review/display/data` 并列默认入口。
 
 Candidate engine 不是 Skill。当前 active engine 只服务已经有真实专业 Skill 支撑的模块。临床数据治理已经升级为 `medical-data-governance` 真 Skill；历史 Data engine 继续提供 refs-only 候选体和 legacy module descriptor 兼容。通用 source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不在本仓保留合同占位；组学能力在形成稳定 MAS 专业 workflow 后再以真实 Skill 进入本仓。
 

@@ -66,6 +66,12 @@ if not re.search(r"^---\n[\s\S]*?^name:\s+medical-manuscript-review$", review_sk
 figure_skill = read_text("skills/medical-figure-design/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-design$", figure_skill, re.MULTILINE):
     fail("medical-figure-design must be a real Codex skill")
+figure_style_skill = read_text("skills/medical-figure-style/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-style$", figure_style_skill, re.MULTILINE):
+    fail("medical-figure-style must be a real Codex skill")
+figure_composer_skill = read_text("skills/medical-figure-composer/SKILL.md")
+if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-composer$", figure_composer_skill, re.MULTILINE):
+    fail("medical-figure-composer must be a real Codex skill")
 lit_skill = read_text("skills/medical-research-lit/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-lit$", lit_skill, re.MULTILINE):
     fail("medical-research-lit must be a real Codex skill")
@@ -116,6 +122,8 @@ expected_capability_skills = [
     "medical-manuscript-writing",
     "medical-manuscript-review",
     "medical-figure-design",
+    "medical-figure-style",
+    "medical-figure-composer",
     "medical-research-lit",
     "medical-statistical-review",
     "medical-table-design",
@@ -160,6 +168,20 @@ expected_capability_token_policy = {
         "module": "display",
         "required_improvement_tokens": ["figure_quality", "display_quality", "visual_quality"],
         "required_failure_tokens": ["medical_failure:figure", "figure_quality"],
+        "failure_types": ["figure"],
+    },
+    "medical-figure-style": {
+        "module": "display",
+        "contract_ref": "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/style_only",
+        "required_improvement_tokens": ["figure_style", "figure_quality", "display_quality", "visual_quality"],
+        "required_failure_tokens": ["medical_failure:figure", "figure_style", "figure_quality"],
+        "failure_types": ["figure"],
+    },
+    "medical-figure-composer": {
+        "module": "display",
+        "contract_ref": "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/compose_only",
+        "required_improvement_tokens": ["figure_composition", "figure_quality", "display_quality", "visual_quality"],
+        "required_failure_tokens": ["medical_failure:figure", "figure_composition", "figure_quality"],
         "failure_types": ["figure"],
     },
     "medical-manuscript-writing": {
@@ -317,7 +339,10 @@ for skill_id in expected_capability_skills:
         item.get("canonical_paths"),
         [
             f"skills/{skill_id}/SKILL.md",
-            f"contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/{token_policy['module']}",
+            token_policy.get(
+                "contract_ref",
+                f"contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/{token_policy['module']}",
+            ),
         ],
     )
     if item.get("owner_closeout_boundary_ref") != "contracts/capability_map.json#/owner_closeout_boundary":
@@ -404,6 +429,8 @@ require_all(
         "medical-manuscript-writing",
         "medical-manuscript-review",
         "medical-figure-design",
+        "medical-figure-style",
+        "medical-figure-composer",
         "medical-research-lit",
         "medical-statistical-review",
         "medical-table-design",
@@ -418,6 +445,8 @@ require_all(
         "medical-manuscript-writing",
         "medical-manuscript-review",
         "medical-figure-design",
+        "medical-figure-style",
+        "medical-figure-composer",
         "medical-statistical-review",
         "medical-table-design",
         "medical-submission-prep",
@@ -494,6 +523,8 @@ require_all(
         "medical-manuscript-writing",
         "medical-manuscript-review",
         "medical-figure-design",
+        "medical-figure-style",
+        "medical-figure-composer",
         "medical-research-lit",
         "medical-statistical-review",
         "medical-table-design",
@@ -513,6 +544,18 @@ expected_real_skill_backed_modules = {
 }
 if classification_policy.get("real_skill_backed_module_map") != expected_real_skill_backed_modules:
     fail("classification policy must map the eight real-skill-backed modules")
+display_subskill_routes = classification_policy.get("display_subskill_routes") or {}
+expected_display_subskill_routes = {
+    "style_only": "medical-figure-style",
+    "compose_only": "medical-figure-composer",
+    "full_figure_work": "medical-figure-design",
+    "subskill_module_id": "mas-scholar-skills.display",
+    "can_add_active_module": False,
+    "can_claim_figure_artifact_authority": False,
+    "can_claim_publication_readiness": False,
+}
+if display_subskill_routes != expected_display_subskill_routes:
+    fail("classification policy must route display subskills without adding active modules")
 if "capability_module_contracts" in classification_policy:
     fail("classification policy must not keep legacy capability_module_contracts")
 if classification_policy.get("contract_layer_modules"):
@@ -635,6 +678,8 @@ for token in [
         fail(f"professional skill quality upgrade policy missing {token}")
 expected_quality_skill_refs = {
     "medical-figure-design": ["figure_contract_template_ref", "figure_contract_ref", "panel_evidence_chain_ref", "candidate_set_ref", "critic_review_ref"],
+    "medical-figure-style": ["data_fidelity_ref", "claim_title_truth_ref", "label_economy_ref", "color_vision_check_ref", "export_lint_ref"],
+    "medical-figure-composer": ["multi_panel_outline_ref", "panel_render_receipt_ref", "composite_review_ref", "final_size_export_ref", "owner_gate_handoff_ref"],
     "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
     "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
     "medical-research-lit": ["source_ref_chain_template_ref", "fallback_source_refs", "deduplication_ref", "source_acceptance_decision_ref", "support_strength_matrix_ref"],
@@ -687,6 +732,8 @@ for relative, skill_id, text in [
     ("skills/medical-manuscript-writing/SKILL.md", "medical-manuscript-writing", write_skill),
     ("skills/medical-manuscript-review/SKILL.md", "medical-manuscript-review", review_skill),
     ("skills/medical-figure-design/SKILL.md", "medical-figure-design", figure_skill),
+    ("skills/medical-figure-style/SKILL.md", "medical-figure-style", figure_style_skill),
+    ("skills/medical-figure-composer/SKILL.md", "medical-figure-composer", figure_composer_skill),
     ("skills/medical-research-lit/SKILL.md", "medical-research-lit", lit_skill),
     ("skills/medical-statistical-review/SKILL.md", "medical-statistical-review", stats_skill),
     ("skills/medical-table-design/SKILL.md", "medical-table-design", table_skill),

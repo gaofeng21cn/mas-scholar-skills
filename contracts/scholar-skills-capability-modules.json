@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical active professional-skill catalog for the OPL-owned MAS Scholar Skills external enhancement pack and specialist Codex skills for MAS medical-paper writing, review, figure design, literature, statistics, table, submission, and medical data governance workflows. MAS can discover these skill-backed capabilities through stage operating prompts, consume refs-only candidate outputs, package them through OPL Pack, prepare runtime context through OPL runtime env, and sync local Codex discovery copies through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate clinical data bodies or artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, source, data, publication, App, or production readiness.",
+  "purpose": "Canonical active professional-skill catalog for the OPL-owned MAS Scholar Skills external enhancement pack and specialist Codex skills for MAS medical-paper writing, review, figure design, figure style, figure composition, literature, statistics, table, submission, and medical data governance workflows. MAS can discover these skill-backed capabilities through stage operating prompts, consume refs-only candidate outputs, package them through OPL Pack, prepare runtime context through OPL runtime env, and sync local Codex discovery copies through OPL Connect.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate clinical data bodies or artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, source, data, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -59,6 +59,8 @@
       "medical-manuscript-writing",
       "medical-manuscript-review",
       "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
       "medical-research-lit",
       "medical-statistical-review",
       "medical-table-design",
@@ -69,6 +71,8 @@
       "medical-manuscript-writing",
       "medical-manuscript-review",
       "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
       "medical-statistical-review",
       "medical-table-design",
       "medical-submission-prep",
@@ -131,6 +135,8 @@
       "medical-manuscript-writing",
       "medical-manuscript-review",
       "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
       "medical-research-lit",
       "medical-statistical-review",
       "medical-table-design",
@@ -146,6 +152,15 @@
       "review": "medical-manuscript-review",
       "submit": "medical-submission-prep",
       "data": "medical-data-governance"
+    },
+    "display_subskill_routes": {
+      "style_only": "medical-figure-style",
+      "compose_only": "medical-figure-composer",
+      "full_figure_work": "medical-figure-design",
+      "subskill_module_id": "mas-scholar-skills.display",
+      "can_add_active_module": false,
+      "can_claim_figure_artifact_authority": false,
+      "can_claim_publication_readiness": false
     },
     "origin_policy": "active_catalog_is_derived_from_real_MAS_medical_paper_professional_skills_not_from_a_fixed_ten_module_catalog",
     "non_active_scope_policy": "source_or_external_learning_intake_belongs_to_OPL_Framework_or_MAS_stage_source_surfaces; omics_enters_mas_scholar_skills_only_as_a_future_real_professional_skill_when_MAS_has_a_stable_workflow",
@@ -227,7 +242,7 @@
         ]
       }
     ],
-    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_lit_statistical_review_table_design_submission_prep_and_data_governance_skills_first; keep_source_intake_in_OPL_Framework_or_MAS_stage_source_surfaces; add_omics_to_mas_scholar_skills_only_when_a_real_stable_professional_skill_workflow_exists",
+    "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_figure_style_figure_composer_lit_statistical_review_table_design_submission_prep_and_data_governance_skills_first; keep_source_intake_in_OPL_Framework_or_MAS_stage_source_surfaces; add_omics_to_mas_scholar_skills_only_when_a_real_stable_professional_skill_workflow_exists",
     "skill_quality_refs": {
       "medical-figure-design": [
         "figure_contract_template_ref",
@@ -254,6 +269,27 @@
         "graph_warnings_ref",
         "annotation_to_source_regeneration_ref",
         "skill_pack_governance_policy_ref"
+      ],
+      "medical-figure-style": [
+        "data_fidelity_ref",
+        "excluded_rows_ref",
+        "comparability_ref",
+        "replication_and_fixed_context_ref",
+        "claim_title_truth_ref",
+        "label_economy_ref",
+        "color_vision_check_ref",
+        "final_size_grayscale_preview_ref",
+        "export_lint_ref",
+        "visual_qa_preview_ref",
+        "route_back_hard_evidence_ref"
+      ],
+      "medical-figure-composer": [
+        "multi_panel_outline_ref",
+        "panel_render_receipt_ref",
+        "composite_review_ref",
+        "final_size_export_ref",
+        "export_lint_ref",
+        "owner_gate_handoff_ref"
       ],
       "medical-manuscript-writing": [
         "one_sentence_argument_ref",
@@ -897,6 +933,16 @@
             "observed_head": "f120290",
             "classification": "adapt_refs_only",
             "pattern": "claimType and graphWarnings for figure claim drift, annotation-to-source repair hints, and skill pack allowed-scope governance"
+          },
+          {
+            "source": "AcademicForge/Claude Science figure-style",
+            "classification": "adapt_refs_only",
+            "pattern": "data fidelity, claim-title truth, excluded-row handling, comparability, label economy, color-vision robustness, and render-then-verify checks as medical-figure-style refs"
+          },
+          {
+            "source": "AcademicForge/Claude Science figure-composer",
+            "classification": "adapt_refs_only",
+            "pattern": "outline to panel render receipt to composite review loop as medical-figure-composer refs"
           }
         ],
         "forbidden_shortcuts": [
@@ -3403,7 +3449,7 @@
       }
     ],
     "missing_skill_policy": "missing optional specialist skill does not block the eight core syncable skills or MAS ordinary progress",
-    "default_core_skill_policy": "default core remains medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, and medical-data-governance",
+    "default_core_skill_policy": "default syncable skills remain medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, and medical-data-governance; medical-figure-style and medical-figure-composer remain display subskills rather than active modules",
     "can_replace_default_eight_skills": false,
     "can_block_default_core_progress_when_missing": false,
     "can_write_domain_truth": false,

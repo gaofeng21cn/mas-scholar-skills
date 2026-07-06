@@ -5,7 +5,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_capability_map",
-  "updated_at": "2026-07-03",
+  "updated_at": "2026-07-06",
   "purpose": "Canonical OMA-readable mapping from MAS and Agent Lab feedback targets to MAS Scholar Skills professional skill sources.",
   "source_contract_ref": "contracts/scholar-skills-capability-modules.json",
   "failure_token_registry_ref": "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json",
@@ -82,6 +82,144 @@
         "skills/medical-figure-design/SKILL.md",
         "contracts/capability_map.json#/capabilities/medical-figure-design",
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/display"
+      ],
+      "authority_boundary": {
+        "outputs_are_refs_only_candidates": true,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "owner_closeout_boundary_ref": "contracts/capability_map.json#/owner_closeout_boundary"
+    },
+    {
+      "capability_id": "medical-figure-style",
+      "module_id": "mas-scholar-skills.display",
+      "subcapability_of": "medical-figure-design",
+      "feedback_targets": [
+        "figure_style",
+        "figure_quality",
+        "display_quality",
+        "visual_quality"
+      ],
+      "canonical_path": "skills/medical-figure-style/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-figure-style/SKILL.md",
+      "tokens": [
+        "medical-figure-style",
+        "mas-scholar-skills.display",
+        "figure_style",
+        "figure_quality",
+        "display_quality",
+        "visual_qa"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/style_only",
+        "scripts/verify.sh#medical-figure-style-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor",
+        "references/professional-quality-ref-templates.md#figure-contract-template",
+        "scripts/verify.sh#capability-map-token-policy",
+        "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
+      ],
+      "improvement_tokens": [
+        "medical-figure-style",
+        "mas-scholar-skills.display",
+        "figure_style",
+        "figure_quality",
+        "display_quality",
+        "visual_quality",
+        "figure",
+        "figures"
+      ],
+      "failure_tokens": [
+        "medical_failure:figure",
+        "figure_style",
+        "figure_quality",
+        "display_quality",
+        "visual_quality",
+        "figure",
+        "figures"
+      ],
+      "failure_token_refs": [
+        "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json#/medical_failure_types/figure"
+      ],
+      "canonical_paths": [
+        "skills/medical-figure-style/SKILL.md",
+        "contracts/capability_map.json#/capabilities/medical-figure-style",
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/style_only"
+      ],
+      "authority_boundary": {
+        "outputs_are_refs_only_candidates": true,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "owner_closeout_boundary_ref": "contracts/capability_map.json#/owner_closeout_boundary"
+    },
+    {
+      "capability_id": "medical-figure-composer",
+      "module_id": "mas-scholar-skills.display",
+      "subcapability_of": "medical-figure-design",
+      "feedback_targets": [
+        "figure_composition",
+        "figure_quality",
+        "display_quality",
+        "visual_quality"
+      ],
+      "canonical_path": "skills/medical-figure-composer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-figure-composer/SKILL.md",
+      "tokens": [
+        "medical-figure-composer",
+        "mas-scholar-skills.display",
+        "figure_composition",
+        "figure_quality",
+        "display_quality",
+        "visual_qa"
+      ],
+      "verification_refs": [
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/compose_only",
+        "scripts/verify.sh#medical-figure-composer-frontmatter",
+        "docs/capability-modules.md#professional-skill-quality-floor",
+        "references/professional-quality-ref-templates.md#figure-contract-template",
+        "scripts/verify.sh#capability-map-token-policy",
+        "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
+      ],
+      "improvement_tokens": [
+        "medical-figure-composer",
+        "mas-scholar-skills.display",
+        "figure_composition",
+        "figure_quality",
+        "display_quality",
+        "visual_quality",
+        "figure",
+        "figures"
+      ],
+      "failure_tokens": [
+        "medical_failure:figure",
+        "figure_composition",
+        "figure_quality",
+        "display_quality",
+        "visual_quality",
+        "figure",
+        "figures"
+      ],
+      "failure_token_refs": [
+        "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json#/medical_failure_types/figure"
+      ],
+      "canonical_paths": [
+        "skills/medical-figure-composer/SKILL.md",
+        "contracts/capability_map.json#/capabilities/medical-figure-composer",
+        "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/compose_only"
       ],
       "authority_boundary": {
         "outputs_are_refs_only_candidates": true,

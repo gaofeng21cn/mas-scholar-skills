@@ -13,7 +13,7 @@ It must not write domain truth, runtime state, artifact bodies, ledgers, current
 
 ## Active Skills
 
-The active professional modules are `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`. They are backed by the syncable real Codex skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`.
+The active professional modules are `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`. They are backed by the syncable real Codex skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not additional active modules.
 
 Each module uses the standard refs-only handoff family: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`.
 
@@ -22,7 +22,7 @@ Optional advanced specialist skills such as `medical-structural-biology`,
 `medical-single-cell-modeling`, `medical-indication-dossier`,
 `research-pdf-evidence-explorer`, and `scientific-compute-runner` are
 external specialist helpers, not active module owners. Their absence does not
-block the default eight skills or MAS ordinary progress. They may emit
+block the default medical-paper skills or MAS ordinary progress. They may emit
 specialty candidate refs and deterministic receipt refs only.
 
 ## Owner Route

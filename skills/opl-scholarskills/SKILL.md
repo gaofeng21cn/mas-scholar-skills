@@ -1,6 +1,6 @@
 ---
 name: opl-scholarskills
-description: "Legacy compatibility alias for MAS Scholar Skills. Use only when an existing workspace still references opl-scholarskills; for new MAS medical-paper work prefer mas-scholar-skills plus the real skill sources medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, and medical-data-governance."
+description: "Legacy compatibility alias for MAS Scholar Skills. Use only when an existing workspace still references opl-scholarskills; for new MAS medical-paper work prefer mas-scholar-skills plus the real skill sources medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, and medical-data-governance."
 ---
 
 # OPL ScholarSkills Legacy Alias
@@ -12,7 +12,9 @@ For new work, use:
 - `mas-scholar-skills` for the aggregate MAS Scholar Skills capability map.
 - `medical-manuscript-writing` for medical manuscript writing and revision.
 - `medical-manuscript-review` for adversarial medical review and route-back.
-- `medical-figure-design` for medical manuscript figures.
+- `medical-figure-design` for full medical manuscript figures.
+- `medical-figure-style` for style-only figure QA.
+- `medical-figure-composer` for compose-only multi-panel layout QA.
 - `medical-research-lit` for PubMed-oriented literature discovery.
 - `medical-statistical-review` for statistical assumptions, estimands,
   denominator/missingness checks, effect sizes, and route-back.

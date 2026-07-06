@@ -16,7 +16,8 @@ OPL base, not an additional brand module, and not a domain truth owner. Its
 docs stay compact: module contracts, quality floors, source packs,
 external-learning refs, professional syncable skills
 `medical-manuscript-writing`, `medical-manuscript-review`,
-`medical-figure-design`, `medical-research-lit`, `medical-statistical-review`,
+`medical-figure-design`, `medical-figure-style`,
+`medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`,
 `medical-table-design`, `medical-submission-prep`, `medical-data-governance`,
 and gallery review surfaces support the MAS overlay. The writing/review/figure/literature/statistics/table/submission/data-governance
 professional skills are maintained here as a single source for MAS consumption;
@@ -41,7 +42,9 @@ syncable Codex specialist skills. Their active ids are
 `mas-scholar-skills.stats`, `mas-scholar-skills.lit`,
 `mas-scholar-skills.write`, `mas-scholar-skills.review`,
 `mas-scholar-skills.submit`, and `mas-scholar-skills.data`; historical
-`opl.scholarskills.*` ids are legacy aliases/provenance only. Generic source or
+`opl.scholarskills.*` ids are legacy aliases/provenance only.
+`medical-figure-style` and `medical-figure-composer` are syncable display
+subskills under `medical-figure-design`, not additional active modules. Generic source or
 external-learning intake belongs to OPL Framework or MAS stage/source surfaces
 and is not kept here as a contract placeholder. Omics belongs in this repository
 only after MAS has a stable real omics specialist workflow to maintain. Active
@@ -54,7 +57,7 @@ Connect for stable PubMed refs: `opl connect pubmed search --query <query>
 judgment, evidence interpretation, owner receipts, typed blockers, and
 publication decisions.
 
-The current professional quality floor is in the eight real skills. Figure work
+The current professional quality floor is in the real skills. Figure work
 requires a figure contract, evidence chain, candidate loop, and visual QA;
 writing requires an argument contract, terminology ledger, paragraph job map,
 and citation/availability audits; review requires reviewer lanes and a
@@ -68,7 +71,7 @@ reviewer-response, and package-consistency checks; data governance requires
 clinical data manifests, dictionaries, cleaning/normalization readiness, version
 impact review, study binding, privacy/access tier, and lifecycle guardrails.
 The K-Dense intake note records the latest scientific-agent-skills absorption
-into those same eight real skills, including retrieval contracts, venue
+into those same real skills, including retrieval contracts, venue
 instructions, plotting/export QA, power/design discipline, and database API
 provenance.
 

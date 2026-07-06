@@ -1,13 +1,13 @@
 ---
 name: mas-scholar-skills
-description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, optional advanced specialist skills, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
+description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, optional advanced specialist skills, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
 ---
 
 # MAS Scholar Skills
 
 Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry for the OPL-owned MAS medical-paper enhancement pack. The historical `opl-scholarskills` name is a legacy alias only. Treat `contracts/scholar-skills-capability-modules.json` as this skill pack's module catalog snapshot. The executable `opl scholar-skills *` CLI and runtime bridge remain owned by OPL Framework.
 
-This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, submission, or clinical data governance work through these synced professional skills. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
+This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, submission, or clinical data governance work through these synced professional skills. `medical-figure-style` and `medical-figure-composer` are display subskills under `medical-figure-design`, not additional active modules. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
 
 For literature discovery, use the real specialist skill `medical-research-lit` when a task needs PubMed-oriented search planning, query iteration, source screening, citation verification, evidence mapping, or a MAS route-back handoff. Do not reduce literature discovery to the `mas-scholar-skills.lit` descriptor alone.
 
@@ -23,7 +23,7 @@ AcademicForge HEAD `54a2f333973147a1fd703caea6f12252e1f227d6`:
 These are real Codex discovery skills with `SKILL.md` frontmatter, but they are
 not MAS authority owners and they are not additional active core modules.
 Use them only when a named specialty is needed. Missing optional advanced
-specialists do not block the default eight skills or MAS ordinary progress.
+specialists do not block default MAS medical-paper progress.
 Their outputs stay refs-only candidate refs: structure/docking candidate refs,
 sequence/design/embedding/fold-back validation refs, DNA scoring/track
 prediction candidate refs, AnnData embedding/annotation/DE candidate refs,
@@ -40,6 +40,7 @@ Default route:
 ```text
 MAS overlay or stage operating prompt
   -> medical-manuscript-writing / medical-manuscript-review / medical-figure-design
+     / medical-figure-style / medical-figure-composer
      / medical-research-lit / medical-statistical-review / medical-table-design
      / medical-submission-prep / medical-data-governance
   -> MAS Scholar Skills discovery refs
@@ -67,6 +68,8 @@ This `mas-scholar-skills` repository is the source of truth for the MAS Scholar 
 <workspace_root>/.codex/skills/medical-manuscript-writing/
 <workspace_root>/.codex/skills/medical-manuscript-review/
 <workspace_root>/.codex/skills/medical-figure-design/
+<workspace_root>/.codex/skills/medical-figure-style/
+<workspace_root>/.codex/skills/medical-figure-composer/
 <workspace_root>/.codex/skills/medical-research-lit/
 <workspace_root>/.codex/skills/medical-statistical-review/
 <workspace_root>/.codex/skills/medical-table-design/
@@ -76,6 +79,8 @@ This `mas-scholar-skills` repository is the source of truth for the MAS Scholar 
 <quest_root>/.codex/skills/medical-manuscript-writing/
 <quest_root>/.codex/skills/medical-manuscript-review/
 <quest_root>/.codex/skills/medical-figure-design/
+<quest_root>/.codex/skills/medical-figure-style/
+<quest_root>/.codex/skills/medical-figure-composer/
 <quest_root>/.codex/skills/medical-research-lit/
 <quest_root>/.codex/skills/medical-statistical-review/
 <quest_root>/.codex/skills/medical-table-design/
@@ -90,11 +95,11 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The local install is refs-only and authority false. It may include this Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
+The local install is refs-only and authority false. It may include this Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
 
 ## External Scientific Skill Discovery / Router
 
-Use OPL Connect external-skill discovery only when the default eight `medical-*`
+Use OPL Connect external-skill discovery only when the default `medical-*`
 skills do not cover a named scientific specialty, tool, database, API, or
 workflow, such as omics, single-cell analysis, Nextflow, RDKit, PyHealth, or a
 specialized database connector. Typical on-demand candidates include `scanpy`,
@@ -137,14 +142,14 @@ publication readiness, runtime readiness, and production readiness decisions.
 Keep the physical shape explicit:
 
 - Eight active professional skill modules: `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`.
-- Eight real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`.
+- Ten real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not new active modules.
 - No contract-layer module is active in this repository.
 
 Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.
 
 ## Professional Skill Quality Floor
 
-The eight real specialist skills carry the AI-first quality floor; keep the
+The real specialist skills carry the AI-first quality floor; keep the
 detailed floor in the relevant `medical-*` Skill instead of duplicating it here.
 They absorb useful patterns from `K-Dense-AI/scientific-agent-skills` and
 `Yuan1z0825/nature-skills` without requiring external runtime installation or

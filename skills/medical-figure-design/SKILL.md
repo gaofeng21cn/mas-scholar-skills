@@ -1,12 +1,13 @@
 ---
 name: medical-figure-design
-description: "Use when a MAS figure stage operating prompt needs professional medical figure design for a new or materially repaired manuscript figure, from figure intent through evidence refs, panel plan, renderer/template selection, draft render, visual QA, polish, and reviewer handoff. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, visual-audit authority, owner receipts, typed blockers, and publication readiness."
+description: "Use when a MAS figure stage operating prompt needs professional medical figure design for a new or materially repaired manuscript figure, or when routing figure work between style-only and compose-only display subskills. Full figure work runs figure intent through evidence refs, panel plan, renderer/template selection, draft render, visual QA, composition, polish, and reviewer handoff. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, visual-audit authority, owner receipts, typed blockers, and publication readiness."
 ---
 
 # Medical Figure Design
 
 Use this skill when a paper-facing figure needs to be created or materially
-repaired from zero to one.
+repaired from zero to one, or when a figure request needs routing between the
+display subskills.
 
 This professional specialist skill is maintained in `mas-scholar-skills` /
 MAS Scholar Skills. MAS stage operating prompts may sync and consume it, while MAS
@@ -18,6 +19,18 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+
+Thin display subskill routes:
+
+- Use `medical-figure-style` for style-only visual grammar, readability,
+  claim-title truth, label economy, color accessibility, final-scale inspection,
+  and export-visible style QA on an existing figure or panel.
+- Use `medical-figure-composer` for compose-only multi-panel assembly, layout,
+  panel-letter/gutter/resized-text checks, crop-level consistency, and composite
+  export QA from existing rendered panels.
+- Keep `medical-figure-design` as the orchestrator for full figure work. It
+  may call style QA, render/panel repair, compose QA, and final visual review in
+  sequence, but the outputs remain refs-only candidate handoffs.
 
 Sibling skill routes are `medical-manuscript-writing` for manuscript narrative
 repair, `medical-manuscript-review` for adversarial review,

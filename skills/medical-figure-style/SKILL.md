@@ -1,0 +1,59 @@
+---
+name: medical-figure-style
+description: "Use when a MAS figure task only needs professional visual grammar or style QA for an existing figure, panel, or draft export. This thin MAS Scholar Skills display subskill checks data fidelity, claim-title truth, label economy, color accessibility, final-scale readability, and export-visible style risk without composing panels, redrawing data figures, mutating artifacts, or claiming MAS authority."
+---
+
+# Medical Figure Style
+
+Use this thin display subskill when the task is style-only: visual grammar,
+readability, label economy, palette, final-size inspection, or style QA for an
+existing figure, panel, or draft export.
+
+Use `medical-figure-design` instead when the figure claim, evidence chain,
+panel plan, renderer choice, or full figure workflow is still being created or
+repaired. Use `medical-figure-composer` when the task is only assembling
+already rendered panels into a multi-panel figure.
+
+Shared refs: `docs/no-authority-boundary.md` and
+`references/professional-quality-ref-templates.md`. This subskill preserves the
+Claude Science figure-style discipline already absorbed in MAS Scholar Skills:
+data fidelity before chart judgment, claim-title truth, excluded-row handling,
+comparable-condition separation, displayed `n` and fixed context, label
+economy, color-vision robustness, and render-then-verify.
+
+## Boundary
+
+This subskill owns only refs-only visual grammar and style QA guidance. It must
+not redraw data figures, choose a new panel composition, switch renderer
+families, mutate artifact bodies, write publication truth, sign owner receipts,
+create typed blockers, claim visual-audit authority, or claim publication
+readiness.
+
+## Workflow
+
+1. Confirm the existing figure or panel export and its claim/evidence refs.
+   Missing evidence is a route-back issue for `medical-figure-design`, not a
+   styling problem.
+2. Check `data_fidelity_ref`, `excluded_rows_ref`, `comparability_ref`,
+   `replication_and_fixed_context_ref`, and `claim_title_truth_ref` before any
+   visual polish recommendation.
+3. Check `label_economy_ref`, `color_vision_check_ref`,
+   `final_size_grayscale_preview_ref`, `export_lint_ref`, and
+   `visual_qa_preview_ref` on the actual rendered output.
+4. Return style findings as candidate refs: what can be fixed inside visual
+   style, what must route back to evidence/renderer work, and what remains a
+   reviewer hint.
+
+## Output
+
+Produce a compact `figure_style_review_ref` with:
+
+- input figure or panel ref
+- checked claim/evidence refs
+- style-only findings and proposed fixes
+- hard route-back items, if evidence or readability fails
+- owner-gate target for MAS/domain review
+
+The result is a candidate review hint only. MAS or the consuming domain owner
+decides acceptance, route-back, typed blocker, artifact mutation, visual-audit
+receipt, and publication readiness.
