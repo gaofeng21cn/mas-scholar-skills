@@ -14,6 +14,7 @@ import tomllib
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACK_ROOT = ROOT / "packs" / "medical-display-core"
 GALLERY_ROOT = ROOT / "gallery" / "medical-display"
+PACK_LEVEL_EXECUTION_MODE = "declared_by_template"
 
 
 def fail(message: str) -> None:
@@ -31,6 +32,10 @@ def read_toml(path: pathlib.Path) -> dict:
     if not path.is_file():
         fail(f"missing {path.relative_to(ROOT)}")
     return tomllib.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: pathlib.Path, data: dict) -> None:
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -91,7 +96,7 @@ def format_counts(counts: dict[str, int]) -> str:
     return ", ".join(f"{key}={counts[key]}" for key in sorted(counts))
 
 
-def verify_source_pack() -> dict:
+def load_display_pack() -> dict:
     display_pack = read_toml(PACK_ROOT / "display_pack.toml")
     if display_pack.get("pack_id") != "fenggaolab.org.medical-display-core":
         fail("display_pack.toml has wrong pack_id")
@@ -99,6 +104,8 @@ def verify_source_pack() -> dict:
         fail("display_pack.toml must declare pack_kind=display_pack")
     if display_pack.get("capability_kind") != "reference_pack":
         fail("display_pack.toml must declare capability_kind=reference_pack")
+    if display_pack.get("default_execution_mode") != PACK_LEVEL_EXECUTION_MODE:
+        fail(f"display_pack.toml default_execution_mode must be {PACK_LEVEL_EXECUTION_MODE}")
     if display_pack.get("source") != "scholarskills-managed-external-pack":
         fail("display_pack.toml must be ScholarSkills-managed")
     if display_pack.get("opl_pack_descriptor_ref") != "opl_pack.json":
@@ -120,6 +127,10 @@ def verify_source_pack() -> dict:
     )
     if display_pack.get("heavy_render_intermediates_excluded") is not True:
         fail("display_pack.toml must exclude heavy render intermediates")
+    return display_pack
+
+
+def load_opl_pack(display_pack: dict) -> dict:
     opl_pack = read_json(PACK_ROOT / "opl_pack.json")
     if opl_pack.get("pack_id") != display_pack["pack_id"]:
         fail("opl_pack.json pack_id does not match display_pack.toml")
@@ -142,7 +153,10 @@ def verify_source_pack() -> dict:
             "provider_completion_is_pack_quality_ready",
         ],
     )
+    return opl_pack
 
+
+def expected_template_resources(display_pack: dict) -> tuple[list[dict], dict[str, int]]:
     catalog = read_json(PACK_ROOT / "canonical_template_catalog.json")
     if catalog.get("pack_id") != display_pack["pack_id"]:
         fail("canonical_template_catalog.json pack_id does not match display_pack.toml")
@@ -152,6 +166,7 @@ def verify_source_pack() -> dict:
 
     seen_template_ids: set[str] = set()
     renderer_counts: dict[str, int] = {}
+    template_resources: list[dict] = []
     pack_render_modes = display_pack["supported_render_modes"]
     for family in families:
         template_id = family.get("canonical_template_id")
@@ -182,6 +197,13 @@ def verify_source_pack() -> dict:
             expected_entrypoint = f"Rscript ../../render.R --template {template_id} --mode {{render_mode}} --request {{request_json}}"
             if descriptor.get("entrypoint") != expected_entrypoint:
                 fail(f"{template_id} must use the pack-level render.R entrypoint")
+        template_resources.append(
+            {
+                "resource_id": f"template.{template_id}",
+                "role": "template",
+                "ref": f"templates/{template_id}/template.toml",
+            }
+        )
 
     descriptor_template_ids = {
         path.parent.name for path in (PACK_ROOT / "templates").glob("*/template.toml")
@@ -191,9 +213,45 @@ def verify_source_pack() -> dict:
         extra = sorted(descriptor_template_ids - seen_template_ids)
         fail(f"template descriptor/catalog mismatch: missing={missing} extra={extra}")
 
+    return template_resources, renderer_counts
+
+
+def is_template_resource(resource: dict) -> bool:
+    return resource.get("role") == "template" or resource.get("kind") == "template"
+
+
+def generated_opl_pack(opl_pack: dict, template_resources: list[dict]) -> dict:
+    generated = dict(opl_pack)
+    resources = opl_pack.get("resources")
+    if not isinstance(resources, list):
+        fail("opl_pack.json resources must be a list")
+    replaced = False
+    generated_resources: list[dict] = []
+    for resource in resources:
+        if is_template_resource(resource):
+            if not replaced:
+                generated_resources.extend(template_resources)
+                replaced = True
+            continue
+        generated_resources.append(resource)
+    if not replaced:
+        generated_resources.extend(template_resources)
+    generated["resources"] = generated_resources
+    return generated
+
+
+def verify_source_pack() -> dict:
+    display_pack = load_display_pack()
+    opl_pack = load_opl_pack(display_pack)
+    template_resources, renderer_counts = expected_template_resources(display_pack)
+    generated = generated_opl_pack(opl_pack, template_resources)
+    if opl_pack != generated:
+        fail("opl_pack.json template resources drifted; run scripts/verify-display-gallery-pack.py --sync-opl-pack")
+
+    seen_template_ids = {resource["resource_id"].removeprefix("template.") for resource in template_resources}
     opl_template_ids: set[str] = set()
     for resource in opl_pack.get("resources") or []:
-        if resource.get("role") != "template" and resource.get("kind") != "template":
+        if not is_template_resource(resource):
             continue
         ref = pathlib.PurePosixPath(str(resource.get("ref") or ""))
         parts = ref.parts
@@ -232,6 +290,18 @@ def verify_source_pack() -> dict:
         "opl_template_resource_count": len(opl_template_ids),
         "renderer_counts": renderer_counts,
     }
+
+
+def sync_opl_pack() -> None:
+    display_pack = load_display_pack()
+    opl_pack = load_opl_pack(display_pack)
+    template_resources, _renderer_counts = expected_template_resources(display_pack)
+    generated = generated_opl_pack(opl_pack, template_resources)
+    if opl_pack == generated:
+        print("opl_pack.json already synchronized")
+        return
+    write_json(PACK_ROOT / "opl_pack.json", generated)
+    print(f"opl_pack.json synchronized: {len(template_resources)} template resources")
 
 
 def verify_gallery_review_package() -> dict:
@@ -305,9 +375,13 @@ def verify_gallery_review_package() -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="validate and print a compact summary")
+    parser.add_argument("--sync-opl-pack", action="store_true", help="rewrite opl_pack.json template resources from the catalog")
     args = parser.parse_args()
-    if not args.check:
-        parser.error("expected --check")
+    if args.check == args.sync_opl_pack:
+        parser.error("expected exactly one of --check or --sync-opl-pack")
+    if args.sync_opl_pack:
+        sync_opl_pack()
+        return
 
     pack_summary = verify_source_pack()
     gallery_summary = verify_gallery_review_package()

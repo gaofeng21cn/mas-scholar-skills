@@ -56,144 +56,9 @@
       "ref": "repo://gallery/medical-display/gallery_snapshot.json"
     },
     {
-      "resource_id": "template.adult_bmi_waist_central_adiposity_bar",
+      "resource_id": "template.roc_curve_binary",
       "role": "template",
-      "ref": "templates/adult_bmi_waist_central_adiposity_bar/template.toml"
-    },
-    {
-      "resource_id": "template.adult_multidimensional_phenotype_heatmap",
-      "role": "template",
-      "ref": "templates/adult_multidimensional_phenotype_heatmap/template.toml"
-    },
-    {
-      "resource_id": "template.alluvial_transition",
-      "role": "template",
-      "ref": "templates/alluvial_transition/template.toml"
-    },
-    {
-      "resource_id": "template.availability_bar_panel",
-      "role": "template",
-      "ref": "templates/availability_bar_panel/template.toml"
-    },
-    {
-      "resource_id": "template.calibration_curve_binary",
-      "role": "template",
-      "ref": "templates/calibration_curve_binary/template.toml"
-    },
-    {
-      "resource_id": "template.celltype_marker_dotplot_panel",
-      "role": "template",
-      "ref": "templates/celltype_marker_dotplot_panel/template.toml"
-    },
-    {
-      "resource_id": "template.center_transportability_governance_summary_panel",
-      "role": "template",
-      "ref": "templates/center_transportability_governance_summary_panel/template.toml"
-    },
-    {
-      "resource_id": "template.cnv_recurrence_summary_panel",
-      "role": "template",
-      "ref": "templates/cnv_recurrence_summary_panel/template.toml"
-    },
-    {
-      "resource_id": "template.coefficient_path_panel",
-      "role": "template",
-      "ref": "templates/coefficient_path_panel/template.toml"
-    },
-    {
-      "resource_id": "template.cohort_flow_figure",
-      "role": "template",
-      "ref": "templates/cohort_flow_figure/template.toml"
-    },
-    {
-      "resource_id": "template.composition_stacked_bar",
-      "role": "template",
-      "ref": "templates/composition_stacked_bar/template.toml"
-    },
-    {
-      "resource_id": "template.confusion_matrix_heatmap_binary",
-      "role": "template",
-      "ref": "templates/confusion_matrix_heatmap_binary/template.toml"
-    },
-    {
-      "resource_id": "template.correlation_scatter",
-      "role": "template",
-      "ref": "templates/correlation_scatter/template.toml"
-    },
-    {
-      "resource_id": "template.cumulative_incidence_grouped",
-      "role": "template",
-      "ref": "templates/cumulative_incidence_grouped/template.toml"
-    },
-    {
-      "resource_id": "template.decision_curve_binary",
-      "role": "template",
-      "ref": "templates/decision_curve_binary/template.toml"
-    },
-    {
-      "resource_id": "template.distribution_violin_box",
-      "role": "template",
-      "ref": "templates/distribution_violin_box/template.toml"
-    },
-    {
-      "resource_id": "template.dot_range_summary_panel",
-      "role": "template",
-      "ref": "templates/dot_range_summary_panel/template.toml"
-    },
-    {
-      "resource_id": "template.forest_effect_main",
-      "role": "template",
-      "ref": "templates/forest_effect_main/template.toml"
-    },
-    {
-      "resource_id": "template.generalizability_subgroup_composite_panel",
-      "role": "template",
-      "ref": "templates/generalizability_subgroup_composite_panel/template.toml"
-    },
-    {
-      "resource_id": "template.genomic_alteration_consequence_panel",
-      "role": "template",
-      "ref": "templates/genomic_alteration_consequence_panel/template.toml"
-    },
-    {
-      "resource_id": "template.genomic_alteration_landscape_panel",
-      "role": "template",
-      "ref": "templates/genomic_alteration_landscape_panel/template.toml"
-    },
-    {
-      "resource_id": "template.heatmap_group_comparison",
-      "role": "template",
-      "ref": "templates/heatmap_group_comparison/template.toml"
-    },
-    {
-      "resource_id": "template.kaplan_meier_grouped",
-      "role": "template",
-      "ref": "templates/kaplan_meier_grouped/template.toml"
-    },
-    {
-      "resource_id": "template.model_complexity_audit_panel",
-      "role": "template",
-      "ref": "templates/model_complexity_audit_panel/template.toml"
-    },
-    {
-      "resource_id": "template.omics_volcano_panel",
-      "role": "template",
-      "ref": "templates/omics_volcano_panel/template.toml"
-    },
-    {
-      "resource_id": "template.pathway_enrichment_dotplot_panel",
-      "role": "template",
-      "ref": "templates/pathway_enrichment_dotplot_panel/template.toml"
-    },
-    {
-      "resource_id": "template.pca_scatter_grouped",
-      "role": "template",
-      "ref": "templates/pca_scatter_grouped/template.toml"
-    },
-    {
-      "resource_id": "template.phenotype_gap_structure_figure",
-      "role": "template",
-      "ref": "templates/phenotype_gap_structure_figure/template.toml"
+      "ref": "templates/roc_curve_binary/template.toml"
     },
     {
       "resource_id": "template.pr_curve_binary",
@@ -201,9 +66,39 @@
       "ref": "templates/pr_curve_binary/template.toml"
     },
     {
-      "resource_id": "template.radar_profile",
+      "resource_id": "template.calibration_curve_binary",
       "role": "template",
-      "ref": "templates/radar_profile/template.toml"
+      "ref": "templates/calibration_curve_binary/template.toml"
+    },
+    {
+      "resource_id": "template.decision_curve_binary",
+      "role": "template",
+      "ref": "templates/decision_curve_binary/template.toml"
+    },
+    {
+      "resource_id": "template.kaplan_meier_grouped",
+      "role": "template",
+      "ref": "templates/kaplan_meier_grouped/template.toml"
+    },
+    {
+      "resource_id": "template.cumulative_incidence_grouped",
+      "role": "template",
+      "ref": "templates/cumulative_incidence_grouped/template.toml"
+    },
+    {
+      "resource_id": "template.time_dependent_roc_horizon",
+      "role": "template",
+      "ref": "templates/time_dependent_roc_horizon/template.toml"
+    },
+    {
+      "resource_id": "template.time_to_event_multihorizon_calibration_panel",
+      "role": "template",
+      "ref": "templates/time_to_event_multihorizon_calibration_panel/template.toml"
+    },
+    {
+      "resource_id": "template.time_to_event_decision_curve",
+      "role": "template",
+      "ref": "templates/time_to_event_decision_curve/template.toml"
     },
     {
       "resource_id": "template.risk_layering_monotonic_bars",
@@ -211,14 +106,79 @@
       "ref": "templates/risk_layering_monotonic_bars/template.toml"
     },
     {
-      "resource_id": "template.roc_curve_binary",
+      "resource_id": "template.forest_effect_main",
       "role": "template",
-      "ref": "templates/roc_curve_binary/template.toml"
+      "ref": "templates/forest_effect_main/template.toml"
     },
     {
-      "resource_id": "template.shap_dependence_panel",
+      "resource_id": "template.coefficient_path_panel",
       "role": "template",
-      "ref": "templates/shap_dependence_panel/template.toml"
+      "ref": "templates/coefficient_path_panel/template.toml"
+    },
+    {
+      "resource_id": "template.generalizability_subgroup_composite_panel",
+      "role": "template",
+      "ref": "templates/generalizability_subgroup_composite_panel/template.toml"
+    },
+    {
+      "resource_id": "template.center_transportability_governance_summary_panel",
+      "role": "template",
+      "ref": "templates/center_transportability_governance_summary_panel/template.toml"
+    },
+    {
+      "resource_id": "template.pca_scatter_grouped",
+      "role": "template",
+      "ref": "templates/pca_scatter_grouped/template.toml"
+    },
+    {
+      "resource_id": "template.tsne_scatter_grouped",
+      "role": "template",
+      "ref": "templates/tsne_scatter_grouped/template.toml"
+    },
+    {
+      "resource_id": "template.umap_scatter_grouped",
+      "role": "template",
+      "ref": "templates/umap_scatter_grouped/template.toml"
+    },
+    {
+      "resource_id": "template.heatmap_group_comparison",
+      "role": "template",
+      "ref": "templates/heatmap_group_comparison/template.toml"
+    },
+    {
+      "resource_id": "template.confusion_matrix_heatmap_binary",
+      "role": "template",
+      "ref": "templates/confusion_matrix_heatmap_binary/template.toml"
+    },
+    {
+      "resource_id": "template.genomic_alteration_landscape_panel",
+      "role": "template",
+      "ref": "templates/genomic_alteration_landscape_panel/template.toml"
+    },
+    {
+      "resource_id": "template.cnv_recurrence_summary_panel",
+      "role": "template",
+      "ref": "templates/cnv_recurrence_summary_panel/template.toml"
+    },
+    {
+      "resource_id": "template.genomic_alteration_consequence_panel",
+      "role": "template",
+      "ref": "templates/genomic_alteration_consequence_panel/template.toml"
+    },
+    {
+      "resource_id": "template.pathway_enrichment_dotplot_panel",
+      "role": "template",
+      "ref": "templates/pathway_enrichment_dotplot_panel/template.toml"
+    },
+    {
+      "resource_id": "template.celltype_marker_dotplot_panel",
+      "role": "template",
+      "ref": "templates/celltype_marker_dotplot_panel/template.toml"
+    },
+    {
+      "resource_id": "template.omics_volcano_panel",
+      "role": "template",
+      "ref": "templates/omics_volcano_panel/template.toml"
     },
     {
       "resource_id": "template.shap_summary_beeswarm",
@@ -226,14 +186,24 @@
       "ref": "templates/shap_summary_beeswarm/template.toml"
     },
     {
+      "resource_id": "template.shap_dependence_panel",
+      "role": "template",
+      "ref": "templates/shap_dependence_panel/template.toml"
+    },
+    {
       "resource_id": "template.shap_waterfall_local_explanation_panel",
       "role": "template",
       "ref": "templates/shap_waterfall_local_explanation_panel/template.toml"
     },
     {
-      "resource_id": "template.site_held_out_stability_figure",
+      "resource_id": "template.model_complexity_audit_panel",
       "role": "template",
-      "ref": "templates/site_held_out_stability_figure/template.toml"
+      "ref": "templates/model_complexity_audit_panel/template.toml"
+    },
+    {
+      "resource_id": "template.cohort_flow_figure",
+      "role": "template",
+      "ref": "templates/cohort_flow_figure/template.toml"
     },
     {
       "resource_id": "template.submission_graphical_abstract",
@@ -241,34 +211,74 @@
       "ref": "templates/submission_graphical_abstract/template.toml"
     },
     {
-      "resource_id": "template.supplementary_adult_sensitivity",
+      "resource_id": "template.distribution_violin_box",
       "role": "template",
-      "ref": "templates/supplementary_adult_sensitivity/template.toml"
+      "ref": "templates/distribution_violin_box/template.toml"
     },
     {
-      "resource_id": "template.supplementary_missingness_atlas",
+      "resource_id": "template.composition_stacked_bar",
       "role": "template",
-      "ref": "templates/supplementary_missingness_atlas/template.toml"
+      "ref": "templates/composition_stacked_bar/template.toml"
     },
     {
-      "resource_id": "template.supplementary_variable_ascertainment",
+      "resource_id": "template.phenotype_gap_structure_figure",
       "role": "template",
-      "ref": "templates/supplementary_variable_ascertainment/template.toml"
+      "ref": "templates/phenotype_gap_structure_figure/template.toml"
     },
     {
-      "resource_id": "template.table1_baseline_characteristics",
+      "resource_id": "template.site_held_out_stability_figure",
       "role": "template",
-      "ref": "templates/table1_baseline_characteristics/template.toml"
+      "ref": "templates/site_held_out_stability_figure/template.toml"
     },
     {
-      "resource_id": "template.table2_phenotype_gap_summary",
+      "resource_id": "template.treatment_gap_alignment_figure",
       "role": "template",
-      "ref": "templates/table2_phenotype_gap_summary/template.toml"
+      "ref": "templates/treatment_gap_alignment_figure/template.toml"
     },
     {
-      "resource_id": "template.table3_transition_site_support_summary",
+      "resource_id": "template.correlation_scatter",
       "role": "template",
-      "ref": "templates/table3_transition_site_support_summary/template.toml"
+      "ref": "templates/correlation_scatter/template.toml"
+    },
+    {
+      "resource_id": "template.alluvial_transition",
+      "role": "template",
+      "ref": "templates/alluvial_transition/template.toml"
+    },
+    {
+      "resource_id": "template.radar_profile",
+      "role": "template",
+      "ref": "templates/radar_profile/template.toml"
+    },
+    {
+      "resource_id": "template.waterfall_response",
+      "role": "template",
+      "ref": "templates/waterfall_response/template.toml"
+    },
+    {
+      "resource_id": "template.dot_range_summary_panel",
+      "role": "template",
+      "ref": "templates/dot_range_summary_panel/template.toml"
+    },
+    {
+      "resource_id": "template.availability_bar_panel",
+      "role": "template",
+      "ref": "templates/availability_bar_panel/template.toml"
+    },
+    {
+      "resource_id": "template.adult_multidimensional_phenotype_heatmap",
+      "role": "template",
+      "ref": "templates/adult_multidimensional_phenotype_heatmap/template.toml"
+    },
+    {
+      "resource_id": "template.xiangya_psychobehavioral_overlap_heatmap",
+      "role": "template",
+      "ref": "templates/xiangya_psychobehavioral_overlap_heatmap/template.toml"
+    },
+    {
+      "resource_id": "template.adult_bmi_waist_central_adiposity_bar",
+      "role": "template",
+      "ref": "templates/adult_bmi_waist_central_adiposity_bar/template.toml"
     },
     {
       "resource_id": "template.table4_adult_multidimensional_phenotype",
@@ -286,44 +296,34 @@
       "ref": "templates/table6_adult_bmi_waist_central_adiposity/template.toml"
     },
     {
-      "resource_id": "template.time_dependent_roc_horizon",
+      "resource_id": "template.supplementary_missingness_atlas",
       "role": "template",
-      "ref": "templates/time_dependent_roc_horizon/template.toml"
+      "ref": "templates/supplementary_missingness_atlas/template.toml"
     },
     {
-      "resource_id": "template.time_to_event_decision_curve",
+      "resource_id": "template.supplementary_variable_ascertainment",
       "role": "template",
-      "ref": "templates/time_to_event_decision_curve/template.toml"
+      "ref": "templates/supplementary_variable_ascertainment/template.toml"
     },
     {
-      "resource_id": "template.time_to_event_multihorizon_calibration_panel",
+      "resource_id": "template.supplementary_adult_sensitivity",
       "role": "template",
-      "ref": "templates/time_to_event_multihorizon_calibration_panel/template.toml"
+      "ref": "templates/supplementary_adult_sensitivity/template.toml"
     },
     {
-      "resource_id": "template.treatment_gap_alignment_figure",
+      "resource_id": "template.table1_baseline_characteristics",
       "role": "template",
-      "ref": "templates/treatment_gap_alignment_figure/template.toml"
+      "ref": "templates/table1_baseline_characteristics/template.toml"
     },
     {
-      "resource_id": "template.tsne_scatter_grouped",
+      "resource_id": "template.table2_phenotype_gap_summary",
       "role": "template",
-      "ref": "templates/tsne_scatter_grouped/template.toml"
+      "ref": "templates/table2_phenotype_gap_summary/template.toml"
     },
     {
-      "resource_id": "template.umap_scatter_grouped",
+      "resource_id": "template.table3_transition_site_support_summary",
       "role": "template",
-      "ref": "templates/umap_scatter_grouped/template.toml"
-    },
-    {
-      "resource_id": "template.waterfall_response",
-      "role": "template",
-      "ref": "templates/waterfall_response/template.toml"
-    },
-    {
-      "resource_id": "template.xiangya_psychobehavioral_overlap_heatmap",
-      "role": "template",
-      "ref": "templates/xiangya_psychobehavioral_overlap_heatmap/template.toml"
+      "ref": "templates/table3_transition_site_support_summary/template.toml"
     }
   ],
   "artifact_lifecycle": {
