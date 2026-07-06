@@ -79,6 +79,8 @@ Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
 | Skill-local deterministic helper | 各 `skills/<skill-id>/kernel.py`，以及必要的同目录轻量 refs、templates 或 scripts | 只做 DOI/PMID 归一化、schema skeleton、lint、manifest / receipt shaping、env/log diagnostics、self-check 等低成本确定性辅助；跟随 Skill 分发，不升级为 module、runtime worker、provider lifecycle、MAS authority function 或 publication helper owner。 |
 | 可选专科 Skill | advanced scientific specialists 与 medical-method specialists | 只在 named specialty task 中被发现和同步；它们是真实 Codex Skill，但不是 active module，不阻断默认 MAS 医学论文流程。 |
 
+当前 helper 覆盖是刻意选择，不是“把所有 Skill 脚本化”：32 个 Skill 中 29 个专业或方法 Skill 带 `kernel.py`；`mas-scholar-skills`、`opl-scholarskills` 是 aggregate/bridge 入口，`medical-figure-design` 是 Display 编排入口，继续由 `medical-figure-style` 和 `medical-figure-composer` 的 helper 承接确定性小工具。
+
 主动临床数据治理已经升级为 `medical-data-governance`，历史 Data module id 只保留 descriptor/readback 兼容。MAS Scholar Skills 只维护这八个有真实专业 Skill 单源的 active module；没有稳定专业 Skill 的能力不在本仓预留占位。
 
 ## 专业 Skill 质量地板
