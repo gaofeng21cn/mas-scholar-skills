@@ -14,6 +14,9 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 mutate artifacts, write MAS truth, sign visual audit receipts or owner receipt,
 create typed blockers, accept figures, or claim publication readiness.
 
+Optional skill-local helper: `kernel.py` provides stdlib-only deterministic ref
+normalization, display QC skeletons, route hints, authority phrase lint, and self-checks.
+
 ## Workflow
 
 1. Build `display_artifact_inventory_ref`: file paths/refs, pages, panels,

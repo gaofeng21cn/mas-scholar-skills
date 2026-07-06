@@ -14,6 +14,9 @@ manuscript-delta maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it
 cannot sign reviewer receipts, accept or reject reviews, write MAS truth, create
 typed blockers, mutate final artifacts, or claim publication readiness.
 
+Optional skill-local helper: `kernel.py` provides stdlib-only deterministic comment
+normalization, rebuttal skeletons, response route hints, authority phrase lint, and self-checks.
+
 ## Workflow
 
 1. Build `review_comment_inventory_ref`: comment id, source, severity, target
