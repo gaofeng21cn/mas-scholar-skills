@@ -59,58 +59,32 @@ if manifest.get("skills") != "./skills/":
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
     fail("plugin displayName must be MAS Scholar Skills")
 
+contract = read_json("contracts/scholar-skills-capability-modules.json")
+domain_descriptor = read_json("contracts/domain_descriptor.json")
+capability_map = read_json("contracts/capability_map.json")
+classification_policy = contract.get("capability_module_classification_policy") or {}
+contract_text = json.dumps(contract, ensure_ascii=False)
+expected_capability_skills = classification_policy.get("real_syncable_specialist_skills") or []
+advanced_specialist_skill_ids = classification_policy.get("optional_external_specialist_skills") or []
+medical_method_specialist_skill_ids = classification_policy.get("optional_medical_method_specialist_skills") or []
+
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")
-write_skill = read_text("skills/medical-manuscript-writing/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-manuscript-writing$", write_skill, re.MULTILINE):
-    fail("medical-manuscript-writing must be a real Codex skill")
-review_skill = read_text("skills/medical-manuscript-review/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-manuscript-review$", review_skill, re.MULTILINE):
-    fail("medical-manuscript-review must be a real Codex skill")
-figure_skill = read_text("skills/medical-figure-design/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-design$", figure_skill, re.MULTILINE):
-    fail("medical-figure-design must be a real Codex skill")
-figure_style_skill = read_text("skills/medical-figure-style/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-style$", figure_style_skill, re.MULTILINE):
-    fail("medical-figure-style must be a real Codex skill")
-figure_composer_skill = read_text("skills/medical-figure-composer/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-figure-composer$", figure_composer_skill, re.MULTILINE):
-    fail("medical-figure-composer must be a real Codex skill")
-lit_skill = read_text("skills/medical-research-lit/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-research-lit$", lit_skill, re.MULTILINE):
-    fail("medical-research-lit must be a real Codex skill")
-stats_skill = read_text("skills/medical-statistical-review/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-statistical-review$", stats_skill, re.MULTILINE):
-    fail("medical-statistical-review must be a real Codex skill")
-table_skill = read_text("skills/medical-table-design/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-table-design$", table_skill, re.MULTILINE):
-    fail("medical-table-design must be a real Codex skill")
-submit_skill = read_text("skills/medical-submission-prep/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-submission-prep$", submit_skill, re.MULTILINE):
-    fail("medical-submission-prep must be a real Codex skill")
-data_governance_skill = read_text("skills/medical-data-governance/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+medical-data-governance$", data_governance_skill, re.MULTILINE):
-    fail("medical-data-governance must be a real Codex skill")
-advanced_specialist_skill_ids = [
-    "medical-structural-biology",
-    "medical-protein-design",
-    "medical-genomics-foundation-models",
-    "medical-single-cell-modeling",
-    "medical-indication-dossier",
-    "research-pdf-evidence-explorer",
-    "scientific-compute-runner",
-]
-medical_method_specialist_skill_ids = [
-    "medical-protocol-and-sap-planner",
-    "medical-cohort-phenotyping",
-    "medical-evidence-synthesis-and-claim-map",
-    "medical-reference-integrity-auditor",
-    "medical-rebuttal-strategy",
-    "medical-display-qc",
-    "medical-causal-inference-plan",
-    "medical-survival-analysis-plan",
-]
+capability_skill_texts = {
+    skill_id: read_text(f"skills/{skill_id}/SKILL.md")
+    for skill_id in expected_capability_skills
+}
+write_skill = capability_skill_texts["medical-manuscript-writing"]
+review_skill = capability_skill_texts["medical-manuscript-review"]
+figure_skill = capability_skill_texts["medical-figure-design"]
+figure_style_skill = capability_skill_texts["medical-figure-style"]
+figure_composer_skill = capability_skill_texts["medical-figure-composer"]
+lit_skill = capability_skill_texts["medical-research-lit"]
+stats_skill = capability_skill_texts["medical-statistical-review"]
+table_skill = capability_skill_texts["medical-table-design"]
+submit_skill = capability_skill_texts["medical-submission-prep"]
+data_governance_skill = capability_skill_texts["medical-data-governance"]
 advanced_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in advanced_specialist_skill_ids
@@ -119,37 +93,22 @@ medical_method_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in medical_method_specialist_skill_ids
 }
-for skill_id, text in advanced_specialist_skills.items():
-    if not re.search(rf"^---\n[\s\S]*?^name:\s+{re.escape(skill_id)}$", text, re.MULTILINE):
-        fail(f"{skill_id} must be a real Codex skill")
-for skill_id, text in medical_method_specialist_skills.items():
+for skill_id, text in {
+    **capability_skill_texts,
+    **advanced_specialist_skills,
+    **medical_method_specialist_skills,
+}.items():
     if not re.search(rf"^---\n[\s\S]*?^name:\s+{re.escape(skill_id)}$", text, re.MULTILINE):
         fail(f"{skill_id} must be a real Codex skill")
 legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.MULTILINE):
     fail("legacy alias must expose name: opl-scholarskills")
 
-contract = read_json("contracts/scholar-skills-capability-modules.json")
-domain_descriptor = read_json("contracts/domain_descriptor.json")
-capability_map = read_json("contracts/capability_map.json")
-contract_text = json.dumps(contract, ensure_ascii=False)
 readme = read_text("README.md")
 readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
 professional_ref_templates = read_text("references/professional-quality-ref-templates.md")
-expected_capability_skills = [
-    "medical-manuscript-writing",
-    "medical-manuscript-review",
-    "medical-figure-design",
-    "medical-figure-style",
-    "medical-figure-composer",
-    "medical-research-lit",
-    "medical-statistical-review",
-    "medical-table-design",
-    "medical-submission-prep",
-    "medical-data-governance",
-]
 if domain_descriptor.get("surface_kind") != "oma_capability_pack_target_descriptor":
     fail("domain descriptor must expose oma_capability_pack_target_descriptor")
 if domain_descriptor.get("domain_id") != "mas-scholar-skills":
@@ -596,7 +555,6 @@ for key in [
 ]:
     if positioning_policy.get(key) is not False:
         fail(f"positioning authority flag {key} must be false")
-classification_policy = contract.get("capability_module_classification_policy") or {}
 if classification_policy.get("policy_id") != "mas_scholar_skills_professional_skill_classification.v1":
     fail("contract missing professional skill classification policy")
 require_all(
