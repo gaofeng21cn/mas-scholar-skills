@@ -20,6 +20,13 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
 
+Receipt loop: design owns the refs-only `figure_contract_ref` handoff, the
+display pack returns `render_receipt_ref`, and style/composer return
+`visual_qa_receipt_ref`, `figure_style_review_ref`, or
+`figure_composition_review_ref` for MAS/domain owner consumption. None of these
+refs is artifact authority, owner receipt, visual-audit authority, typed
+blocker, or publication readiness.
+
 Thin display subskill routes:
 
 - Use `medical-figure-style` for style-only visual grammar, readability,
@@ -418,10 +425,12 @@ when available. Record:
 - render script or command
 - renderer family
 - output paths
+- display-pack `render_receipt_ref` when a pack renderer produced the draft
 - sidecar or lock refs
 - known draft limitations
 
-The first render is a draft, not acceptance.
+The first render and its `render_receipt_ref` are refs-only draft evidence, not
+acceptance or artifact authority.
 
 ### 6. Visual QA
 

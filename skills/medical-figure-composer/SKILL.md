@@ -53,9 +53,11 @@ Produce a compact `figure_composition_review_ref` with:
 - input panel refs and panel render receipts
 - layout/export decision and composite output ref
 - composite findings and scoped fixes
+- `visual_qa_receipt_ref` when the composite export was inspected
 - route-back items for panel-level evidence or render defects
 - owner-gate target for MAS/domain review
 
-The result is a candidate composition hint only. MAS or the consuming domain
-owner decides acceptance, route-back, typed blocker, artifact mutation,
-visual-audit receipt, and publication readiness.
+`figure_composition_review_ref` and `visual_qa_receipt_ref` are candidate
+composition refs only. MAS or the consuming domain owner decides acceptance,
+route-back, typed blocker, artifact mutation, visual-audit receipt, and
+publication readiness.

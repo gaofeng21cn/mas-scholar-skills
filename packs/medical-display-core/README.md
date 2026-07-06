@@ -14,6 +14,7 @@ The pack is maintained like a versioned ggplot2/R display extension:
 - template descriptors, renderer source, shared R helpers, example payload contracts, and dependency requirement declarations live in this pack;
 - MAS Scholar Skills owns the pack source and compact review refs under `gallery/medical-display/`;
 - MAS overlay, a MAS figure stage operating prompt, `medical-figure-design`, or another consuming domain owner discovers and calls the pack through its own registry/catalog surfaces and paper-level figure contracts;
+- pack renders return refs-only `render_receipt_ref` for the caller's receipt loop; the caller still owns figure contract, visual QA, owner gate, and artifact authority decisions;
 - generated Gallery assets, HTML, PDF, manifest, layout sidecars, and parity contact sheets are publishable review artifacts, not source truth;
 - dependency resolution, package installation, managed R libraries, runtime cache, and doctor flows belong to the OPL Runtime Environment Substrate.
 
@@ -129,4 +130,4 @@ python3 scripts/verify-display-gallery-pack.py --check
 ./scripts/verify.sh
 ```
 
-The checks require compact review refs, forbid render intermediates, and keep `authority = false`, `publication_ready = false`, `artifact_authority = false`, `owner_receipt_authority = false`, and `typed_blocker_authority = false`. MAS remains responsible for paper-local figure purpose, claim/data binding, visual audit receipts, owner gates, typed blockers, and publication authority.
+The checks require compact review refs, forbid render intermediates, and keep `authority = false`, `publication_ready = false`, `artifact_authority = false`, `owner_receipt_authority = false`, and `typed_blocker_authority = false`. `render_receipt_ref` is only pack execution evidence. MAS remains responsible for paper-local figure purpose, claim/data binding, visual audit receipts, owner gates, typed blockers, and publication authority.

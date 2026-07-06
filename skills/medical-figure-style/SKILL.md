@@ -57,9 +57,10 @@ Produce a compact `figure_style_review_ref` with:
 - input figure or panel ref
 - checked claim/evidence refs
 - style-only findings and proposed fixes
+- `visual_qa_receipt_ref` when the actual rendered export was inspected
 - hard route-back items, if evidence or readability fails
 - owner-gate target for MAS/domain review
 
-The result is a candidate review hint only. MAS or the consuming domain owner
-decides acceptance, route-back, typed blocker, artifact mutation, visual-audit
-receipt, and publication readiness.
+`figure_style_review_ref` and `visual_qa_receipt_ref` are candidate review refs
+only. MAS or the consuming domain owner decides acceptance, route-back, typed
+blocker, artifact mutation, visual-audit receipt, and publication readiness.
