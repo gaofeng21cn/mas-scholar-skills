@@ -14,6 +14,10 @@ cannot define the final cohort truth, mutate clinical data bodies, sign owner
 receipts, create typed blockers, or claim source, runtime, publication, or
 production readiness.
 
+Optional helper: use `kernel.py` for deterministic inclusion/exclusion
+criterion normalization, cohort attrition table scaffolds, and phenotype
+handoff skeletons. It is stdlib-only and no-authority.
+
 ## Workflow
 
 1. Define `phenotype_question_ref`: clinical condition, population, data source,

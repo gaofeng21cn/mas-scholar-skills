@@ -14,6 +14,10 @@ write MAS study truth, approve a protocol, sign an owner receipt, create a
 typed blocker, mutate artifacts, or claim source, runtime, publication, or
 production readiness.
 
+Optional helper: use `kernel.py` for deterministic PICO, estimand, endpoint,
+SAP checklist, and protocol handoff skeletons. It is stdlib-only and
+no-authority.
+
 ## Workflow
 
 1. Define `protocol_question_ref`: population, exposure/intervention,

@@ -13,6 +13,10 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 approve analysis, write MAS truth, sign owner receipts, create typed blockers,
 or claim source, runtime, publication, or production readiness.
 
+Optional helper: use `kernel.py` for deterministic time-zero/event/censoring
+schemas, follow-up/person-time scaffolds, KM/Cox model-plan shells, and
+reporting lint. It is stdlib-only and no-authority.
+
 ## Workflow
 
 1. Define `survival_question_ref`: population, exposure/group, endpoint,

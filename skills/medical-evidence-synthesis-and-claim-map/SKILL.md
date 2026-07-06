@@ -14,6 +14,10 @@ refs, support grading, `route_back_candidate`, and `owner_gate_handoff_ref`; it
 cannot accept citations, write MAS truth, issue quality verdicts, sign owner
 receipts, create typed blockers, or claim publication readiness.
 
+Optional helper: use `kernel.py` for deterministic claim/evidence matrix
+scaffolds, support-strength vocabulary lint, and claim-map handoff skeletons.
+It is stdlib-only and no-authority.
+
 ## Workflow
 
 1. Inventory claims into `claim_inventory_ref`: background, method, result,

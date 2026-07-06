@@ -13,6 +13,10 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 claim causality, approve analysis, write MAS truth, sign owner receipts, create
 typed blockers, or claim publication readiness.
 
+Optional helper: use `kernel.py` for deterministic DAG edge parsing, estimand
+checklists, causal bias flags, and causal-plan handoff skeletons. It is
+stdlib-only and no-authority.
+
 ## Workflow
 
 1. Define `causal_question_ref`: target population, intervention/exposure,

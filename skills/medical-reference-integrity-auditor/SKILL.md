@@ -13,6 +13,10 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 accept a reference into a manuscript, write MAS truth, sign owner receipts,
 create typed blockers, or claim publication readiness.
 
+Optional helper: use `kernel.py` for deterministic DOI/PMID/PMCID
+normalization, duplicate keys, unresolved identifier lint, and inventory
+scaffolds. It is stdlib-only and no-authority.
+
 ## Workflow
 
 1. Build `reference_inventory_ref`: citation keys, manuscript locations, title,
