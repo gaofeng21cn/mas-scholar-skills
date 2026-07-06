@@ -1238,7 +1238,12 @@ if not display_pack_manifest.is_file():
 display_pack_text = display_pack_manifest.read_text(encoding="utf-8")
 for token in [
     'pack_id = "fenggaolab.org.medical-display-core"',
+    'pack_kind = "display_pack"',
+    'capability_kind = "reference_pack"',
     'source = "scholarskills-managed-external-pack"',
+    'opl_pack_descriptor_ref = "opl_pack.json"',
+    'supported_actions = ["render", "gallery"]',
+    'supported_render_modes = ["final", "candidate"]',
     'authority = false',
     'publication_ready = false',
     'artifact_authority = false',
@@ -1249,8 +1254,9 @@ for token in [
     if token not in display_pack_text:
         fail(f"Display source pack manifest missing token: {token}")
 for relative in [
+    "packs/medical-display-core/opl_pack.json",
+    "packs/medical-display-core/render.R",
     "packs/medical-display-core/templates/roc_curve_binary/template.toml",
-    "packs/medical-display-core/templates/roc_curve_binary/render.R",
     "packs/medical-display-core/rlib/medicaldisplaycore/evidence_renderer.R",
     "packs/medical-display-core/src/fenggaolab_org_medical_display_core/__init__.py",
     "packs/medical-display-core/canonical_template_catalog.json",
@@ -1258,6 +1264,8 @@ for relative in [
 ]:
     if not (root / relative).is_file():
         fail(f"missing Display source pack file {relative}")
+for forbidden_wrapper in (root / "packs/medical-display-core/templates").glob("*/render*.R"):
+    fail(f"Display source pack must use pack-level render.R, found {forbidden_wrapper.relative_to(root)}")
 for forbidden in [
     "packs/medical-display-core/outputs",
     "packs/medical-display-core/medical_display_gallery_assets",

@@ -91,8 +91,18 @@ def verify_source_pack() -> dict:
     display_pack = read_toml(PACK_ROOT / "display_pack.toml")
     if display_pack.get("pack_id") != "fenggaolab.org.medical-display-core":
         fail("display_pack.toml has wrong pack_id")
+    if display_pack.get("pack_kind") != "display_pack":
+        fail("display_pack.toml must declare pack_kind=display_pack")
+    if display_pack.get("capability_kind") != "reference_pack":
+        fail("display_pack.toml must declare capability_kind=reference_pack")
     if display_pack.get("source") != "scholarskills-managed-external-pack":
         fail("display_pack.toml must be ScholarSkills-managed")
+    if display_pack.get("opl_pack_descriptor_ref") != "opl_pack.json":
+        fail("display_pack.toml must point to opl_pack.json")
+    if display_pack.get("supported_actions") != ["render", "gallery"]:
+        fail("display_pack.toml supported_actions must be render/gallery")
+    if display_pack.get("supported_render_modes") != ["final", "candidate"]:
+        fail("display_pack.toml supported_render_modes must be final/candidate")
     require_false_flags(
         display_pack,
         "display_pack.toml",
@@ -106,6 +116,26 @@ def verify_source_pack() -> dict:
     )
     if display_pack.get("heavy_render_intermediates_excluded") is not True:
         fail("display_pack.toml must exclude heavy render intermediates")
+    opl_pack = read_json(PACK_ROOT / "opl_pack.json")
+    if opl_pack.get("pack_id") != display_pack["pack_id"]:
+        fail("opl_pack.json pack_id does not match display_pack.toml")
+    if opl_pack.get("pack_kind") != "display_pack":
+        fail("opl_pack.json must declare display_pack kind")
+    require_false_flags(
+        opl_pack.get("authority_boundary") or {},
+        "opl_pack.json authority boundary",
+        [
+            "can_write_domain_truth",
+            "can_mutate_artifact_body",
+            "can_sign_domain_owner_receipt",
+            "can_authorize_quality_verdict",
+            "can_authorize_publication_readiness",
+            "can_authorize_grant_readiness",
+            "can_authorize_visual_export_readiness",
+            "can_authorize_app_release_readiness",
+            "provider_completion_is_pack_quality_ready",
+        ],
+    )
 
     catalog = read_json(PACK_ROOT / "canonical_template_catalog.json")
     if catalog.get("pack_id") != display_pack["pack_id"]:
@@ -133,10 +163,20 @@ def verify_source_pack() -> dict:
         if not renderer_family:
             fail(f"{template_id} descriptor missing renderer_family")
         renderer_counts[renderer_family] = renderer_counts.get(renderer_family, 0) + 1
-        if renderer_family == "r_ggplot2" and not (template_dir / "render.R").is_file():
-            fail(f"{template_id} r_ggplot2 descriptor missing render.R")
+        if (template_dir / "render_candidate.R").exists():
+            fail(f"{template_id} must not carry template-local render_candidate.R")
+        if (template_dir / "render.R").exists():
+            fail(f"{template_id} must not carry template-local render.R; use pack-level render.R")
+        if renderer_family == "r_ggplot2":
+            if descriptor.get("supported_render_modes") != ["final", "candidate"]:
+                fail(f"{template_id} must declare supported_render_modes final/candidate")
+            expected_entrypoint = f"Rscript ../../render.R --template {template_id} --mode {{render_mode}} --request {{request_json}}"
+            if descriptor.get("entrypoint") != expected_entrypoint:
+                fail(f"{template_id} must use the pack-level render.R entrypoint")
 
     for required in [
+        "opl_pack.json",
+        "render.R",
         "renderer_dependency_profile.json",
         "renderer_migration_ledger.json",
         "rlib/medicaldisplaycore/evidence_renderer.R",

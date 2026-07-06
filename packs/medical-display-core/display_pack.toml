@@ -1,11 +1,16 @@
 pack_id = "fenggaolab.org.medical-display-core"
 version = "0.1.0"
+pack_kind = "display_pack"
+capability_kind = "reference_pack"
 display_api_version = "1"
 default_execution_mode = "python_plugin"
 summary = "Externalized medical display core pack consumed by MAS"
 maintainer = "FengGaoLab"
 license = "Internal Use Only"
 source = "scholarskills-managed-external-pack"
+opl_pack_descriptor_ref = "opl_pack.json"
+supported_actions = ["render", "gallery"]
+supported_render_modes = ["final", "candidate"]
 asset_body_owner = "MAS Scholar Skills Display"
 domain_authority_owner = "consuming_domain_owner"
 authority = false
