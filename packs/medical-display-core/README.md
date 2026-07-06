@@ -40,14 +40,12 @@ Evidence-figure renderer assets are R/ggplot2-first:
 - Python evidence templates are not retained in the current pack unless a future audited template proves a concrete advantage over the R/ggplot2 baseline.
 - Python remains available for `illustration_shell` composition and table-shell generation because design/flow/graphical-abstract surfaces do not act as statistical evidence authority.
 
-The current evidence inventory is tracked in `renderer_migration_ledger.json`:
-
-- 34 evidence templates are current R/ggplot2 subprocess renderers with local `render.R`.
-- 1 cohort reporting-flow shell is backed by R/ggconsort subprocess rendering.
-- 1 graphical-abstract shell remains Python/SVG composition because it is not statistical evidence.
-- 1 table shell keeps table authority while providing a gallery preview.
-- 0 Python evidence templates are retained.
-- Python evidence template ids are absent from current pack inventory unless a future audited template proves advantage over R/ggplot2.
+The current template inventory is derived by `scripts/verify-display-gallery-pack.py --check` from
+`canonical_template_catalog.json`, `templates/*/template.toml`, and `opl_pack.json`. The verifier
+prints catalog/template-resource counts and renderer-family counts, and fails if descriptor inventory,
+OPL template resources, or R/ggplot2 `final|candidate` render-mode declarations drift from the pack.
+Python evidence template ids remain absent from current pack inventory unless a future audited
+template proves advantage over R/ggplot2.
 
 Renderer runtime dependencies are tracked in `renderer_dependency_profile.json`.
 

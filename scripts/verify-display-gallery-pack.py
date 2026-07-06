@@ -87,6 +87,10 @@ def require_review_policy(container: dict, label: str) -> None:
             fail(f"{label} review policy must forbid {item}")
 
 
+def format_counts(counts: dict[str, int]) -> str:
+    return ", ".join(f"{key}={counts[key]}" for key in sorted(counts))
+
+
 def verify_source_pack() -> dict:
     display_pack = read_toml(PACK_ROOT / "display_pack.toml")
     if display_pack.get("pack_id") != "fenggaolab.org.medical-display-core":
@@ -121,6 +125,8 @@ def verify_source_pack() -> dict:
         fail("opl_pack.json pack_id does not match display_pack.toml")
     if opl_pack.get("pack_kind") != "display_pack":
         fail("opl_pack.json must declare display_pack kind")
+    if opl_pack.get("modes") != display_pack["supported_render_modes"]:
+        fail("opl_pack.json modes must match display_pack.toml supported_render_modes")
     require_false_flags(
         opl_pack.get("authority_boundary") or {},
         "opl_pack.json authority boundary",
@@ -146,6 +152,7 @@ def verify_source_pack() -> dict:
 
     seen_template_ids: set[str] = set()
     renderer_counts: dict[str, int] = {}
+    pack_render_modes = display_pack["supported_render_modes"]
     for family in families:
         template_id = family.get("canonical_template_id")
         if not template_id:
@@ -168,11 +175,40 @@ def verify_source_pack() -> dict:
         if (template_dir / "render.R").exists():
             fail(f"{template_id} must not carry template-local render.R; use pack-level render.R")
         if renderer_family == "r_ggplot2":
-            if descriptor.get("supported_render_modes") != ["final", "candidate"]:
-                fail(f"{template_id} must declare supported_render_modes final/candidate")
+            if descriptor.get("supported_render_modes") != pack_render_modes:
+                fail(f"{template_id} supported_render_modes must match display_pack.toml")
+            if descriptor.get("execution_mode") != "subprocess":
+                fail(f"{template_id} must use subprocess execution_mode")
             expected_entrypoint = f"Rscript ../../render.R --template {template_id} --mode {{render_mode}} --request {{request_json}}"
             if descriptor.get("entrypoint") != expected_entrypoint:
                 fail(f"{template_id} must use the pack-level render.R entrypoint")
+
+    descriptor_template_ids = {
+        path.parent.name for path in (PACK_ROOT / "templates").glob("*/template.toml")
+    }
+    if descriptor_template_ids != seen_template_ids:
+        missing = sorted(seen_template_ids - descriptor_template_ids)
+        extra = sorted(descriptor_template_ids - seen_template_ids)
+        fail(f"template descriptor/catalog mismatch: missing={missing} extra={extra}")
+
+    opl_template_ids: set[str] = set()
+    for resource in opl_pack.get("resources") or []:
+        if resource.get("role") != "template" and resource.get("kind") != "template":
+            continue
+        ref = pathlib.PurePosixPath(str(resource.get("ref") or ""))
+        parts = ref.parts
+        if len(parts) != 3 or parts[0] != "templates" or parts[2] != "template.toml":
+            fail(f"opl_pack.json template resource has invalid ref {resource.get('ref')}")
+        template_id = parts[1]
+        if resource.get("resource_id") != f"template.{template_id}":
+            fail(f"opl_pack.json template resource_id mismatch for {template_id}")
+        if template_id in opl_template_ids:
+            fail(f"opl_pack.json duplicate template resource {template_id}")
+        opl_template_ids.add(template_id)
+    if opl_template_ids != seen_template_ids:
+        missing = sorted(seen_template_ids - opl_template_ids)
+        extra = sorted(opl_template_ids - seen_template_ids)
+        fail(f"opl_pack.json template resources/catalog mismatch: missing={missing} extra={extra}")
 
     for required in [
         "opl_pack.json",
@@ -192,7 +228,8 @@ def verify_source_pack() -> dict:
             fail(f"source pack contains generated artifact {matches[0].relative_to(ROOT)}")
 
     return {
-        "catalog_family_count": len(families),
+        "catalog_template_count": len(seen_template_ids),
+        "opl_template_resource_count": len(opl_template_ids),
         "renderer_counts": renderer_counts,
     }
 
@@ -276,7 +313,9 @@ def main() -> None:
     gallery_summary = verify_gallery_review_package()
     print(
         "display gallery pack verify ok: "
-        f"{pack_summary['catalog_family_count']} catalog families, "
+        f"{pack_summary['catalog_template_count']} catalog templates, "
+        f"{pack_summary['opl_template_resource_count']} opl template resources, "
+        f"renderer families {format_counts(pack_summary['renderer_counts'])}, "
         f"{gallery_summary['visual_gallery_template_count']} gallery visuals, "
         f"{gallery_summary['included_file_count']} review files"
     )

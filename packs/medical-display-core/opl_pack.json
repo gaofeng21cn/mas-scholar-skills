@@ -4,6 +4,10 @@
   "version": "0.1.0",
   "pack_kind": "display_pack",
   "owner": "MAS Scholar Skills",
+  "modes": [
+    "final",
+    "candidate"
+  ],
   "capabilities": [
     {
       "capability_id": "medical_display_render",
