@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical active professional-skill catalog for the OPL-owned MAS Scholar Skills external enhancement pack and specialist Codex skills for MAS medical-paper writing, review, figure design, figure style, figure composition, literature, statistics, table, submission, and medical data governance workflows. MAS can discover these skill-backed capabilities through stage operating prompts, consume refs-only candidate outputs, package them through OPL Pack, prepare runtime context through OPL runtime env, and sync local Codex discovery copies through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate clinical data bodies or artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, source, data, publication, App, or production readiness.",
+  "purpose": "Canonical active professional-skill catalog for the OPL-owned MAS Scholar Skills external enhancement pack and specialist Codex skills for MAS medical-paper writing, review, figure design, figure style, figure composition, literature, statistics, table, submission, medical data governance, and optional advanced or medical-method specialist workflows. MAS can discover these skill-backed capabilities through stage operating prompts, consume refs-only candidate outputs, package them through OPL Pack, prepare runtime context through OPL runtime env, and sync local Codex discovery copies through OPL Connect.",
+  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, optional specialist discovery skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. Optional specialist skills are refs-only helpers, not active modules or owner surfaces. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate clinical data bodies or artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, source, data, publication, App, or production readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -117,7 +117,18 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner"
     ],
-    "optional_external_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    "optional_external_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+    "optional_medical_method_specialist_skills": [
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan"
+    ],
+    "optional_medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
   },
   "capability_module_classification_policy": {
     "policy_id": "mas_scholar_skills_professional_skill_classification.v1",
@@ -179,7 +190,18 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner"
     ],
-    "optional_external_specialist_policy": "optional_external_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress"
+    "optional_external_specialist_policy": "optional_external_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress",
+    "optional_medical_method_specialist_skills": [
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan"
+    ],
+    "optional_medical_method_specialist_policy": "optional_medical_method_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress"
   },
   "professional_skill_quality_upgrade_policy": {
     "policy_id": "mas_scholar_skills_professional_quality_upgrade.v1",
@@ -3111,6 +3133,206 @@
     "can_claim_publication_readiness": false,
     "can_claim_owner_acceptance": false,
     "can_claim_current_package_authority": false
+  },
+  "medical_method_specialist_pack_policy": {
+    "policy_id": "mas_scholar_skills_medical_method_specialist_pack.v1",
+    "classification": "optional_medical_method_specialist_skills_refs_only_no_authority",
+    "relationship_to_active_modules": "medical-method specialist skills are optional; they do not add active professional modules, do not replace the eight default medical-paper skills, and their absence does not block MAS ordinary progress",
+    "codex_discovery_policy": "each optional medical-method specialist is a real Codex skill with SKILL.md frontmatter under skills/<skill_id>/SKILL.md",
+    "candidate_role": "refs_only_medical_method_specialist_candidate_helper",
+    "required_handoff_refs": [
+      "candidate_package_ref",
+      "route_back_candidate",
+      "owner_gate_handoff_ref"
+    ],
+    "optional_specialist_skills": [
+      {
+        "skill_id": "medical-protocol-and-sap-planner",
+        "canonical_path": "skills/medical-protocol-and-sap-planner/SKILL.md",
+        "specialist_family": "protocol_and_statistical_analysis_plan",
+        "candidate_ref_families": [
+          "protocol_question_ref",
+          "protocol_scope_ref",
+          "eligibility_and_flow_ref",
+          "endpoint_definition_ref",
+          "estimand_and_analysis_set_ref",
+          "sap_candidate_ref",
+          "support_map_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "protocol",
+          "SAP",
+          "statistical_analysis_plan",
+          "estimand",
+          "analysis_sets"
+        ]
+      },
+      {
+        "skill_id": "medical-cohort-phenotyping",
+        "canonical_path": "skills/medical-cohort-phenotyping/SKILL.md",
+        "specialist_family": "cohort_phenotyping",
+        "candidate_ref_families": [
+          "phenotype_question_ref",
+          "cohort_definition_ref",
+          "index_and_window_ref",
+          "phenotype_logic_ref",
+          "code_list_or_variable_ref",
+          "validation_check_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "cohort",
+          "phenotype",
+          "EHR",
+          "registry",
+          "code_list",
+          "ascertainment"
+        ]
+      },
+      {
+        "skill_id": "medical-evidence-synthesis-and-claim-map",
+        "canonical_path": "skills/medical-evidence-synthesis-and-claim-map/SKILL.md",
+        "specialist_family": "evidence_synthesis_and_claim_map",
+        "candidate_ref_families": [
+          "claim_inventory_ref",
+          "claim_type_map_ref",
+          "source_support_ref",
+          "support_strength_map_ref",
+          "contradiction_and_gap_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "claim_map",
+          "evidence_synthesis",
+          "support_strength",
+          "source_support",
+          "overclaim"
+        ]
+      },
+      {
+        "skill_id": "medical-reference-integrity-auditor",
+        "canonical_path": "skills/medical-reference-integrity-auditor/SKILL.md",
+        "specialist_family": "reference_integrity",
+        "candidate_ref_families": [
+          "reference_inventory_ref",
+          "identifier_integrity_ref",
+          "source_status_ref",
+          "claim_citation_support_map_ref",
+          "support_gap_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "reference_integrity",
+          "PMID",
+          "DOI",
+          "citation_support",
+          "retraction",
+          "placeholder_reference"
+        ]
+      },
+      {
+        "skill_id": "medical-rebuttal-strategy",
+        "canonical_path": "skills/medical-rebuttal-strategy/SKILL.md",
+        "specialist_family": "reviewer_response_and_rebuttal",
+        "candidate_ref_families": [
+          "review_comment_inventory_ref",
+          "response_route_ref",
+          "evidence_response_map_ref",
+          "manuscript_delta_plan_ref",
+          "rebuttal_strategy_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "rebuttal",
+          "reviewer_response",
+          "revision_strategy",
+          "manuscript_delta",
+          "editorial_comment"
+        ]
+      },
+      {
+        "skill_id": "medical-display-qc",
+        "canonical_path": "skills/medical-display-qc/SKILL.md",
+        "specialist_family": "medical_display_quality_control",
+        "candidate_ref_families": [
+          "display_artifact_inventory_ref",
+          "export_integrity_ref",
+          "panel_caption_consistency_ref",
+          "claim_display_alignment_ref",
+          "accessibility_and_size_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "display_qc",
+          "figure_qc",
+          "nonblank_export",
+          "panel_caption",
+          "visual_QA",
+          "PDF_figure"
+        ]
+      },
+      {
+        "skill_id": "medical-causal-inference-plan",
+        "canonical_path": "skills/medical-causal-inference-plan/SKILL.md",
+        "specialist_family": "causal_inference_plan",
+        "candidate_ref_families": [
+          "causal_question_ref",
+          "target_trial_candidate_ref",
+          "estimand_ref",
+          "dag_or_confounder_map_ref",
+          "bias_and_identifiability_ref",
+          "sensitivity_plan_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "causal_inference",
+          "target_trial",
+          "DAG",
+          "confounding",
+          "positivity",
+          "bias"
+        ]
+      },
+      {
+        "skill_id": "medical-survival-analysis-plan",
+        "canonical_path": "skills/medical-survival-analysis-plan/SKILL.md",
+        "specialist_family": "survival_analysis_plan",
+        "candidate_ref_families": [
+          "survival_question_ref",
+          "time_origin_and_risk_set_ref",
+          "endpoint_and_censoring_ref",
+          "competing_risk_ref",
+          "model_plan_ref",
+          "diagnostic_plan_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "survival_analysis",
+          "time_to_event",
+          "censoring",
+          "competing_risk",
+          "risk_set",
+          "Cox"
+        ]
+      }
+    ],
+    "missing_skill_policy": "missing optional medical-method specialist skill does not block the eight core modules or MAS ordinary progress",
+    "default_core_skill_policy": "default syncable skills remain medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, and medical-data-governance",
+    "can_replace_default_eight_skills": false,
+    "can_block_default_core_progress_when_missing": false,
+    "can_write_domain_truth": false,
+    "can_write_runtime_state": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_source_readiness": false,
+    "can_claim_runtime_readiness": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_production_readiness": false,
+    "can_claim_current_package_authority": false,
+    "can_claim_owner_closeout": false
   },
   "advanced_specialist_pack_policy": {
     "policy_id": "mas_scholar_skills_advanced_specialist_pack.v1",

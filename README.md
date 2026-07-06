@@ -22,7 +22,7 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills academic capability handoff map" width="100%" />
 </p>
 
-`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as a compatibility alias. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional advanced specialist skills for structural biology, protein design, genomics foundation models, single-cell modeling, indication dossiers, PDF evidence exploration, and scientific compute diagnostics.
+`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as a compatibility alias. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional specialist skills for advanced scientific workflows and medical-method workflows such as protocol/SAP planning, cohort phenotyping, evidence claim maps, reference integrity, rebuttal strategy, display QC, causal inference, and survival analysis.
 
 The MAS stage operating prompts stay in the MAS domain-agent repository. The canonical stage sources are MAS `agent/stages/` and `agent/prompts/`; MAS overlay Skills and workspace or quest `.codex/skills/` copies are Codex discovery projections and compatibility surfaces, not the source of stage authority. That sync step must stay because Codex discovers local skills through `.codex/skills/`. `write`, `review`, `figure`, `scout`, and related stages decide when the stage is valid, what evidence is enough, where the output goes next, what routes back, and what needs an owner gate. The `medical-*` skills in this repository are professional skills for doing the assigned writing, review, figure, style, composition, literature, statistics, table, submission, and clinical data governance work well.
 
@@ -51,6 +51,15 @@ they are refs-only / no-authority candidate helpers. They do not replace the
 default medical-paper skills, do not become MAS authority owners, and do not block MAS
 ordinary progress when absent.
 
+Optional medical-method specialist skills follow the same rule:
+`medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`,
+`medical-evidence-synthesis-and-claim-map`,
+`medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
+`medical-display-qc`, `medical-causal-inference-plan`, and
+`medical-survival-analysis-plan` are real Codex discovery skills for named
+method tasks. They emit candidate refs, support maps, route-back candidates,
+and `owner_gate_handoff_ref`; they do not add active modules or owner authority.
+
 <table>
   <tr>
     <td width="33%" valign="top">
@@ -77,6 +86,7 @@ MAS Scholar Skills turns the reusable support material into active professional 
 - MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, or data governance support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
 - `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are real Codex skills in this repo; they are not only module descriptors.
+- Optional advanced and medical-method specialist skills are real Codex discovery skills too, but they are not part of the eight active professional modules and are used only for named specialty tasks.
 - Source/external-learning intake is handled by OPL Framework or MAS stage/source surfaces, not as an active module or contract placeholder here; future omics support should be added here as a real professional skill when a stable MAS workflow exists.
 - By default, a professional specialist skill belongs in the consuming domain-agent repo next to the stage prompts. MAS Scholar Skills is the external pack exception for MAS writing, review, figure, literature, statistics, table, submission, Display, and source refs because these surfaces are reusable across workspaces and independently syncable.
 - Candidate outputs can move into human or domain-agent review, but they do not become paper truth by themselves.

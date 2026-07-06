@@ -22,7 +22,7 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills 学术能力流转示意图" width="100%" />
 </p>
 
-`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为兼容别名。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及结构生物学、蛋白设计、基因组 foundation model、单细胞建模、indication dossier、PDF 证据探索和科学计算诊断这些可选 advanced specialist skills 的单源。
+`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为兼容别名。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及 advanced scientific workflows 和 protocol/SAP planning、cohort phenotyping、evidence claim map、reference integrity、rebuttal strategy、display QC、causal inference、survival analysis 等 medical-method workflows 可选 specialist skills 的单源。
 
 MAS 的 stage 主提示词留在 MAS domain-agent 仓：canonical stage source 是 MAS `agent/stages/` 和 `agent/prompts/`。MAS overlay Skill、工作区或 quest 内 `.codex/skills/` 同步副本是 Codex discovery projection / 兼容面，不是 stage authority 的源头；这个同步动作本身必须保留，因为 Codex 依靠 `.codex/skills/` 稳定发现本地技能。`write`、`review`、`figure`、`scout` 等阶段负责什么时候进入、证据够不够、交给谁、怎样 route-back、什么算 owner gate。本仓 `medical-*` 技能负责把已经分配下来的写作、审稿、图件、图件风格、图件构图、文献、统计、表格、投稿和临床数据治理任务做得更专业。
 
@@ -47,6 +47,15 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 `scientific-compute-runner`。它们是真实可发现 Codex Skill，但只提供
 refs-only / no-authority 候选帮助；不替代默认医学论文技能，不成为 MAS
 authority owner，缺失时也不阻断 MAS ordinary progress。
+
+可选 medical-method specialist skills 遵循同一规则：
+`medical-protocol-and-sap-planner`、`medical-cohort-phenotyping`、
+`medical-evidence-synthesis-and-claim-map`、
+`medical-reference-integrity-auditor`、`medical-rebuttal-strategy`、
+`medical-display-qc`、`medical-causal-inference-plan` 和
+`medical-survival-analysis-plan` 是真实 Codex discovery skills，用于明确的
+方法学专科任务。它们只输出 candidate refs、support map、route-back candidate
+和 `owner_gate_handoff_ref`，不新增 active module，也不产生 owner authority。
 
 <table>
   <tr>
@@ -74,6 +83,7 @@ MAS Scholar Skills 的设计目标是把这些可复用支持材料变成 active
 - MAS overlay 和 MAS medical-research skills 可以按同一套语言请求图示、表格、统计、文献、写作、审阅、投稿或数据治理支持。
 - 每个模块都说明适合处理什么材料、会产出什么候选结果、需要哪些审阅。
 - `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 都是本仓真实 Codex Skill，不只是模块 descriptor。
+- 可选 advanced 和 medical-method specialist skills 也是真实 Codex discovery skills，但不属于八个 active 专业模块，只在明确专科任务中使用。
 - Source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不作为本仓 active module 或合同占位；未来组学支持只有在 MAS 形成稳定专业 workflow 后，才作为真实专业 Skill 加入本仓。
 - 默认情况下，professional specialist skill 应放在消费它的 domain-agent 仓、贴近 stage 主提示词；只有重型、跨 workspace 复用或需要独立发布/同步时，才拆到外部 pack。本仓就是 MAS 写作、审阅、图件、文献、统计、表格、投稿、Display/source refs 的外部 pack 单源。
 - 候选结果可以进入后续人工或领域智能体审阅，但不能自动升级为论文事实。

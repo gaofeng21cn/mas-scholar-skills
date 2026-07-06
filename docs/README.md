@@ -36,6 +36,14 @@ Current optional advanced specialist ids are `medical-structural-biology`,
 `research-pdf-evidence-explorer`, and `scientific-compute-runner`; each remains
 refs-only / no-authority.
 
+Optional medical-method specialist ids are
+`medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`,
+`medical-evidence-synthesis-and-claim-map`,
+`medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
+`medical-display-qc`, `medical-causal-inference-plan`, and
+`medical-survival-analysis-plan`; each is a real Codex discovery skill for a
+named method task and remains refs-only / no-authority.
+
 Current classification: eight active professional modules, all backed by real
 syncable Codex specialist skills. Their active ids are
 `mas-scholar-skills.display`, `mas-scholar-skills.tables`,

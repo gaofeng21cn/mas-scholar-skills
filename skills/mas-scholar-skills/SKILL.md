@@ -1,6 +1,6 @@
 ---
 name: mas-scholar-skills
-description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, optional advanced specialist skills, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
+description: "Operate MAS Scholar Skills as the OPL-owned external enhancement pack and maintained professional Codex skill source for MAS medical-paper capability discovery, medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, medical-data-governance, optional advanced and medical-method specialist skills, repo-tracked module refs, packs, quality floors, templates, candidate refs, and MAS owner-gated authority boundaries. Use from the MAS overlay or MAS stage operating prompts when Codex needs MAS Scholar Skills guidance without claiming runtime, domain, quality, artifact, owner receipt, or production authority."
 ---
 
 # MAS Scholar Skills
@@ -20,6 +20,13 @@ AcademicForge HEAD `54a2f333973147a1fd703caea6f12252e1f227d6`:
 `medical-indication-dossier`, `research-pdf-evidence-explorer`, and
 `scientific-compute-runner`.
 
+MAS Scholar Skills also includes optional medical-method specialist skills:
+`medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`,
+`medical-evidence-synthesis-and-claim-map`,
+`medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
+`medical-display-qc`, `medical-causal-inference-plan`, and
+`medical-survival-analysis-plan`.
+
 These are real Codex discovery skills with `SKILL.md` frontmatter, but they are
 not MAS authority owners and they are not additional active core modules.
 Use them only when a named specialty is needed. Missing optional advanced
@@ -27,11 +34,14 @@ specialists do not block default MAS medical-paper progress.
 Their outputs stay refs-only candidate refs: structure/docking candidate refs,
 sequence/design/embedding/fold-back validation refs, DNA scoring/track
 prediction candidate refs, AnnData embedding/annotation/DE candidate refs,
-patient-population waypoint dossier refs, parse-once PDF evidence refs, and
-scientific compute diagnostic receipts. OPL Runway, Connect, Fabric, managed
-endpoints, or the consuming workspace compute owner owns substrate, credentials,
-execution, harvest, and provider errors; the optional skills own only AI
-diagnostic playbooks and deterministic receipt refs.
+patient-population waypoint dossier refs, parse-once PDF evidence refs,
+scientific compute diagnostic receipts, protocol/SAP candidate refs, phenotype
+logic refs, claim-map refs, reference-integrity audit refs, rebuttal strategy
+refs, display-QC refs, causal-inference plan refs, and survival-analysis plan
+refs. OPL Runway, Connect, Fabric, managed endpoints, or the consuming workspace
+compute owner owns substrate, credentials, execution, harvest, and provider
+errors; the optional skills own only AI playbooks, candidate refs, route-back
+hints, and deterministic receipt refs.
 
 ## MAS Overlay Call Path
 
@@ -95,7 +105,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The local install is refs-only and authority false. It may include this Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
+The local install is refs-only and authority false. It may include this Skill entry, the default professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, optional specialist skills when a named specialty is needed, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
 
 ## External Scientific Skill Discovery / Router
 
@@ -142,7 +152,8 @@ publication readiness, runtime readiness, and production readiness decisions.
 Keep the physical shape explicit:
 
 - Eight active professional skill modules: `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`.
-- Ten real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not new active modules.
+- Ten default real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not new active modules.
+- Optional specialist skills are also real Codex discovery skills, but not active modules: the advanced scientific specialists plus the medical-method specialists `medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`, `medical-evidence-synthesis-and-claim-map`, `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`, `medical-display-qc`, `medical-causal-inference-plan`, and `medical-survival-analysis-plan`.
 - No contract-layer module is active in this repository.
 
 Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.
