@@ -1,0 +1,13 @@
+{
+  "example_only": true,
+  "table_contract_ref": "example:table_contract/table1_baseline_characteristics",
+  "table_id": "example_table1_baseline_characteristics",
+  "template_id": "table1_baseline_characteristics",
+  "population_ref": "example:analysis_cohort",
+  "columns": ["Overall", "Event", "No event"],
+  "rows": [
+    {"label": "Age, years", "overall": "64 (56-72)", "event": "69 (61-76)", "no_event": "62 (54-70)"},
+    {"label": "Female sex", "overall": "48.2%", "event": "45.1%", "no_event": "49.0%"}
+  ],
+  "owner_gate_handoff_ref": "example:owner_gate/table1_baseline_characteristics"
+}

@@ -1,0 +1,20 @@
+{
+  "example_only": true,
+  "receipt_id": "example:render_receipt/table1_baseline_characteristics",
+  "figure_contract_ref": "example:table_contract/table1_baseline_characteristics",
+  "pack_id": "fenggaolab.org.medical-display-core",
+  "template_id": "table1_baseline_characteristics",
+  "renderer_family": "n/a",
+  "execution_mode": "python_plugin",
+  "render_mode": "candidate",
+  "outputs": {
+    "csv_ref": "repo-local:examples/not-rendered/table1_baseline_characteristics.csv",
+    "md_ref": "repo-local:examples/not-rendered/table1_baseline_characteristics.md"
+  },
+  "layout_sidecar_ref": "repo-local:examples/not-rendered/table1_baseline_characteristics.layout.json",
+  "known_limits": [
+    "example receipt only; no table artifact was rendered"
+  ],
+  "authority": false,
+  "publication_ready": false
+}

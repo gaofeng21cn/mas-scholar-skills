@@ -1,0 +1,21 @@
+{
+  "example_only": true,
+  "receipt_id": "example:render_receipt/submission_graphical_abstract",
+  "figure_contract_ref": "example:figure_contract/submission_graphical_abstract",
+  "pack_id": "fenggaolab.org.medical-display-core",
+  "template_id": "submission_graphical_abstract",
+  "renderer_family": "python",
+  "execution_mode": "python_plugin",
+  "render_mode": "candidate",
+  "outputs": {
+    "png_ref": "repo-local:examples/not-rendered/submission_graphical_abstract.png",
+    "svg_ref": "repo-local:examples/not-rendered/submission_graphical_abstract.svg"
+  },
+  "layout_sidecar_ref": "repo-local:examples/not-rendered/submission_graphical_abstract.layout.json",
+  "known_limits": [
+    "example receipt only; no artifact was rendered",
+    "illustration shell does not carry statistical evidence authority"
+  ],
+  "authority": false,
+  "publication_ready": false
+}

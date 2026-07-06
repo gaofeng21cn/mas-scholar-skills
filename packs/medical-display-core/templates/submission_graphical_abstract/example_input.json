@@ -1,0 +1,14 @@
+{
+  "example_only": true,
+  "figure_contract_ref": "example:figure_contract/submission_graphical_abstract",
+  "figure_id": "example_submission_graphical_abstract",
+  "template_id": "submission_graphical_abstract",
+  "core_message_ref": "example:study_design_to_clinical_decision_message",
+  "scientific_claim_carried": false,
+  "sections": [
+    {"label": "Cohort", "text": "Eligible registry population"},
+    {"label": "Model", "text": "Validated prediction workflow"},
+    {"label": "Use", "text": "Risk-stratified clinical review"}
+  ],
+  "owner_gate_handoff_ref": "example:owner_gate/submission_graphical_abstract"
+}
