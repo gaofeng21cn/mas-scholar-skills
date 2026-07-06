@@ -1,0 +1,78 @@
+{
+  "contract_id": "mas_scholar_skills_display_pack_receipt_templates",
+  "schema_version": "1.0.0",
+  "owner": "MAS Scholar Skills Display",
+  "state": "active_refs_only_template",
+  "purpose": "Minimal refs-only handoff shapes for the medical figure contract, display-pack render receipt, and visual QA receipt loop.",
+  "machine_boundary": "These templates define candidate receipt vocabulary only. They do not authorize MAS domain truth, artifact mutation, owner receipts, typed blockers, current-package authority, publication readiness, or quality verdicts.",
+  "authority_boundary": {
+    "outputs_are_refs_only_candidates": true,
+    "can_write_domain_truth": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_current_package_authority": false
+  },
+  "receipt_chain": [
+    "figure_contract_ref",
+    "render_receipt_ref",
+    "visual_qa_receipt_ref",
+    "owner_gate_handoff_ref"
+  ],
+  "figure_contract_ref": {
+    "required_fields": [
+      "contract_id",
+      "figure_id",
+      "core_conclusion_ref",
+      "panel_evidence_chain_ref",
+      "figure_archetype",
+      "template_selection_ref",
+      "renderer_decision_ref",
+      "journal_export_contract_ref",
+      "forbidden_claim_drift",
+      "owner_gate_handoff_ref"
+    ],
+    "authority": false
+  },
+  "render_receipt_ref": {
+    "required_fields": [
+      "receipt_id",
+      "figure_contract_ref",
+      "pack_id",
+      "template_id",
+      "renderer_family",
+      "execution_mode",
+      "render_mode",
+      "outputs",
+      "layout_sidecar_ref",
+      "known_limits",
+      "authority",
+      "publication_ready"
+    ],
+    "allowed_render_modes": [
+      "final",
+      "candidate"
+    ],
+    "authority": false,
+    "publication_ready": false
+  },
+  "visual_qa_receipt_ref": {
+    "required_fields": [
+      "receipt_id",
+      "render_receipt_ref",
+      "final_size_export_ref",
+      "export_lint_ref",
+      "final_size_grayscale_preview_ref",
+      "color_vision_check_ref",
+      "label_economy_ref",
+      "route_back_items",
+      "owner_gate_handoff_ref",
+      "authority",
+      "publication_ready"
+    ],
+    "authority": false,
+    "publication_ready": false
+  }
+}

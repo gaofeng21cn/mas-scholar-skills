@@ -98,6 +98,24 @@ review loop: first write the figure claim and panel outline, then render only
 the affected panels, then review the composed figure and crops before handoff.
 Do not regenerate clean panels just to make the package look more active.
 
+## Display Pack Receipt Chain
+
+Use `contracts/display-pack-receipt-templates.json` when a figure handoff needs a
+machine-readable minimum shape for the Display Pack loop:
+
+- `figure_contract_ref`: the claim, evidence, archetype, template-selection,
+  renderer-decision, export, forbidden-drift, and owner-gate handoff refs before
+  drawing.
+- `render_receipt_ref`: the pack id, template id, renderer family, render mode,
+  output refs, layout sidecar ref, and known limits after the pack render.
+- `visual_qa_receipt_ref`: final-size export, export lint, grayscale or
+  color-vision readback, label economy, route-back items, and owner-gate target
+  after inspecting the real output.
+
+These receipts are candidate refs only. A passed render receipt or visual QA
+receipt is not MAS artifact authority, owner acceptance, typed blocker,
+current-package freshness, quality verdict, or publication readiness.
+
 ## Paper Narrative / Figure Deck Arc
 
 Use `paper_narrative_arc_ref` when a draft or figure deck needs story-level

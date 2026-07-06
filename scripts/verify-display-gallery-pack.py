@@ -52,6 +52,87 @@ def require_false_flags(container: dict, label: str, keys: list[str]) -> None:
             fail(f"{label} must keep {key}=false")
 
 
+def require_all_fields(container: dict, label: str, fields: list[str]) -> None:
+    actual = set(container.get("required_fields") or [])
+    for field in fields:
+        if field not in actual:
+            fail(f"{label} missing required field {field}")
+
+
+def verify_receipt_templates() -> dict:
+    contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
+    if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
+        fail("display-pack receipt templates contract has wrong contract_id")
+    if contract.get("state") != "active_refs_only_template":
+        fail("display-pack receipt templates contract must stay refs-only")
+    require_false_flags(
+        contract.get("authority_boundary") or {},
+        "display-pack receipt templates authority boundary",
+        [
+            "can_write_domain_truth",
+            "can_mutate_artifact_body",
+            "can_sign_owner_receipt",
+            "can_create_typed_blocker",
+            "can_claim_quality_verdict",
+            "can_claim_publication_readiness",
+            "can_claim_current_package_authority",
+        ],
+    )
+    if contract.get("receipt_chain") != [
+        "figure_contract_ref",
+        "render_receipt_ref",
+        "visual_qa_receipt_ref",
+        "owner_gate_handoff_ref",
+    ]:
+        fail("display-pack receipt chain must remain figure->render->visual_qa->owner_gate")
+    require_all_fields(
+        contract.get("figure_contract_ref") or {},
+        "figure_contract_ref",
+        [
+            "core_conclusion_ref",
+            "panel_evidence_chain_ref",
+            "template_selection_ref",
+            "renderer_decision_ref",
+            "owner_gate_handoff_ref",
+        ],
+    )
+    render_receipt = contract.get("render_receipt_ref") or {}
+    require_all_fields(
+        render_receipt,
+        "render_receipt_ref",
+        [
+            "figure_contract_ref",
+            "pack_id",
+            "template_id",
+            "renderer_family",
+            "render_mode",
+            "outputs",
+            "layout_sidecar_ref",
+            "authority",
+            "publication_ready",
+        ],
+    )
+    if render_receipt.get("allowed_render_modes") != ["final", "candidate"]:
+        fail("render_receipt_ref allowed_render_modes must be final/candidate")
+    require_false_flags(render_receipt, "render_receipt_ref", ["authority", "publication_ready"])
+    visual_qa_receipt = contract.get("visual_qa_receipt_ref") or {}
+    require_all_fields(
+        visual_qa_receipt,
+        "visual_qa_receipt_ref",
+        [
+            "render_receipt_ref",
+            "final_size_export_ref",
+            "export_lint_ref",
+            "route_back_items",
+            "owner_gate_handoff_ref",
+            "authority",
+            "publication_ready",
+        ],
+    )
+    require_false_flags(visual_qa_receipt, "visual_qa_receipt_ref", ["authority", "publication_ready"])
+    return {"receipt_contract_id": contract["contract_id"]}
+
+
 def require_review_policy(container: dict, label: str) -> None:
     policy = container.get("opl_scholarskills_import_policy") or {}
     if policy.get("policy_id") != "opl_scholarskills_display_gallery_refs_only_source_manifest.v1":
@@ -386,6 +467,7 @@ def main() -> None:
         sync_opl_pack()
         return
 
+    verify_receipt_templates()
     pack_summary = verify_source_pack()
     gallery_summary = verify_gallery_review_package()
     print(
