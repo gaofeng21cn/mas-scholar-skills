@@ -399,6 +399,14 @@ Check:
 - vector/source export availability or documented raster DPI reason
 - source-data and code traceability for every evidence panel
 
+For phenotype-atlas heatmaps or service-review maps, figure titles, panel
+titles, captions, legends, and axis labels must carry the same bounded
+terminology as the manuscript. If the paper has moved from generic treatment
+gaps to recorded risk-treatment mismatch, update figure metadata and renderer
+defaults together. Shorten heatmap axis labels at manuscript scale rather than
+letting long clinical phrases overlap; move detailed definitions to the legend,
+caption, or table note.
+
 Warnings alone are not default blockers. Route back only when hard evidence
 shows missing refs, unsupported claims, unreadable or misleading visual output,
 programmatic audit failure, or an AI/human visual review failure that cannot be
