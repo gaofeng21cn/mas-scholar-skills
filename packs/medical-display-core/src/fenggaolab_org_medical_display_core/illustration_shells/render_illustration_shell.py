@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 from ..shared_parts.common import _require_namespaced_registry_id
-from .render_cohort_flow_figure import _render_cohort_flow_figure
+from .render_cohort_flow_figure._render import _render_cohort_flow_figure
 from .render_design_evidence_composite_shell import _render_design_evidence_composite_shell
 from .render_submission_graphical_abstract import _render_submission_graphical_abstract
 from .render_workflow_fact_sheet_panel import _render_workflow_fact_sheet_panel
