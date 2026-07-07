@@ -85,7 +85,9 @@
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
       "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer"
+      "medical-evidence-gap-triage-reviewer",
+      "medical-research-portfolio-memory-curator",
+      "medical-methodology-routeback-reviewer"
     ],
     "medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
     "medical_method_specialist_consumption_mode": "optional_refs_only_medical_method_candidate_handoff",

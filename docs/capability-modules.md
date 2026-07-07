@@ -63,7 +63,9 @@ Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
 `medical-owner-gate-handoff-reviewer`、`medical-display-regression-debugger`
 和 `medical-data-freeze-and-analysis-readiness-reviewer`、
 `medical-publication-strategy-memory-curator`、
-`medical-evidence-gap-triage-reviewer`。它们用于明确的
+`medical-evidence-gap-triage-reviewer`、
+`medical-research-portfolio-memory-curator`、
+`medical-methodology-routeback-reviewer`。它们用于明确的
 方法学专科任务，只输出 candidate refs、support map、`route_back_candidate`
 和 `owner_gate_handoff_ref`；不新增 active core module，不签 owner receipt，
 不创建 typed blocker，不写 MAS truth，也不声明 source / runtime / publication ready。
@@ -81,7 +83,7 @@ Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
 | Skill-local deterministic helper | 各 `skills/<skill-id>/kernel.py`，以及必要的同目录轻量 refs、templates 或 scripts | 只做 DOI/PMID 归一化、schema skeleton、lint、manifest / receipt shaping、env/log diagnostics、self-check 等低成本确定性辅助；跟随 Skill 分发，不升级为 module、runtime worker、provider lifecycle、MAS authority function 或 publication helper owner。 |
 | 可选专科 Skill | advanced scientific specialists 与 medical-method specialists | 只在 named specialty task 中被发现和同步；它们是真实 Codex Skill，但不是 active module，不阻断默认 MAS 医学论文流程。 |
 
-当前 helper 覆盖是刻意选择，不是“把所有 Skill 脚本化”：33 个 active Codex-discoverable `SKILL.md` 中 29 个专业或方法 Skill 带 `kernel.py`；`mas-scholar-skills` 是 aggregate 入口，`medical-figure-design` 是 Display 编排入口，`medical-publication-strategy-memory-curator` 与 `medical-evidence-gap-triage-reviewer` 是 refs-only AI review/triage playbook，继续由已有 helper 承接确定性小工具。`opl-scholarskills` 只保留为 tombstone/provenance alias，不参与 active discovery。
+当前 helper 覆盖是刻意选择，不是“把所有 Skill 脚本化”：35 个 active Codex-discoverable `SKILL.md` 中 29 个专业或方法 Skill 带 `kernel.py`；`mas-scholar-skills` 是 aggregate 入口，`medical-figure-design` 是 Display 编排入口，`medical-publication-strategy-memory-curator`、`medical-evidence-gap-triage-reviewer`、`medical-research-portfolio-memory-curator` 与 `medical-methodology-routeback-reviewer` 是 refs-only AI review/triage/curation playbook，继续由已有 helper 承接确定性小工具。`opl-scholarskills` 只保留为 tombstone/provenance alias，不参与 active discovery。
 
 主动临床数据治理已经升级为 `medical-data-governance`，历史 Data module id 只保留 descriptor/readback 兼容。MAS Scholar Skills 只维护这八个有真实专业 Skill 单源的 active module；没有稳定专业 Skill 的能力不在本仓预留占位。
 

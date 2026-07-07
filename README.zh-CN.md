@@ -61,7 +61,9 @@ authority owner，缺失时也不阻断 MAS ordinary progress。
 `medical-owner-gate-handoff-reviewer`、`medical-display-regression-debugger`
 和 `medical-data-freeze-and-analysis-readiness-reviewer`、
 `medical-publication-strategy-memory-curator`、
-`medical-evidence-gap-triage-reviewer`，是真实 Codex
+`medical-evidence-gap-triage-reviewer`、
+`medical-research-portfolio-memory-curator`、
+`medical-methodology-routeback-reviewer`，是真实 Codex
 discovery skills，用于明确的方法学专科任务。它们只输出 candidate refs、
 support map、route-back candidate 和 `owner_gate_handoff_ref`，不新增 active
 module，也不产生 owner authority。
@@ -185,6 +187,8 @@ skills/medical-submission-prep/SKILL.md 医学投稿准备专业 Skill
 skills/medical-data-governance/SKILL.md 医学数据治理专业 Skill
 skills/medical-publication-strategy-memory-curator/SKILL.md 可选 Publication Strategy Memory 专科 Skill
 skills/medical-evidence-gap-triage-reviewer/SKILL.md 可选 evidence-gap triage 专科 Skill
+skills/medical-research-portfolio-memory-curator/SKILL.md 可选 cross-study portfolio memory 专科 Skill
+skills/medical-methodology-routeback-reviewer/SKILL.md 可选 methodology route-back reviewer Skill
 contracts/scholar-skills-capability-modules.json Codex 暴露策略与模块合同
 contracts/domain_descriptor.json       OMA target descriptor
 contracts/capability_map.json          OMA capability target map

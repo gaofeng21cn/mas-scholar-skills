@@ -61,7 +61,9 @@ Optional medical-method specialist skills follow the same rule:
 `medical-display-regression-debugger`, and
 `medical-data-freeze-and-analysis-readiness-reviewer`,
 `medical-publication-strategy-memory-curator`, and
-`medical-evidence-gap-triage-reviewer`, are real Codex
+`medical-evidence-gap-triage-reviewer`,
+`medical-research-portfolio-memory-curator`, and
+`medical-methodology-routeback-reviewer`, are real Codex
 discovery skills for named method tasks. They emit candidate refs, support maps,
 route-back candidates, and `owner_gate_handoff_ref`; they do not add active
 modules or owner authority.
@@ -184,6 +186,8 @@ skills/medical-submission-prep/SKILL.md Medical submission preparation specialis
 skills/medical-data-governance/SKILL.md Medical data governance specialist skill
 skills/medical-publication-strategy-memory-curator/SKILL.md Optional Publication Strategy Memory specialist skill
 skills/medical-evidence-gap-triage-reviewer/SKILL.md Optional evidence-gap triage specialist skill
+skills/medical-research-portfolio-memory-curator/SKILL.md Optional research portfolio memory specialist skill
+skills/medical-methodology-routeback-reviewer/SKILL.md Optional methodology route-back reviewer skill
 contracts/scholar-skills-capability-modules.json Codex exposure policy and module contract
 contracts/domain_descriptor.json       OMA target descriptor
 contracts/capability_map.json          OMA capability target map

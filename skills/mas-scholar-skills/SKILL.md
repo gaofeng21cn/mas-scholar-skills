@@ -30,7 +30,9 @@ MAS Scholar Skills also includes optional medical-method specialist skills:
 `medical-display-regression-debugger`, and
 `medical-data-freeze-and-analysis-readiness-reviewer`,
 `medical-publication-strategy-memory-curator`, and
-`medical-evidence-gap-triage-reviewer`.
+`medical-evidence-gap-triage-reviewer`,
+`medical-research-portfolio-memory-curator`, and
+`medical-methodology-routeback-reviewer`.
 
 These are real Codex discovery skills with `SKILL.md` frontmatter, but they are
 not MAS authority owners and they are not additional active core modules.
@@ -159,7 +161,7 @@ Keep the physical shape explicit:
 
 - Eight active professional skill modules: `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`.
 - Ten default real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not new active modules.
-- Optional specialist skills are also real Codex discovery skills, but not active modules: the advanced scientific specialists plus the medical-method specialists `medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`, `medical-evidence-synthesis-and-claim-map`, `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`, `medical-display-qc`, `medical-causal-inference-plan`, `medical-survival-analysis-plan`, `medical-risk-model-transportability-reviewer`, `medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`, `medical-display-regression-debugger`, `medical-data-freeze-and-analysis-readiness-reviewer`, `medical-publication-strategy-memory-curator`, and `medical-evidence-gap-triage-reviewer`.
+- Optional specialist skills are also real Codex discovery skills, but not active modules: the advanced scientific specialists plus the medical-method specialists `medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`, `medical-evidence-synthesis-and-claim-map`, `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`, `medical-display-qc`, `medical-causal-inference-plan`, `medical-survival-analysis-plan`, `medical-risk-model-transportability-reviewer`, `medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`, `medical-display-regression-debugger`, `medical-data-freeze-and-analysis-readiness-reviewer`, `medical-publication-strategy-memory-curator`, `medical-evidence-gap-triage-reviewer`, `medical-research-portfolio-memory-curator`, and `medical-methodology-routeback-reviewer`.
 - No contract-layer module is active in this repository.
 
 Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.

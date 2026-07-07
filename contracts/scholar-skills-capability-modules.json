@@ -133,7 +133,9 @@
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
       "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer"
+      "medical-evidence-gap-triage-reviewer",
+      "medical-research-portfolio-memory-curator",
+      "medical-methodology-routeback-reviewer"
     ],
     "optional_medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
   },
@@ -193,7 +195,9 @@
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
       "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer"
+      "medical-evidence-gap-triage-reviewer",
+      "medical-research-portfolio-memory-curator",
+      "medical-methodology-routeback-reviewer"
     ],
     "tombstone_skill_ids": [
       "opl-scholarskills"
@@ -295,7 +299,9 @@
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
       "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer"
+      "medical-evidence-gap-triage-reviewer",
+      "medical-research-portfolio-memory-curator",
+      "medical-methodology-routeback-reviewer"
     ],
     "optional_medical_method_specialist_policy": "optional_medical_method_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress"
   },
@@ -3632,6 +3638,50 @@
           "proceed_with_assumption",
           "soft_quality_gap",
           "evidence_tail"
+        ]
+      },
+      {
+        "skill_id": "medical-research-portfolio-memory-curator",
+        "canonical_path": "skills/medical-research-portfolio-memory-curator/SKILL.md",
+        "specialist_family": "research_portfolio_memory_curation",
+        "candidate_ref_families": [
+          "topic_landscape_ref",
+          "dataset_question_map_ref",
+          "venue_intelligence_ref",
+          "study_recall_index_ref",
+          "external_reports_ref",
+          "reuse_stale_writeback_proposal_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "topic_landscape",
+          "dataset_question_map",
+          "venue_intelligence",
+          "study_recall_index",
+          "external_reports",
+          "writeback_proposal"
+        ]
+      },
+      {
+        "skill_id": "medical-methodology-routeback-reviewer",
+        "canonical_path": "skills/medical-methodology-routeback-reviewer/SKILL.md",
+        "specialist_family": "methodology_routeback_review",
+        "candidate_ref_families": [
+          "methodology_blocker_inventory_ref",
+          "provenance_limited_harmonization_review_ref",
+          "clean_rebuild_route_review_ref",
+          "stop_loss_review_ref",
+          "human_gate_handoff_ref",
+          "owner_route_recommendation_ref",
+          "owner_gate_handoff_ref"
+        ],
+        "routing_tokens": [
+          "terminal_methodology_blocker",
+          "provenance_limited_harmonization",
+          "clean_rebuild",
+          "stop_loss",
+          "human_gate",
+          "methodology_reframe_route_decision"
         ]
       }
     ],

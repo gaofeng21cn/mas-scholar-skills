@@ -35,7 +35,9 @@ Optional medical-method specialist skills such as
 `medical-display-regression-debugger`, and
 `medical-data-freeze-and-analysis-readiness-reviewer`,
 `medical-publication-strategy-memory-curator`, and
-`medical-evidence-gap-triage-reviewer`, follow the same boundary.
+`medical-evidence-gap-triage-reviewer`,
+`medical-research-portfolio-memory-curator`, and
+`medical-methodology-routeback-reviewer`, follow the same boundary.
 They may emit candidate refs, support maps, `route_back_candidate`, and
 `owner_gate_handoff_ref` for named method tasks; they are not active module owners
 and cannot sign owner receipts, create typed blockers, write MAS truth, or claim
