@@ -11,45 +11,32 @@ This repository is the professional specialist source for the MAS-consumed skill
 
 For literature discovery, use the real specialist skill `medical-research-lit` when a task needs PubMed-oriented search planning, query iteration, source screening, citation verification, evidence mapping, or a MAS route-back handoff. Do not reduce literature discovery to the `mas-scholar-skills.lit` descriptor alone.
 
-## Optional Advanced Specialist Pack
+## Optional Router / Reviewer Pack
 
-MAS Scholar Skills also includes optional external specialist skills inspired by
-AcademicForge HEAD `54a2f333973147a1fd703caea6f12252e1f227d6`:
-`medical-structural-biology`, `medical-protein-design`,
-`medical-genomics-foundation-models`, `medical-single-cell-modeling`,
-`medical-indication-dossier`, `research-pdf-evidence-explorer`, and
-`scientific-compute-runner`.
+MAS Scholar Skills keeps optional specialist exposure small. Default workspace
+or quest installs still include only `mas-scholar-skills` plus the core medical
+paper skills. Optional named-specialty installs should start from four
+module-level router/reviewer skills:
 
-MAS Scholar Skills also includes optional medical-method specialist skills:
-`medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`,
-`medical-evidence-synthesis-and-claim-map`,
-`medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
-`medical-display-qc`, `medical-causal-inference-plan`, and
-`medical-survival-analysis-plan`, plus `medical-risk-model-transportability-reviewer`,
-`medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`,
-`medical-display-regression-debugger`, and
-`medical-data-freeze-and-analysis-readiness-reviewer`,
-`medical-publication-strategy-memory-curator`, and
-`medical-evidence-gap-triage-reviewer`,
-`medical-research-portfolio-memory-curator`, and
-`medical-methodology-routeback-reviewer`.
+- `medical-methodology-planner`
+- `medical-evidence-integrity-reviewer`
+- `medical-publication-routeback-reviewer`
+- `medical-advanced-biomed-router`
 
 These are real Codex discovery skills with `SKILL.md` frontmatter, but they are
-not MAS authority owners and they are not additional active core modules.
-Use them only when a named specialty is needed. Do not include them in default
-workspace or quest exposure. Missing optional advanced specialists do not block
-default MAS medical-paper progress.
-Their outputs stay refs-only candidate refs: structure/docking candidate refs,
-sequence/design/embedding/fold-back validation refs, DNA scoring/track
-prediction candidate refs, AnnData embedding/annotation/DE candidate refs,
-patient-population waypoint dossier refs, parse-once PDF evidence refs,
-scientific compute diagnostic receipts, protocol/SAP candidate refs, phenotype
-logic refs, claim-map refs, reference-integrity audit refs, rebuttal strategy
-refs, display-QC refs, causal-inference plan refs, and survival-analysis plan
-refs. OPL Runway, Connect, Fabric, managed endpoints, or the consuming workspace
-compute owner owns substrate, credentials, execution, harvest, and provider
-errors; the optional skills own only AI playbooks, candidate refs, route-back
-hints, and deterministic receipt refs.
+not MAS authority owners and they are not additional active core modules. Use
+them only when a named specialty is needed. Missing optional routers do not
+block default MAS medical-paper progress.
+
+Legacy narrow optional skills such as `medical-protocol-and-sap-planner`,
+`medical-reference-integrity-auditor`, `medical-display-qc`,
+`medical-structural-biology`, or `scientific-compute-runner` are retained only
+as thin redirect/tombstone entries for explicit old-name searches. They should
+not be installed by default and should route new work to the four router skills.
+Their outputs stay refs-only candidate refs, route-back hints, and
+`owner_gate_handoff_ref`. OPL Runway, Connect, Fabric, managed endpoints, or
+the consuming workspace compute owner owns substrate, credentials, execution,
+harvest, and provider errors.
 
 ## MAS Overlay Call Path
 
@@ -161,7 +148,7 @@ Keep the physical shape explicit:
 
 - Eight active professional skill modules: `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`.
 - Ten default real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not new active modules.
-- Optional specialist skills are also real Codex discovery skills, but not active modules: the advanced scientific specialists plus the medical-method specialists `medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`, `medical-evidence-synthesis-and-claim-map`, `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`, `medical-display-qc`, `medical-causal-inference-plan`, `medical-survival-analysis-plan`, `medical-risk-model-transportability-reviewer`, `medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`, `medical-display-regression-debugger`, `medical-data-freeze-and-analysis-readiness-reviewer`, `medical-publication-strategy-memory-curator`, `medical-evidence-gap-triage-reviewer`, `medical-research-portfolio-memory-curator`, and `medical-methodology-routeback-reviewer`.
+- Optional named-specialty work starts from four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`. Legacy narrow optional skills are thin redirect/tombstones only.
 - No contract-layer module is active in this repository.
 
 Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.

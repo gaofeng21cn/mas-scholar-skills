@@ -22,7 +22,7 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills academic capability handoff map" width="100%" />
 </p>
 
-`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as history/tombstone/provenance, not as an active Codex skill. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional specialist skills for advanced scientific workflows and medical-method workflows such as protocol/SAP planning, cohort phenotyping, evidence claim maps, reference integrity, rebuttal strategy, display QC, causal inference, and survival analysis.
+`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as history/tombstone/provenance, not as an active Codex skill. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional router/reviewer skills for methodology planning, evidence integrity, publication route-back, and advanced biomedical routing.
 
 The MAS stage operating prompts stay in the MAS domain-agent repository. The canonical stage sources are MAS `agent/stages/` and `agent/prompts/`; MAS overlay Skills and workspace or quest `.codex/skills/` copies are Codex discovery projections and compatibility surfaces, not the source of stage authority. That sync step must stay because Codex discovers local skills through `.codex/skills/`. `write`, `review`, `figure`, `scout`, and related stages decide when the stage is valid, what evidence is enough, where the output goes next, what routes back, and what needs an owner gate. The `medical-*` skills in this repository are professional skills for doing the assigned writing, review, figure, style, composition, literature, statistics, table, submission, and clinical data governance work well.
 
@@ -42,31 +42,19 @@ handoff shapes live in
 so each `medical-*` skill can point to the common refs instead of copying a long
 checklist.
 
-Optional advanced specialist skills are installed only when a task needs that
-specialty: `medical-structural-biology`, `medical-protein-design`,
-`medical-genomics-foundation-models`, `medical-single-cell-modeling`,
-`medical-indication-dossier`, `research-pdf-evidence-explorer`, and
-`scientific-compute-runner`. They are real Codex skills with frontmatter, but
-they are refs-only / no-authority candidate helpers. They do not replace the
-default medical-paper skills, do not become MAS authority owners, and do not block MAS
-ordinary progress when absent.
+Optional named-specialty work starts from four router/reviewer skills:
+`medical-methodology-planner`, `medical-evidence-integrity-reviewer`,
+`medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`.
+They are real Codex skills with frontmatter, but they are refs-only /
+no-authority candidate helpers. They do not replace the default medical-paper
+skills, do not become MAS authority owners, and do not block MAS ordinary
+progress when absent.
 
-Optional medical-method specialist skills follow the same rule:
-`medical-protocol-and-sap-planner`, `medical-cohort-phenotyping`,
-`medical-evidence-synthesis-and-claim-map`,
-`medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
-`medical-display-qc`, `medical-causal-inference-plan`, and
-`medical-survival-analysis-plan`, plus `medical-risk-model-transportability-reviewer`,
-`medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`,
-`medical-display-regression-debugger`, and
-`medical-data-freeze-and-analysis-readiness-reviewer`,
-`medical-publication-strategy-memory-curator`, and
-`medical-evidence-gap-triage-reviewer`,
-`medical-research-portfolio-memory-curator`, and
-`medical-methodology-routeback-reviewer`, are real Codex
-discovery skills for named method tasks. They emit candidate refs, support maps,
-route-back candidates, and `owner_gate_handoff_ref`; they do not add active
-modules or owner authority.
+Legacy narrow optional skills such as `medical-structural-biology`,
+`medical-protocol-and-sap-planner`, `medical-reference-integrity-auditor`,
+`medical-display-qc`, and `scientific-compute-runner` remain only as thin
+redirect/tombstones for explicit old-name searches. They should not be installed
+by default.
 
 <table>
   <tr>
@@ -94,7 +82,7 @@ MAS Scholar Skills turns the reusable support material into active professional 
 - MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, or data governance support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
 - `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are real Codex skills in this source repository; they are not only module descriptors, plugin mirrors, or connector descriptors.
-- Optional advanced and medical-method specialist skills are real Codex discovery skills too, but they are not part of the eight active professional modules and are used only for named specialty tasks.
+- Optional named-specialty work uses four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`. Legacy narrow optional skills are redirect/tombstones only.
 - `opl-scholarskills` is a tombstone/provenance alias only. It is not installed or discovered as an active Codex skill.
 - Source/external-learning intake is handled by OPL Framework or MAS stage/source surfaces, not as an active module or contract placeholder here; future omics support should be added here as a real professional skill when a stable MAS workflow exists.
 - By default, a professional specialist skill belongs in the consuming domain-agent repo next to the stage prompts. MAS Scholar Skills is the external pack exception for MAS writing, review, figure, literature, statistics, table, submission, Display, and source refs because these surfaces are reusable across workspaces and independently syncable.
@@ -184,10 +172,10 @@ skills/medical-statistical-review/SKILL.md Medical statistical review specialist
 skills/medical-table-design/SKILL.md   Medical table design specialist skill
 skills/medical-submission-prep/SKILL.md Medical submission preparation specialist skill
 skills/medical-data-governance/SKILL.md Medical data governance specialist skill
-skills/medical-publication-strategy-memory-curator/SKILL.md Optional Publication Strategy Memory specialist skill
-skills/medical-evidence-gap-triage-reviewer/SKILL.md Optional evidence-gap triage specialist skill
-skills/medical-research-portfolio-memory-curator/SKILL.md Optional research portfolio memory specialist skill
-skills/medical-methodology-routeback-reviewer/SKILL.md Optional methodology route-back reviewer skill
+skills/medical-methodology-planner/SKILL.md Optional methodology router skill
+skills/medical-evidence-integrity-reviewer/SKILL.md Optional evidence integrity reviewer skill
+skills/medical-publication-routeback-reviewer/SKILL.md Optional publication route-back reviewer skill
+skills/medical-advanced-biomed-router/SKILL.md Optional advanced biomed router skill
 contracts/scholar-skills-capability-modules.json Codex exposure policy and module contract
 contracts/domain_descriptor.json       OMA target descriptor
 contracts/capability_map.json          OMA capability target map

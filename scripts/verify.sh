@@ -74,6 +74,9 @@ contract_text = json.dumps(contract, ensure_ascii=False)
 expected_capability_skills = classification_policy.get("real_syncable_specialist_skills") or []
 advanced_specialist_skill_ids = classification_policy.get("optional_external_specialist_skills") or []
 medical_method_specialist_skill_ids = classification_policy.get("optional_medical_method_specialist_skills") or []
+advanced_redirect_tombstone_skill_ids = classification_policy.get("optional_external_redirect_tombstone_skills") or []
+medical_method_redirect_tombstone_skill_ids = classification_policy.get("optional_medical_method_redirect_tombstone_skills") or []
+redirect_tombstone_skill_ids = [*advanced_redirect_tombstone_skill_ids, *medical_method_redirect_tombstone_skill_ids]
 aggregate_skill_ids = ["mas-scholar-skills"]
 expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
 expected_optional_skill_ids = [*advanced_specialist_skill_ids, *medical_method_specialist_skill_ids]
@@ -104,6 +107,10 @@ medical_method_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in medical_method_specialist_skill_ids
 }
+redirect_tombstone_skills = {
+    skill_id: read_text(f"skills/{skill_id}/TOMBSTONE.md")
+    for skill_id in redirect_tombstone_skill_ids
+}
 actual_discoverable_skill_ids = sorted(
     path.parent.name
     for path in (root / "skills").glob("*/SKILL.md")
@@ -115,6 +122,11 @@ if actual_discoverable_skill_ids != sorted(expected_discoverable_skill_ids):
     )
 if (root / "skills/opl-scholarskills/SKILL.md").exists():
     fail("opl-scholarskills must not be an active discoverable SKILL.md")
+for skill_id in redirect_tombstone_skill_ids:
+    if (root / f"skills/{skill_id}/SKILL.md").exists():
+        fail(f"{skill_id} is a tombstone and must not expose SKILL.md metadata")
+    if not (root / f"skills/{skill_id}/TOMBSTONE.md").exists():
+        fail(f"{skill_id} tombstone must keep non-discoverable TOMBSTONE.md")
 for skill_id, text in {
     **capability_skill_texts,
     **advanced_specialist_skills,
@@ -256,95 +268,24 @@ advanced_capability_by_id = {
     for item in capability_map.get("optional_specialist_skills", [])
 }
 advanced_expected = {
-    "medical-structural-biology": {
-        "sources": ["alphafold2", "openfold3", "boltz", "chai1", "esmfold2", "diffdock"],
-        "refs": ["structure_candidate_ref", "docking_candidate_ref", "confidence_metrics_ref"],
-    },
-    "medical-protein-design": {
-        "sources": ["proteinmpnn", "ligandmpnn", "solublempnn", "fair-esm2"],
-        "refs": ["sequence_candidate_refs", "embedding_ref", "fold_back_validation_ref"],
-    },
-    "medical-genomics-foundation-models": {
-        "sources": ["borzoi", "evo2"],
-        "refs": ["dna_scoring_candidate_ref", "track_prediction_candidate_ref"],
-    },
-    "medical-single-cell-modeling": {
-        "sources": ["scgpt", "scvi-tools"],
-        "refs": ["embedding_candidate_ref", "annotation_candidate_ref", "differential_expression_candidate_ref"],
-    },
-    "medical-indication-dossier": {
-        "sources": ["indication-dossier"],
-        "refs": ["patient_population_waypoint_ref", "synthesis_candidate_ref"],
-    },
-    "research-pdf-evidence-explorer": {
-        "sources": ["pdf-explore"],
-        "refs": ["pdf_parse_manifest_ref", "pdf_outline_ref", "pdf_grep_ref", "pdf_crop_ref"],
-    },
-    "scientific-compute-runner": {
-        "sources": ["compute-env-setup", "remote-compute-ssh", "remote-compute-modal", "managed-model-endpoints", "using-model-endpoint"],
-        "refs": ["compute_requirement_ref", "environment_probe_ref", "deterministic_receipt_ref"],
+    "medical-advanced-biomed-router": {
+        "sources": ["alphafold2", "proteinmpnn", "borzoi", "scgpt", "indication-dossier", "compute-env-setup"],
+        "refs": ["advanced_biomed_question_ref", "advanced_biomed_route_ref", "execution_intent_ref", "deterministic_receipt_ref"],
+        "tokens": ["advanced_biomed", "structure", "protein_design", "genomics", "single_cell", "scientific_compute"],
     },
 }
 method_expected = {
-    "medical-protocol-and-sap-planner": {
-        "tokens": ["protocol", "SAP", "statistical_analysis_plan", "estimand", "analysis_sets"],
-        "refs": ["protocol_question_ref", "sap_candidate_ref", "support_map_ref", "owner_gate_handoff_ref"],
+    "medical-methodology-planner": {
+        "tokens": ["methodology_planner", "protocol", "SAP", "cohort", "causal_inference", "survival_analysis", "risk_model"],
+        "refs": ["methodology_question_ref", "methodology_route_ref", "methodology_plan_ref", "methodology_support_map_ref"],
     },
-    "medical-cohort-phenotyping": {
-        "tokens": ["cohort", "phenotype", "EHR", "registry", "code_list", "ascertainment"],
-        "refs": ["phenotype_question_ref", "cohort_definition_ref", "phenotype_logic_ref", "validation_check_ref"],
+    "medical-evidence-integrity-reviewer": {
+        "tokens": ["evidence_integrity", "claim_map", "source_support", "reference_integrity", "PMID", "DOI", "evidence_gap"],
+        "refs": ["evidence_integrity_inventory_ref", "source_support_map_ref", "identifier_integrity_ref", "evidence_gap_decision_candidate_ref"],
     },
-    "medical-evidence-synthesis-and-claim-map": {
-        "tokens": ["claim_map", "evidence_synthesis", "support_strength", "source_support", "overclaim"],
-        "refs": ["claim_inventory_ref", "source_support_ref", "support_strength_map_ref", "owner_gate_handoff_ref"],
-    },
-    "medical-reference-integrity-auditor": {
-        "tokens": ["reference_integrity", "PMID", "DOI", "citation_support", "retraction", "placeholder_reference"],
-        "refs": ["reference_inventory_ref", "identifier_integrity_ref", "claim_citation_support_map_ref", "support_gap_ref"],
-    },
-    "medical-rebuttal-strategy": {
-        "tokens": ["rebuttal", "reviewer_response", "revision_strategy", "manuscript_delta", "editorial_comment"],
-        "refs": ["review_comment_inventory_ref", "response_route_ref", "evidence_response_map_ref", "rebuttal_strategy_ref"],
-    },
-    "medical-display-qc": {
-        "tokens": ["display_qc", "figure_qc", "nonblank_export", "panel_caption", "visual_QA", "PDF_figure"],
-        "refs": ["display_artifact_inventory_ref", "export_integrity_ref", "panel_caption_consistency_ref", "claim_display_alignment_ref"],
-    },
-    "medical-causal-inference-plan": {
-        "tokens": ["causal_inference", "target_trial", "DAG", "confounding", "positivity", "bias"],
-        "refs": ["causal_question_ref", "target_trial_candidate_ref", "dag_or_confounder_map_ref", "sensitivity_plan_ref"],
-    },
-    "medical-survival-analysis-plan": {
-        "tokens": ["survival_analysis", "time_to_event", "censoring", "competing_risk", "risk_set", "Cox"],
-        "refs": ["survival_question_ref", "time_origin_and_risk_set_ref", "endpoint_and_censoring_ref", "model_plan_ref"],
-    },
-    "medical-risk-model-transportability-reviewer": {
-        "tokens": ["risk_model", "transportability", "external_validation", "calibration", "DCA", "TRIPOD"],
-        "refs": ["source_model_ref", "target_population_ref", "predictor_mapping_ref", "transportability_assessment_ref"],
-    },
-    "medical-registry-atlas-story-architect": {
-        "tokens": ["registry_atlas", "descriptive_registry", "phenotype_atlas", "data_lock", "treatment_gap", "story_contract"],
-        "refs": ["registry_story_contract_ref", "cohort_and_data_lock_ref", "figure_table_story_map_ref", "claim_boundary_ref"],
-    },
-    "medical-owner-gate-handoff-reviewer": {
-        "tokens": ["owner_gate", "handoff_review", "authority_boundary", "route_back", "residual_risk", "owner_receipt"],
-        "refs": ["handoff_inventory_ref", "authority_boundary_ref", "evidence_to_owner_map_ref", "residual_risk_ref"],
-    },
-    "medical-display-regression-debugger": {
-        "tokens": ["display_regression", "renderer", "artifact_diff", "source_renderer", "nonblank_export", "visual_QA"],
-        "refs": ["display_regression_symptom_ref", "artifact_diff_ref", "renderer_path_ref", "source_renderer_boundary_ref"],
-    },
-    "medical-data-freeze-and-analysis-readiness-reviewer": {
-        "tokens": ["data_freeze", "analysis_readiness", "data_lock", "dataset_boundary", "lineage", "missingness"],
-        "refs": ["data_freeze_inventory_ref", "data_lock_window_ref", "analysis_dataset_boundary_ref", "analysis_readiness_gap_ref"],
-    },
-    "medical-publication-strategy-memory-curator": {
-        "tokens": ["publication_strategy_memory", "publication_route_memory", "memory_curation", "writeback_proposal", "accept_reject_handoff", "route_memory"],
-        "refs": ["publication_strategy_memory_inventory_ref", "memory_body_review_ref", "writeback_proposal_ref", "accept_reject_handoff_ref"],
-    },
-    "medical-evidence-gap-triage-reviewer": {
-        "tokens": ["evidence_gap", "authority_gate", "human_gate", "proceed_with_assumption", "soft_quality_gap", "evidence_tail"],
-        "refs": ["evidence_gap_inventory_ref", "evidence_gap_decision_candidate_ref", "hard_gate_candidate_ref", "nonblocking_gap_candidate_ref"],
+    "medical-publication-routeback-reviewer": {
+        "tokens": ["publication_routeback", "rebuttal", "reviewer_response", "owner_gate", "display_qc", "display_regression", "human_gate"],
+        "refs": ["publication_routeback_inventory_ref", "authority_boundary_ref", "routeback_option_map_ref", "residual_risk_ref"],
     },
 }
 for skill_id, expected in advanced_expected.items():
@@ -616,8 +557,12 @@ if exposure_policy.get("default_exposure_skill_ids") != expected_default_exposur
     fail("codex skill exposure default skill ids must be aggregate + core skills")
 if exposure_policy.get("optional_skill_ids") != expected_optional_skill_ids:
     fail("codex skill exposure optional skill ids must match optional specialist policies")
-if exposure_policy.get("tombstone_skill_ids") != ["opl-scholarskills"]:
-    fail("codex skill exposure policy must tombstone opl-scholarskills")
+if exposure_policy.get("optional_router_skill_ids") != expected_optional_skill_ids:
+    fail("codex skill exposure optional router skill ids must match optional install ids")
+if sorted(exposure_policy.get("optional_redirect_tombstone_skill_ids") or []) != sorted(redirect_tombstone_skill_ids):
+    fail("codex skill exposure redirect tombstone ids must match classification policy")
+if sorted(exposure_policy.get("tombstone_skill_ids") or []) != sorted(["opl-scholarskills", *redirect_tombstone_skill_ids]):
+    fail("codex skill exposure policy must tombstone opl-scholarskills and legacy optional specialists")
 allowed_scopes = exposure_policy.get("allowed_scopes") or {}
 for category in ["aggregate", "core"]:
     require_all(
@@ -630,12 +575,21 @@ require_all(
     allowed_scopes.get("optional"),
     ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
 )
-if allowed_scopes.get("tombstone") != []:
-    fail("codex skill exposure tombstone scope must be empty")
-if "must_not_be_installed_or_discovered_as_an_active_Codex_skill" not in exposure_policy.get("tombstone_policy", ""):
-    fail("codex skill exposure tombstone policy must block active Codex discovery")
+require_all(
+    "codex skill exposure redirect tombstone scopes",
+    allowed_scopes.get("redirect_tombstone"),
+    ["legacy_named_specialty_redirect_only"],
+)
+if "non-discoverable TOMBSTONE.md" not in exposure_policy.get("redirect_tombstone_policy", ""):
+    fail("codex skill exposure redirect tombstone policy must keep legacy names non-discoverable")
+if "must not be installed by default" not in exposure_policy.get("tombstone_policy", ""):
+    fail("codex skill exposure tombstone policy must block default install")
 if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_default_exposure_skill_ids:
     fail("plugin manifest default workspace/quest install must match exposure policy")
+if plugin_exposure.get("optionalRouterSkillIds") != expected_optional_skill_ids:
+    fail("plugin manifest optional router skill ids must match exposure policy")
+if sorted(plugin_exposure.get("optionalRedirectTombstoneSkillIds") or []) != sorted(redirect_tombstone_skill_ids):
+    fail("plugin manifest optional redirect tombstone skill ids must match exposure policy")
 if plugin_exposure.get("tombstoneSkillIds") != exposure_policy.get("tombstone_skill_ids"):
     fail("plugin manifest tombstone skill ids must match exposure policy")
 for key in [
@@ -740,12 +694,14 @@ if advanced_policy.get("policy_id") != "mas_scholar_skills_advanced_specialist_p
     fail("contract missing advanced specialist pack policy")
 if advanced_policy.get("source_head_commit") != "54a2f333973147a1fd703caea6f12252e1f227d6":
     fail("advanced specialist pack must pin AcademicForge source head")
-if advanced_policy.get("classification") != "optional_external_specialist_skills_refs_only_no_authority":
-    fail("advanced specialist pack must be optional refs-only no-authority")
-if "do not replace the eight default medical-paper skills" not in advanced_policy.get("relationship_to_active_modules", ""):
+if advanced_policy.get("classification") != "optional_external_router_skill_refs_only_no_authority":
+    fail("advanced specialist pack must be optional router refs-only no-authority")
+if "replace the eight default medical-paper skills" not in advanced_policy.get("relationship_to_active_modules", ""):
     fail("advanced specialist pack must not replace the default eight skills")
 if "OPL_Runway_Connect_Fabric" not in advanced_policy.get("runtime_substrate_owner_policy", ""):
     fail("advanced compute boundary must keep OPL substrate ownership")
+if sorted(item.get("skill_id") for item in advanced_policy.get("redirect_tombstone_skills", [])) != sorted(advanced_redirect_tombstone_skill_ids):
+    fail("advanced specialist redirect tombstones must match classification policy")
 advanced_policy_by_id = {
     item.get("skill_id"): item
     for item in advanced_policy.get("optional_specialist_skills", [])
@@ -796,14 +752,16 @@ for key in [
 method_policy = contract.get("medical_method_specialist_pack_policy") or {}
 if method_policy.get("policy_id") != "mas_scholar_skills_medical_method_specialist_pack.v1":
     fail("contract missing medical-method specialist pack policy")
-if method_policy.get("classification") != "optional_medical_method_specialist_skills_refs_only_no_authority":
-    fail("medical-method specialist pack must be optional refs-only no-authority")
+if method_policy.get("classification") != "optional_medical_method_router_skills_refs_only_no_authority":
+    fail("medical-method specialist pack must be optional router refs-only no-authority")
 if "do not add active professional modules" not in method_policy.get("relationship_to_active_modules", ""):
     fail("medical-method specialist pack must not add active modules")
 method_policy_by_id = {
     item.get("skill_id"): item
     for item in method_policy.get("optional_specialist_skills", [])
 }
+if sorted(item.get("skill_id") for item in method_policy.get("redirect_tombstone_skills", [])) != sorted(medical_method_redirect_tombstone_skill_ids):
+    fail("medical-method redirect tombstones must match classification policy")
 for skill_id, expected in method_expected.items():
     item = method_policy_by_id.get(skill_id)
     if item is None:
@@ -951,6 +909,35 @@ for skill_id, text in medical_method_specialist_skills.items():
     ]:
         if token not in text:
             fail(f"skills/{skill_id}/SKILL.md missing medical-method specialist no-authority token: {token}")
+for skill_id in redirect_tombstone_skill_ids:
+    text = read_text(f"skills/{skill_id}/TOMBSTONE.md")
+    target = next(
+        (
+            item.get("redirect_to")
+            for item in [
+                *advanced_policy.get("redirect_tombstone_skills", []),
+                *method_policy.get("redirect_tombstone_skills", []),
+            ]
+            if item.get("skill_id") == skill_id
+        ),
+        None,
+    )
+    if not target:
+        fail(f"redirect tombstone missing contract target for {skill_id}")
+    for token in [
+        skill_id,
+        target,
+        "redirect/tombstone",
+        "refs-only",
+        "no-authority",
+        "owner_gate_handoff_ref",
+        "MAS truth",
+        "owner receipt",
+        "typed blocker",
+        "publication readiness",
+    ]:
+        if token not in text:
+            fail(f"skills/{skill_id}/TOMBSTONE.md missing redirect tombstone token: {token}")
 for forbidden in [
     "default opl-scholar-write",
     "default opl-scholar-review",
