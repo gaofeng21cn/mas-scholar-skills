@@ -65,13 +65,15 @@ section, a citation repair request, a figure/table repair request, or a
 route-back packet.
 
 When evidence supports writing, emit concise refs such as
-`claim_evidence_decision_ref`, `negative_or_equivocal_finding_ref`,
-`figure_table_binding_decision_ref`, and `writing_verdict_candidate`. When it
-does not, emit `route_back_candidate` with the missing source, analysis,
-citation, display, table, submission, or owner-gate target. These are
-AI-readable candidate judgments only. They do not write MAS truth, mutate a
-current package, sign an owner receipt, create a typed blocker, or prove
-publication/submission readiness.
+`paper_mission_framing_ref`, `claim_evidence_decision_ref`,
+`claim_evidence_strength_ref`, `negative_or_equivocal_finding_ref`,
+`figure_table_binding_decision_ref`, `writing_verdict_candidate`, and
+`stop_or_continue_recommendation`. When it does not, emit
+`route_back_candidate` with the missing source, analysis, citation, display,
+table, submission, or owner-gate target. These are AI-readable candidate
+judgments only. They do not write MAS truth, mutate a current package, sign an
+owner receipt, create a typed blocker, or prove publication/submission
+readiness.
 
 ## External Learning Quality Floor
 
@@ -121,6 +123,9 @@ Before a substantial section or full draft, write a compact contract:
 
 - `one_sentence_argument_ref`: in this problem/population, we show this bounded
   advance, using this approach, supported by these evidence refs.
+- `paper_mission_framing_ref`: the paper mission in reviewer-facing terms:
+  what this manuscript must prove, what it is not trying to prove, the intended
+  reader, and the narrowest next route if the mission is not yet supportable.
 - `reader_question_ref`: which reader question the section must answer first:
   relevance, novelty, trust, reuse, or clinical meaning.
 - `section_outline_ref`: section-level points, required evidence refs, and
@@ -131,6 +136,9 @@ Before a substantial section or full draft, write a compact contract:
   result, comparison, implication, limitation, or route-back.
 - `claim_strength_calibration_ref`: verbs matched to evidence strength, such as
   show, demonstrate, suggest, indicate, may, or could.
+- `claim_evidence_strength_ref`: per-claim support class, such as direct
+  primary evidence, direct guideline support, method precedent, contextual
+  background, contradictory, weak, not applicable, or missing.
 - `citation_style_ref`: AMA, Vancouver, or journal-specific style source plus
   any known deviations.
 - `claim_citation_quality_loop_ref`: claim, evidence, citation, support
@@ -445,13 +453,18 @@ lookup, or citation repair, use the read-only OPL Connect PubMed path when
 available:
 
 ```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
+opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json
 ```
 
 Record candidate results as `pubmed_source_refs` and
-`pubmed_connector_invocation_ref`. Screen sources before manuscript use. MAS
-still owns citation acceptance, citation ledger updates, claim-evidence support,
-and publication-quality judgment.
+`scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`.
+Use `opl connect pubmed search --query "<query>" --limit <n> --json` only as
+the compatibility entry when the current Connect surface requires it. If the
+claim needs DOI/title metadata or citation-graph coverage beyond PubMed, route
+to `medical-research-lit` for Crossref/OpenAlex `fallback_source_refs`; do not
+perform fallback acceptance inside writing. Screen sources before manuscript
+use. MAS still owns citation acceptance, citation ledger updates,
+claim-evidence support, and publication-quality judgment.
 
 If the connector is unavailable, record a `connector_gap` with the attempted
 query and route the citation repair; do not fill citation gaps from memory.

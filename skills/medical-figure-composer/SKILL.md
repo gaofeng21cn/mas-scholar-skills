@@ -32,6 +32,9 @@ guidance. It must not redraw data panels, change panel-level claims or
 statistics, invent evidence, switch renderer families, mutate artifact bodies,
 write publication truth, sign owner receipts, create typed blockers, claim
 visual-audit authority, or claim publication readiness.
+If a composite annotation reveals a panel/source mismatch, emit
+`annotation_to_source_regeneration_ref` and route that panel back to
+`medical-figure-design`; do not solve scientific drift with layout edits.
 
 ## Workflow
 
@@ -43,6 +46,8 @@ visual-audit authority, or claim publication readiness.
    rerendering, route that panel back to `medical-figure-design`.
 4. Check `composite_review_ref`: panel letters, gutters, resized text,
    cross-panel consistency, crop-level violations, and export dimensions.
+   Add `final_scale_visual_qa_ref` for final manuscript-size composite
+   inspection.
 5. Rerender only affected panels or the composite when the finding is scoped.
    Do not regenerate clean panels for activity.
 
@@ -54,6 +59,10 @@ Produce a compact `figure_composition_review_ref` with:
 - layout/export decision and composite output ref
 - composite findings and scoped fixes
 - `visual_qa_receipt_ref` when the composite export was inspected
+- `final_scale_visual_qa_ref` when final-size composite readability was
+  inspected
+- `annotation_to_source_regeneration_ref` for panel/source mismatches that need
+  evidence or render repair
 - route-back items for panel-level evidence or render defects
 - owner-gate target for MAS/domain review
 

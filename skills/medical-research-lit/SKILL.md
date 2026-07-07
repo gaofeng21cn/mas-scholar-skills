@@ -68,10 +68,11 @@ return screened candidate refs rather than unbounded raw API dumps.
 The skill should judge the literature result, not just retrieve it. For every
 claim-critical search, emit `source_verdict_candidate`,
 `claim_support_map_ref`, `support_strength_matrix_ref`,
-`citation_integrity_notes`, and `route_back_candidate` when the source set is
-missing, stale, contradictory, too indirect, or not applicable. Negative or
-contradictory findings are first-class evidence and should be routed back to
-writing/review instead of being hidden because they weaken the manuscript.
+`source_screening_matrix_ref`, `citation_integrity_notes`, and
+`route_back_candidate` when the source set is missing, stale, contradictory,
+too indirect, or not applicable. Negative or contradictory findings are
+first-class evidence and should be routed back to writing/review instead of
+being hidden because they weaken the manuscript.
 
 Connector refs, citation graphs, PDFs, and metadata are inputs to that AI
 judgment. They are not citation acceptance, source readiness, owner receipt,
@@ -143,6 +144,9 @@ Before searching, define `literature_retrieval_contract_ref`:
   metadata or coverage fallback, Semantic Scholar/OpenAlex for citation graph
   expansion, medRxiv/bioRxiv for preprints, Unpaywall for open-access lookup,
   and official guideline/provider sites when the claim is a standard or policy;
+- `pubmed_crossref_openalex_fallback_ref`: why PubMed/PMC was enough, or why
+  Crossref/OpenAlex was added for metadata, coverage, DOI/title resolution, or
+  citation graph expansion;
 - server-side filters versus local screening filters;
 - expected output fields and whether the task needs targeted lookup or
   exhaustive search;
@@ -231,6 +235,7 @@ Return a compact structure with:
 - `pubmed_source_refs`
 - `pubmed_connector_invocation_ref`
 - `fallback_source_refs`
+- `pubmed_crossref_openalex_fallback_ref`
 - `connector_receipt_candidate_refs`
 - `cache_retry_metadata_ref`
 - `connector_no_authority_flags_ref`
@@ -238,6 +243,7 @@ Return a compact structure with:
 - `database_endpoint_provenance_ref`
 - `retrieval_count_reconciliation_ref`
 - `deduplication_ref`
+- `source_screening_matrix_ref`
 - `source_acceptance_decision_ref`
 - `citation_graph_expansion_ref`
 - `doi_retraction_version_check_ref`

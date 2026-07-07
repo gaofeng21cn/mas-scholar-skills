@@ -63,6 +63,12 @@ of:
 - stop
 
 Unsupported claims must be downgraded or routed back before finalize.
+Reviewer-first route-back means the review names the narrowest next owner
+before prose repair: literature/source gaps go to Lit, claim/evidence or
+negative-finding gaps go to Write/Stats/analysis, visual gaps go to Display,
+data/source-lineage gaps go to Data, and authority questions go to the MAS or
+human owner. Do not keep rewriting text when a reviewer route-back is the
+honest next action.
 
 ## MAS Authority Boundary
 
@@ -108,7 +114,8 @@ human gate target.
 
 Default to AI reviewer judgment over professional publication risk, not to a
 contract checklist. The reviewer may emit `verdict_candidate`,
-`quality_review_candidate_ref`, `negative_finding_ref`,
+`quality_review_candidate_ref`, `paper_mission_framing_ref`,
+`claim_evidence_strength_ref`, `negative_finding_ref`,
 `claim_evidence_route_ref`, `route_back_candidate`, and
 `stop_or_continue_recommendation` when the manuscript evidence supports that
 judgment.
@@ -406,13 +413,18 @@ verification, guideline lookup, PMID lookup, DOI lookup, or citation repair,
 use:
 
 ```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
+opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json
 ```
 
-Record returned `pubmed_source_refs` and
-`pubmed_connector_invocation_ref`. The results are candidate refs only. MAS
-still owns source screening, contradiction handling, claim-evidence mapping,
-review ledger updates, route-back decisions, and publication-quality verdicts.
+Record returned `scientific_connector_source_refs`, `pubmed_source_refs`, and
+`scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`. Use
+`opl connect pubmed search --query "<query>" --limit <n> --json` only as the
+compatibility entry when needed. If PubMed cannot answer metadata, coverage, or
+citation-graph questions, route the issue to `medical-research-lit` for
+Crossref/OpenAlex `fallback_source_refs`; the review records the route-back,
+not source acceptance. The results are candidate refs only. MAS still owns
+source screening, contradiction handling, claim-evidence mapping, review ledger
+updates, route-back decisions, and publication-quality verdicts.
 
 Open a citation repair request when:
 
@@ -444,6 +456,8 @@ Write findings as an action matrix. Each row should include:
 - claim-citation-quality loop row and citation-quality action
 - claim type, graph warnings, and annotation-to-source regeneration refs when a
   finding depends on claim/source repair
+- paper mission framing and claim/evidence strength refs when the concern is
+  about contribution, support level, negative findings, or overclaiming
 - domain and status for `sci_clinical_registry_review` rows
 - severity: `blocker`, `major`, `minor`, or `note`
 - disposition

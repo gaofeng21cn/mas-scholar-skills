@@ -81,6 +81,7 @@ failure should route back before owner review.
 
 Emit `figure_verdict_candidate`, `figure_table_decision_ref`,
 `negative_or_equivocal_display_ref`, `visual_qa_route_ref`,
+`final_scale_visual_qa_ref`, `annotation_to_source_regeneration_ref`,
 `route_back_hard_evidence_ref`, and `route_back_candidate` when the evidence,
 claim, renderer, export, or visual readability is not defensible. These refs are
 candidate judgments only; they do not create visual-audit authority, artifact
@@ -202,6 +203,9 @@ Before writing plotting code, produce or refresh a compact contract:
 - `final_size_export_ref`: vector/raster format, DPI where raster is required,
   final print dimensions, text-size inspection, and final-scale preview
   readback.
+- `final_scale_visual_qa_ref`: final manuscript-scale visual inspection result
+  over the actual export, including whether labels, glyphs, panel crops,
+  legends, and visible claims survive journal-scale viewing.
 - `final_size_grayscale_preview_ref`: final manuscript-scale raster preview and
   grayscale/color-vision separation readback.
 - `data_fidelity_ref`: included/excluded rows, grouping rule, summary statistic
@@ -314,6 +318,10 @@ Start by writing the figure intent in plain scientific terms:
 If the claim is missing, too broad, or not accepted by MAS evidence surfaces,
 route to `medical-manuscript-writing`, `medical-manuscript-review`,
 `analysis-campaign`, `decision`, or human gate before drawing.
+If a reviewer annotation names a visual/source mismatch, add
+`annotation_to_source_regeneration_ref` that points back to the source data,
+claim-evidence map, figure contract, or missing ref family before attempting a
+style-only fix.
 
 ### 2. Evidence Refs
 
@@ -467,6 +475,9 @@ Keep two QA lanes separate:
   the rasterized preview for legend/data overlap, panel alignment, visual
   hierarchy, grayscale/color-vision separation, and whether the chart answers
   the intended data question.
+- `final_scale_visual_qa_ref`: the final manuscript-scale readback of the
+  actual exported figure; use it before owner handoff, not as a substitute for
+  owner visual-audit authority.
 - `ai_visual_review_ref`: the AI visual-review lane only; it cannot replace the
   deterministic audit lane or owner visual-audit authority.
 

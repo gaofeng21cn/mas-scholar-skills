@@ -62,15 +62,25 @@ source data until MAS or the domain owner accepts them.
 The skill should judge whether the data surface is reusable for the paper task,
 not just list files. Emit `data_governance_verdict_candidate`,
 `source_readiness_route_ref`, `fair_metadata_gap_ref`,
+`source_lineage_ref`, `semantic_reproducible_capsule_ref`,
 `version_diff_impact_ref`, `study_impact_ref`, `owner_decision_ref`, and
 `route_back_candidate` when provenance, dictionary/codebook, identifier,
-privacy/access, retention, source lineage, or study binding is insufficient.
+privacy/access, retention, source lineage, semantic reproducibility, or study
+binding is insufficient.
 
 FAIR checks are candidate governance judgments: findable identifiers,
 accessible routes or restrictions, interoperable dictionaries/code systems, and
 reusable provenance/licenses/retention. They do not authorize source readiness,
 data mutation, release, deletion, owner receipt, typed blocker, or publication
 readiness.
+
+Use `semantic_reproducible_capsule_ref` when a paper claim depends on data
+semantics that another reviewer must be able to reconstruct: dataset body refs,
+version/checksum, dictionary/codebook terms, cohort lock, variable derivation,
+unit/coding system, extraction/filter steps, analysis/table/figure claim refs,
+known exclusions, and the source-lineage limit. The capsule is a refs-only
+handoff for review and route-back; it is not an executable runtime package,
+source-readiness verdict, FAIR verdict, or MAS owner receipt.
 
 OpenScience main `f120290` contributes local-first `claimType` +
 `graphWarnings` source traceability patterns, not data authority or a second
@@ -223,8 +233,11 @@ analysis, cleanup, archival, or owner-gate handoff:
 8. Compare version changes when an update is proposed. Flag impact on cohorts,
    denominators, derived variables, statistical analysis, tables, figures,
    manuscript claims, and submission data/code availability.
-9. Produce a refs-only governance handoff with missing inputs, safe next command,
-   owner gate target, and route-back recommendation.
+9. Build `semantic_reproducible_capsule_ref` for any claim-critical dataset,
+   derived variable, table, figure, or manuscript statement whose meaning must
+   survive handoff to writing, review, statistics, display, or submission.
+10. Produce a refs-only governance handoff with missing inputs, safe next
+    command, owner gate target, and route-back recommendation.
 
 ## Machine Assessment Refs
 
@@ -266,6 +279,8 @@ Check:
   assumptions are visible;
 - source readiness receipts exist before downstream manuscript claims rely on
   the data;
+- semantic reproducible capsules exist for claim-critical variables, cohorts,
+  tables, figures, and manuscript statements that depend on source semantics;
 - study-local extracts do not become a second truth source;
 - privacy/access tier and retention guardrails are explicit;
 - storage placement is classified as hot, warm, cold, external, or delete-safe
@@ -305,6 +320,7 @@ Return refs-only candidate output:
 - `cleaning_normalization_readiness_ref`
 - `derived_variable_registry_ref`
 - `source_lineage_ref`
+- `semantic_reproducible_capsule_ref`
 - `source_readiness_receipt_ref`
 - `cohort_definition_lock_ref`
 - `version_diff_impact_ref`

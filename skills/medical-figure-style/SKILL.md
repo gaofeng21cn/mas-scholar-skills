@@ -34,6 +34,9 @@ not redraw data figures, choose a new panel composition, switch renderer
 families, mutate artifact bodies, write publication truth, sign owner receipts,
 create typed blockers, claim visual-audit authority, or claim publication
 readiness.
+If a style annotation exposes a source, evidence, or claim mismatch, emit
+`annotation_to_source_regeneration_ref` and route to `medical-figure-design`
+instead of hiding the issue with visual polish.
 
 ## Workflow
 
@@ -45,7 +48,9 @@ readiness.
    visual polish recommendation.
 3. Check `label_economy_ref`, `color_vision_check_ref`,
    `final_size_grayscale_preview_ref`, `export_lint_ref`, and
-   `visual_qa_preview_ref` on the actual rendered output.
+   `visual_qa_preview_ref` on the actual rendered output. Add
+   `final_scale_visual_qa_ref` when the figure was inspected at final
+   manuscript dimensions.
 4. Return style findings as candidate refs: what can be fixed inside visual
    style, what must route back to evidence/renderer work, and what remains a
    reviewer hint.
@@ -58,6 +63,9 @@ Produce a compact `figure_style_review_ref` with:
 - checked claim/evidence refs
 - style-only findings and proposed fixes
 - `visual_qa_receipt_ref` when the actual rendered export was inspected
+- `final_scale_visual_qa_ref` when final-size readability was inspected
+- `annotation_to_source_regeneration_ref` for source/claim mismatches that must
+  route back to figure design or evidence repair
 - hard route-back items, if evidence or readability fails
 - owner-gate target for MAS/domain review
 
