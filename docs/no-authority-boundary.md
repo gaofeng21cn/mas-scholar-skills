@@ -48,3 +48,11 @@ source, runtime, publication, or production readiness.
 Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`, `route_back_evidence_ref`, or current-package ref named by MAS Scholar Skills is a downstream owner-consumption target only. MAS or the consuming domain owner must consume the candidate refs and issue any owner receipt, typed blocker, route-back, reviewer receipt, current-package update, artifact mutation, or publication decision from its own authority surface.
 
 Stage prompts in MAS `agent/stages/` and `agent/prompts/` own stage policy, evidence thresholds, route-back, owner gates, and acceptance. A `medical-*` professional specialist skill owns only the AI-first playbook and candidate handoff for its specialty. A Tool connector such as OPL Connect/Fabric owns tool/API access, normalized read-only receipts, and scientific connector source refs such as PubMed/PMC-first refs plus Crossref/OpenAlex fallback refs; those refs are not citation acceptance. A contract module owns ids, maps, ref vocabulary, no-authority flags, and sync policy.
+
+Journal-family quality pack refs such as `journal_response_pack`,
+`manuscript_argument_pack`, `statistical_reporting_pack`,
+`data_availability_fair_pack`, `citation_integrity_pack`,
+`figure_evidence_contract_pack`, `paper_reader_grounding_pack`, and
+`paper_presentation_pack` are foldback routes into the existing active skills,
+not new physical skills and not MAS authority surfaces. The compact mapping
+lives in `references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.

@@ -41,6 +41,8 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 当前专业质量地板放在真实 Skill 内维护。共享交接形状见
 [`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)，
 让每个 `medical-*` skill 指向公共 refs，而不是复制长 checklist。
+MAS journal-family pack refs 也通过同一引用回折到现有 `medical-*` skill；
+它们是路由 hint，不是新增物理 skill，也不是 MAS authority surface。
 
 可选 named-specialty 工作收敛到 4 个 router/reviewer Skill：
 `medical-methodology-planner`、`medical-evidence-integrity-reviewer`、

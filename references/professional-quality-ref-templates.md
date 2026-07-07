@@ -218,6 +218,28 @@ Loop rows should include:
 - `quality_issue`: unsupported, overclaimed, under-cited, mismatched source,
   stale source, review-used-as-primary, missing official source, figure drift,
   table drift, or method mismatch.
+
+## MAS Journal-Family Pack Foldback
+
+Use this matrix when a MAS stage packet names journal-family quality packs.
+The pack name is only a route hint. Keep the elastic professional judgment in
+the existing `medical-*` skill, and keep MAS contracts limited to pack refs,
+output refs, owner route, receipt shape, and forbidden-authority flags.
+
+| Pack ref | Owning professional skill | Candidate refs to return |
+| --- | --- | --- |
+| `journal_response_pack` | `medical-submission-prep` with `medical-manuscript-review` for critique | `review_comment_inventory_ref`, `response_route_ref`, `difficult_case_route_ref`, `author_input_needed_ref`, `reviewer_response_candidate_ref`, `route_back_candidate` |
+| `manuscript_argument_pack` | `medical-manuscript-writing` with `medical-manuscript-review` for independent pressure test | `one_sentence_argument_ref`, `section_job_map_ref`, `paragraph_flow_review_ref`, `claim_strength_calibration_ref`, `paper_narrative_arc_ref`, `route_back_candidate` |
+| `statistical_reporting_pack` | `medical-statistical-review` | `statistical_question_ref`, `denominator_and_missingness_ref`, `effect_size_and_uncertainty_ref`, `assumption_diagnostic_ref`, `statistical_action_matrix_ref`, `route_back_candidate` |
+| `data_availability_fair_pack` | `medical-data-governance` with `medical-submission-prep` for journal-facing wording | `data_code_availability_ref`, `fair_metadata_gap_ref`, `restricted_access_route_ref`, `dataset_citation_ref`, `owner_decision_ref`, `route_back_candidate` |
+| `citation_integrity_pack` | `medical-research-lit` with `medical-manuscript-review` for claim critique | `literature_retrieval_contract_ref`, `identifier_resolution_ref`, `claim_support_map_ref`, `support_strength_matrix_ref`, `citation_integrity_notes`, `route_back_candidate` |
+| `figure_evidence_contract_pack` | `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, and `medical-table-design` as needed | `figure_contract_template_ref`, `panel_evidence_chain_ref`, `source_metric_ref`, `export_lint_ref`, `visual_qa_receipt_ref`, `table_qc_ref`, `route_back_candidate` |
+| `paper_reader_grounding_pack` | `medical-manuscript-review` with `medical-manuscript-writing` for repair | `paper_narrative_arc_ref`, `claim_citation_quality_loop_ref`, `pdf_evidence_extraction_ref`, `reader_risk_ref`, `claim_warning_route_back_candidate_ref` |
+| `paper_presentation_pack` | `medical-submission-prep` for package audit and `medical-figure-design` for asset evidence | `presentation_asset_manifest_ref`, `crop_qa_ref`, `pptx_reopen_qa_ref`, `slide_readability_ref`, `speaker_notes_context_ref`, `route_back_candidate` |
+
+These refs are candidate handoffs. They do not create MAS study truth, artifact
+authority, owner receipts, typed blockers, human gates, quality verdicts,
+current-package authority, submission readiness, or publication readiness.
 - `citation_quality_action_matrix_ref`: keep, downgrade, add source, replace
   source, route to `medical-research-lit`, route to statistics/table/figure,
   route to review, human gate, or stop.

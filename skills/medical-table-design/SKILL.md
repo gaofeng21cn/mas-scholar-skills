@@ -19,6 +19,11 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+When MAS supplies `figure_evidence_contract_pack` and the right surface is a
+table or source-data/statistics audit, consume
+`references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
+Return table/source metric candidate refs and route visual display work back to
+`medical-figure-design`.
 
 Optional local helper: `kernel.py` provides deterministic stdlib-only table
 shell, column normalization, footnote/completeness lint, and numeric-format

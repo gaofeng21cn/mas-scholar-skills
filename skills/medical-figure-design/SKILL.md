@@ -19,6 +19,11 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+When MAS supplies `figure_evidence_contract_pack` or
+`paper_presentation_pack`, consume
+`references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
+Keep renderer, source-data, statistics, export, crop, and visual-QA judgment in
+the display skill family; MAS keeps artifact and visual-audit authority.
 
 Receipt loop: design owns the refs-only `figure_contract_ref` handoff, the
 display pack returns `render_receipt_ref`, and style/composer return

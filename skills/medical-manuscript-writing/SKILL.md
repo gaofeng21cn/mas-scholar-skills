@@ -18,6 +18,12 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+When MAS supplies `manuscript_argument_pack`,
+`paper_reader_grounding_pack`, or related journal-family refs, consume the
+foldback matrix in
+`references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
+Keep argument, paragraph, figure/table narrative, and reader-risk judgment here
+as candidate refs; MAS keeps receipt and readiness authority.
 
 Optional skill-local helper: use `kernel.py` for deterministic paper brief
 schemas, section scaffolds, paragraph job maps, figure arc prompts, and

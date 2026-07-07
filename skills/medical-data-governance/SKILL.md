@@ -19,6 +19,11 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+When MAS supplies `data_availability_fair_pack`, consume the foldback matrix in
+`references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
+Keep FAIR, restricted-access, dataset citation, metadata, rights, and
+provenance judgment as refs-only candidate governance; MAS or the consuming
+owner decides readiness and source acceptance.
 
 Optional local helper: `kernel.py` provides deterministic stdlib-only data
 dictionary, source-readiness, sensitive-field, missingness, and provenance

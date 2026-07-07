@@ -19,6 +19,11 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+When MAS supplies journal-family pack refs, use
+`references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`
+to route response, argument, citation, reader-grounding, and presentation
+judgment back to the existing professional skills instead of creating a new
+physical skill.
 
 Optional skill-local helper: use `kernel.py` for deterministic review fact-base
 schemas, reviewer action matrix skeletons, issue action labels, and

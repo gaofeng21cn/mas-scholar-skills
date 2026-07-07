@@ -41,6 +41,9 @@ handoff shapes live in
 [`references/professional-quality-ref-templates.md`](./references/professional-quality-ref-templates.md)
 so each `medical-*` skill can point to the common refs instead of copying a long
 checklist.
+MAS journal-family pack refs fold back through that same reference into the
+existing `medical-*` skills; they are route hints, not new physical skills or
+MAS authority surfaces.
 
 Optional named-specialty work starts from four router/reviewer skills:
 `medical-methodology-planner`, `medical-evidence-integrity-reviewer`,
