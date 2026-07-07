@@ -1,0 +1,32 @@
+{
+  "surface_kind": "opl_capability_package_manifest.v1",
+  "package_id": "mas-scholar-skills",
+  "display_name": "MAS Scholar Skills",
+  "publisher": "one-person-lab",
+  "version": "0.1.0",
+  "source": "first_party_repo_local",
+  "package_role": "framework_capability_package",
+  "carrier_source_role": "codex_plugin_default_carrier_not_package_truth",
+  "codex_surface": {
+    "plugin_id": "mas-scholar-skills",
+    "standalone_distribution": "capability_pack_carrier_source",
+    "required_skill_ids": [
+      "mas-scholar-skills"
+    ],
+    "codex_default_exposure": false,
+    "on_demand_sync_scopes": [
+      "workspace",
+      "quest"
+    ]
+  },
+  "authority_boundary": {
+    "can_write_domain_truth": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_write_runtime_queue": false
+  },
+  "sync_command_refs": [
+    "opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-workspace <workspace-root> --json",
+    "opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest-root> --json"
+  ]
+}
