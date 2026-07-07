@@ -11,7 +11,7 @@ gallery manifests, OPL Framework readback, and repo-native verification.
 
 `MAS Scholar Skills` is the OPL-owned `mas-scholar-skills` external enhancement
 pack for MAS medical-paper work. The historical `opl-scholarskills` name is
-only a compatibility alias. This repo owns module contracts, source packs,
+only history/tombstone/provenance and is not an active Codex skill. This repo owns module contracts, source packs,
 quality-floor references, compact review refs, and syncable `medical-*`
 professional skills. It does not own MAS study truth, artifacts, owner
 receipts, typed blockers, current-package authority, or publication readiness.

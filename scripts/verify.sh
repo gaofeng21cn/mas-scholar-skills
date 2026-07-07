@@ -58,6 +58,13 @@ if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
     fail("plugin displayName must be MAS Scholar Skills")
+plugin_exposure = manifest.get("masScholarSkillsExposure") or {}
+if plugin_exposure.get("policyRef") != "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy":
+    fail("plugin manifest must point to codex skill exposure policy")
+if plugin_exposure.get("codexDefaultExposure") is not False:
+    fail("plugin manifest codex default exposure must be false")
+if plugin_exposure.get("optionalInstallPolicy") != "named_specialty_only":
+    fail("plugin manifest optional install policy must be named_specialty_only")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 domain_descriptor = read_json("contracts/domain_descriptor.json")
@@ -67,6 +74,10 @@ contract_text = json.dumps(contract, ensure_ascii=False)
 expected_capability_skills = classification_policy.get("real_syncable_specialist_skills") or []
 advanced_specialist_skill_ids = classification_policy.get("optional_external_specialist_skills") or []
 medical_method_specialist_skill_ids = classification_policy.get("optional_medical_method_specialist_skills") or []
+aggregate_skill_ids = ["mas-scholar-skills"]
+expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
+expected_optional_skill_ids = [*advanced_specialist_skill_ids, *medical_method_specialist_skill_ids]
+expected_discoverable_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
 
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
@@ -93,6 +104,17 @@ medical_method_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in medical_method_specialist_skill_ids
 }
+actual_discoverable_skill_ids = sorted(
+    path.parent.name
+    for path in (root / "skills").glob("*/SKILL.md")
+)
+if actual_discoverable_skill_ids != sorted(expected_discoverable_skill_ids):
+    fail(
+        "discoverable SKILL.md set must match aggregate + core + optional exposure policy; "
+        f"actual={actual_discoverable_skill_ids}"
+    )
+if (root / "skills/opl-scholarskills/SKILL.md").exists():
+    fail("opl-scholarskills must not be an active discoverable SKILL.md")
 for skill_id, text in {
     **capability_skill_texts,
     **advanced_specialist_skills,
@@ -100,9 +122,6 @@ for skill_id, text in {
 }.items():
     if not re.search(rf"^---\n[\s\S]*?^name:\s+{re.escape(skill_id)}$", text, re.MULTILINE):
         fail(f"{skill_id} must be a real Codex skill")
-legacy_skill = read_text("skills/opl-scholarskills/SKILL.md")
-if not re.search(r"^---\n[\s\S]*?^name:\s+opl-scholarskills$", legacy_skill, re.MULTILINE):
-    fail("legacy alias must expose name: opl-scholarskills")
 
 readme = read_text("README.md")
 readme_zh = read_text("README.zh-CN.md")
@@ -144,6 +163,10 @@ if capability_map.get("delivery_domain") != "capability_pack":
     fail("capability map delivery_domain must be capability_pack")
 if capability_map.get("source_contract_ref") != "contracts/scholar-skills-capability-modules.json":
     fail("capability map must point to the canonical module contract")
+if capability_map.get("skill_exposure_policy_ref") != "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy":
+    fail("capability map must point to the codex skill exposure policy")
+if capability_map.get("codex_default_exposure") is not False:
+    fail("capability map codex default exposure must be false")
 capability_by_id = {
     item.get("capability_id"): item
     for item in capability_map.get("capabilities", [])
@@ -497,6 +520,8 @@ if specialist_skill_policy.get("canonical_aggregate_skill") != "mas-scholar-skil
     fail("specialist skill policy must name mas-scholar-skills as canonical aggregate skill")
 if specialist_skill_policy.get("legacy_aggregate_skill_alias") != "opl-scholarskills":
     fail("specialist skill policy must keep opl-scholarskills as legacy alias")
+if specialist_skill_policy.get("legacy_alias_policy") != "opl_scholarskills_is_history_tombstone_provenance_only_not_active_install_or_codex_discovery_surface":
+    fail("specialist skill policy must mark opl-scholarskills as history/tombstone provenance only")
 require_all(
     "syncable real skills",
     specialist_skill_policy.get("syncable_real_skills"),
@@ -572,6 +597,47 @@ for key in [
 ]:
     if specialist_skill_policy.get(key) is not False:
         fail(f"specialist skill authority flag {key} must be false")
+exposure_policy = contract.get("codex_skill_exposure_policy") or {}
+if exposure_policy.get("policy_id") != "mas_scholar_skills_codex_skill_exposure.v1":
+    fail("contract missing codex skill exposure policy")
+if exposure_policy.get("source_of_truth") != "contracts/scholar-skills-capability-modules.json":
+    fail("codex skill exposure policy must be contract-sourced")
+if exposure_policy.get("plugin_manifest_ref") != ".codex-plugin/plugin.json":
+    fail("codex skill exposure policy must point to plugin manifest")
+if exposure_policy.get("codex_default_exposure") is not False:
+    fail("codex skill exposure policy default exposure must be false")
+if exposure_policy.get("default_install_policy") != "compact_workspace_or_quest_install_includes_aggregate_and_core_skills_only":
+    fail("codex skill exposure policy must keep default install compact")
+if exposure_policy.get("aggregate_skill_ids") != aggregate_skill_ids:
+    fail("codex skill exposure aggregate skill ids must match")
+if exposure_policy.get("core_skill_ids") != expected_capability_skills:
+    fail("codex skill exposure core skill ids must match real syncable skills")
+if exposure_policy.get("default_exposure_skill_ids") != expected_default_exposure_skill_ids:
+    fail("codex skill exposure default skill ids must be aggregate + core skills")
+if exposure_policy.get("optional_skill_ids") != expected_optional_skill_ids:
+    fail("codex skill exposure optional skill ids must match optional specialist policies")
+if exposure_policy.get("tombstone_skill_ids") != ["opl-scholarskills"]:
+    fail("codex skill exposure policy must tombstone opl-scholarskills")
+allowed_scopes = exposure_policy.get("allowed_scopes") or {}
+for category in ["aggregate", "core"]:
+    require_all(
+        f"codex skill exposure {category} scopes",
+        allowed_scopes.get(category),
+        ["workspace", "quest", "explicit_codex_developer"],
+    )
+require_all(
+    "codex skill exposure optional scopes",
+    allowed_scopes.get("optional"),
+    ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
+)
+if allowed_scopes.get("tombstone") != []:
+    fail("codex skill exposure tombstone scope must be empty")
+if "must_not_be_installed_or_discovered_as_an_active_Codex_skill" not in exposure_policy.get("tombstone_policy", ""):
+    fail("codex skill exposure tombstone policy must block active Codex discovery")
+if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_default_exposure_skill_ids:
+    fail("plugin manifest default workspace/quest install must match exposure policy")
+if plugin_exposure.get("tombstoneSkillIds") != exposure_policy.get("tombstone_skill_ids"):
+    fail("plugin manifest tombstone skill ids must match exposure policy")
 for key in [
     "can_replace_mas_overlay_skill",
     "can_replace_mas_runtime_owner_surface",

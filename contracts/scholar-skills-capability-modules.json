@@ -96,7 +96,7 @@
       "tool_connector"
     ],
     "connect_sync_policy": "OPL_Connect_installs_canonical_aggregate_skill_and_syncable_real_skills_into_workspace_or_quest_local_codex_discovery_paths",
-    "legacy_alias_policy": "opl_scholarskills_is_compatibility_entry_only_not_second_truth_source",
+    "legacy_alias_policy": "opl_scholarskills_is_history_tombstone_provenance_only_not_active_install_or_codex_discovery_surface",
     "mas_consumes_specialist_skills": true,
     "mas_maintains_write_review_figure_stage_operating_prompts": true,
     "can_replace_mas_overlay_skill": false,
@@ -136,6 +136,88 @@
       "medical-evidence-gap-triage-reviewer"
     ],
     "optional_medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+  },
+  "codex_skill_exposure_policy": {
+    "policy_id": "mas_scholar_skills_codex_skill_exposure.v1",
+    "source_of_truth": "contracts/scholar-skills-capability-modules.json",
+    "plugin_manifest_ref": ".codex-plugin/plugin.json",
+    "default_install_policy": "compact_workspace_or_quest_install_includes_aggregate_and_core_skills_only",
+    "codex_default_exposure": false,
+    "aggregate_skill_ids": [
+      "mas-scholar-skills"
+    ],
+    "core_skill_ids": [
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep",
+      "medical-data-governance"
+    ],
+    "default_exposure_skill_ids": [
+      "mas-scholar-skills",
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep",
+      "medical-data-governance"
+    ],
+    "optional_skill_ids": [
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner",
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer",
+      "medical-publication-strategy-memory-curator",
+      "medical-evidence-gap-triage-reviewer"
+    ],
+    "tombstone_skill_ids": [
+      "opl-scholarskills"
+    ],
+    "allowed_scopes": {
+      "aggregate": [
+        "workspace",
+        "quest",
+        "explicit_codex_developer"
+      ],
+      "core": [
+        "workspace",
+        "quest",
+        "explicit_codex_developer"
+      ],
+      "optional": [
+        "named_specialty_workspace",
+        "named_specialty_quest",
+        "explicit_codex_developer"
+      ],
+      "tombstone": []
+    },
+    "tombstone_policy": "opl-scholarskills_has_no_SKILL_md_and_must_not_be_installed_or_discovered_as_an_active_Codex_skill",
+    "no_authority_boundary_ref": "docs/no-authority-boundary.md"
   },
   "capability_module_classification_policy": {
     "policy_id": "mas_scholar_skills_professional_skill_classification.v1",

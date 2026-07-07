@@ -7,7 +7,7 @@ Machine boundary: Human-readable operating model. Machine truth stays in `contra
 
 ## Positioning
 
-`MAS Scholar Skills` is the product and repository name for the OPL-owned `mas-scholar-skills` repository. The historical `opl-scholarskills` name remains a compatibility alias. The repository is narrower than a generic OPL scholarly base: it is the external enhancement pack and professional-skill source for MAS medical-paper capabilities.
+`MAS Scholar Skills` is the product and repository name for the OPL-owned `mas-scholar-skills` repository. The historical `opl-scholarskills` name remains history/tombstone/provenance only and is not an active Codex skill. The repository is narrower than a generic OPL scholarly base: it is the external enhancement pack and professional-skill source for MAS medical-paper capabilities.
 
 It owns enhancement surfaces:
 
@@ -157,7 +157,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The local install should contain the canonical aggregate Skill entry, the professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for MAS discovery and review. Do not copy this whole repository, MAS render outputs, caches, single-figure exports, dependency locks, or intermediate gallery workspaces into a paper workspace or quest.
+The local install should contain the canonical aggregate Skill entry, the core professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plugin/module refs, compact gallery review refs, and lightweight manifests needed for MAS discovery and review. Optional specialist skills are synced only for named specialty tasks; `opl-scholarskills` is not installed or discovered as an active skill. Do not copy this whole repository, MAS render outputs, caches, single-figure exports, dependency locks, or intermediate gallery workspaces into a paper workspace or quest.
 
 The legacy `--domain mas-scholar-skills` command remains a compatibility alias for existing workspaces.
 

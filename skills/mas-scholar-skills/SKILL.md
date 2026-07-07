@@ -5,7 +5,7 @@ description: "Operate MAS Scholar Skills as the OPL-owned external enhancement p
 
 # MAS Scholar Skills
 
-Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry for the OPL-owned MAS medical-paper enhancement pack. The historical `opl-scholarskills` name is a legacy alias only. Treat `contracts/scholar-skills-capability-modules.json` as this skill pack's module catalog snapshot. The executable `opl scholar-skills *` CLI and runtime bridge remain owned by OPL Framework.
+Use MAS Scholar Skills as the repo-tracked Codex discovery and reference entry for the OPL-owned MAS medical-paper enhancement pack. The historical `opl-scholarskills` name is a history/tombstone/provenance alias only and is not an active Codex skill. Treat `contracts/scholar-skills-capability-modules.json` as this skill pack's module catalog snapshot and Codex exposure policy. The executable `opl scholar-skills *` CLI and runtime bridge remain owned by OPL Framework.
 
 This repository is the professional specialist source for the MAS-consumed skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. In MAS work, start from the MAS overlay runtime entry or a MAS stage operating prompt, then route high-frequency writing, review, figure, literature, statistics, table, submission, or clinical data governance work through these synced professional skills. `medical-figure-style` and `medical-figure-composer` are display subskills under `medical-figure-design`, not additional active modules. Use MAS Scholar Skills to pull enhancement material: references, packs, quality floors, templates, module contracts, candidate refs, and route-back hints. Keep MAS stage operating prompts as the stage, evidence, route-back, and owner-gate entries.
 
@@ -34,8 +34,9 @@ MAS Scholar Skills also includes optional medical-method specialist skills:
 
 These are real Codex discovery skills with `SKILL.md` frontmatter, but they are
 not MAS authority owners and they are not additional active core modules.
-Use them only when a named specialty is needed. Missing optional advanced
-specialists do not block default MAS medical-paper progress.
+Use them only when a named specialty is needed. Do not include them in default
+workspace or quest exposure. Missing optional advanced specialists do not block
+default MAS medical-paper progress.
 Their outputs stay refs-only candidate refs: structure/docking candidate refs,
 sequence/design/embedding/fold-back validation refs, DNA scoring/track
 prediction candidate refs, AnnData embedding/annotation/DE candidate refs,
@@ -72,7 +73,7 @@ MAS stage prompts own stage/owner authority, `medical-*` professional
 specialist skills own refs-only candidate playbooks, Tool connectors own
 read-only access receipts, and contract modules own ids/ref vocabulary.
 
-`mas-scholar-skills` is the aggregate entry and discovery layer for the pack. `opl-scholarskills` is only a legacy alias/provenance entry, not a second truth source.
+`mas-scholar-skills` is the aggregate entry and discovery layer for the pack. `opl-scholarskills` is only a history/tombstone/provenance name, not a second truth source or active install/discovery surface.
 
 ## Local Install / Discovery
 
@@ -110,7 +111,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The local install is refs-only and authority false. It may include this Skill entry, the default professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, optional specialist skills when a named specialty is needed, plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
+The local install is refs-only and authority false. Its default exposure is this Skill entry plus the core professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. Optional specialist skills are synced only when a named specialty is needed. `opl-scholarskills` must not be installed or discovered as an active Skill. The install may also include plugin/module refs, compact gallery review refs, and lightweight manifests needed for discovery and review. Do not copy this whole source repository into a paper directory or quest. Do not copy MAS `outputs/display-pack-gallery/`, render caches, single-figure PNG/SVG/HTML exports, dependency locks, run-context files, or other gallery intermediates into each consuming workspace. Do not treat a MAS program-repo `plugins/mas-scholar-skills/` mirror or system Codex registry install as the recommended runtime quest discovery surface.
 
 ## External Scientific Skill Discovery / Router
 

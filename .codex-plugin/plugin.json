@@ -14,6 +14,27 @@
     "codex-skill"
   ],
   "skills": "./skills/",
+  "masScholarSkillsExposure": {
+    "policyRef": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy",
+    "codexDefaultExposure": false,
+    "defaultWorkspaceOrQuestInstall": [
+      "mas-scholar-skills",
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep",
+      "medical-data-governance"
+    ],
+    "optionalInstallPolicy": "named_specialty_only",
+    "tombstoneSkillIds": [
+      "opl-scholarskills"
+    ]
+  },
   "interface": {
     "displayName": "MAS Scholar Skills",
     "shortDescription": "MAS medical-paper specialist skills and refs.",
@@ -29,6 +50,7 @@
       "Use MAS Scholar Skills to inspect active medical-paper professional skills.",
       "Use medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance for MAS medical-paper specialist workflows.",
       "Use medical-research-lit to plan PubMed-backed literature discovery.",
+      "Keep default workspace or quest exposure to mas-scholar-skills plus the core medical-paper specialist skills; install optional specialists only for named specialty tasks.",
       "Use optional advanced or medical-method specialist skills only when a named specialty is needed; their absence does not block the default eight MAS Scholar Skills.",
       "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],
