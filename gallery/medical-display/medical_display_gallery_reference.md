@@ -9,6 +9,12 @@ Machine boundary: 人读示例文档。Pack source 与 compact review refs 归 `
 - [生成状态](./display_pack_gallery_status.md)：从 manifest 生成的数量、路由和生成口径。
 - [质量审计](./display_pack_gallery_quality_audit.md)：从质量门生成的模板入库状态、风险项和论文使用前检查项。
 
+PDF 画册与 `gallery_snapshot.json` 可作为代表模板的 reference-snapshot
+golden baseline：用于对账 compact review package 成员、manifest refs、
+descriptor 口径和 included-file hash。它不证明 live renderer 当前可运行、
+像素一致、layout regression 无变化，也不替代真实论文语境下的 fresh render
+artifact 检查和 visual audit。
+
 本仓只维护 compact review refs。HTML、payload、layout sidecar、PNG/SVG/PDF 单图导出属于可再生成的本地输出或上游渲染工作区，不进入本仓。维护者替换最终 review refs 后运行：
 
 ```bash

@@ -122,6 +122,13 @@ The compact human-review package is maintained in:
 - `gallery/medical-display/gallery_manifest.json`
 - `gallery/medical-display/gallery_snapshot.json`
 
+The checked-in PDF plus `gallery_snapshot.json` is a representative-template
+reference-snapshot golden baseline for descriptor/ref/fingerprint
+reconciliation: it backs compact review package membership, manifest refs, and
+included-file SHA-256 checks. It is not a live renderer, pixel, or layout
+regression authority; fresh render output and paper-local visual audit remain
+required for those claims.
+
 Validate the pack and review package from this repository:
 
 ```bash
