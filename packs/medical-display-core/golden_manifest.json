@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "manifest_id": "fenggaolab.org.medical-display-core.reference_snapshot_golden.v1",
+  "pack_id": "fenggaolab.org.medical-display-core",
+  "state": "active_reference_snapshot_golden",
+  "source_role": "per_template_reference_snapshot_index",
+  "comparison_mode": "reference_snapshot_hash_only",
+  "authority_boundary": {
+    "authority": false,
+    "publication_ready": false,
+    "can_write_domain_truth": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_artifact_authority": false,
+    "can_claim_live_render_regression": false,
+    "can_claim_pixel_or_layout_regression": false
+  },
+  "shared_gallery_snapshot_ref": {
+    "path": "gallery/medical-display/gallery_snapshot.json",
+    "sha256": "0b90225d03cea76a2b053de04f4187b36b3656bc168ce439a8a508436a22f97d"
+  },
+  "shared_gallery_pdf_ref": {
+    "path": "gallery/medical-display/medical_display_gallery.pdf",
+    "sha256": "f5c0037423d11d1f78c94d34794c8c4b48e8aafcc746a73999ee29422530d44c"
+  },
+  "known_limits": [
+    "The checked-in gallery PDF and snapshot are shared review references, not per-template rendered artifacts.",
+    "This manifest proves descriptor/example/gallery hash linkage only.",
+    "Pixel, layout, OCR, and live renderer regression require future fixed-input rerendered artifacts and layout sidecars."
+  ],
+  "golden_templates": [
+    {
+      "template_id": "roc_curve_binary",
+      "kind": "evidence_figure",
+      "renderer_family": "r_ggplot2",
+      "execution_mode": "subprocess",
+      "descriptor_ref": "packs/medical-display-core/templates/roc_curve_binary/template.toml",
+      "example_input_ref": "packs/medical-display-core/templates/roc_curve_binary/example_input.json",
+      "example_render_receipt_ref": "packs/medical-display-core/templates/roc_curve_binary/example_render_receipt.json",
+      "gallery_snapshot_ref": "gallery/medical-display/gallery_snapshot.json",
+      "gallery_pdf_ref": "gallery/medical-display/medical_display_gallery.pdf",
+      "comparison_mode": "reference_snapshot_hash_only",
+      "live_render_required_for_pixel_or_layout_regression": true,
+      "authority": false,
+      "publication_ready": false
+    },
+    {
+      "template_id": "calibration_curve_binary",
+      "kind": "evidence_figure",
+      "renderer_family": "r_ggplot2",
+      "execution_mode": "subprocess",
+      "descriptor_ref": "packs/medical-display-core/templates/calibration_curve_binary/template.toml",
+      "example_input_ref": "packs/medical-display-core/templates/calibration_curve_binary/example_input.json",
+      "example_render_receipt_ref": "packs/medical-display-core/templates/calibration_curve_binary/example_render_receipt.json",
+      "gallery_snapshot_ref": "gallery/medical-display/gallery_snapshot.json",
+      "gallery_pdf_ref": "gallery/medical-display/medical_display_gallery.pdf",
+      "comparison_mode": "reference_snapshot_hash_only",
+      "live_render_required_for_pixel_or_layout_regression": true,
+      "authority": false,
+      "publication_ready": false
+    },
+    {
+      "template_id": "kaplan_meier_grouped",
+      "kind": "evidence_figure",
+      "renderer_family": "r_ggplot2",
+      "execution_mode": "subprocess",
+      "descriptor_ref": "packs/medical-display-core/templates/kaplan_meier_grouped/template.toml",
+      "example_input_ref": "packs/medical-display-core/templates/kaplan_meier_grouped/example_input.json",
+      "example_render_receipt_ref": "packs/medical-display-core/templates/kaplan_meier_grouped/example_render_receipt.json",
+      "gallery_snapshot_ref": "gallery/medical-display/gallery_snapshot.json",
+      "gallery_pdf_ref": "gallery/medical-display/medical_display_gallery.pdf",
+      "comparison_mode": "reference_snapshot_hash_only",
+      "live_render_required_for_pixel_or_layout_regression": true,
+      "authority": false,
+      "publication_ready": false
+    },
+    {
+      "template_id": "heatmap_group_comparison",
+      "kind": "evidence_figure",
+      "renderer_family": "r_ggplot2",
+      "execution_mode": "subprocess",
+      "descriptor_ref": "packs/medical-display-core/templates/heatmap_group_comparison/template.toml",
+      "example_input_ref": "packs/medical-display-core/templates/heatmap_group_comparison/example_input.json",
+      "example_render_receipt_ref": "packs/medical-display-core/templates/heatmap_group_comparison/example_render_receipt.json",
+      "gallery_snapshot_ref": "gallery/medical-display/gallery_snapshot.json",
+      "gallery_pdf_ref": "gallery/medical-display/medical_display_gallery.pdf",
+      "comparison_mode": "reference_snapshot_hash_only",
+      "live_render_required_for_pixel_or_layout_regression": true,
+      "authority": false,
+      "publication_ready": false
+    },
+    {
+      "template_id": "submission_graphical_abstract",
+      "kind": "illustration_shell",
+      "renderer_family": "python",
+      "execution_mode": "python_plugin",
+      "descriptor_ref": "packs/medical-display-core/templates/submission_graphical_abstract/template.toml",
+      "example_input_ref": "packs/medical-display-core/templates/submission_graphical_abstract/example_input.json",
+      "example_render_receipt_ref": "packs/medical-display-core/templates/submission_graphical_abstract/example_render_receipt.json",
+      "gallery_snapshot_ref": "gallery/medical-display/gallery_snapshot.json",
+      "gallery_pdf_ref": "gallery/medical-display/medical_display_gallery.pdf",
+      "comparison_mode": "reference_snapshot_hash_only",
+      "live_render_required_for_pixel_or_layout_regression": true,
+      "authority": false,
+      "publication_ready": false
+    },
+    {
+      "template_id": "table1_baseline_characteristics",
+      "kind": "table_shell",
+      "renderer_family": "n/a",
+      "execution_mode": "python_plugin",
+      "descriptor_ref": "packs/medical-display-core/templates/table1_baseline_characteristics/template.toml",
+      "example_input_ref": "packs/medical-display-core/templates/table1_baseline_characteristics/example_input.json",
+      "example_render_receipt_ref": "packs/medical-display-core/templates/table1_baseline_characteristics/example_render_receipt.json",
+      "gallery_snapshot_ref": "gallery/medical-display/gallery_snapshot.json",
+      "gallery_pdf_ref": "gallery/medical-display/medical_display_gallery.pdf",
+      "comparison_mode": "reference_snapshot_hash_only",
+      "live_render_required_for_pixel_or_layout_regression": true,
+      "authority": false,
+      "publication_ready": false
+    }
+  ]
+}
