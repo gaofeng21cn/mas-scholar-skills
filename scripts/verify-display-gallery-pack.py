@@ -17,9 +17,13 @@ GALLERY_ROOT = ROOT / "gallery" / "medical-display"
 PACK_LEVEL_EXECUTION_MODE = "declared_by_template"
 EXPECTED_EXAMPLE_TEMPLATE_IDS = [
     "roc_curve_binary",
+    "calibration_curve_binary",
+    "kaplan_meier_grouped",
+    "heatmap_group_comparison",
     "submission_graphical_abstract",
     "table1_baseline_characteristics",
 ]
+EXPECTED_GOLDEN_TEMPLATE_IDS = EXPECTED_EXAMPLE_TEMPLATE_IDS
 
 
 def fail(message: str) -> None:
@@ -356,6 +360,7 @@ def verify_source_pack() -> dict:
 
     for required in [
         "opl_pack.json",
+        "golden_manifest.json",
         "render.R",
         "renderer_dependency_profile.json",
         "renderer_migration_ledger.json",
@@ -381,33 +386,117 @@ def verify_source_pack() -> dict:
     }
 
 
+def verify_one_template_example(template_id: str) -> dict:
+    template_dir = PACK_ROOT / "templates" / template_id
+    descriptor = read_toml(template_dir / "template.toml")
+    example_input = read_json(template_dir / "example_input.json")
+    example_receipt = read_json(template_dir / "example_render_receipt.json")
+    if example_input.get("example_only") is not True:
+        fail(f"{template_id} example_input.json must keep example_only=true")
+    if example_input.get("template_id") != template_id:
+        fail(f"{template_id} example_input.json template_id mismatch")
+    if example_receipt.get("example_only") is not True:
+        fail(f"{template_id} example_render_receipt.json must keep example_only=true")
+    for key in ["authority", "publication_ready"]:
+        if example_receipt.get(key) is not False:
+            fail(f"{template_id} example_render_receipt.json must keep {key}=false")
+    for key in ["template_id", "renderer_family", "execution_mode"]:
+        if example_receipt.get(key) != descriptor.get(key):
+            fail(f"{template_id} example_render_receipt.json {key} mismatch")
+    if example_receipt.get("pack_id") != "fenggaolab.org.medical-display-core":
+        fail(f"{template_id} example_render_receipt.json pack_id mismatch")
+    if example_receipt.get("render_mode") not in ["final", "candidate"]:
+        fail(f"{template_id} example_render_receipt.json render_mode must be final/candidate")
+    if not isinstance(example_receipt.get("outputs"), dict) or not example_receipt["outputs"]:
+        fail(f"{template_id} example_render_receipt.json must declare output refs")
+    if not str(example_receipt.get("layout_sidecar_ref") or "").startswith("repo-local:examples/not-rendered/"):
+        fail(f"{template_id} example_render_receipt.json must use not-rendered layout sidecar ref")
+    return {
+        "descriptor": descriptor,
+        "example_input_ref": template_dir / "example_input.json",
+        "example_render_receipt_ref": template_dir / "example_render_receipt.json",
+    }
+
+
 def verify_template_examples() -> dict:
     for template_id in EXPECTED_EXAMPLE_TEMPLATE_IDS:
-        template_dir = PACK_ROOT / "templates" / template_id
-        descriptor = read_toml(template_dir / "template.toml")
-        example_input = read_json(template_dir / "example_input.json")
-        example_receipt = read_json(template_dir / "example_render_receipt.json")
-        if example_input.get("example_only") is not True:
-            fail(f"{template_id} example_input.json must keep example_only=true")
-        if example_input.get("template_id") != template_id:
-            fail(f"{template_id} example_input.json template_id mismatch")
-        if example_receipt.get("example_only") is not True:
-            fail(f"{template_id} example_render_receipt.json must keep example_only=true")
-        for key in ["authority", "publication_ready"]:
-            if example_receipt.get(key) is not False:
-                fail(f"{template_id} example_render_receipt.json must keep {key}=false")
-        for key in ["template_id", "renderer_family", "execution_mode"]:
-            if example_receipt.get(key) != descriptor.get(key):
-                fail(f"{template_id} example_render_receipt.json {key} mismatch")
-        if example_receipt.get("pack_id") != "fenggaolab.org.medical-display-core":
-            fail(f"{template_id} example_render_receipt.json pack_id mismatch")
-        if example_receipt.get("render_mode") not in ["final", "candidate"]:
-            fail(f"{template_id} example_render_receipt.json render_mode must be final/candidate")
-        if not isinstance(example_receipt.get("outputs"), dict) or not example_receipt["outputs"]:
-            fail(f"{template_id} example_render_receipt.json must declare output refs")
-        if not str(example_receipt.get("layout_sidecar_ref") or "").startswith("repo-local:examples/not-rendered/"):
-            fail(f"{template_id} example_render_receipt.json must use not-rendered layout sidecar ref")
+        verify_one_template_example(template_id)
     return {"example_template_count": len(EXPECTED_EXAMPLE_TEMPLATE_IDS)}
+
+
+def verify_golden_manifest() -> dict:
+    manifest = read_json(PACK_ROOT / "golden_manifest.json")
+    if manifest.get("manifest_id") != "fenggaolab.org.medical-display-core.reference_snapshot_golden.v1":
+        fail("golden_manifest.json has wrong manifest_id")
+    if manifest.get("pack_id") != "fenggaolab.org.medical-display-core":
+        fail("golden_manifest.json pack_id mismatch")
+    if manifest.get("state") != "active_reference_snapshot_golden":
+        fail("golden_manifest.json state must be active_reference_snapshot_golden")
+    if manifest.get("comparison_mode") != "reference_snapshot_hash_only":
+        fail("golden_manifest.json comparison_mode must be reference_snapshot_hash_only")
+    require_false_flags(
+        manifest.get("authority_boundary") or {},
+        "golden_manifest authority boundary",
+        [
+            "authority",
+            "publication_ready",
+            "can_write_domain_truth",
+            "can_sign_owner_receipt",
+            "can_create_typed_blocker",
+            "can_claim_artifact_authority",
+            "can_claim_live_render_regression",
+            "can_claim_pixel_or_layout_regression",
+        ],
+    )
+
+    snapshot_ref = manifest.get("shared_gallery_snapshot_ref") or {}
+    pdf_ref = manifest.get("shared_gallery_pdf_ref") or {}
+    if snapshot_ref.get("path") != "gallery/medical-display/gallery_snapshot.json":
+        fail("golden_manifest shared_gallery_snapshot_ref path mismatch")
+    if pdf_ref.get("path") != "gallery/medical-display/medical_display_gallery.pdf":
+        fail("golden_manifest shared_gallery_pdf_ref path mismatch")
+    if snapshot_ref.get("sha256") != sha256_file(ROOT / snapshot_ref["path"]):
+        fail("golden_manifest shared_gallery_snapshot_ref sha256 mismatch")
+    if pdf_ref.get("sha256") != sha256_file(ROOT / pdf_ref["path"]):
+        fail("golden_manifest shared_gallery_pdf_ref sha256 mismatch")
+
+    snapshot = read_json(GALLERY_ROOT / "gallery_snapshot.json")
+    included_hashes = {item.get("path"): item.get("sha256") for item in snapshot.get("included_files") or []}
+    if included_hashes.get("medical_display_gallery.pdf") != pdf_ref.get("sha256"):
+        fail("golden_manifest pdf hash must match gallery_snapshot included_files")
+
+    templates = manifest.get("golden_templates")
+    if not isinstance(templates, list):
+        fail("golden_manifest golden_templates must be a list")
+    template_ids = [entry.get("template_id") for entry in templates]
+    if template_ids != EXPECTED_GOLDEN_TEMPLATE_IDS:
+        fail(f"golden_manifest template order mismatch: {template_ids}")
+
+    for entry in templates:
+        template_id = entry["template_id"]
+        require_false_flags(entry, f"golden_manifest {template_id}", ["authority", "publication_ready"])
+        if entry.get("comparison_mode") != "reference_snapshot_hash_only":
+            fail(f"golden_manifest {template_id} comparison_mode mismatch")
+        if entry.get("live_render_required_for_pixel_or_layout_regression") is not True:
+            fail(f"golden_manifest {template_id} must require live render for pixel/layout regression")
+        descriptor_path = PACK_ROOT / "templates" / template_id / "template.toml"
+        if entry.get("descriptor_ref") != str(descriptor_path.relative_to(ROOT)):
+            fail(f"golden_manifest {template_id} descriptor_ref mismatch")
+        if entry.get("example_input_ref") != f"packs/medical-display-core/templates/{template_id}/example_input.json":
+            fail(f"golden_manifest {template_id} example_input_ref mismatch")
+        if entry.get("example_render_receipt_ref") != f"packs/medical-display-core/templates/{template_id}/example_render_receipt.json":
+            fail(f"golden_manifest {template_id} example_render_receipt_ref mismatch")
+        if entry.get("gallery_snapshot_ref") != "gallery/medical-display/gallery_snapshot.json":
+            fail(f"golden_manifest {template_id} gallery_snapshot_ref mismatch")
+        if entry.get("gallery_pdf_ref") != "gallery/medical-display/medical_display_gallery.pdf":
+            fail(f"golden_manifest {template_id} gallery_pdf_ref mismatch")
+        example = verify_one_template_example(template_id)
+        descriptor = example["descriptor"]
+        for key in ["kind", "renderer_family", "execution_mode"]:
+            if entry.get(key) != descriptor.get(key):
+                fail(f"golden_manifest {template_id} {key} mismatch")
+
+    return {"golden_template_count": len(templates)}
 
 
 def sync_opl_pack() -> None:
@@ -505,12 +594,14 @@ def main() -> None:
     pack_summary = verify_source_pack()
     example_summary = verify_template_examples()
     gallery_summary = verify_gallery_review_package()
+    golden_summary = verify_golden_manifest()
     print(
         "display gallery pack verify ok: "
         f"{pack_summary['catalog_template_count']} catalog templates, "
         f"{pack_summary['opl_template_resource_count']} opl template resources, "
         f"renderer families {format_counts(pack_summary['renderer_counts'])}, "
         f"{example_summary['example_template_count']} template examples, "
+        f"{golden_summary['golden_template_count']} reference-snapshot golden templates, "
         f"{gallery_summary['visual_gallery_template_count']} gallery visuals, "
         f"{gallery_summary['included_file_count']} review files"
     )
