@@ -582,8 +582,8 @@ require_all(
 )
 if "non-discoverable TOMBSTONE.md" not in exposure_policy.get("redirect_tombstone_policy", ""):
     fail("codex skill exposure redirect tombstone policy must keep legacy names non-discoverable")
-if "must not be installed by default" not in exposure_policy.get("tombstone_policy", ""):
-    fail("codex skill exposure tombstone policy must block default install")
+if "no SKILL.md" not in exposure_policy.get("tombstone_policy", ""):
+    fail("codex skill exposure tombstone policy must remove discoverable metadata")
 if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_default_exposure_skill_ids:
     fail("plugin manifest default workspace/quest install must match exposure policy")
 if plugin_exposure.get("optionalRouterSkillIds") != expected_optional_skill_ids:
