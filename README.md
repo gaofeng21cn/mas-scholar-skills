@@ -59,7 +59,9 @@ Optional medical-method specialist skills follow the same rule:
 `medical-survival-analysis-plan`, plus `medical-risk-model-transportability-reviewer`,
 `medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`,
 `medical-display-regression-debugger`, and
-`medical-data-freeze-and-analysis-readiness-reviewer`, are real Codex
+`medical-data-freeze-and-analysis-readiness-reviewer`,
+`medical-publication-strategy-memory-curator`, and
+`medical-evidence-gap-triage-reviewer`, are real Codex
 discovery skills for named method tasks. They emit candidate refs, support maps,
 route-back candidates, and `owner_gate_handoff_ref`; they do not add active
 modules or owner authority.
@@ -179,6 +181,8 @@ skills/medical-statistical-review/SKILL.md Medical statistical review specialist
 skills/medical-table-design/SKILL.md   Medical table design specialist skill
 skills/medical-submission-prep/SKILL.md Medical submission preparation specialist skill
 skills/medical-data-governance/SKILL.md Medical data governance specialist skill
+skills/medical-publication-strategy-memory-curator/SKILL.md Optional Publication Strategy Memory specialist skill
+skills/medical-evidence-gap-triage-reviewer/SKILL.md Optional evidence-gap triage specialist skill
 skills/opl-scholarskills/SKILL.md      Legacy alias entry
 contracts/domain_descriptor.json       OMA target descriptor
 contracts/capability_map.json          OMA capability target map

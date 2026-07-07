@@ -315,6 +315,14 @@ method_expected = {
         "tokens": ["data_freeze", "analysis_readiness", "data_lock", "dataset_boundary", "lineage", "missingness"],
         "refs": ["data_freeze_inventory_ref", "data_lock_window_ref", "analysis_dataset_boundary_ref", "analysis_readiness_gap_ref"],
     },
+    "medical-publication-strategy-memory-curator": {
+        "tokens": ["publication_strategy_memory", "publication_route_memory", "memory_curation", "writeback_proposal", "accept_reject_handoff", "route_memory"],
+        "refs": ["publication_strategy_memory_inventory_ref", "memory_body_review_ref", "writeback_proposal_ref", "accept_reject_handoff_ref"],
+    },
+    "medical-evidence-gap-triage-reviewer": {
+        "tokens": ["evidence_gap", "authority_gate", "human_gate", "proceed_with_assumption", "soft_quality_gap", "evidence_tail"],
+        "refs": ["evidence_gap_inventory_ref", "evidence_gap_decision_candidate_ref", "hard_gate_candidate_ref", "nonblocking_gap_candidate_ref"],
+    },
 }
 for skill_id, expected in advanced_expected.items():
     item = advanced_capability_by_id.get(skill_id)

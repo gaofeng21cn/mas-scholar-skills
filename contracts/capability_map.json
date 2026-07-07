@@ -1159,6 +1159,30 @@
       "authority_boundary": {"can_replace_default_eight_skills": false, "can_block_default_core_progress_when_missing": false, "can_write_domain_truth": false, "can_write_runtime_state": false, "can_mutate_artifact_body": false, "can_sign_owner_receipt": false, "can_create_typed_blocker": false, "can_claim_quality_verdict": false, "can_claim_publication_readiness": false, "can_claim_current_package_authority": false, "can_claim_owner_closeout": false},
       "optional_medical_method_specialist": true,
       "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "medical-publication-strategy-memory-curator",
+      "canonical_path": "skills/medical-publication-strategy-memory-curator/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-publication-strategy-memory-curator/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
+      "tokens": ["medical-publication-strategy-memory-curator", "publication_strategy_memory", "publication_route_memory", "memory_curation", "writeback_proposal", "accept_reject_handoff", "route_memory"],
+      "verification_refs": ["scripts/verify.sh#medical-publication-strategy-memory-curator-frontmatter", "scripts/verify.sh#medical-method-specialist-no-authority-token-policy", "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"],
+      "candidate_ref_families": ["publication_strategy_memory_inventory_ref", "memory_body_review_ref", "current_study_alignment_ref", "writeback_proposal_ref", "accept_reject_handoff_ref", "owner_gate_handoff_ref"],
+      "authority_boundary": {"can_replace_default_eight_skills": false, "can_block_default_core_progress_when_missing": false, "can_write_domain_truth": false, "can_write_runtime_state": false, "can_mutate_artifact_body": false, "can_sign_owner_receipt": false, "can_create_typed_blocker": false, "can_claim_quality_verdict": false, "can_claim_publication_readiness": false, "can_claim_current_package_authority": false, "can_claim_owner_closeout": false},
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false
+    },
+    {
+      "skill_id": "medical-evidence-gap-triage-reviewer",
+      "canonical_path": "skills/medical-evidence-gap-triage-reviewer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-evidence-gap-triage-reviewer/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
+      "tokens": ["medical-evidence-gap-triage-reviewer", "evidence_gap", "authority_gate", "human_gate", "proceed_with_assumption", "soft_quality_gap", "evidence_tail"],
+      "verification_refs": ["scripts/verify.sh#medical-evidence-gap-triage-reviewer-frontmatter", "scripts/verify.sh#medical-method-specialist-no-authority-token-policy", "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"],
+      "candidate_ref_families": ["evidence_gap_inventory_ref", "evidence_gap_decision_candidate_ref", "hard_gate_candidate_ref", "nonblocking_gap_candidate_ref", "claim_boundary_ref", "owner_gate_handoff_ref"],
+      "authority_boundary": {"can_replace_default_eight_skills": false, "can_block_default_core_progress_when_missing": false, "can_write_domain_truth": false, "can_write_runtime_state": false, "can_mutate_artifact_body": false, "can_sign_owner_receipt": false, "can_create_typed_blocker": false, "can_claim_quality_verdict": false, "can_claim_publication_readiness": false, "can_claim_current_package_authority": false, "can_claim_owner_closeout": false},
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false
     }
   ],
   "advanced_specialist_pack_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"

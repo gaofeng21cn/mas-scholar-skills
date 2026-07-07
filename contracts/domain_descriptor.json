@@ -83,7 +83,9 @@
       "medical-registry-atlas-story-architect",
       "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
-      "medical-data-freeze-and-analysis-readiness-reviewer"
+      "medical-data-freeze-and-analysis-readiness-reviewer",
+      "medical-publication-strategy-memory-curator",
+      "medical-evidence-gap-triage-reviewer"
     ],
     "medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
     "medical_method_specialist_consumption_mode": "optional_refs_only_medical_method_candidate_handoff",
