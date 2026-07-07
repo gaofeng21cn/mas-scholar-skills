@@ -32,7 +32,16 @@
     ],
     "optionalInstallPolicy": "named_specialty_only",
     "tombstoneSkillIds": [
-      "opl-scholarskills",
+      "opl-scholarskills"
+    ],
+    "optionalRouterSkillIds": [
+      "medical-advanced-biomed-router",
+      "medical-methodology-planner",
+      "medical-evidence-integrity-reviewer",
+      "medical-publication-routeback-reviewer"
+    ],
+    "optionalRedirectTombstoneSkillIds": [],
+    "optionalNamedSpecialtySkillIds": [
       "medical-structural-biology",
       "medical-protein-design",
       "medical-genomics-foundation-models",
@@ -58,13 +67,11 @@
       "medical-research-portfolio-memory-curator",
       "medical-methodology-routeback-reviewer"
     ],
-    "optionalRouterSkillIds": [
+    "optionalSkillIds": [
       "medical-advanced-biomed-router",
       "medical-methodology-planner",
       "medical-evidence-integrity-reviewer",
-      "medical-publication-routeback-reviewer"
-    ],
-    "optionalRedirectTombstoneSkillIds": [
+      "medical-publication-routeback-reviewer",
       "medical-structural-biology",
       "medical-protein-design",
       "medical-genomics-foundation-models",
@@ -94,7 +101,7 @@
   "interface": {
     "displayName": "MAS Scholar Skills",
     "shortDescription": "MAS medical-paper specialist skills and refs.",
-    "longDescription": "Provides the maintained professional Codex skills for MAS medical writing, review, figure, literature, statistics, table, submission, and clinical data governance workflows, plus a small optional router/reviewer layer for advanced biomedical routing, methodology planning, evidence integrity review, and publication route-back review. Legacy narrow optional specialists are retained only as thin redirect/tombstones. All outputs stay refs-only candidate handoffs under MAS owner-gated authority boundaries.",
+    "longDescription": "Provides the maintained professional Codex skills for MAS medical writing, review, figure, literature, statistics, table, submission, and clinical data governance workflows, plus a small optional router/reviewer layer for advanced biomedical routing, methodology planning, evidence integrity review, and publication route-back review. Named optional specialists remain real SKILL.md playbooks but are installed only for named specialty tasks. All outputs stay refs-only candidate handoffs under MAS owner-gated authority boundaries.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -107,7 +114,7 @@
       "Use medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance for MAS medical-paper specialist workflows.",
       "Use medical-research-lit to plan PubMed-backed literature discovery.",
       "Keep default workspace or quest exposure to mas-scholar-skills plus the core medical-paper specialist skills; install optional specialists only for named specialty tasks.",
-      "Use optional router/reviewer skills only for named specialty tasks; legacy narrow optional specialists are redirect/tombstones and their absence does not block the default eight MAS Scholar Skills.",
+      "Use optional router/reviewer skills only for named specialty tasks; named optional specialists are real SKILL.md playbooks outside default exposure, and their absence does not block the default MAS Scholar Skills.",
       "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],
     "brandColor": "#2563EB"

@@ -758,7 +758,10 @@
         "medical-indication-dossier",
         "research-pdf-evidence-explorer",
         "scientific-compute-runner"
-      ]
+      ],
+      "default_exposure": false,
+      "optional_named_specialty_only": true,
+      "optional_router_skill": true
     },
     {
       "skill_id": "medical-methodology-planner",
@@ -820,7 +823,10 @@
         "medical-risk-model-transportability-reviewer",
         "medical-registry-atlas-story-architect",
         "medical-data-freeze-and-analysis-readiness-reviewer"
-      ]
+      ],
+      "default_exposure": false,
+      "optional_named_specialty_only": true,
+      "optional_router_skill": true
     },
     {
       "skill_id": "medical-evidence-integrity-reviewer",
@@ -876,7 +882,10 @@
         "medical-evidence-synthesis-and-claim-map",
         "medical-reference-integrity-auditor",
         "medical-evidence-gap-triage-reviewer"
-      ]
+      ],
+      "default_exposure": false,
+      "optional_named_specialty_only": true,
+      "optional_router_skill": true
     },
     {
       "skill_id": "medical-publication-routeback-reviewer",
@@ -937,275 +946,1386 @@
         "medical-publication-strategy-memory-curator",
         "medical-research-portfolio-memory-curator",
         "medical-methodology-routeback-reviewer"
-      ]
-    }
-  ],
-  "advanced_specialist_pack_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-  "optional_specialist_redirect_tombstones": [
-    {
-      "skill_id": "medical-structural-biology",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
+      ],
       "default_exposure": false,
       "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-structural-biology/TOMBSTONE.md",
+      "optional_router_skill": true
+    },
+    {
+      "skill_id": "medical-structural-biology",
+      "canonical_path": "skills/medical-structural-biology/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-structural-biology/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/medical-structural-biology/TOMBSTONE.md"
+      "tokens": [
+        "medical-structural-biology",
+        "structure",
+        "docking",
+        "alphafold2",
+        "openfold3",
+        "boltz",
+        "chai1",
+        "esmfold2",
+        "diffdock"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-structural-biology-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "structure_candidate_ref",
+        "docking_candidate_ref",
+        "model_output_manifest_ref",
+        "confidence_metrics_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-protein-design",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-protein-design/TOMBSTONE.md",
+      "canonical_path": "skills/medical-protein-design/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-protein-design/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/medical-protein-design/TOMBSTONE.md"
+      "tokens": [
+        "medical-protein-design",
+        "protein_design",
+        "sequence_design",
+        "proteinmpnn",
+        "ligandmpnn",
+        "solublempnn",
+        "fair-esm2"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-protein-design-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "sequence_candidate_refs",
+        "design_score_ref",
+        "embedding_ref",
+        "fold_back_validation_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-genomics-foundation-models",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-genomics-foundation-models/TOMBSTONE.md",
+      "canonical_path": "skills/medical-genomics-foundation-models/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-genomics-foundation-models/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/medical-genomics-foundation-models/TOMBSTONE.md"
+      "tokens": [
+        "medical-genomics-foundation-models",
+        "genomics",
+        "dna_scoring",
+        "track_prediction",
+        "borzoi",
+        "evo2"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-genomics-foundation-models-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "dna_scoring_candidate_ref",
+        "track_prediction_candidate_ref",
+        "model_checkpoint_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-single-cell-modeling",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-single-cell-modeling/TOMBSTONE.md",
+      "canonical_path": "skills/medical-single-cell-modeling/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-single-cell-modeling/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/medical-single-cell-modeling/TOMBSTONE.md"
+      "tokens": [
+        "medical-single-cell-modeling",
+        "single_cell",
+        "anndata",
+        "embedding",
+        "annotation",
+        "differential_expression",
+        "scgpt",
+        "scvi-tools"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-single-cell-modeling-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "embedding_candidate_ref",
+        "annotation_candidate_ref",
+        "differential_expression_candidate_ref",
+        "batch_diagnostic_ref",
+        "environment_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-indication-dossier",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-indication-dossier/TOMBSTONE.md",
+      "canonical_path": "skills/medical-indication-dossier/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-indication-dossier/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/medical-indication-dossier/TOMBSTONE.md"
+      "tokens": [
+        "medical-indication-dossier",
+        "indication_dossier",
+        "patient_population_waypoint",
+        "epidemiology",
+        "standard_of_care",
+        "regulatory_trials",
+        "indication-dossier"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-indication-dossier-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "population_definition_ref",
+        "epidemiology_waypoint_ref",
+        "biology_soc_waypoint_ref",
+        "regulatory_trials_waypoint_ref",
+        "patient_population_waypoint_ref",
+        "synthesis_candidate_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "research-pdf-evidence-explorer",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/research-pdf-evidence-explorer/TOMBSTONE.md",
+      "canonical_path": "skills/research-pdf-evidence-explorer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/research-pdf-evidence-explorer/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/research-pdf-evidence-explorer/TOMBSTONE.md"
+      "tokens": [
+        "research-pdf-evidence-explorer",
+        "pdf_explore",
+        "parse_once",
+        "outline",
+        "scan",
+        "grep",
+        "crop",
+        "page_evidence",
+        "pdf-explore"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#research-pdf-evidence-explorer-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "pdf_parse_manifest_ref",
+        "pdf_outline_ref",
+        "pdf_scan_ref",
+        "pdf_grep_ref",
+        "pdf_crop_ref",
+        "page_evidence_refs",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "scientific-compute-runner",
-      "redirect_to": "medical-advanced-biomed-router",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/scientific-compute-runner/TOMBSTONE.md",
+      "canonical_path": "skills/scientific-compute-runner/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/scientific-compute-runner/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-      "tombstone_path": "skills/scientific-compute-runner/TOMBSTONE.md"
+      "tokens": [
+        "scientific-compute-runner",
+        "compute_env_setup",
+        "remote_compute_ssh",
+        "remote_compute_modal",
+        "managed_model_endpoints",
+        "using_model_endpoint",
+        "OPL_Runway_Connect_owns_substrate",
+        "compute-env-setup",
+        "remote-compute-ssh",
+        "remote-compute-modal",
+        "managed-model-endpoints",
+        "using-model-endpoint"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#scientific-compute-runner-frontmatter",
+        "scripts/verify.sh#advanced-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "compute_requirement_ref",
+        "provider_selection_ref",
+        "environment_probe_ref",
+        "job_plan_ref",
+        "endpoint_request_ref",
+        "deterministic_receipt_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_external_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-protocol-and-sap-planner",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-protocol-and-sap-planner/TOMBSTONE.md",
+      "canonical_path": "skills/medical-protocol-and-sap-planner/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-protocol-and-sap-planner/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-protocol-and-sap-planner/TOMBSTONE.md"
+      "tokens": [
+        "medical-protocol-and-sap-planner",
+        "protocol",
+        "SAP",
+        "statistical_analysis_plan",
+        "estimand",
+        "analysis_sets"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-protocol-and-sap-planner-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "protocol_question_ref",
+        "protocol_scope_ref",
+        "eligibility_and_flow_ref",
+        "endpoint_definition_ref",
+        "estimand_and_analysis_set_ref",
+        "sap_candidate_ref",
+        "support_map_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-cohort-phenotyping",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-cohort-phenotyping/TOMBSTONE.md",
+      "canonical_path": "skills/medical-cohort-phenotyping/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-cohort-phenotyping/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-cohort-phenotyping/TOMBSTONE.md"
+      "tokens": [
+        "medical-cohort-phenotyping",
+        "cohort",
+        "phenotype",
+        "EHR",
+        "registry",
+        "code_list",
+        "ascertainment"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-cohort-phenotyping-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "phenotype_question_ref",
+        "cohort_definition_ref",
+        "index_and_window_ref",
+        "phenotype_logic_ref",
+        "code_list_or_variable_ref",
+        "validation_check_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-evidence-synthesis-and-claim-map",
-      "redirect_to": "medical-evidence-integrity-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-evidence-synthesis-and-claim-map/TOMBSTONE.md",
+      "canonical_path": "skills/medical-evidence-synthesis-and-claim-map/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-evidence-synthesis-and-claim-map/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-evidence-synthesis-and-claim-map/TOMBSTONE.md"
+      "tokens": [
+        "medical-evidence-synthesis-and-claim-map",
+        "claim_map",
+        "evidence_synthesis",
+        "support_strength",
+        "source_support",
+        "overclaim"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-evidence-synthesis-and-claim-map-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "claim_inventory_ref",
+        "claim_type_map_ref",
+        "source_support_ref",
+        "support_strength_map_ref",
+        "contradiction_and_gap_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-reference-integrity-auditor",
-      "redirect_to": "medical-evidence-integrity-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-reference-integrity-auditor/TOMBSTONE.md",
+      "canonical_path": "skills/medical-reference-integrity-auditor/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-reference-integrity-auditor/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-reference-integrity-auditor/TOMBSTONE.md"
+      "tokens": [
+        "medical-reference-integrity-auditor",
+        "reference_integrity",
+        "PMID",
+        "DOI",
+        "citation_support",
+        "retraction",
+        "placeholder_reference"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-reference-integrity-auditor-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "reference_inventory_ref",
+        "identifier_integrity_ref",
+        "source_status_ref",
+        "claim_citation_support_map_ref",
+        "support_gap_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-rebuttal-strategy",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-rebuttal-strategy/TOMBSTONE.md",
+      "canonical_path": "skills/medical-rebuttal-strategy/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-rebuttal-strategy/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-rebuttal-strategy/TOMBSTONE.md"
+      "tokens": [
+        "medical-rebuttal-strategy",
+        "rebuttal",
+        "reviewer_response",
+        "revision_strategy",
+        "manuscript_delta",
+        "editorial_comment"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-rebuttal-strategy-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "review_comment_inventory_ref",
+        "response_route_ref",
+        "evidence_response_map_ref",
+        "manuscript_delta_plan_ref",
+        "rebuttal_strategy_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-display-qc",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-display-qc/TOMBSTONE.md",
+      "canonical_path": "skills/medical-display-qc/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-display-qc/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-display-qc/TOMBSTONE.md"
+      "tokens": [
+        "medical-display-qc",
+        "display_qc",
+        "figure_qc",
+        "nonblank_export",
+        "panel_caption",
+        "visual_QA",
+        "PDF_figure"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-display-qc-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "display_artifact_inventory_ref",
+        "export_integrity_ref",
+        "panel_caption_consistency_ref",
+        "claim_display_alignment_ref",
+        "accessibility_and_size_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-causal-inference-plan",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-causal-inference-plan/TOMBSTONE.md",
+      "canonical_path": "skills/medical-causal-inference-plan/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-causal-inference-plan/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-causal-inference-plan/TOMBSTONE.md"
+      "tokens": [
+        "medical-causal-inference-plan",
+        "causal_inference",
+        "target_trial",
+        "DAG",
+        "confounding",
+        "positivity",
+        "bias"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-causal-inference-plan-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "causal_question_ref",
+        "target_trial_candidate_ref",
+        "estimand_ref",
+        "dag_or_confounder_map_ref",
+        "bias_and_identifiability_ref",
+        "sensitivity_plan_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-survival-analysis-plan",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-survival-analysis-plan/TOMBSTONE.md",
+      "canonical_path": "skills/medical-survival-analysis-plan/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-survival-analysis-plan/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-survival-analysis-plan/TOMBSTONE.md"
+      "tokens": [
+        "medical-survival-analysis-plan",
+        "survival_analysis",
+        "time_to_event",
+        "censoring",
+        "competing_risk",
+        "risk_set",
+        "Cox"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-survival-analysis-plan-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "survival_question_ref",
+        "time_origin_and_risk_set_ref",
+        "endpoint_and_censoring_ref",
+        "competing_risk_ref",
+        "model_plan_ref",
+        "diagnostic_plan_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-risk-model-transportability-reviewer",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-risk-model-transportability-reviewer/TOMBSTONE.md",
+      "canonical_path": "skills/medical-risk-model-transportability-reviewer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-risk-model-transportability-reviewer/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-risk-model-transportability-reviewer/TOMBSTONE.md"
+      "tokens": [
+        "medical-risk-model-transportability-reviewer",
+        "risk_model",
+        "transportability",
+        "external_validation",
+        "calibration",
+        "DCA",
+        "TRIPOD"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-risk-model-transportability-reviewer-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "source_model_ref",
+        "target_population_ref",
+        "predictor_mapping_ref",
+        "transportability_assessment_ref",
+        "calibration_and_performance_ref",
+        "clinical_utility_boundary_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-registry-atlas-story-architect",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-registry-atlas-story-architect/TOMBSTONE.md",
+      "canonical_path": "skills/medical-registry-atlas-story-architect/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-registry-atlas-story-architect/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-registry-atlas-story-architect/TOMBSTONE.md"
+      "tokens": [
+        "medical-registry-atlas-story-architect",
+        "registry_atlas",
+        "descriptive_registry",
+        "phenotype_atlas",
+        "data_lock",
+        "treatment_gap",
+        "story_contract"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-registry-atlas-story-architect-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "registry_story_contract_ref",
+        "cohort_and_data_lock_ref",
+        "phenotype_axis_ref",
+        "figure_table_story_map_ref",
+        "claim_boundary_ref",
+        "discussion_theme_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-owner-gate-handoff-reviewer",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-owner-gate-handoff-reviewer/TOMBSTONE.md",
+      "canonical_path": "skills/medical-owner-gate-handoff-reviewer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-owner-gate-handoff-reviewer/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-owner-gate-handoff-reviewer/TOMBSTONE.md"
+      "tokens": [
+        "medical-owner-gate-handoff-reviewer",
+        "owner_gate",
+        "handoff_review",
+        "authority_boundary",
+        "route_back",
+        "residual_risk",
+        "owner_receipt"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-owner-gate-handoff-reviewer-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "handoff_inventory_ref",
+        "authority_boundary_ref",
+        "evidence_to_owner_map_ref",
+        "candidate_package_consistency_ref",
+        "residual_risk_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-display-regression-debugger",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-display-regression-debugger/TOMBSTONE.md",
+      "canonical_path": "skills/medical-display-regression-debugger/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-display-regression-debugger/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-display-regression-debugger/TOMBSTONE.md"
+      "tokens": [
+        "medical-display-regression-debugger",
+        "display_regression",
+        "renderer",
+        "artifact_diff",
+        "source_renderer",
+        "nonblank_export",
+        "visual_QA"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-display-regression-debugger-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "display_regression_symptom_ref",
+        "artifact_diff_ref",
+        "renderer_path_ref",
+        "source_renderer_boundary_ref",
+        "reproduction_probe_ref",
+        "repair_route_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-data-freeze-and-analysis-readiness-reviewer",
-      "redirect_to": "medical-methodology-planner",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-data-freeze-and-analysis-readiness-reviewer/TOMBSTONE.md",
+      "canonical_path": "skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-data-freeze-and-analysis-readiness-reviewer/TOMBSTONE.md"
+      "tokens": [
+        "medical-data-freeze-and-analysis-readiness-reviewer",
+        "data_freeze",
+        "analysis_readiness",
+        "data_lock",
+        "dataset_boundary",
+        "lineage",
+        "missingness"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-data-freeze-and-analysis-readiness-reviewer-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "data_freeze_inventory_ref",
+        "data_lock_window_ref",
+        "analysis_dataset_boundary_ref",
+        "dictionary_and_lineage_ref",
+        "missingness_and_exclusion_ref",
+        "analysis_readiness_gap_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-publication-strategy-memory-curator",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-publication-strategy-memory-curator/TOMBSTONE.md",
+      "canonical_path": "skills/medical-publication-strategy-memory-curator/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-publication-strategy-memory-curator/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-publication-strategy-memory-curator/TOMBSTONE.md"
+      "tokens": [
+        "medical-publication-strategy-memory-curator",
+        "publication_strategy_memory",
+        "publication_route_memory",
+        "memory_curation",
+        "writeback_proposal",
+        "accept_reject_handoff",
+        "route_memory"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-publication-strategy-memory-curator-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "publication_strategy_memory_inventory_ref",
+        "memory_body_review_ref",
+        "current_study_alignment_ref",
+        "writeback_proposal_ref",
+        "accept_reject_handoff_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-evidence-gap-triage-reviewer",
-      "redirect_to": "medical-evidence-integrity-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-evidence-gap-triage-reviewer/TOMBSTONE.md",
+      "canonical_path": "skills/medical-evidence-gap-triage-reviewer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-evidence-gap-triage-reviewer/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-evidence-gap-triage-reviewer/TOMBSTONE.md"
+      "tokens": [
+        "medical-evidence-gap-triage-reviewer",
+        "evidence_gap",
+        "authority_gate",
+        "human_gate",
+        "proceed_with_assumption",
+        "soft_quality_gap",
+        "evidence_tail"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-evidence-gap-triage-reviewer-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "evidence_gap_inventory_ref",
+        "evidence_gap_decision_candidate_ref",
+        "hard_gate_candidate_ref",
+        "nonblocking_gap_candidate_ref",
+        "claim_boundary_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-research-portfolio-memory-curator",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-research-portfolio-memory-curator/TOMBSTONE.md",
+      "canonical_path": "skills/medical-research-portfolio-memory-curator/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-research-portfolio-memory-curator/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-research-portfolio-memory-curator/TOMBSTONE.md"
+      "tokens": [
+        "medical-research-portfolio-memory-curator",
+        "topic_landscape",
+        "dataset_question_map",
+        "venue_intelligence",
+        "study_recall_index",
+        "external_reports",
+        "writeback_proposal"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-research-portfolio-memory-curator-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "topic_landscape_ref",
+        "dataset_question_map_ref",
+        "venue_intelligence_ref",
+        "study_recall_index_ref",
+        "external_reports_ref",
+        "reuse_stale_writeback_proposal_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     },
     {
       "skill_id": "medical-methodology-routeback-reviewer",
-      "redirect_to": "medical-publication-routeback-reviewer",
-      "redirect_kind": "thin_redirect_tombstone",
-      "default_exposure": false,
-      "optional_named_specialty_only": true,
-      "blocks_core_progress_when_missing": false,
-      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-methodology-routeback-reviewer/TOMBSTONE.md",
+      "canonical_path": "skills/medical-methodology-routeback-reviewer/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-methodology-routeback-reviewer/SKILL.md",
       "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-      "tombstone_path": "skills/medical-methodology-routeback-reviewer/TOMBSTONE.md"
+      "tokens": [
+        "medical-methodology-routeback-reviewer",
+        "terminal_methodology_blocker",
+        "provenance_limited_harmonization",
+        "clean_rebuild",
+        "stop_loss",
+        "human_gate",
+        "methodology_reframe_route_decision"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-methodology-routeback-reviewer-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "methodology_blocker_inventory_ref",
+        "provenance_limited_harmonization_review_ref",
+        "clean_rebuild_route_review_ref",
+        "stop_loss_review_ref",
+        "human_gate_handoff_ref",
+        "owner_route_recommendation_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
     }
   ],
-  "optional_specialist_router_policy_ref": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy/optional_router_skill_ids"
+  "advanced_specialist_pack_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+  "optional_specialist_redirect_tombstones": [],
+  "optional_specialist_router_policy_ref": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy/optional_router_skill_ids",
+  "optional_specialist_router_skill_ids": [
+    "medical-advanced-biomed-router",
+    "medical-methodology-planner",
+    "medical-evidence-integrity-reviewer",
+    "medical-publication-routeback-reviewer"
+  ],
+  "optional_named_specialty_skill_ids": [
+    "medical-structural-biology",
+    "medical-protein-design",
+    "medical-genomics-foundation-models",
+    "medical-single-cell-modeling",
+    "medical-indication-dossier",
+    "research-pdf-evidence-explorer",
+    "scientific-compute-runner",
+    "medical-protocol-and-sap-planner",
+    "medical-cohort-phenotyping",
+    "medical-evidence-synthesis-and-claim-map",
+    "medical-reference-integrity-auditor",
+    "medical-rebuttal-strategy",
+    "medical-display-qc",
+    "medical-causal-inference-plan",
+    "medical-survival-analysis-plan",
+    "medical-risk-model-transportability-reviewer",
+    "medical-registry-atlas-story-architect",
+    "medical-owner-gate-handoff-reviewer",
+    "medical-display-regression-debugger",
+    "medical-data-freeze-and-analysis-readiness-reviewer",
+    "medical-publication-strategy-memory-curator",
+    "medical-evidence-gap-triage-reviewer",
+    "medical-research-portfolio-memory-curator",
+    "medical-methodology-routeback-reviewer"
+  ],
+  "optional_specialist_no_regression_map": [
+    {
+      "skill_id": "medical-structural-biology",
+      "canonical_path": "skills/medical-structural-biology/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-protein-design",
+      "canonical_path": "skills/medical-protein-design/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-genomics-foundation-models",
+      "canonical_path": "skills/medical-genomics-foundation-models/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-single-cell-modeling",
+      "canonical_path": "skills/medical-single-cell-modeling/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-indication-dossier",
+      "canonical_path": "skills/medical-indication-dossier/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "research-pdf-evidence-explorer",
+      "canonical_path": "skills/research-pdf-evidence-explorer/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "scientific-compute-runner",
+      "canonical_path": "skills/scientific-compute-runner/SKILL.md",
+      "router_or_reviewer_entry": "medical-advanced-biomed-router",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-protocol-and-sap-planner",
+      "canonical_path": "skills/medical-protocol-and-sap-planner/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-cohort-phenotyping",
+      "canonical_path": "skills/medical-cohort-phenotyping/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-evidence-synthesis-and-claim-map",
+      "canonical_path": "skills/medical-evidence-synthesis-and-claim-map/SKILL.md",
+      "router_or_reviewer_entry": "medical-evidence-integrity-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-reference-integrity-auditor",
+      "canonical_path": "skills/medical-reference-integrity-auditor/SKILL.md",
+      "router_or_reviewer_entry": "medical-evidence-integrity-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-rebuttal-strategy",
+      "canonical_path": "skills/medical-rebuttal-strategy/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-display-qc",
+      "canonical_path": "skills/medical-display-qc/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-causal-inference-plan",
+      "canonical_path": "skills/medical-causal-inference-plan/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-survival-analysis-plan",
+      "canonical_path": "skills/medical-survival-analysis-plan/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-risk-model-transportability-reviewer",
+      "canonical_path": "skills/medical-risk-model-transportability-reviewer/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-registry-atlas-story-architect",
+      "canonical_path": "skills/medical-registry-atlas-story-architect/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-owner-gate-handoff-reviewer",
+      "canonical_path": "skills/medical-owner-gate-handoff-reviewer/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-display-regression-debugger",
+      "canonical_path": "skills/medical-display-regression-debugger/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-data-freeze-and-analysis-readiness-reviewer",
+      "canonical_path": "skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-publication-strategy-memory-curator",
+      "canonical_path": "skills/medical-publication-strategy-memory-curator/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-evidence-gap-triage-reviewer",
+      "canonical_path": "skills/medical-evidence-gap-triage-reviewer/SKILL.md",
+      "router_or_reviewer_entry": "medical-evidence-integrity-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-research-portfolio-memory-curator",
+      "canonical_path": "skills/medical-research-portfolio-memory-curator/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-methodology-routeback-reviewer",
+      "canonical_path": "skills/medical-methodology-routeback-reviewer/SKILL.md",
+      "router_or_reviewer_entry": "medical-publication-routeback-reviewer",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    }
+  ]
 }

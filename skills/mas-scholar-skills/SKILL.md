@@ -28,15 +28,16 @@ not MAS authority owners and they are not additional active core modules. Use
 them only when a named specialty is needed. Missing optional routers do not
 block default MAS medical-paper progress.
 
-Legacy narrow optional skills such as `medical-protocol-and-sap-planner`,
+The 24 named-specialty skills remain real optional Codex skills, not
+tombstones. Examples include `medical-protocol-and-sap-planner`,
 `medical-reference-integrity-auditor`, `medical-display-qc`,
-`medical-structural-biology`, or `scientific-compute-runner` are retained only
-as thin redirect/tombstone entries for explicit old-name searches. They should
-not be installed by default and should route new work to the four router skills.
-Their outputs stay refs-only candidate refs, route-back hints, and
-`owner_gate_handoff_ref`. OPL Runway, Connect, Fabric, managed endpoints, or
-the consuming workspace compute owner owns substrate, credentials, execution,
-harvest, and provider errors.
+`medical-structural-biology`, and `scientific-compute-runner`. They are
+`optional_named_specialty_only`: do not install them by default, but preserve
+their `SKILL.md` playbooks so the router can select and sync a concrete
+specialty without capability loss. Their outputs stay refs-only candidate refs,
+route-back hints, and `owner_gate_handoff_ref`. OPL Runway, Connect, Fabric,
+managed endpoints, or the consuming workspace compute owner owns substrate,
+credentials, execution, harvest, and provider errors.
 
 ## MAS Overlay Call Path
 
@@ -148,7 +149,7 @@ Keep the physical shape explicit:
 
 - Eight active professional skill modules: `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, and `data`.
 - Ten default real syncable specialist skills: `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`. `medical-figure-style` and `medical-figure-composer` are display subskills, not new active modules.
-- Optional named-specialty work starts from four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`. Legacy narrow optional skills are thin redirect/tombstones only.
+- Optional named-specialty work starts from four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`. The 24 narrower optional skills remain real `SKILL.md` playbooks and are synced only by named-specialty scope.
 - No contract-layer module is active in this repository.
 
 Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics belongs here only when MAS has a stable real omics specialist workflow that should be maintained as a professional Codex skill.

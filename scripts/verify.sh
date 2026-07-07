@@ -74,12 +74,23 @@ contract_text = json.dumps(contract, ensure_ascii=False)
 expected_capability_skills = classification_policy.get("real_syncable_specialist_skills") or []
 advanced_specialist_skill_ids = classification_policy.get("optional_external_specialist_skills") or []
 medical_method_specialist_skill_ids = classification_policy.get("optional_medical_method_specialist_skills") or []
+advanced_router_skill_ids = classification_policy.get("optional_external_router_skill_ids") or []
+medical_method_router_skill_ids = classification_policy.get("optional_medical_method_router_skill_ids") or []
+optional_router_skill_ids = [*advanced_router_skill_ids, *medical_method_router_skill_ids]
+optional_named_specialty_skill_ids = classification_policy.get("optional_external_named_specialist_skills") or []
+optional_named_specialty_skill_ids = [
+    *optional_named_specialty_skill_ids,
+    *(classification_policy.get("optional_medical_method_named_specialist_skills") or []),
+]
 advanced_redirect_tombstone_skill_ids = classification_policy.get("optional_external_redirect_tombstone_skills") or []
 medical_method_redirect_tombstone_skill_ids = classification_policy.get("optional_medical_method_redirect_tombstone_skills") or []
-redirect_tombstone_skill_ids = [*advanced_redirect_tombstone_skill_ids, *medical_method_redirect_tombstone_skill_ids]
+redirect_tombstone_skill_ids = [
+    *advanced_redirect_tombstone_skill_ids,
+    *medical_method_redirect_tombstone_skill_ids,
+]
 aggregate_skill_ids = ["mas-scholar-skills"]
 expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
-expected_optional_skill_ids = [*advanced_specialist_skill_ids, *medical_method_specialist_skill_ids]
+expected_optional_skill_ids = [*optional_router_skill_ids, *optional_named_specialty_skill_ids]
 expected_discoverable_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
 
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
@@ -340,6 +351,35 @@ for skill_id, expected in method_expected.items():
     ]:
         if (item.get("authority_boundary") or {}).get(key) is not False:
             fail(f"optional medical-method specialist authority flag {key} must be false for {skill_id}")
+for skill_id in expected_optional_skill_ids:
+    item = advanced_capability_by_id.get(skill_id)
+    if item is None:
+        fail(f"capability map optional specialist missing {skill_id}")
+    if item.get("canonical_path") != f"skills/{skill_id}/SKILL.md":
+        fail(f"optional specialist canonical path for {skill_id} must point to its SKILL.md")
+    if item.get("external_repo_ref") != f"external_repo:mas-scholar-skills/skills/{skill_id}/SKILL.md":
+        fail(f"optional specialist external repo ref for {skill_id} must point to its SKILL.md")
+    if item.get("default_exposure") is not False:
+        fail(f"optional specialist {skill_id} must not be default exposure")
+    if item.get("optional_named_specialty_only") is not True:
+        fail(f"optional specialist {skill_id} must be named-specialty only")
+    if item.get("blocks_core_progress_when_missing") is not False:
+        fail(f"optional specialist {skill_id} must not block core progress when missing")
+    for key in [
+        "can_replace_default_eight_skills",
+        "can_block_default_core_progress_when_missing",
+        "can_write_domain_truth",
+        "can_write_runtime_state",
+        "can_mutate_artifact_body",
+        "can_sign_owner_receipt",
+        "can_create_typed_blocker",
+        "can_claim_quality_verdict",
+        "can_claim_publication_readiness",
+        "can_claim_current_package_authority",
+        "can_claim_owner_closeout",
+    ]:
+        if (item.get("authority_boundary") or {}).get(key) is not False:
+            fail(f"optional specialist authority flag {key} must be false for {skill_id}")
 for skill_id in expected_capability_skills:
     item = capability_by_id.get(skill_id)
     if item is None:
@@ -557,12 +597,14 @@ if exposure_policy.get("default_exposure_skill_ids") != expected_default_exposur
     fail("codex skill exposure default skill ids must be aggregate + core skills")
 if exposure_policy.get("optional_skill_ids") != expected_optional_skill_ids:
     fail("codex skill exposure optional skill ids must match optional specialist policies")
-if exposure_policy.get("optional_router_skill_ids") != expected_optional_skill_ids:
-    fail("codex skill exposure optional router skill ids must match optional install ids")
+if exposure_policy.get("optional_router_skill_ids") != optional_router_skill_ids:
+    fail("codex skill exposure optional router skill ids must match router policy")
+if exposure_policy.get("optional_named_specialty_skill_ids") != optional_named_specialty_skill_ids:
+    fail("codex skill exposure optional named specialty skill ids must match named specialist policy")
 if sorted(exposure_policy.get("optional_redirect_tombstone_skill_ids") or []) != sorted(redirect_tombstone_skill_ids):
     fail("codex skill exposure redirect tombstone ids must match classification policy")
-if sorted(exposure_policy.get("tombstone_skill_ids") or []) != sorted(["opl-scholarskills", *redirect_tombstone_skill_ids]):
-    fail("codex skill exposure policy must tombstone opl-scholarskills and legacy optional specialists")
+if sorted(exposure_policy.get("tombstone_skill_ids") or []) != ["opl-scholarskills"]:
+    fail("codex skill exposure policy must tombstone only opl-scholarskills")
 allowed_scopes = exposure_policy.get("allowed_scopes") or {}
 for category in ["aggregate", "core"]:
     require_all(
@@ -576,18 +618,22 @@ require_all(
     ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
 )
 require_all(
-    "codex skill exposure redirect tombstone scopes",
-    allowed_scopes.get("redirect_tombstone"),
-    ["legacy_named_specialty_redirect_only"],
+    "codex skill exposure optional named specialty scopes",
+    allowed_scopes.get("optional_named_specialty"),
+    ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
 )
-if "non-discoverable TOMBSTONE.md" not in exposure_policy.get("redirect_tombstone_policy", ""):
-    fail("codex skill exposure redirect tombstone policy must keep legacy names non-discoverable")
-if "no SKILL.md" not in exposure_policy.get("tombstone_policy", ""):
-    fail("codex skill exposure tombstone policy must remove discoverable metadata")
+if "No optional specialist skill is a redirect tombstone" not in exposure_policy.get("redirect_tombstone_policy", ""):
+    fail("codex skill exposure redirect policy must preserve optional specialists as real skills")
+if "Only opl-scholarskills" not in exposure_policy.get("tombstone_policy", ""):
+    fail("codex skill exposure tombstone policy must tombstone only opl-scholarskills")
 if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_default_exposure_skill_ids:
     fail("plugin manifest default workspace/quest install must match exposure policy")
-if plugin_exposure.get("optionalRouterSkillIds") != expected_optional_skill_ids:
+if plugin_exposure.get("optionalRouterSkillIds") != optional_router_skill_ids:
     fail("plugin manifest optional router skill ids must match exposure policy")
+if plugin_exposure.get("optionalNamedSpecialtySkillIds") != optional_named_specialty_skill_ids:
+    fail("plugin manifest optional named specialty skill ids must match exposure policy")
+if plugin_exposure.get("optionalSkillIds") != expected_optional_skill_ids:
+    fail("plugin manifest optional skill ids must match exposure policy")
 if sorted(plugin_exposure.get("optionalRedirectTombstoneSkillIds") or []) != sorted(redirect_tombstone_skill_ids):
     fail("plugin manifest optional redirect tombstone skill ids must match exposure policy")
 if plugin_exposure.get("tombstoneSkillIds") != exposure_policy.get("tombstone_skill_ids"):
@@ -694,14 +740,18 @@ if advanced_policy.get("policy_id") != "mas_scholar_skills_advanced_specialist_p
     fail("contract missing advanced specialist pack policy")
 if advanced_policy.get("source_head_commit") != "54a2f333973147a1fd703caea6f12252e1f227d6":
     fail("advanced specialist pack must pin AcademicForge source head")
-if advanced_policy.get("classification") != "optional_external_router_skill_refs_only_no_authority":
-    fail("advanced specialist pack must be optional router refs-only no-authority")
+if advanced_policy.get("classification") != "optional_external_router_and_named_specialist_skills_refs_only_no_authority":
+    fail("advanced specialist pack must be optional router + named specialist refs-only no-authority")
 if "replace the eight default medical-paper skills" not in advanced_policy.get("relationship_to_active_modules", ""):
     fail("advanced specialist pack must not replace the default eight skills")
 if "OPL_Runway_Connect_Fabric" not in advanced_policy.get("runtime_substrate_owner_policy", ""):
     fail("advanced compute boundary must keep OPL substrate ownership")
 if sorted(item.get("skill_id") for item in advanced_policy.get("redirect_tombstone_skills", [])) != sorted(advanced_redirect_tombstone_skill_ids):
     fail("advanced specialist redirect tombstones must match classification policy")
+if advanced_policy.get("optional_router_skill_ids") != advanced_router_skill_ids:
+    fail("advanced specialist router ids must match classification policy")
+if advanced_policy.get("optional_named_specialist_skill_ids") != classification_policy.get("optional_external_named_specialist_skills"):
+    fail("advanced named specialist ids must match classification policy")
 advanced_policy_by_id = {
     item.get("skill_id"): item
     for item in advanced_policy.get("optional_specialist_skills", [])
@@ -752,8 +802,8 @@ for key in [
 method_policy = contract.get("medical_method_specialist_pack_policy") or {}
 if method_policy.get("policy_id") != "mas_scholar_skills_medical_method_specialist_pack.v1":
     fail("contract missing medical-method specialist pack policy")
-if method_policy.get("classification") != "optional_medical_method_router_skills_refs_only_no_authority":
-    fail("medical-method specialist pack must be optional router refs-only no-authority")
+if method_policy.get("classification") != "optional_medical_method_router_and_named_specialist_skills_refs_only_no_authority":
+    fail("medical-method specialist pack must be optional router + named specialist refs-only no-authority")
 if "do not add active professional modules" not in method_policy.get("relationship_to_active_modules", ""):
     fail("medical-method specialist pack must not add active modules")
 method_policy_by_id = {
@@ -762,6 +812,10 @@ method_policy_by_id = {
 }
 if sorted(item.get("skill_id") for item in method_policy.get("redirect_tombstone_skills", [])) != sorted(medical_method_redirect_tombstone_skill_ids):
     fail("medical-method redirect tombstones must match classification policy")
+if method_policy.get("optional_router_skill_ids") != medical_method_router_skill_ids:
+    fail("medical-method router ids must match classification policy")
+if method_policy.get("optional_named_specialist_skill_ids") != classification_policy.get("optional_medical_method_named_specialist_skills"):
+    fail("medical-method named specialist ids must match classification policy")
 for skill_id, expected in method_expected.items():
     item = method_policy_by_id.get(skill_id)
     if item is None:
@@ -893,7 +947,7 @@ for skill_id, text in advanced_specialist_skills.items():
     ]:
         if token not in text:
             fail(f"skills/{skill_id}/SKILL.md missing advanced specialist no-authority token: {token}")
-    for token in advanced_expected[skill_id]["sources"]:
+    for token in (advanced_expected.get(skill_id, {}).get("sources") or []):
         if token not in text:
             fail(f"skills/{skill_id}/SKILL.md missing AcademicForge source token: {token}")
 for skill_id, text in medical_method_specialist_skills.items():

@@ -22,7 +22,7 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills 学术能力流转示意图" width="100%" />
 </p>
 
-`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为 history / tombstone / provenance，不再作为 active Codex skill。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及 methodology planning、evidence integrity、publication route-back 和 advanced biomedical routing 这 4 个可选 router/reviewer skill 的单源。
+`MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为 history / tombstone / provenance，不再作为 active Codex skill。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及 4 个可选 router/reviewer skill 和 24 个可选 named-specialty skill 的单源。
 
 MAS 的 stage 主提示词留在 MAS domain-agent 仓：canonical stage source 是 MAS `agent/stages/` 和 `agent/prompts/`。MAS overlay Skill、工作区或 quest 内 `.codex/skills/` 同步副本是 Codex discovery projection / 兼容面，不是 stage authority 的源头；这个同步动作本身必须保留，因为 Codex 依靠 `.codex/skills/` 稳定发现本地技能。`write`、`review`、`figure`、`scout` 等阶段负责什么时候进入、证据够不够、交给谁、怎样 route-back、什么算 owner gate。本仓 `medical-*` 技能负责把已经分配下来的写作、审稿、图件、图件风格、图件构图、文献、统计、表格、投稿和临床数据治理任务做得更专业。
 
@@ -51,10 +51,11 @@ MAS journal-family pack refs 也通过同一引用回折到现有 `medical-*` sk
 不替代默认医学论文技能，不成为 MAS authority owner，缺失时也不阻断 MAS
 ordinary progress。
 
-旧的窄 optional specialist 名称，例如 `medical-structural-biology`、
+24 个更窄的 optional specialist，例如 `medical-structural-biology`、
 `medical-protocol-and-sap-planner`、`medical-reference-integrity-auditor`、
-`medical-display-qc` 和 `scientific-compute-runner`，只保留为显式旧名搜索的
-thin redirect/tombstone，不应默认安装。
+`medical-display-qc` 和 `scientific-compute-runner`，仍保留为真实
+named-specialty `SKILL.md` playbook。它们不应默认安装；只有明确专科任务
+或 router 选中时，才由 OPL Connect 按需同步一个具体 skill。
 
 <table>
   <tr>

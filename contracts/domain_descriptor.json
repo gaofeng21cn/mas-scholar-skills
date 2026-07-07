@@ -59,20 +59,7 @@
     ],
     "consumption_mode": "refs_only_professional_skill_candidate_handoff",
     "advanced_specialist_skills": [
-      "medical-advanced-biomed-router"
-    ],
-    "advanced_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
-    "advanced_specialist_consumption_mode": "optional_refs_only_external_specialist_candidate_handoff",
-    "advanced_specialists_block_core_progress_when_missing": false,
-    "medical_method_specialist_skills": [
-      "medical-methodology-planner",
-      "medical-evidence-integrity-reviewer",
-      "medical-publication-routeback-reviewer"
-    ],
-    "medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
-    "medical_method_specialist_consumption_mode": "optional_refs_only_medical_method_candidate_handoff",
-    "medical_method_specialists_block_core_progress_when_missing": false,
-    "advanced_specialist_redirect_tombstones": [
+      "medical-advanced-biomed-router",
       "medical-structural-biology",
       "medical-protein-design",
       "medical-genomics-foundation-models",
@@ -81,7 +68,13 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner"
     ],
-    "medical_method_specialist_redirect_tombstones": [
+    "advanced_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/advanced_specialist_pack_policy",
+    "advanced_specialist_consumption_mode": "optional_refs_only_external_specialist_candidate_handoff",
+    "advanced_specialists_block_core_progress_when_missing": false,
+    "medical_method_specialist_skills": [
+      "medical-methodology-planner",
+      "medical-evidence-integrity-reviewer",
+      "medical-publication-routeback-reviewer",
       "medical-protocol-and-sap-planner",
       "medical-cohort-phenotyping",
       "medical-evidence-synthesis-and-claim-map",
@@ -100,7 +93,80 @@
       "medical-research-portfolio-memory-curator",
       "medical-methodology-routeback-reviewer"
     ],
-    "optional_router_policy": "default exposure remains false; optional named specialty installs use module-level router/reviewer skills, while legacy specialist names are redirect/tombstones only"
+    "medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
+    "medical_method_specialist_consumption_mode": "optional_refs_only_medical_method_candidate_handoff",
+    "medical_method_specialists_block_core_progress_when_missing": false,
+    "advanced_specialist_redirect_tombstones": [],
+    "medical_method_specialist_redirect_tombstones": [],
+    "optional_router_policy": "default exposure remains false; optional named specialty installs preserve named specialist SKILL.md playbooks and may use router/reviewer skills to select one.",
+    "advanced_specialist_router_skills": [
+      "medical-advanced-biomed-router"
+    ],
+    "advanced_named_specialist_skills": [
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner"
+    ],
+    "medical_method_specialist_router_skills": [
+      "medical-methodology-planner",
+      "medical-evidence-integrity-reviewer",
+      "medical-publication-routeback-reviewer"
+    ],
+    "medical_method_named_specialist_skills": [
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer",
+      "medical-publication-strategy-memory-curator",
+      "medical-evidence-gap-triage-reviewer",
+      "medical-research-portfolio-memory-curator",
+      "medical-methodology-routeback-reviewer"
+    ],
+    "optional_named_specialty_skill_ids": [
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner",
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer",
+      "medical-publication-strategy-memory-curator",
+      "medical-evidence-gap-triage-reviewer",
+      "medical-research-portfolio-memory-curator",
+      "medical-methodology-routeback-reviewer"
+    ],
+    "optional_router_skill_ids": [
+      "medical-advanced-biomed-router",
+      "medical-methodology-planner",
+      "medical-evidence-integrity-reviewer",
+      "medical-publication-routeback-reviewer"
+    ]
   },
   "authority_boundary": {
     "can_write_domain_truth": false,
