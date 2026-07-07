@@ -42,6 +42,19 @@ Do not make a weak or under-specified analysis look acceptable by adding a more
 complex model. If the design cannot support the claim, produce a claim
 downgrade or route-back candidate.
 
+## AI-First Statistical Judgment
+
+The main output is an expert statistical judgment candidate. Decide whether the
+analysis supports the stated claim, only supports a narrower descriptive or
+exploratory claim, exposes a negative/equivocal result, or must route back to
+analysis, data governance, table, figure, writing, review, or owner decision.
+
+Emit `statistical_verdict_candidate`, `claim_strength_calibration_ref`,
+`negative_or_equivocal_result_ref`, `statistical_action_matrix_ref`, and
+`route_back_candidate` as needed. These refs may guide MAS consumption, but they
+cannot claim statistical conclusion authority, analysis acceptance, owner
+receipt, typed blocker, quality verdict, artifact authority, or readiness.
+
 ## External Learning Quality Floor
 
 This skill absorbs maintainable patterns from broad statistical-analysis,

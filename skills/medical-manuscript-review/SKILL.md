@@ -99,6 +99,22 @@ When open-ended judgment adds a concern, bind it to evidence refs, citation
 refs, affected text/display locations, route decision, typed blocker target, or
 human gate target.
 
+## AI-First Judgment Contract
+
+Default to AI reviewer judgment over professional publication risk, not to a
+contract checklist. The reviewer may emit `verdict_candidate`,
+`quality_review_candidate_ref`, `negative_finding_ref`,
+`claim_evidence_route_ref`, `route_back_candidate`, and
+`stop_or_continue_recommendation` when the manuscript evidence supports that
+judgment.
+
+Keep the action modular at the route-back layer: send claim/source gaps to
+evidence or lit review, statistical gaps to stats, display gaps to figure
+design, table gaps to table design, submission gaps to submission prep, and
+source/data gaps to data governance. The AI judgment remains a candidate until
+MAS or the consuming owner records reviewer receipt, owner receipt, typed
+blocker, human gate, artifact mutation, quality verdict, or readiness.
+
 ## External Learning Quality Floor
 
 This skill absorbs useful reviewer patterns from Nature-style reviewer skills

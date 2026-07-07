@@ -41,6 +41,20 @@ without turning the table into a data dump.
 Do not create a table until the table job is clear. Do not use formatting to hide
 uncertain denominators, missing units, unsupported comparisons, or weak claims.
 
+## AI-First Table Judgment
+
+The skill should decide whether a table is the right evidence surface, whether
+it belongs in main text or supplement, whether a figure or prose sentence is
+clearer, and whether a negative/equivocal result needs visible table support.
+Emit `table_verdict_candidate`, `table_vs_figure_decision_ref`,
+`claim_table_alignment_ref`, `table_repair_actions_ref`, and
+`route_back_candidate` when source metrics, denominators, or claim alignment
+are not defensible.
+
+These judgments are candidate handoff refs only. MAS or the consuming owner
+must still accept, reject, mutate, or route the table through its authority
+surface.
+
 ## External Learning Quality Floor
 
 This skill adapts maintainable patterns from clinical data-presentation,

@@ -59,6 +59,20 @@ authoritative source set that answers the claim, keep endpoint/filter
 provenance, reconcile identifiers and counts when completeness matters, and
 return screened candidate refs rather than unbounded raw API dumps.
 
+## AI-First Source Judgment
+
+The skill should judge the literature result, not just retrieve it. For every
+claim-critical search, emit `source_verdict_candidate`,
+`claim_support_map_ref`, `support_strength_matrix_ref`,
+`citation_integrity_notes`, and `route_back_candidate` when the source set is
+missing, stale, contradictory, too indirect, or not applicable. Negative or
+contradictory findings are first-class evidence and should be routed back to
+writing/review instead of being hidden because they weaken the manuscript.
+
+Connector refs, citation graphs, PDFs, and metadata are inputs to that AI
+judgment. They are not citation acceptance, source readiness, owner receipt,
+typed blocker, quality verdict, or publication readiness.
+
 When a literature task needs a specialty outside the default MAS Scholar Skills
 package, such as omics, single-cell, Nextflow, RDKit, PyHealth, Zotero /
 `pyzotero`, or a named database/API skill, first discover it with

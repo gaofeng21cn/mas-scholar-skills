@@ -50,6 +50,23 @@ If evidence is incomplete, contradictory, or too weak, produce one of:
 
 Do not polish fiction.
 
+## AI-First Judgment Contract
+
+Default to professional medical judgment before filling module fields. The
+skill should decide, from the accepted evidence refs, whether the next honest
+output is manuscript prose, a claim downgrade, a negative/equivocal finding
+section, a citation repair request, a figure/table repair request, or a
+route-back packet.
+
+When evidence supports writing, emit concise refs such as
+`claim_evidence_decision_ref`, `negative_or_equivocal_finding_ref`,
+`figure_table_binding_decision_ref`, and `writing_verdict_candidate`. When it
+does not, emit `route_back_candidate` with the missing source, analysis,
+citation, display, table, submission, or owner-gate target. These are
+AI-readable candidate judgments only. They do not write MAS truth, mutate a
+current package, sign an owner receipt, create a typed blocker, or prove
+publication/submission readiness.
+
 ## External Learning Quality Floor
 
 This skill absorbs the useful parts of Nature-style writing skills and

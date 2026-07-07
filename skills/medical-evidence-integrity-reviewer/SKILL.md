@@ -15,6 +15,14 @@ refs, `verdict_candidate`, `route_back_candidate`, and
 owner receipt, create a typed blocker, mutate manuscript/source artifacts, or
 claim source, runtime, publication, production, or current-package readiness.
 
+Use this reviewer as a narrow evidence-integrity aggregator. Claim/evidence,
+source-support, citation, PDF, and evidence-gap judgment should normally land in
+`medical-manuscript-review`, `medical-research-lit`, `medical-data-governance`,
+or `medical-manuscript-writing` when those skills already own the work. This
+skill should only unify the refs into a `verdict_candidate` and
+`route_back_candidate`; it must not become a new active module or authority
+surface.
+
 ## Routes
 
 - Claim/source mapping: `claim_inventory_ref`, `source_support_ref`,

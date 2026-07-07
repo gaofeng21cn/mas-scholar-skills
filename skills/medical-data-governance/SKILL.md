@@ -52,6 +52,21 @@ authoritative databases, separate server-side filters from local checks,
 reconcile counts when completeness matters, and keep API payloads as untrusted
 source data until MAS or the domain owner accepts them.
 
+## AI-First Source And FAIR Judgment
+
+The skill should judge whether the data surface is reusable for the paper task,
+not just list files. Emit `data_governance_verdict_candidate`,
+`source_readiness_route_ref`, `fair_metadata_gap_ref`,
+`version_diff_impact_ref`, `study_impact_ref`, `owner_decision_ref`, and
+`route_back_candidate` when provenance, dictionary/codebook, identifier,
+privacy/access, retention, source lineage, or study binding is insufficient.
+
+FAIR checks are candidate governance judgments: findable identifiers,
+accessible routes or restrictions, interoperable dictionaries/code systems, and
+reusable provenance/licenses/retention. They do not authorize source readiness,
+data mutation, release, deletion, owner receipt, typed blocker, or publication
+readiness.
+
 OpenScience main `f120290` contributes local-first `claimType` +
 `graphWarnings` source traceability patterns, not data authority or a second
 skill catalog. Use refs-only `claim_type_ref` and

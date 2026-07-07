@@ -44,6 +44,19 @@ Do not say a paper is ready because a checklist is filled. Use the checklist to
 find missing owner decisions, missing files, unsupported claims, and mismatched
 package parts.
 
+## AI-First Submission Judgment
+
+Submission prep should judge the package state before formatting it. Decide
+whether the paper can proceed to owner review, needs manuscript/statistics/
+figure/table/literature/data repair, needs author or institutional input, or
+must stop because a package claim would overstate readiness.
+
+Emit `submission_verdict_candidate`, `package_consistency_ref`,
+`author_input_needed_ref`, `submission_action_matrix_ref`,
+`stop_or_continue_recommendation`, and `route_back_candidate`. These refs are
+not submission readiness, journal acceptance, owner receipt, typed blocker,
+current-package authority, or publication readiness.
+
 ## External Learning Quality Floor
 
 This skill adapts maintainable patterns from Nature-style data availability,

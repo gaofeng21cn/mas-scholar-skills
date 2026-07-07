@@ -67,6 +67,21 @@ display material may execute bounded searches, renders, manifest checks, or QA
 tasks. They must not decide claims, invent evidence, silently switch backend, or
 turn a local render into MAS owner authority.
 
+## AI-First Figure Judgment
+
+The skill should decide whether the requested figure is scientifically needed,
+which claim it may carry, whether a table/prose/supplement is a better surface,
+whether negative or equivocal evidence must be visible, and whether a visual QA
+failure should route back before owner review.
+
+Emit `figure_verdict_candidate`, `figure_table_decision_ref`,
+`negative_or_equivocal_display_ref`, `visual_qa_route_ref`,
+`route_back_hard_evidence_ref`, and `route_back_candidate` when the evidence,
+claim, renderer, export, or visual readability is not defensible. These refs are
+candidate judgments only; they do not create visual-audit authority, artifact
+authority, owner receipt, typed blocker, current-package authority, or
+publication readiness.
+
 ## External Learning Quality Floor
 
 This skill absorbs the useful parts of Nature-style figure skills and broad

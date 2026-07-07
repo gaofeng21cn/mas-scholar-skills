@@ -19,6 +19,24 @@ It owns enhancement surfaces:
 
 It does not own MAS study truth, publication truth, owner receipts, typed blockers, human gates, runtime queues, provider attempts, ledgers, current-package authority, or publication readiness.
 
+## AI First, Contract Light
+
+MAS Scholar Skills keeps elastic medical judgment in the professional Skill
+layer. The `medical-*` skills decide claim/evidence fit, negative or equivocal
+findings, quality-review concerns, route-back target, figure/table/source QA,
+citation support, FAIR metadata gaps, and stop/continue recommendations.
+
+The module and contract layer stays light: active ids, skill mapping, ref
+families, descriptor/receipt shape, sync policy, no-authority flags, and
+verification. Contracts can expose where `verdict_candidate`,
+`route_back_candidate`, `stop_or_continue_recommendation`,
+`owner_gate_handoff_ref`, or quality-floor refs should land; they do not perform
+the professional judgment, accept sources, sign receipts, create typed blockers,
+mutate artifacts, or claim readiness.
+
+Operational modularity belongs to catalog, sync, invocation, receipt, and owner
+handoff. Scientific flexibility belongs to Skill prose and AI execution.
+
 ## Capability Module Classification
 
 MAS Scholar Skills has eight active professional skill-backed capability modules, ten default syncable real Codex specialist skills, and optional specialist skills for named advanced scientific or medical-method tasks. `medical-figure-style` and `medical-figure-composer` are display subskills under `medical-figure-design`, not additional active modules.
@@ -70,6 +88,13 @@ inspect the external Skill through OPL Connect before any selective sync. The
 router is a task-level capability lookup, not a full K-Dense runtime install.
 
 Data availability checks are active through `medical-data-governance`. Omics-specific source routing should stay with the relevant MAS/OPL owner surface until MAS needs Codex to actively run that workflow as a standalone specialist skill.
+
+The core skills are the default place to improve behavior. If manuscript
+quality, claim/evidence mapping, review strictness, negative finding handling,
+route-back choice, figure/table QA, citation integrity, source lineage, or FAIR
+judgment is weak, update the relevant `medical-*` Skill. Update the contract
+only when the module id, exposure policy, ref vocabulary, receipt shape, or
+no-authority boundary is wrong.
 
 ## Stage / Specialist / Connector / Contract Boundary
 

@@ -16,6 +16,12 @@ route with owner authority, sign an owner receipt, create a typed blocker,
 mutate artifacts, accept memory, or claim publication, submission, runtime,
 production, or current-package readiness.
 
+Use this reviewer only when one publication route-back pass is enough. If the
+problem is primary writing, review, stats, table, figure, literature,
+submission, or data/source judgment, route to the corresponding professional
+skill instead of creating a parallel module. This reviewer may aggregate AI
+candidate judgments, but it does not replace them or expand default exposure.
+
 ## Routes
 
 - Revision/rebuttal: `review_comment_inventory_ref`, `response_route_ref`,
