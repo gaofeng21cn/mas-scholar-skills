@@ -1,0 +1,21 @@
+{
+  "example_only": true,
+  "receipt_id": "example:render_receipt/heatmap_group_comparison",
+  "figure_contract_ref": "example:figure_contract/heatmap_group_comparison",
+  "pack_id": "fenggaolab.org.medical-display-core",
+  "template_id": "heatmap_group_comparison",
+  "kind": "evidence_figure",
+  "renderer_family": "r_ggplot2",
+  "execution_mode": "subprocess",
+  "render_mode": "candidate",
+  "outputs": {
+    "png_ref": "repo-local:examples/not-rendered/heatmap_group_comparison/heatmap_group_comparison.png",
+    "pdf_ref": "repo-local:examples/not-rendered/heatmap_group_comparison/heatmap_group_comparison.pdf"
+  },
+  "layout_sidecar_ref": "repo-local:examples/not-rendered/heatmap_group_comparison/heatmap_group_comparison.layout.json",
+  "known_limits": [
+    "example receipt only; no artifact was rendered"
+  ],
+  "authority": false,
+  "publication_ready": false
+}

@@ -1,0 +1,21 @@
+{
+  "example_only": true,
+  "receipt_id": "example:render_receipt/kaplan_meier_grouped",
+  "figure_contract_ref": "example:figure_contract/kaplan_meier_grouped",
+  "pack_id": "fenggaolab.org.medical-display-core",
+  "template_id": "kaplan_meier_grouped",
+  "kind": "evidence_figure",
+  "renderer_family": "r_ggplot2",
+  "execution_mode": "subprocess",
+  "render_mode": "candidate",
+  "outputs": {
+    "png_ref": "repo-local:examples/not-rendered/kaplan_meier_grouped/kaplan_meier_grouped.png",
+    "pdf_ref": "repo-local:examples/not-rendered/kaplan_meier_grouped/kaplan_meier_grouped.pdf"
+  },
+  "layout_sidecar_ref": "repo-local:examples/not-rendered/kaplan_meier_grouped/kaplan_meier_grouped.layout.json",
+  "known_limits": [
+    "example receipt only; no artifact was rendered"
+  ],
+  "authority": false,
+  "publication_ready": false
+}

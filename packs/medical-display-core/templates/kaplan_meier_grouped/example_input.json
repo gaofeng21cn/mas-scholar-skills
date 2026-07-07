@@ -1,0 +1,41 @@
+{
+  "example_only": true,
+  "figure_contract_ref": "example:figure_contract/kaplan_meier_grouped",
+  "figure_id": "example_kaplan_meier_grouped",
+  "template_id": "kaplan_meier_grouped",
+  "core_conclusion_ref": "example:grouped_survival_difference_claim",
+  "panel_evidence_chain_ref": [
+    {
+      "panel_id": "a",
+      "data_ref": "example:validated_time_to_event_grouped_summary",
+      "statistic_ref": "example:log_rank_and_hazard_ratio_summary"
+    }
+  ],
+  "time_unit": "months",
+  "groups": [
+    {
+      "group_id": "low_risk",
+      "label": "Low risk",
+      "curve": [
+        {"time": 0, "survival_probability": 1.0, "at_risk": 180},
+        {"time": 6, "survival_probability": 0.94, "at_risk": 166},
+        {"time": 12, "survival_probability": 0.88, "at_risk": 151},
+        {"time": 24, "survival_probability": 0.79, "at_risk": 119}
+      ]
+    },
+    {
+      "group_id": "high_risk",
+      "label": "High risk",
+      "curve": [
+        {"time": 0, "survival_probability": 1.0, "at_risk": 172},
+        {"time": 6, "survival_probability": 0.86, "at_risk": 143},
+        {"time": 12, "survival_probability": 0.72, "at_risk": 112},
+        {"time": 24, "survival_probability": 0.55, "at_risk": 76}
+      ]
+    }
+  ],
+  "log_rank_p": 0.004,
+  "hazard_ratio": 1.82,
+  "hazard_ratio_ci": [1.22, 2.71],
+  "owner_gate_handoff_ref": "example:owner_gate/kaplan_meier_grouped"
+}

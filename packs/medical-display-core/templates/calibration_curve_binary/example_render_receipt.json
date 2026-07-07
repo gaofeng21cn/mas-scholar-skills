@@ -1,0 +1,21 @@
+{
+  "example_only": true,
+  "receipt_id": "example:render_receipt/calibration_curve_binary",
+  "figure_contract_ref": "example:figure_contract/calibration_curve_binary",
+  "pack_id": "fenggaolab.org.medical-display-core",
+  "template_id": "calibration_curve_binary",
+  "kind": "evidence_figure",
+  "renderer_family": "r_ggplot2",
+  "execution_mode": "subprocess",
+  "render_mode": "candidate",
+  "outputs": {
+    "png_ref": "repo-local:examples/not-rendered/calibration_curve_binary/calibration_curve_binary.png",
+    "pdf_ref": "repo-local:examples/not-rendered/calibration_curve_binary/calibration_curve_binary.pdf"
+  },
+  "layout_sidecar_ref": "repo-local:examples/not-rendered/calibration_curve_binary/calibration_curve_binary.layout.json",
+  "known_limits": [
+    "example receipt only; no artifact was rendered"
+  ],
+  "authority": false,
+  "publication_ready": false
+}

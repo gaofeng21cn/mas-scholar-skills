@@ -1,0 +1,29 @@
+{
+  "example_only": true,
+  "figure_contract_ref": "example:figure_contract/heatmap_group_comparison",
+  "figure_id": "example_heatmap_group_comparison",
+  "template_id": "heatmap_group_comparison",
+  "core_conclusion_ref": "example:group_level_matrix_pattern_claim",
+  "panel_evidence_chain_ref": [
+    {
+      "panel_id": "a",
+      "data_ref": "example:validated_group_comparison_matrix",
+      "statistic_ref": "example:standardized_group_difference_summary"
+    }
+  ],
+  "value_scale": "z_score",
+  "row_labels": ["CRP", "IL6", "TNF", "Albumin"],
+  "column_labels": ["Control", "Treatment A", "Treatment B"],
+  "matrix": [
+    [0.1, -0.4, -0.7],
+    [0.2, -0.2, -0.5],
+    [0.0, -0.3, -0.6],
+    [-0.1, 0.3, 0.5]
+  ],
+  "column_annotations": [
+    {"column": "Control", "group": "reference"},
+    {"column": "Treatment A", "group": "active"},
+    {"column": "Treatment B", "group": "active"}
+  ],
+  "owner_gate_handoff_ref": "example:owner_gate/heatmap_group_comparison"
+}

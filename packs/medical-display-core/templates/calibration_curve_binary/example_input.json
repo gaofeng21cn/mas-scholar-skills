@@ -1,0 +1,25 @@
+{
+  "example_only": true,
+  "figure_contract_ref": "example:figure_contract/calibration_curve_binary",
+  "figure_id": "example_calibration_curve_binary",
+  "template_id": "calibration_curve_binary",
+  "core_conclusion_ref": "example:binary_model_calibration_claim",
+  "panel_evidence_chain_ref": [
+    {
+      "panel_id": "a",
+      "data_ref": "example:validated_binary_prediction_calibration_summary",
+      "statistic_ref": "example:calibration_slope_intercept_summary"
+    }
+  ],
+  "model_label": "Example prediction model",
+  "calibration_points": [
+    {"predicted_probability": 0.08, "observed_event_rate": 0.06, "n": 120},
+    {"predicted_probability": 0.18, "observed_event_rate": 0.17, "n": 118},
+    {"predicted_probability": 0.32, "observed_event_rate": 0.34, "n": 115},
+    {"predicted_probability": 0.48, "observed_event_rate": 0.51, "n": 96},
+    {"predicted_probability": 0.66, "observed_event_rate": 0.63, "n": 74}
+  ],
+  "calibration_intercept": -0.03,
+  "calibration_slope": 0.97,
+  "owner_gate_handoff_ref": "example:owner_gate/calibration_curve_binary"
+}
