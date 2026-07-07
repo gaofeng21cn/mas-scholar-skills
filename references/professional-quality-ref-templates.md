@@ -11,6 +11,52 @@ handoff shape instead of inventing a new checklist. Keep the filled result in
 the consuming paper workspace or owner surface; this repository only defines
 the ref vocabulary.
 
+## AI-First Professional Quality Floor
+
+Use `professional_ai_quality_floor_ref` when an existing `medical-*` skill needs
+the shared AI-first quality floor. This is a skill-method rule, not a new
+module, runtime owner, receipt signer, or authority surface.
+
+Minimum refs:
+
+- `critique_as_repair_hint_ref`: convert each critique into a concrete repair
+  hint with affected claim/source/table/figure/data/package refs, the narrowest
+  owning skill route, and the evidence needed to clear the issue.
+- `reusable_lesson_ref`: extract a reusable lesson only when the same issue can
+  improve future writing, review, literature, statistics, table, submission,
+  data, or display work; keep one-off observations as local findings.
+- `triggered_meta_review_ref`: request a second-pass review when evidence
+  conflicts, route-back repeats, a claim crosses discipline boundaries, or the
+  candidate would otherwise approach domain truth, owner receipt, typed blocker,
+  artifact authority, or readiness.
+- `opportunistic_knowledge_prefetch_ref`: prefetch only immediately useful
+  source, guideline, journal instruction, data dictionary, citation graph,
+  figure/table, prior review, or rerun receipt refs. Do not start broad research
+  or provider/runtime setup just because it might help later.
+- `claim_type_ref`: classify manuscript, figure, table, statistic, data,
+  package, or citation claims as descriptive, association, prediction, causal,
+  methods, governance, or submission/package claims before deciding strength.
+- `graph_warnings_ref`: flag unsupported, stale, circular, missing-source,
+  source/body drift, denominator drift, visible-payload drift, or package
+  mismatch risks as refs-only warnings.
+- `annotation_to_source_regeneration_ref`: map a reviewer annotation back to
+  the source/data/evidence/citation/analysis/display/package refs needed for
+  repair instead of treating the annotation as free-text feedback.
+- `project_local_ledger_pointer_ref`: record a local ledger pointer, locator,
+  or hash only as provenance for a candidate package. It is not an owner ledger,
+  MAS truth, or source-readiness verdict.
+- `rerun_receipt_ref`: consume rerun, re-render, re-query, re-export, or
+  re-check receipts as evidence only when input refs, fingerprints, command
+  refs, and limits are visible. A rerun receipt is not runtime readiness,
+  owner acceptance, artifact authority, or publication readiness.
+- `verdict_candidate`, `route_back_candidate`, and
+  `stop_or_continue_recommendation`: AI-consumable candidate judgment and next
+  route, stopping only at real authority or human gates.
+
+Keep the quality floor inside the active professional skill that owns the
+judgment. Module catalogs and contracts should carry only ids, ref families,
+receipt shapes, owner routes, hashes, and no-authority flags.
+
 ## Figure Contract Template
 
 Use `figure_contract_template_ref` before drawing a new or repaired manuscript

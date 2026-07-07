@@ -182,6 +182,19 @@ permission notes, and stage-use policy for the synced skill pack. Do not copy an
 OpenScience skill catalog, create a new MAS default skill source, or treat this
 governance ref as owner acceptance.
 
+Use `professional_ai_quality_floor_ref` for Co-Scientist-style JIT review
+affordance inside this existing skill. Every major critique should produce
+`critique_as_repair_hint_ref`, not only a severity label: name the affected
+claim/source/figure/table/data/package refs, the repair route, and the evidence
+needed to clear it. Extract `reusable_lesson_ref` only when the concern is a
+repeatable manuscript-quality lesson. Trigger `triggered_meta_review_ref` when
+findings conflict, route-back repeats, claim type crosses disciplines, or a
+candidate would approach MAS truth, owner receipt, typed blocker, artifact
+authority, or readiness. Use `opportunistic_knowledge_prefetch_ref` for bounded
+source, journal, prior-review, figure/table, data, or rerun refs needed for the
+review; consume `rerun_receipt_ref` as evidence only when fingerprints and
+limits are visible.
+
 AcademicForge/Claude Science paper-narrative contributes a handling-editor deck
 review pattern. Use it when the draft has figures, captions, or a manuscript
 PDF: infer the pitch and figure claims from the work itself, then review the
@@ -514,6 +527,8 @@ Before leaving review, write or refresh a closeout packet with:
   or display locations
 - contradiction flags used, each marked as review signal only
 - claim-warning refs used, each marked as refs-only review signal
+- critique-as-repair hints and any triggered meta-review refs
+- opportunistic prefetch refs or rerun receipts consumed as evidence
 - remaining blockers and blocked readiness label
 - reusable critique lesson, if any
 - route-back recommendation with the narrowest next route

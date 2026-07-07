@@ -118,6 +118,18 @@ Do not make Claude Science `pdf-explore` helpers mandatory; use whichever
 project-approved parser, PDF reader, page crop, or manual readback is available
 and record its limits in the candidate ref.
 
+Use `professional_ai_quality_floor_ref` for source-governance JIT judgment.
+Convert critique into `critique_as_repair_hint_ref` with the affected dataset,
+dictionary, codebook, source lineage, privacy/access, lifecycle, claim, or
+study-binding ref. Extract `reusable_lesson_ref` only for repeatable governance
+or lifecycle lessons. Trigger `triggered_meta_review_ref` when data lineage,
+study binding, privacy, retention, source readiness, or downstream manuscript
+claims conflict. Use `opportunistic_knowledge_prefetch_ref` only for immediate
+manifest, dictionary, lineage, source, lifecycle, or rerun receipt refs needed
+by the current owner question. Consume `rerun_receipt_ref` as data-operation,
+manifest-rebuild, lifecycle-inspect, or restore-check evidence only when input
+fingerprints, command refs, and limits are visible.
+
 ## Active Data Identity
 
 The active MAS Scholar Skills Data module id is `mas-scholar-skills.data`; the
@@ -298,6 +310,11 @@ Return refs-only candidate output:
 - `graph_warnings_ref`
 - `annotation_to_source_regeneration_ref`
 - `project_local_ledger_pointer_ref`
+- `critique_as_repair_hint_ref`
+- `reusable_lesson_ref`
+- `triggered_meta_review_ref`
+- `opportunistic_knowledge_prefetch_ref`
+- `rerun_receipt_ref`
 - `skill_pack_governance_policy_ref`
 - `database_retrieval_contract_ref`
 - `pdf_evidence_extraction_ref`

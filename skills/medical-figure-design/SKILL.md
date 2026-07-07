@@ -155,6 +155,19 @@ permission notes, and stage-use policy. These refs do not create visual-audit
 authority, owner receipt, typed blocker, publication readiness, or a second
 skill catalog.
 
+Use `professional_ai_quality_floor_ref` for the display-family JIT quality
+floor. Convert critic review into `critique_as_repair_hint_ref` with the
+affected panel, source data, statistic, caption, claim, renderer, export, or
+composition ref and the smallest repair route. Extract `reusable_lesson_ref`
+only for repeatable figure-design failures. Trigger `triggered_meta_review_ref`
+when visual claims conflict with data, figure/table/statistics disagree,
+route-back repeats, or a local render would otherwise be treated as authority.
+Use `opportunistic_knowledge_prefetch_ref` only for immediately needed source,
+table, statistic, journal, style reference, gallery, or rerun/render receipt
+refs. Consume `project_local_ledger_pointer_ref` and `rerun_receipt_ref` as
+local provenance and re-render/check evidence only when fingerprints, command
+refs, and known limits are visible.
+
 AcademicForge/Claude Science figure-style and figure-composer contribute
 figure-correctness patterns only. Absorb them as refs-only design discipline:
 data fidelity before chart choice, claim-title truth checks, excluded-row
@@ -560,6 +573,8 @@ Before handoff, produce a compact reviewer packet:
 - figure contract, style brief, and renderer decision refs
 - claim type, graph warning, and annotation-to-source regeneration refs for any
   figure claim at risk
+- critique-as-repair hints, triggered meta-review refs, and reusable lessons
+- opportunistic prefetch refs or rerun/render receipts consumed as evidence
 - selected template/backend and why it fits
 - candidate set and selected draft/final export refs
 - visual QA findings and fixes

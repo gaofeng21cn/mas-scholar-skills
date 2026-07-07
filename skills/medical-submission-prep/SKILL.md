@@ -80,6 +80,20 @@ reviewer response, citation, and submission workflows:
 - adapt K-Dense `venue-templates` as an instruction-mapping discipline, not a
   guarantee that a generic template is current or accepted.
 
+Use `professional_ai_quality_floor_ref` for submission-package judgment.
+Convert every checklist or reviewer-response critique into
+`critique_as_repair_hint_ref` with the affected file, declaration, author field,
+journal instruction, citation, figure/table, data/code availability, or response
+claim. Use `opportunistic_knowledge_prefetch_ref` only for current venue
+instructions, reporting guideline, declaration, source, package, or prior
+review refs needed by this package. Add `claim_type_ref` and
+`graph_warnings_ref` for package claims that are unsupported, stale, circular,
+missing-source, source/body divergent, or inconsistent across manuscript,
+figures, tables, supplement, and response files. Use
+`annotation_to_source_regeneration_ref` for reviewer comments that must trace
+back to manuscript/source refs, and consume `rerun_receipt_ref` only as
+re-export, package-check, or reopen-readback evidence.
+
 ## Submission Contract
 
 Before preparing the package, create or refresh:
@@ -182,6 +196,12 @@ Return refs-only candidate output:
 - `reviewer_response_candidate_ref`
 - `author_input_needed_ref`
 - `submission_action_matrix_ref`
+- `claim_type_ref`
+- `graph_warnings_ref`
+- `annotation_to_source_regeneration_ref`
+- `critique_as_repair_hint_ref`
+- `opportunistic_knowledge_prefetch_ref`
+- `rerun_receipt_ref`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

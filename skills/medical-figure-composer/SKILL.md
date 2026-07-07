@@ -36,6 +36,15 @@ If a composite annotation reveals a panel/source mismatch, emit
 `annotation_to_source_regeneration_ref` and route that panel back to
 `medical-figure-design`; do not solve scientific drift with layout edits.
 
+Use `professional_ai_quality_floor_ref` without expanding this subskill's
+authority. Composite critique becomes `critique_as_repair_hint_ref` only for
+panel order, crop, gutter, panel-letter, resized-text, export, or final-scale
+repair. Add `claim_type_ref` and `graph_warnings_ref` when panel labels or
+composite captions imply unsupported, stale, circular, missing-source, or
+visible-payload drift. Consume `rerun_receipt_ref` only as composite/export
+check evidence, and trigger `triggered_meta_review_ref` when the issue must
+return to figure design, statistics, table, data, writing, or review.
+
 ## Workflow
 
 1. Confirm `multi_panel_outline_ref`: one figure claim, hook or hero panel,
@@ -63,6 +72,9 @@ Produce a compact `figure_composition_review_ref` with:
   inspected
 - `annotation_to_source_regeneration_ref` for panel/source mismatches that need
   evidence or render repair
+- `claim_type_ref` and `graph_warnings_ref` for composite-visible claim risks
+- `critique_as_repair_hint_ref`, `triggered_meta_review_ref`, and
+  `rerun_receipt_ref` when the composition pass consumed those candidate refs
 - route-back items for panel-level evidence or render defects
 - owner-gate target for MAS/domain review
 

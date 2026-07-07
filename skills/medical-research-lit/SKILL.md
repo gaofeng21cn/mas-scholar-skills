@@ -93,6 +93,19 @@ For source/ref chain handoffs that go beyond a single targeted lookup, read
 candidate source-screening refs only; they do not create citation authority,
 owner receipts, typed blockers, or publication readiness.
 
+Also use `professional_ai_quality_floor_ref` for JIT literature judgment. Treat
+screening critique as `critique_as_repair_hint_ref`: name the unsupported claim,
+missing identifier, weak source class, stale source, or contradictory source and
+the next lookup or route-back. Use `opportunistic_knowledge_prefetch_ref` only
+for bounded citation graph, official-source, guideline, version/retraction, or
+PDF refs needed by the current claim. Add `claim_type_ref` and
+`graph_warnings_ref` when a source is supporting a descriptive, association,
+prediction, causal, methods, governance, or submission claim and the evidence is
+unsupported, stale, circular, missing-source, or source/body divergent. Use
+`annotation_to_source_regeneration_ref` when a manuscript annotation must be
+traced back to source refs, and consume `project_local_ledger_pointer_ref` or
+`rerun_receipt_ref` only as local provenance or query/readback evidence.
+
 AcademicForge/Claude Science literature-review contributes a retrieve-first
 discipline: memory can frame the question, but retained citations must come from
 retrieved source refs; DOI/PMID/PMCID metadata is resolved rather than
@@ -254,6 +267,13 @@ Return a compact structure with:
 - `claim_support_map_ref`
 - `support_strength_matrix_ref`
 - `citation_integrity_notes`
+- `claim_type_ref`
+- `graph_warnings_ref`
+- `annotation_to_source_regeneration_ref`
+- `critique_as_repair_hint_ref`
+- `opportunistic_knowledge_prefetch_ref`
+- `project_local_ledger_pointer_ref`
+- `rerun_receipt_ref`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

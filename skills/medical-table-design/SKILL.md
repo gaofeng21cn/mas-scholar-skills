@@ -76,6 +76,17 @@ spreadsheet-quality, statistical-analysis, and Nature-style data workflows:
   a table only when exact values, denominators, subgroup structure, or compact
   multi-metric comparison are more useful than a figure.
 
+Use `professional_ai_quality_floor_ref` for table-specific AI judgment.
+`critique_as_repair_hint_ref` should convert table critique into a concrete
+source metric, denominator, statistic, claim, footnote, figure-vs-table, or
+submission repair. Add `claim_type_ref` and `graph_warnings_ref` when table
+titles, notes, row labels, or manuscript-linked claims risk unsupported,
+stale, circular, missing-source, denominator-drift, or table/body drift. Use
+`annotation_to_source_regeneration_ref` for reviewer annotations that must trace
+back to source metrics or analysis outputs. Consume `rerun_receipt_ref` only as
+table rebuild/check evidence, and trigger `triggered_meta_review_ref` when
+table and text/figure/statistics disagree materially.
+
 ## Table Contract
 
 Before drafting a table, create or refresh:
@@ -182,6 +193,12 @@ Return refs-only candidate output:
 - `statistical_display_ref`
 - `table_qc_ref`
 - `claim_table_alignment_ref`
+- `claim_type_ref`
+- `graph_warnings_ref`
+- `annotation_to_source_regeneration_ref`
+- `critique_as_repair_hint_ref`
+- `triggered_meta_review_ref`
+- `rerun_receipt_ref`
 - `journal_table_contract_ref`
 - `table_repair_actions_ref`
 - `route_back_candidate`

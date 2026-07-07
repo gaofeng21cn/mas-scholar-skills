@@ -106,6 +106,18 @@ permission notes, and stage-use policy. These refs can drive
 `route_back_candidate`, but cannot claim statistical conclusion, quality
 verdict, owner receipt, typed blocker, or publication readiness.
 
+Use `professional_ai_quality_floor_ref` for AI-first statistical repair loops.
+Each critique should become `critique_as_repair_hint_ref` with the affected
+claim, analysis output, denominator, model, table, figure, or source ref and the
+smallest repair route. Trigger `triggered_meta_review_ref` for conflicting
+diagnostics, repeated route-back, causal/prediction boundary crossings, or
+model results that would otherwise be promoted to authority. Use
+`opportunistic_knowledge_prefetch_ref` only for immediately needed analysis
+plan, data dictionary, model specification, table/figure, literature, or rerun
+receipt refs. Consume `project_local_ledger_pointer_ref` and
+`rerun_receipt_ref` as local provenance and re-analysis evidence only when
+inputs, fingerprints, commands, and limits are visible.
+
 ## Review Contract
 
 Before judging the analysis, create or refresh:
@@ -265,6 +277,11 @@ Return refs-only candidate output:
 - `claim_type_ref`
 - `graph_warnings_ref`
 - `annotation_to_source_regeneration_ref`
+- `critique_as_repair_hint_ref`
+- `triggered_meta_review_ref`
+- `opportunistic_knowledge_prefetch_ref`
+- `project_local_ledger_pointer_ref`
+- `rerun_receipt_ref`
 - `skill_pack_governance_policy_ref`
 - `statistical_action_matrix_ref`
 - `claim_strength_calibration_ref`

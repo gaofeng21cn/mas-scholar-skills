@@ -38,6 +38,14 @@ If a style annotation exposes a source, evidence, or claim mismatch, emit
 `annotation_to_source_regeneration_ref` and route to `medical-figure-design`
 instead of hiding the issue with visual polish.
 
+Use `professional_ai_quality_floor_ref` without expanding this subskill's
+authority. Style critique becomes `critique_as_repair_hint_ref` only for
+visible grammar, readability, label, color, export, or final-scale repair. Add
+`claim_type_ref` and `graph_warnings_ref` when titles, labels, or legends imply
+unsupported, stale, circular, missing-source, or visible-payload drift. Consume
+`rerun_receipt_ref` only as export/style-check evidence, and trigger
+`triggered_meta_review_ref` when the issue is no longer style-only.
+
 ## Workflow
 
 1. Confirm the existing figure or panel export and its claim/evidence refs.
@@ -66,6 +74,9 @@ Produce a compact `figure_style_review_ref` with:
 - `final_scale_visual_qa_ref` when final-size readability was inspected
 - `annotation_to_source_regeneration_ref` for source/claim mismatches that must
   route back to figure design or evidence repair
+- `claim_type_ref` and `graph_warnings_ref` for style-visible claim risks
+- `critique_as_repair_hint_ref`, `triggered_meta_review_ref`, and
+  `rerun_receipt_ref` when the style pass consumed those candidate refs
 - hard route-back items, if evidence or readability fails
 - owner-gate target for MAS/domain review
 

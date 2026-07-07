@@ -105,6 +105,20 @@ For citation-heavy prose or draft repair, read
 be kept, downgraded, cited, rewritten, or routed back without turning the draft
 into paper truth, owner receipt, typed blocker, or publication readiness.
 
+Also consume `professional_ai_quality_floor_ref` from the same reference when
+writing needs AI-first quality control. Treat critique as repair hints:
+`critique_as_repair_hint_ref` should name the affected paragraph, claim,
+citation, figure, table, or data ref and the narrowest route to repair it.
+Extract `reusable_lesson_ref` only for recurring writing or evidence failures,
+trigger `triggered_meta_review_ref` when the draft crosses source/statistics/
+display/submission boundaries, and use `opportunistic_knowledge_prefetch_ref`
+only for immediately needed source, journal, prior-review, table, or figure
+refs. When source material permits it, add refs-only `claim_type_ref`,
+`graph_warnings_ref`, `annotation_to_source_regeneration_ref`,
+`project_local_ledger_pointer_ref`, and `rerun_receipt_ref` to consume local
+hashes or rerun evidence without creating MAS truth, owner receipt, typed
+blocker, current-package authority, or readiness.
+
 AcademicForge/Claude Science paper-narrative contributes one useful writing
 pattern: judge the whole manuscript/figure deck like a handling editor before
 adding prose. Use `paper_narrative_arc_ref` from
