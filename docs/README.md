@@ -18,7 +18,8 @@ receipts, typed blockers, current-package authority, or publication readiness.
 
 Use this page as navigation only:
 
-- Module ids, skill classification, optional specialists, and ref families:
+- Module ids, skill classification, optional specialists, retired optional
+  mode redirects, and ref families:
   [Capability modules](./capability-modules.md).
 - Stage / specialist / connector / contract ownership:
   [MAS Scholar Skills operating model](./mas-scholar-skills-operating-model.md).

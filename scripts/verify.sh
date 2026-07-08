@@ -93,6 +93,14 @@ expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capabilit
 expected_optional_skill_ids = [*optional_router_skill_ids, *optional_named_specialty_skill_ids]
 expected_discoverable_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
 
+
+def without_redirect_tombstones(skill_ids):
+    return [
+        skill_id
+        for skill_id in (skill_ids or [])
+        if skill_id not in redirect_tombstone_skill_ids
+    ]
+
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")
@@ -622,20 +630,22 @@ require_all(
     allowed_scopes.get("optional_named_specialty"),
     ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
 )
-if "No optional specialist skill is a redirect tombstone" not in exposure_policy.get("redirect_tombstone_policy", ""):
-    fail("codex skill exposure redirect policy must preserve optional specialists as real skills")
+redirect_policy = exposure_policy.get("redirect_tombstone_policy", "")
+if "Retired optional professional skill metadata" not in redirect_policy or "capability_preserved=true" not in redirect_policy:
+    fail("codex skill exposure redirect policy must describe retired optional professional skill redirects")
 if "Only opl-scholarskills" not in exposure_policy.get("tombstone_policy", ""):
     fail("codex skill exposure tombstone policy must tombstone only opl-scholarskills")
 if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_default_exposure_skill_ids:
     fail("plugin manifest default workspace/quest install must match exposure policy")
 if plugin_exposure.get("optionalRouterSkillIds") != optional_router_skill_ids:
     fail("plugin manifest optional router skill ids must match exposure policy")
-if plugin_exposure.get("optionalNamedSpecialtySkillIds") != optional_named_specialty_skill_ids:
-    fail("plugin manifest optional named specialty skill ids must match exposure policy")
-if plugin_exposure.get("optionalSkillIds") != expected_optional_skill_ids:
-    fail("plugin manifest optional skill ids must match exposure policy")
-if sorted(plugin_exposure.get("optionalRedirectTombstoneSkillIds") or []) != sorted(redirect_tombstone_skill_ids):
-    fail("plugin manifest optional redirect tombstone skill ids must match exposure policy")
+if without_redirect_tombstones(plugin_exposure.get("optionalNamedSpecialtySkillIds")) != optional_named_specialty_skill_ids:
+    fail("plugin manifest optional named specialty skill ids must match exposure policy after retired redirects are filtered")
+if without_redirect_tombstones(plugin_exposure.get("optionalSkillIds")) != expected_optional_skill_ids:
+    fail("plugin manifest optional skill ids must match exposure policy after retired redirects are filtered")
+plugin_redirect_ids = plugin_exposure.get("optionalRedirectTombstoneSkillIds") or []
+if plugin_redirect_ids and sorted(plugin_redirect_ids) != sorted(redirect_tombstone_skill_ids):
+    fail("plugin manifest optional redirect tombstone skill ids must be empty or match exposure policy")
 if plugin_exposure.get("tombstoneSkillIds") != exposure_policy.get("tombstone_skill_ids"):
     fail("plugin manifest tombstone skill ids must match exposure policy")
 for key in [

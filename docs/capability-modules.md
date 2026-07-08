@@ -57,10 +57,10 @@ publication readiness、typed blocker 或 owner receipt 写进 contract。
 和 `owner_gate_handoff_ref`；不新增 active core module，不签 owner receipt，
 不创建 typed blocker，不写 MAS truth，也不声明 source / runtime / publication ready。
 
-24 个 optional advanced 和 medical-method specialist 名称继续保留为真实
+20 个 optional advanced 和 medical-method specialist 名称继续保留为真实
 `SKILL.md`，例如 `medical-structural-biology`、
 `medical-protocol-and-sap-planner`、`medical-reference-integrity-auditor`、
-`medical-display-qc`、`medical-methodology-routeback-reviewer` 和
+`medical-display-qc`、`medical-research-portfolio-memory-curator` 和
 `scientific-compute-runner`。这些 named-specialty skill 不进入默认 workspace /
 quest install；只有明确专科任务或 router 选中时，OPL Connect 才同步一个具体
 skill。这样保留原专业 playbook，避免能力降级，同时用 exposure policy 控制
@@ -68,6 +68,17 @@ Codex metadata 污染。AcademicForge HEAD
 `54a2f333973147a1fd703caea6f12252e1f227d6` 仍作为 advanced biomed 专科来源锚点。
 科学计算 substrate 仍由 OPL Runway / Connect / Fabric 或消费方 compute owner 持有；
 Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
+
+4 个原本独立的 optional professional skill 退役为 mode，不再保留
+`SKILL.md` metadata：`medical-evidence-gap-triage-reviewer` 由
+`medical-evidence-integrity-reviewer` 的 evidence-gap triage mode 覆盖；
+`medical-methodology-routeback-reviewer` 和
+`medical-owner-gate-handoff-reviewer` 由
+`medical-publication-routeback-reviewer` 的 methodology routeback / owner-gate
+handoff modes 覆盖；`medical-publication-strategy-memory-curator` 由
+`medical-research-portfolio-memory-curator` 的 publication strategy memory
+mode 覆盖。退役目录只保留 `TOMBSTONE.md` redirect，contract 记录
+`capability_preserved=true` 和 `default_exposure=false`。
 
 组学能力如需进入默认核心目录，仍需 MAS 形成稳定、可维护、可同步的真实组学专业 workflow 后，再作为 active 专业 Skill/模块升级；当前 `medical-genomics-foundation-models` 与 `medical-single-cell-modeling` 属于可选 advanced specialist。通用 source / external-learning intake 归 OPL Framework 或 MAS stage/source surface，不在 MAS Scholar Skills 默认核心专业 Skill 库中占位。
 
@@ -80,7 +91,7 @@ Skill 只持有 AI diagnostic playbook 和 deterministic receipt refs。
 | Active 专业模块合同 | `display`、`tables`、`stats`、`lit`、`write`、`review`、`submit`、`data` | 统一 module id、vocabulary、ref family、checklist、candidate handoff、receipt shape 和 owner gate，并明确对应真实专业 Skill。 |
 | 真实专业 Skill | `medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` | 给 Codex 执行稳定医学论文专业流程的 AI-first playbook，并通过 OPL Connect 同步到 workspace / quest `.codex/skills/`；`medical-figure-style` 和 `medical-figure-composer` 是 `display` 模块下的薄子能力，不新增 active module。 |
 | Skill-local deterministic helper | 各 `skills/<skill-id>/kernel.py`，以及必要的同目录轻量 refs、templates 或 scripts | 只做 DOI/PMID 归一化、schema skeleton、lint、manifest / receipt shaping、env/log diagnostics、self-check 等低成本确定性辅助；跟随 Skill 分发，不升级为 module、runtime worker、provider lifecycle、MAS authority function 或 publication helper owner。 |
-| 可选专科 Skill | 4 个 router/reviewer + 24 个 named-specialty specialists | 只在 named specialty task 中被发现和同步；它们是真实 Codex Skill，但不是 active module，不阻断默认 MAS 医学论文流程。 |
+| 可选专科 Skill | 4 个 router/reviewer + 20 个 named-specialty specialists；4 个 retired mode redirect | 只在 named specialty task 中发现和同步真实 Skill；退役能力通过 reviewer mode 覆盖，不作为 active metadata 暴露。 |
 
 模块化只发生在运维层：catalog、sync、descriptor、invocation envelope、
 candidate package、receipt、owner-gate handoff 和 verifier 可以按八个 module
@@ -89,7 +100,7 @@ candidate package、receipt、owner-gate handoff 和 verifier 可以按八个 mo
 和专业 ref，但这些候选必须回到 MAS/domain owner surface 后才可能成为
 owner receipt、typed blocker、artifact mutation、quality verdict 或 readiness。
 
-当前 helper 覆盖是刻意选择，不是“把所有 Skill 脚本化”：39 个 repo 内 `SKILL.md` 中，默认 install 的主路径是 aggregate + core 10 个专业 skill；optional named-specialty install 包括 4 个 router/reviewer 和 24 个 named-specialty skill。29 个专业、方法或专科目录仍带 `kernel.py` 作为历史低成本确定性 helper；`mas-scholar-skills` 是 aggregate 入口，`medical-figure-design` 是 Display 编排入口，`medical-methodology-planner`、`medical-evidence-integrity-reviewer`、`medical-publication-routeback-reviewer` 与 `medical-advanced-biomed-router` 是 optional router/reviewer 入口。`opl-scholarskills` 只保留为 tombstone/provenance alias，不参与 active discovery。
+当前 helper 覆盖是刻意选择，不是“把所有 Skill 脚本化”：35 个 repo 内 `SKILL.md` 中，默认 install 的主路径是 aggregate + core 10 个专业 skill；optional named-specialty install 包括 4 个 router/reviewer 和 20 个 named-specialty skill。28 个专业、方法或专科目录仍带 `kernel.py` 作为历史低成本确定性 helper；`mas-scholar-skills` 是 aggregate 入口，`medical-figure-design` 是 Display 编排入口，`medical-methodology-planner`、`medical-evidence-integrity-reviewer`、`medical-publication-routeback-reviewer` 与 `medical-advanced-biomed-router` 是 optional router/reviewer 入口。4 个 retired optional professional skill 只保留 `TOMBSTONE.md` redirect，不参与 active discovery。`opl-scholarskills` 只保留为 tombstone/provenance alias，不参与 active discovery。
 
 主动临床数据治理已经升级为 `medical-data-governance`，历史 Data module id 只保留 descriptor/readback 兼容。MAS Scholar Skills 只维护这八个有真实专业 Skill 单源的 active module；没有稳定专业 Skill 的能力不在本仓预留占位。
 

@@ -129,13 +129,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "optional_medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
     "optional_external_router_skill_ids": [
@@ -164,13 +160,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "optional_router_skill_ids": [
       "medical-advanced-biomed-router",
@@ -235,13 +227,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "tombstone_skill_ids": [
       "opl-scholarskills"
@@ -272,7 +260,7 @@
         "explicit_codex_developer"
       ]
     },
-    "tombstone_policy": "Only opl-scholarskills has no active SKILL.md. Optional specialist skills keep real SKILL.md metadata but are never part of default workspace or quest installs; they are synced only by named_specialty scope or explicit Codex developer request.",
+    "tombstone_policy": "Only opl-scholarskills has no active SKILL.md as a legacy aggregate alias. Retired optional professional skill metadata is kept only as redirect tombstones with capability_preserved=true and default_exposure=false; coverage now lives as modes inside the broader router/reviewer skills.",
     "no_authority_boundary_ref": "docs/no-authority-boundary.md",
     "optional_router_skill_ids": [
       "medical-advanced-biomed-router",
@@ -280,8 +268,13 @@
       "medical-evidence-integrity-reviewer",
       "medical-publication-routeback-reviewer"
     ],
-    "optional_redirect_tombstone_skill_ids": [],
-    "redirect_tombstone_policy": "No optional specialist skill is a redirect tombstone; legacy optional names are preserved as real named-specialty SKILL.md sources with default_exposure=false.",
+    "optional_redirect_tombstone_skill_ids": [
+      "medical-evidence-gap-triage-reviewer",
+      "medical-methodology-routeback-reviewer",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-publication-strategy-memory-curator"
+    ],
+    "redirect_tombstone_policy": "Retired optional professional skill metadata is not installed or discovered as SKILL.md. Each retired skill id redirects to a covered_by router/reviewer mode with capability_preserved=true and default_exposure=false.",
     "optional_named_specialty_skill_ids": [
       "medical-structural-biology",
       "medical-protein-design",
@@ -300,13 +293,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ]
   },
   "capability_module_classification_policy": {
@@ -385,18 +374,19 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "optional_medical_method_specialist_policy": "optional_medical_method_router_and_named_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress; default exposure remains false and named specialists are synced only for named_specialty scope",
     "optional_external_redirect_tombstone_skills": [],
-    "optional_medical_method_redirect_tombstone_skills": [],
-    "optional_specialist_router_policy": "default exposure remains false; optional named specialty installs may sync one router/reviewer skill plus the named specialist skill selected for the task; preserving named specialists prevents capability regression without polluting daily Codex metadata.",
+    "optional_medical_method_redirect_tombstone_skills": [
+      "medical-evidence-gap-triage-reviewer",
+      "medical-methodology-routeback-reviewer",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-publication-strategy-memory-curator"
+    ],
+    "optional_specialist_router_policy": "default exposure remains false; optional named specialty installs may sync one router/reviewer skill plus the named specialist skill selected for the task; retired narrow professional metadata is represented only by redirect tombstones because the capability now lives as modes inside broader router/reviewer skills.",
     "optional_external_router_skill_ids": [
       "medical-advanced-biomed-router"
     ],
@@ -425,13 +415,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ]
   },
   "professional_skill_quality_upgrade_policy": {
@@ -4029,48 +4015,6 @@
         ]
       },
       {
-        "skill_id": "medical-owner-gate-handoff-reviewer",
-        "canonical_path": "skills/medical-owner-gate-handoff-reviewer/SKILL.md",
-        "specialist_family": "owner_gate_handoff_review",
-        "candidate_ref_families": [
-          "handoff_inventory_ref",
-          "authority_boundary_ref",
-          "evidence_to_owner_map_ref",
-          "candidate_package_consistency_ref",
-          "residual_risk_ref",
-          "owner_gate_handoff_ref"
-        ],
-        "routing_tokens": [
-          "owner_gate",
-          "handoff_review",
-          "authority_boundary",
-          "route_back",
-          "residual_risk",
-          "owner_receipt"
-        ],
-        "default_exposure": false,
-        "optional_named_specialty_only": true,
-        "blocks_core_progress_when_missing": false,
-        "authority_boundary": {
-          "can_replace_default_eight_skills": false,
-          "can_block_default_core_progress_when_missing": false,
-          "can_write_domain_truth": false,
-          "can_write_runtime_state": false,
-          "can_mutate_artifact_body": false,
-          "can_sign_owner_receipt": false,
-          "can_create_typed_blocker": false,
-          "can_claim_quality_verdict": false,
-          "can_claim_publication_readiness": false,
-          "can_claim_current_package_authority": false,
-          "can_claim_owner_closeout": false
-        },
-        "required_handoff_refs": [
-          "candidate_package_ref",
-          "route_back_candidate",
-          "owner_gate_handoff_ref"
-        ]
-      },
-      {
         "skill_id": "medical-display-regression-debugger",
         "canonical_path": "skills/medical-display-regression-debugger/SKILL.md",
         "specialist_family": "medical_display_regression_debugging",
@@ -4157,90 +4101,6 @@
         ]
       },
       {
-        "skill_id": "medical-publication-strategy-memory-curator",
-        "canonical_path": "skills/medical-publication-strategy-memory-curator/SKILL.md",
-        "specialist_family": "publication_strategy_memory_curation",
-        "candidate_ref_families": [
-          "publication_strategy_memory_inventory_ref",
-          "memory_body_review_ref",
-          "current_study_alignment_ref",
-          "writeback_proposal_ref",
-          "accept_reject_handoff_ref",
-          "owner_gate_handoff_ref"
-        ],
-        "routing_tokens": [
-          "publication_strategy_memory",
-          "publication_route_memory",
-          "memory_curation",
-          "writeback_proposal",
-          "accept_reject_handoff",
-          "route_memory"
-        ],
-        "default_exposure": false,
-        "optional_named_specialty_only": true,
-        "blocks_core_progress_when_missing": false,
-        "authority_boundary": {
-          "can_replace_default_eight_skills": false,
-          "can_block_default_core_progress_when_missing": false,
-          "can_write_domain_truth": false,
-          "can_write_runtime_state": false,
-          "can_mutate_artifact_body": false,
-          "can_sign_owner_receipt": false,
-          "can_create_typed_blocker": false,
-          "can_claim_quality_verdict": false,
-          "can_claim_publication_readiness": false,
-          "can_claim_current_package_authority": false,
-          "can_claim_owner_closeout": false
-        },
-        "required_handoff_refs": [
-          "candidate_package_ref",
-          "route_back_candidate",
-          "owner_gate_handoff_ref"
-        ]
-      },
-      {
-        "skill_id": "medical-evidence-gap-triage-reviewer",
-        "canonical_path": "skills/medical-evidence-gap-triage-reviewer/SKILL.md",
-        "specialist_family": "evidence_gap_triage_review",
-        "candidate_ref_families": [
-          "evidence_gap_inventory_ref",
-          "evidence_gap_decision_candidate_ref",
-          "hard_gate_candidate_ref",
-          "nonblocking_gap_candidate_ref",
-          "claim_boundary_ref",
-          "owner_gate_handoff_ref"
-        ],
-        "routing_tokens": [
-          "evidence_gap",
-          "authority_gate",
-          "human_gate",
-          "proceed_with_assumption",
-          "soft_quality_gap",
-          "evidence_tail"
-        ],
-        "default_exposure": false,
-        "optional_named_specialty_only": true,
-        "blocks_core_progress_when_missing": false,
-        "authority_boundary": {
-          "can_replace_default_eight_skills": false,
-          "can_block_default_core_progress_when_missing": false,
-          "can_write_domain_truth": false,
-          "can_write_runtime_state": false,
-          "can_mutate_artifact_body": false,
-          "can_sign_owner_receipt": false,
-          "can_create_typed_blocker": false,
-          "can_claim_quality_verdict": false,
-          "can_claim_publication_readiness": false,
-          "can_claim_current_package_authority": false,
-          "can_claim_owner_closeout": false
-        },
-        "required_handoff_refs": [
-          "candidate_package_ref",
-          "route_back_candidate",
-          "owner_gate_handoff_ref"
-        ]
-      },
-      {
         "skill_id": "medical-research-portfolio-memory-curator",
         "canonical_path": "skills/medical-research-portfolio-memory-curator/SKILL.md",
         "specialist_family": "research_portfolio_memory_curation",
@@ -4282,49 +4142,6 @@
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
-      },
-      {
-        "skill_id": "medical-methodology-routeback-reviewer",
-        "canonical_path": "skills/medical-methodology-routeback-reviewer/SKILL.md",
-        "specialist_family": "methodology_routeback_review",
-        "candidate_ref_families": [
-          "methodology_blocker_inventory_ref",
-          "provenance_limited_harmonization_review_ref",
-          "clean_rebuild_route_review_ref",
-          "stop_loss_review_ref",
-          "human_gate_handoff_ref",
-          "owner_route_recommendation_ref",
-          "owner_gate_handoff_ref"
-        ],
-        "routing_tokens": [
-          "terminal_methodology_blocker",
-          "provenance_limited_harmonization",
-          "clean_rebuild",
-          "stop_loss",
-          "human_gate",
-          "methodology_reframe_route_decision"
-        ],
-        "default_exposure": false,
-        "optional_named_specialty_only": true,
-        "blocks_core_progress_when_missing": false,
-        "authority_boundary": {
-          "can_replace_default_eight_skills": false,
-          "can_block_default_core_progress_when_missing": false,
-          "can_write_domain_truth": false,
-          "can_write_runtime_state": false,
-          "can_mutate_artifact_body": false,
-          "can_sign_owner_receipt": false,
-          "can_create_typed_blocker": false,
-          "can_claim_quality_verdict": false,
-          "can_claim_publication_readiness": false,
-          "can_claim_current_package_authority": false,
-          "can_claim_owner_closeout": false
-        },
-        "required_handoff_refs": [
-          "candidate_package_ref",
-          "route_back_candidate",
-          "owner_gate_handoff_ref"
-        ]
       }
     ],
     "missing_skill_policy": "missing optional router or legacy redirect skill does not block the eight core modules or MAS ordinary progress",
@@ -4343,7 +4160,57 @@
     "can_claim_production_readiness": false,
     "can_claim_current_package_authority": false,
     "can_claim_owner_closeout": false,
-    "redirect_tombstone_skills": [],
+    "redirect_tombstone_skills": [
+      {
+        "skill_id": "medical-evidence-gap-triage-reviewer",
+        "redirect_to": "medical-evidence-integrity-reviewer",
+        "covered_by": "medical-evidence-integrity-reviewer",
+        "coverage_mode": "evidence_gap_triage_mode",
+        "canonical_redirect_ref": "skills/medical-evidence-gap-triage-reviewer/TOMBSTONE.md",
+        "capability_preserved": true,
+        "default_exposure": false,
+        "retired_metadata": [
+          "SKILL.md"
+        ]
+      },
+      {
+        "skill_id": "medical-methodology-routeback-reviewer",
+        "redirect_to": "medical-publication-routeback-reviewer",
+        "covered_by": "medical-publication-routeback-reviewer",
+        "coverage_mode": "methodology_routeback_mode",
+        "canonical_redirect_ref": "skills/medical-methodology-routeback-reviewer/TOMBSTONE.md",
+        "capability_preserved": true,
+        "default_exposure": false,
+        "retired_metadata": [
+          "SKILL.md"
+        ]
+      },
+      {
+        "skill_id": "medical-owner-gate-handoff-reviewer",
+        "redirect_to": "medical-publication-routeback-reviewer",
+        "covered_by": "medical-publication-routeback-reviewer",
+        "coverage_mode": "owner_gate_handoff_mode",
+        "canonical_redirect_ref": "skills/medical-owner-gate-handoff-reviewer/TOMBSTONE.md",
+        "capability_preserved": true,
+        "default_exposure": false,
+        "retired_metadata": [
+          "SKILL.md",
+          "kernel.py"
+        ]
+      },
+      {
+        "skill_id": "medical-publication-strategy-memory-curator",
+        "redirect_to": "medical-research-portfolio-memory-curator",
+        "covered_by": "medical-research-portfolio-memory-curator",
+        "coverage_mode": "publication_strategy_memory_mode",
+        "canonical_redirect_ref": "skills/medical-publication-strategy-memory-curator/TOMBSTONE.md",
+        "capability_preserved": true,
+        "default_exposure": false,
+        "retired_metadata": [
+          "SKILL.md"
+        ]
+      }
+    ],
     "optional_router_skill_ids": [
       "medical-methodology-planner",
       "medical-evidence-integrity-reviewer",
@@ -4360,15 +4227,11 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
-    "no_regression_policy": "The three router/reviewer skills choose and coordinate named specialties; they do not erase the older specialist playbooks. Former narrow medical-method skills remain real named-specialty SKILL.md sources with default_exposure=false."
+    "no_regression_policy": "The three router/reviewer skills choose and coordinate named specialties. Retired narrow optional professional skills no longer keep SKILL.md metadata; their capabilities are preserved as covered_by modes with default_exposure=false and redirect tombstones."
   },
   "advanced_specialist_pack_policy": {
     "policy_id": "mas_scholar_skills_advanced_specialist_pack.v1",

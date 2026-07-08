@@ -34,6 +34,27 @@ surface.
 - PDF evidence exploration: `pdf_parse_manifest_ref`, `pdf_outline_ref`,
   `page_evidence_refs`.
 
+## Evidence-Gap Triage Mode
+
+Use this mode for the former `medical-evidence-gap-triage-reviewer` scope.
+Classify incomplete evidence against the MAS evidence-gap decision policy and
+consumption ABI as exactly one of `authority_gate`, `human_gate`,
+`proceed_with_assumption`, `soft_quality_gap`, `observability_backlog`, or
+`evidence_tail`.
+
+Source-of-truth refs:
+
+- `contracts/evidence-gap-decision-policy.json`
+- `contracts/evidence-gap-consumption-abi.json`
+- `contracts/schemas/evidence-gap-decision.schema.json`
+
+For `authority_gate` or `human_gate`, build `hard_gate_candidate_ref` with the
+repair owner and legal entry point. For nonblocking classes, build
+`nonblocking_gap_candidate_ref` with the assumption, soft ledger,
+observability backlog, or tail-evidence follow-up. Always include
+`claim_boundary_ref` for forbidden readiness, owner receipt, paper progress,
+or provider-running claims.
+
 ## Workflow
 
 1. Build `evidence_integrity_inventory_ref`: claim, citation, source, PDF, and

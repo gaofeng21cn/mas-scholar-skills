@@ -35,6 +35,39 @@ candidate judgments, but it does not replace them or expand default exposure.
 - Terminal methodology route-back: `methodology_blocker_inventory_ref`,
   `owner_route_recommendation_ref`, `human_gate_handoff_ref`.
 
+## Methodology Routeback Mode
+
+Use this mode for the former `medical-methodology-routeback-reviewer` scope.
+Review terminal methodology blockers, provenance-limited harmonization, clean
+rebuild routes, stop-loss decisions, and human-gate handoffs before MAS or the
+analysis/source owner chooses the next legal route.
+
+Build these refs when relevant:
+
+- `methodology_blocker_inventory_ref`
+- `provenance_limited_harmonization_review_ref`
+- `clean_rebuild_route_review_ref`
+- `stop_loss_review_ref`
+- `human_gate_handoff_ref`
+- `owner_route_recommendation_ref`
+
+Do not close a hard methodology blocker through prose repair, package refresh,
+or another AI reviewer rerun. Produce `route_back_candidate` when evidence is
+insufficient, currentness is unclear, or the handoff would imply typed-blocker
+or readiness authority.
+
+## Owner-Gate Handoff Mode
+
+Use this mode for the former `medical-owner-gate-handoff-reviewer` scope.
+Review candidate packages, review packets, artifact bundles, and method
+handoffs before downstream owner consumption.
+
+Build `handoff_inventory_ref`, `authority_boundary_ref`,
+`evidence_to_owner_map_ref`, `candidate_package_consistency_ref`, and
+`residual_risk_ref`. Route back when owner inputs are missing, refs are stale,
+artifact roots or worktrees are mixed, unresolved comments remain, or the
+handoff would imply authority this repository does not hold.
+
 ## Workflow
 
 1. Build `publication_routeback_inventory_ref`: candidate package, review

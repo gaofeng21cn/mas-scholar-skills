@@ -31,17 +31,24 @@ Optional medical-method specialist skills such as
 `medical-reference-integrity-auditor`, `medical-rebuttal-strategy`,
 `medical-display-qc`, `medical-causal-inference-plan`, and
 `medical-survival-analysis-plan`, plus `medical-risk-model-transportability-reviewer`,
-`medical-registry-atlas-story-architect`, `medical-owner-gate-handoff-reviewer`,
+`medical-registry-atlas-story-architect`,
 `medical-display-regression-debugger`, and
-`medical-data-freeze-and-analysis-readiness-reviewer`,
-`medical-publication-strategy-memory-curator`, and
-`medical-evidence-gap-triage-reviewer`,
-`medical-research-portfolio-memory-curator`, and
-`medical-methodology-routeback-reviewer`, follow the same boundary.
+`medical-data-freeze-and-analysis-readiness-reviewer`, and
+`medical-research-portfolio-memory-curator`, follow the same boundary.
 They may emit candidate refs, support maps, `route_back_candidate`, and
 `owner_gate_handoff_ref` for named method tasks; they are not active module owners
 and cannot sign owner receipts, create typed blockers, write MAS truth, or claim
 source, runtime, publication, or production readiness.
+
+Retired optional professional metadata follows the same no-authority boundary
+through broader reviewer modes: `medical-evidence-gap-triage-reviewer` is
+covered by `medical-evidence-integrity-reviewer`;
+`medical-methodology-routeback-reviewer` and
+`medical-owner-gate-handoff-reviewer` are covered by
+`medical-publication-routeback-reviewer`; and
+`medical-publication-strategy-memory-curator` is covered by
+`medical-research-portfolio-memory-curator`. These retired ids keep redirect
+tombstones only and are not active `SKILL.md` discovery surfaces.
 
 ## Owner Route
 

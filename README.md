@@ -22,7 +22,7 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
   <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills academic capability handoff map" width="100%" />
 </p>
 
-`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as history/tombstone/provenance, not as an active Codex skill. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional router/reviewer skills and 24 optional named-specialty skills for methodology, evidence integrity, publication route-back, advanced biomedical, and medical-method work.
+`MAS Scholar Skills` is the canonical product and repository name for the OPL-owned, Codex-compatible external enhancement pack that serves MAS medical-paper work. The historical `opl-scholarskills` name remains only as history/tombstone/provenance, not as an active Codex skill. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional router/reviewer skills and 20 optional named-specialty skills for methodology, evidence integrity, publication route-back, advanced biomedical, and medical-method work.
 
 The MAS stage operating prompts stay in the MAS domain-agent repository. The canonical stage sources are MAS `agent/stages/` and `agent/prompts/`; MAS overlay Skills and workspace or quest `.codex/skills/` copies are Codex discovery projections and compatibility surfaces, not the source of stage authority. That sync step must stay because Codex discovers local skills through `.codex/skills/`. `write`, `review`, `figure`, `scout`, and related stages decide when the stage is valid, what evidence is enough, where the output goes next, what routes back, and what needs an owner gate. The `medical-*` skills in this repository are professional skills for doing the assigned writing, review, figure, style, composition, literature, statistics, table, submission, and clinical data governance work well.
 
@@ -53,12 +53,19 @@ no-authority candidate helpers. They do not replace the default medical-paper
 skills, do not become MAS authority owners, and do not block MAS ordinary
 progress when absent.
 
-The 24 narrower optional skills, such as `medical-structural-biology`,
+The 20 narrower optional skills, such as `medical-structural-biology`,
 `medical-protocol-and-sap-planner`, `medical-reference-integrity-auditor`,
 `medical-display-qc`, and `scientific-compute-runner`, remain real
 named-specialty `SKILL.md` playbooks. They should not be installed by default;
 OPL Connect should sync one only for an explicit named specialty or after a
 router selects it.
+
+Four formerly separate optional professional skills are now reviewer modes
+rather than independent Codex metadata: evidence-gap triage is covered by
+`medical-evidence-integrity-reviewer`; methodology routeback and owner-gate
+handoff are covered by `medical-publication-routeback-reviewer`; publication
+strategy memory is covered by `medical-research-portfolio-memory-curator`.
+Their retired directories keep `TOMBSTONE.md` redirect records only.
 
 <table>
   <tr>
@@ -86,7 +93,7 @@ MAS Scholar Skills turns the reusable support material into active professional 
 - MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, or data governance support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
 - `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are real Codex skills in this source repository; they are not only module descriptors, plugin mirrors, or connector descriptors.
-- Optional named-specialty work uses four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`, plus 24 named-specialty `SKILL.md` playbooks that are synced only on demand.
+- Optional named-specialty work uses four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`, plus 20 named-specialty `SKILL.md` playbooks that are synced only on demand; four narrower legacy capabilities are retained as modes under the broader reviewers.
 - `opl-scholarskills` is a tombstone/provenance alias only. It is not installed or discovered as an active Codex skill.
 - Source/external-learning intake is handled by OPL Framework or MAS stage/source surfaces, not as an active module or contract placeholder here; future omics support should be added here as a real professional skill when a stable MAS workflow exists.
 - By default, a professional specialist skill belongs in the consuming domain-agent repo next to the stage prompts. MAS Scholar Skills is the external pack exception for MAS writing, review, figure, literature, statistics, table, submission, Display, and source refs because these surfaces are reusable across workspaces and independently syncable.
