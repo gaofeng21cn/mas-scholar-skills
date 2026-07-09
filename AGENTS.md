@@ -21,7 +21,7 @@
 
 ## 文件边界
 
-- `.codex-plugin/plugin.json` 与 `skills/mas-scholar-skills/SKILL.md` 是 canonical Codex plugin/skill 入口；`skills/opl-scholarskills/SKILL.md` 只保留 legacy alias。
+- `.codex-plugin/plugin.json` 与 `skills/mas-scholar-skills/SKILL.md` 是 canonical Codex plugin/skill 入口；历史 `opl-scholarskills` 只在 contract / provenance 中保留 legacy alias，不存在 active `skills/opl-scholarskills/SKILL.md`。
 - `contracts/scholar-skills-capability-modules.json` 是本仓承载的 module catalog snapshot；OPL Framework 内的 executable contract/CLI 实现仍由 `one-person-lab` 维护。
 - `gallery/medical-display/` 只承载最终审阅包，不承载生成工作区。
 - `docs/` 只做说明、边界和运维导航，不做第二 truth source。
