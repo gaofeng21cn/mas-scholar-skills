@@ -530,6 +530,9 @@ acceptance or artifact authority.
 Do not create a `render_receipt_ref` before an actual pack render or invent
 pack, template, layout-sidecar, output, or degradation values to fill one;
 keep pre-render decisions in the figure contract.
+`original_new_render` does not make pack runtime fields optional. If a pack did
+not return real template and layout-sidecar refs, do not emit a Display Pack
+receipt for that paper-local render.
 
 ### 6. Visual QA
 

@@ -211,6 +211,9 @@ current-package freshness, quality verdict, or publication readiness.
 Do not emit a render receipt before an actual pack render or invent pack,
 template, layout-sidecar, output, or degradation values to complete a draft;
 keep pre-render decisions in `figure_contract_ref`.
+`original_new_render` does not make pack runtime fields optional: if the pack
+does not return real template and layout-sidecar refs, do not emit a Display
+Pack receipt for that paper-local render.
 
 ## Paper Narrative / Figure Deck Arc
 
