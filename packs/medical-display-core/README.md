@@ -42,9 +42,10 @@ Evidence-figure renderer assets are R/ggplot2-first:
 - Python evidence templates are not retained in the current pack unless a future audited template proves a concrete advantage over the R/ggplot2 baseline.
 - Python remains available for `illustration_shell` composition and table-shell generation because design/flow/graphical-abstract surfaces do not act as statistical evidence authority.
 
-The current template inventory is derived by `scripts/verify-display-gallery-pack.py --check` from
+The current inventory is derived by `scripts/verify-display-gallery-pack.py --check` from
 `canonical_template_catalog.json`, `templates/*/template.toml`, and `opl_pack.json`. The verifier
-prints catalog/template-resource counts and renderer-family counts, and fails if descriptor inventory,
+separates 52 default-visible canonical templates from two explicit `paper_derived_reference` table
+shells. It prints canonical/template-resource/reference counts and renderer-family counts, and fails if descriptor inventory,
 OPL template resources, pack-level execution-mode semantics, or R/ggplot2 `final|candidate` render-mode declarations drift from the pack.
 Run `python3 scripts/verify-display-gallery-pack.py --sync-opl-pack` after catalog or template descriptor
 changes to rewrite only the `role=template` resources in `opl_pack.json`; non-template resources keep
@@ -122,13 +123,19 @@ study-design or participant-accounting meaning. MAS visual audit uses those fiel
 page inspection; `renderer_family = "r_ggplot2"` or `uses_ggconsort = true` alone is not enough evidence
 that Figure 1 meets the purpose-first contract.
 
-## DPCC treatment-gap alignment policy
+## Stratified mismatch burden policy
 
 `treatment_gap_alignment_figure` must not mix a percentage x-axis with count-only bar labels. When the
 x-axis encodes a recorded review-signal percentage, labels must include the percentage plus the exact
 numerator and eligible denominator, for example `46.9% (49,008/104,508)`. If a consuming paper wants
 count-only labels, the x-axis must be changed to a count scale instead. This prevents a final PDF from
 appearing numerically updated while still carrying an axis/label mismatch.
+
+The figure's schema and renderer are generic: consuming papers declare their own metric ids, labels,
+counts, denominators, and optional rates. Its first paper provenance is the MAS DPCC phenotype study,
+but DPCC is not part of the default descriptor semantics. The two numbered DPCC table shells remain in
+`paper_derived_references` with `default_visible=false`; they require explicit paper-local selection and
+must not enter ordinary template recommendations.
 
 ## Gallery review maintenance
 

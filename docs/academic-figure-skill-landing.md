@@ -78,8 +78,8 @@ Make the useful parts executable in the current Display family:
 The following commands were run from the isolated landing and Gallery-currentness lanes on
 `2026-07-10`:
 
-- `python3 scripts/verify-display-gallery-pack.py --check`: exit 0; 54 catalog
-  templates, 54 OPL template resources, 6 template examples, 6 golden
+- `python3 scripts/verify-display-gallery-pack.py --check`: exit 0; 52 canonical
+  templates, 54 OPL template resources, 2 paper-derived references, 6 template examples, 6 golden
   templates, 46 gallery visuals, and 5 review files verified.
 - Full force-render through the prepared OPL run-context rendered `46/46`
   Gallery visuals with `0` blocked visuals. The final 24-page PDF passed

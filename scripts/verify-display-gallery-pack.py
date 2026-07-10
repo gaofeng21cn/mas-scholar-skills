@@ -321,7 +321,7 @@ def load_opl_pack(display_pack: dict) -> dict:
 
 def expected_template_resources(
     display_pack: dict,
-) -> tuple[list[dict], dict[str, int], dict[str, dict]]:
+) -> tuple[list[dict], dict[str, int], dict[str, dict], dict[str, dict]]:
     catalog = read_json(PACK_ROOT / "canonical_template_catalog.json")
     if catalog.get("pack_id") != display_pack["pack_id"]:
         fail("canonical_template_catalog.json pack_id does not match display_pack.toml")
@@ -333,6 +333,7 @@ def expected_template_resources(
     renderer_counts: dict[str, int] = {}
     template_resources: list[dict] = []
     template_facts: dict[str, dict] = {}
+    reference_facts: dict[str, dict] = {}
     pack_render_modes = display_pack["supported_render_modes"]
     for family in families:
         template_id = family.get("canonical_template_id")
@@ -353,6 +354,14 @@ def expected_template_resources(
         kind = descriptor.get("kind")
         if not kind:
             fail(f"{template_id} descriptor missing kind")
+        descriptor_inventory_class = descriptor.get("inventory_class", "canonical")
+        descriptor_default_visible = descriptor.get("default_visible", True)
+        if descriptor_inventory_class != "canonical" or descriptor_default_visible is not True:
+            fail(f"canonical template {template_id} descriptor must stay canonical/default-visible")
+        family_provenance_refs = family.get("paper_provenance_refs") or []
+        if family_provenance_refs:
+            if descriptor.get("paper_provenance_refs") != family_provenance_refs:
+                fail(f"canonical template {template_id} paper provenance drifted")
         gallery_category = {
             ("evidence_figure", "r_ggplot2"): "evidence",
             ("illustration_shell", "r_ggplot2"): "reporting_flow",
@@ -409,15 +418,77 @@ def expected_template_resources(
             "medical_family_ids": medical_family_ids,
         }
 
+    references = catalog.get("paper_derived_references", [])
+    if not isinstance(references, list):
+        fail("canonical_template_catalog.json paper_derived_references must be a list")
+    for reference in references:
+        if not isinstance(reference, dict):
+            fail("paper_derived_references entries must be objects")
+        template_id = reference.get("template_id")
+        if not isinstance(template_id, str) or not template_id:
+            fail("paper-derived reference missing template_id")
+        if template_id in seen_template_ids:
+            fail(f"paper-derived reference {template_id} is also canonical")
+        if template_id in reference_facts:
+            fail(f"duplicate paper-derived reference {template_id}")
+        if reference.get("resource_class") != "paper_derived_reference":
+            fail(f"paper-derived reference {template_id} has invalid resource_class")
+        if reference.get("default_visible") is not False:
+            fail(f"paper-derived reference {template_id} must set default_visible=false")
+        provenance_refs = reference.get("paper_provenance_refs")
+        if not isinstance(provenance_refs, list) or not provenance_refs:
+            fail(f"paper-derived reference {template_id} requires paper_provenance_refs")
+        template_dir = PACK_ROOT / "templates" / template_id
+        descriptor = read_toml(template_dir / "template.toml")
+        if descriptor.get("template_id") != template_id:
+            fail(f"paper-derived reference {template_id} descriptor template_id mismatch")
+        if descriptor.get("kind") != "table_shell":
+            fail(f"paper-derived reference {template_id} must remain a table_shell")
+        if descriptor.get("inventory_class") != "paper_derived_reference":
+            fail(f"paper-derived reference {template_id} descriptor inventory_class mismatch")
+        if descriptor.get("default_visible") is not False:
+            fail(f"paper-derived reference {template_id} descriptor must set default_visible=false")
+        if descriptor.get("paper_provenance_refs") != provenance_refs:
+            fail(f"paper-derived reference {template_id} provenance drifted")
+        template_resources.append(
+            {
+                "resource_id": f"template.{template_id}",
+                "role": "template",
+                "ref": f"templates/{template_id}/template.toml",
+                "inventory_class": "paper_derived_reference",
+                "default_visible": False,
+            }
+        )
+        reference_facts[template_id] = {
+            "template_id": template_id,
+            "resource_class": "paper_derived_reference",
+            "default_visible": False,
+            "paper_provenance_refs": provenance_refs,
+        }
+
     descriptor_template_ids = {
         path.parent.name for path in (PACK_ROOT / "templates").glob("*/template.toml")
     }
-    if descriptor_template_ids != seen_template_ids:
-        missing = sorted(seen_template_ids - descriptor_template_ids)
-        extra = sorted(descriptor_template_ids - seen_template_ids)
+    inventory_template_ids = seen_template_ids | set(reference_facts)
+    if descriptor_template_ids != inventory_template_ids:
+        missing = sorted(inventory_template_ids - descriptor_template_ids)
+        extra = sorted(descriptor_template_ids - inventory_template_ids)
         fail(f"template descriptor/catalog mismatch: missing={missing} extra={extra}")
 
-    return template_resources, renderer_counts, template_facts
+    for template_id in (
+        "phenotype_gap_structure_figure",
+        "site_held_out_stability_figure",
+        "treatment_gap_alignment_figure",
+    ):
+        descriptor = read_toml(PACK_ROOT / "templates" / template_id / "template.toml")
+        exposed_text = " ".join(
+            str(descriptor.get(field) or "")
+            for field in ("display_name", "input_schema_ref", "qc_profile_ref")
+        ).lower()
+        if "dpcc" in exposed_text:
+            fail(f"canonical template {template_id} exposes DPCC in default descriptor semantics")
+
+    return template_resources, renderer_counts, template_facts, reference_facts
 
 
 def is_template_resource(resource: dict) -> bool:
@@ -447,14 +518,14 @@ def generated_opl_pack(opl_pack: dict, template_resources: list[dict]) -> dict:
 def verify_source_pack() -> dict:
     display_pack = load_display_pack()
     opl_pack = load_opl_pack(display_pack)
-    template_resources, renderer_counts, template_facts = expected_template_resources(
+    template_resources, renderer_counts, template_facts, reference_facts = expected_template_resources(
         display_pack
     )
     generated = generated_opl_pack(opl_pack, template_resources)
     if opl_pack != generated:
         fail("opl_pack.json template resources drifted; run scripts/verify-display-gallery-pack.py --sync-opl-pack")
 
-    seen_template_ids = {resource["resource_id"].removeprefix("template.") for resource in template_resources}
+    resource_template_ids = {resource["resource_id"].removeprefix("template.") for resource in template_resources}
     opl_template_ids: set[str] = set()
     for resource in opl_pack.get("resources") or []:
         if not is_template_resource(resource):
@@ -469,9 +540,9 @@ def verify_source_pack() -> dict:
         if template_id in opl_template_ids:
             fail(f"opl_pack.json duplicate template resource {template_id}")
         opl_template_ids.add(template_id)
-    if opl_template_ids != seen_template_ids:
-        missing = sorted(seen_template_ids - opl_template_ids)
-        extra = sorted(opl_template_ids - seen_template_ids)
+    if opl_template_ids != resource_template_ids:
+        missing = sorted(resource_template_ids - opl_template_ids)
+        extra = sorted(opl_template_ids - resource_template_ids)
         fail(f"opl_pack.json template resources/catalog mismatch: missing={missing} extra={extra}")
 
     for required in [
@@ -488,6 +559,7 @@ def verify_source_pack() -> dict:
         "rlib/medicaldisplaycore/candidate_renderer.R",
         "rlib/medicaldisplaycore/cohort_flow_renderer.R",
         "rlib/medicaldisplaycore/registry_gallery_renderers.R",
+        "rlib/medicaldisplaycore/stratified_display_renderers.R",
         "src/fenggaolab_org_medical_display_core/__init__.py",
         "tests/render_registry_gallery_templates.py",
     ]:
@@ -527,10 +599,12 @@ def verify_source_pack() -> dict:
             fail(f"source pack contains generated artifact {matches[0].relative_to(ROOT)}")
 
     return {
-        "catalog_template_count": len(seen_template_ids),
+        "catalog_template_count": len(template_facts),
         "opl_template_resource_count": len(opl_template_ids),
+        "paper_derived_reference_count": len(reference_facts),
         "renderer_counts": renderer_counts,
         "template_facts": template_facts,
+        "reference_facts": reference_facts,
     }
 
 
@@ -687,7 +761,7 @@ def verify_golden_manifest() -> dict:
 def sync_opl_pack() -> None:
     display_pack = load_display_pack()
     opl_pack = load_opl_pack(display_pack)
-    template_resources, _renderer_counts, _template_facts = expected_template_resources(
+    template_resources, _renderer_counts, _template_facts, _reference_facts = expected_template_resources(
         display_pack
     )
     generated = generated_opl_pack(opl_pack, template_resources)
@@ -698,7 +772,10 @@ def sync_opl_pack() -> None:
     print(f"opl_pack.json synchronized: {len(template_resources)} template resources")
 
 
-def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
+def verify_gallery_review_package(
+    template_facts: dict[str, dict],
+    reference_facts: dict[str, dict],
+) -> dict:
     manifest = read_json(GALLERY_ROOT / "gallery_manifest.json")
     snapshot = read_json(GALLERY_ROOT / "gallery_snapshot.json")
     require_review_policy(manifest, "gallery_manifest.json")
@@ -722,6 +799,7 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
     canonical_counts = {
         "current_template_count": len(template_facts),
         "non_visual_canonical_template_count": len(expected_ids["table_shell"]),
+        "paper_derived_reference_template_count": len(reference_facts),
     }
     for key, expected in canonical_counts.items():
         for container, label in (
@@ -858,6 +936,31 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
             "non_visual_inventory visual members must match table preview template IDs"
         )
 
+    reference_entries = manifest.get("paper_derived_reference_inventory")
+    if not isinstance(reference_entries, list):
+        fail("gallery_manifest paper_derived_reference_inventory must be a list")
+    reference_ids: list[str] = []
+    for index, entry in enumerate(reference_entries):
+        if not isinstance(entry, dict):
+            fail(f"gallery_manifest paper_derived_reference_inventory[{index}] must be an object")
+        template_id = entry.get("template_id")
+        fact = reference_facts.get(template_id)
+        if fact is None:
+            fail(f"paper_derived_reference_inventory contains unknown reference {template_id}")
+        if entry.get("resource_class") != "paper_derived_reference":
+            fail(f"paper-derived reference {template_id} resource_class mismatch")
+        if entry.get("migration_status") != "paper_derived_reference":
+            fail(f"paper-derived reference {template_id} migration_status mismatch")
+        if entry.get("default_visible") is not False:
+            fail(f"paper-derived reference {template_id} must not be default visible")
+        if entry.get("visual_gallery_visible") is not False:
+            fail(f"paper-derived reference {template_id} must not be Gallery visible")
+        if entry.get("paper_provenance_refs") != fact["paper_provenance_refs"]:
+            fail(f"paper-derived reference {template_id} provenance mismatch")
+        reference_ids.append(template_id)
+    if set(reference_ids) != set(reference_facts) or len(reference_ids) != len(set(reference_ids)):
+        fail("paper_derived_reference_inventory IDs must match source catalog references")
+
     all_gallery_ids = [
         template_id for ids in category_ids.values() for template_id in ids
     ]
@@ -979,12 +1082,16 @@ def main() -> None:
     verify_receipt_templates()
     pack_summary = verify_source_pack()
     example_summary = verify_template_examples()
-    gallery_summary = verify_gallery_review_package(pack_summary["template_facts"])
+    gallery_summary = verify_gallery_review_package(
+        pack_summary["template_facts"],
+        pack_summary["reference_facts"],
+    )
     golden_summary = verify_golden_manifest()
     print(
         "display gallery pack verify ok: "
         f"{pack_summary['catalog_template_count']} catalog templates, "
         f"{pack_summary['opl_template_resource_count']} opl template resources, "
+        f"{pack_summary['paper_derived_reference_count']} paper-derived references, "
         f"renderer families {format_counts(pack_summary['renderer_counts'])}, "
         f"{example_summary['example_template_count']} template examples, "
         f"{golden_summary['golden_template_count']} reference-snapshot golden templates, "

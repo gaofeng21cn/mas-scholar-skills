@@ -17,6 +17,8 @@
     "raw_analysis_inputs_must_match_computed_workflow_templates": true,
     "validated_summary_templates_fail_closed_on_raw_analysis_requests": true,
     "migrated_aliases_are_not_default_visible": true,
+    "paper_derived_references_are_not_default_visible": true,
+    "paper_derived_references_require_explicit_selection": true,
     "explicit_alias_requests_may_be_migrated_to_canonical_template": true,
     "medical_figure_family_mapping_required": true,
     "starter_recipe_profile_required": true,
@@ -623,14 +625,17 @@
     {
       "family_id": "phenotype_gap_structure_figure",
       "category": "Population and Baseline",
-      "title": "DPCC Phenotype Gap Structure",
-      "figure_archetype": "phenotype_composition_plus_treatment_gap_heatmap",
+      "title": "Stratified Group Mismatch Structure",
+      "figure_archetype": "group_composition_plus_mismatch_rate_heatmap",
       "canonical_template_id": "phenotype_gap_structure_figure",
       "default_visible": true,
       "aliases": [],
-      "migration_reason": "DPCC phenotype-gap structure is a paper-specific evidence intent: cohort composition plus treatment-gap matrix. It must route through a purpose-first R template rather than generic stacked bars or Python legacy figures.",
+      "migration_reason": "Group composition paired with a denominator-defined mismatch matrix is reusable across phenotype, risk-stratum, service-review, and implementation-gap papers when metric definitions are supplied by the consuming paper.",
       "analysis_responsibility": "validated_summary_required",
       "analysis_input_state": "validated_display_payload",
+      "paper_provenance_refs": [
+        "med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"
+      ],
       "medical_family_ids": [
         "composition_profile",
         "annotated_heatmap"
@@ -639,14 +644,17 @@
     {
       "family_id": "site_held_out_stability_figure",
       "category": "Longitudinal and Patient Trajectory",
-      "title": "DPCC Transition and Site Support",
-      "figure_archetype": "phenotype_transition_heatmap_plus_site_support_bars",
+      "title": "State Transition and Support Stability",
+      "figure_archetype": "state_transition_heatmap_plus_support_distribution",
       "canonical_template_id": "site_held_out_stability_figure",
       "default_visible": true,
       "aliases": [],
-      "migration_reason": "DPCC transition/site support answers stability and held-out-site support, so the current template uses a transition heatmap with a real support panel instead of a decorative alluvial/Sankey fallback.",
+      "migration_reason": "A transition matrix paired with a support-distribution panel is reusable for longitudinal states and held-out subgroup or site stability without encoding one paper's cohort labels.",
       "analysis_responsibility": "validated_summary_required",
       "analysis_input_state": "validated_display_payload",
+      "paper_provenance_refs": [
+        "med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"
+      ],
       "medical_family_ids": [
         "alluvial_transition",
         "composition_profile"
@@ -655,14 +663,17 @@
     {
       "family_id": "treatment_gap_alignment_figure",
       "category": "Population and Baseline",
-      "title": "DPCC Treatment Gap Alignment",
-      "figure_archetype": "guideline_linked_treatment_gap_burden_small_multiples",
+      "title": "Stratified Mismatch Burden Alignment",
+      "figure_archetype": "stratified_indicator_burden_small_multiples",
       "canonical_template_id": "treatment_gap_alignment_figure",
       "default_visible": true,
       "aliases": [],
-      "migration_reason": "DPCC treatment-gap alignment carries four guideline-linked burden comparisons and must render four real burden panels, not an axis-only text card.",
+      "migration_reason": "Denominator-defined mismatch counts and rates can be compared across clinical groups for any explicit indicator set; the renderer derives its panels from paper-supplied metric definitions rather than a fixed disease program.",
       "analysis_responsibility": "validated_summary_required",
       "analysis_input_state": "validated_display_payload",
+      "paper_provenance_refs": [
+        "med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"
+      ],
       "medical_family_ids": [
         "composition_profile"
       ]
@@ -919,35 +930,41 @@
       "medical_family_ids": [
         "table_one_baseline"
       ]
-    },
+    }
+  ],
+  "paper_derived_references": [
     {
-      "family_id": "table2_phenotype_gap_summary",
+      "template_id": "table2_phenotype_gap_summary",
+      "resource_class": "paper_derived_reference",
+      "default_visible": false,
       "category": "Publication Shells and Tables",
       "title": "DPCC Phenotype Gap Summary",
       "figure_archetype": "compact_phenotype_measure_value_table_shell",
-      "canonical_template_id": "table2_phenotype_gap_summary",
-      "default_visible": true,
-      "aliases": [],
-      "migration_reason": "DPCC phenotype summary is a main-text table shell with a paper-local compact layout contract; it is current rather than a baseline-table alias.",
+      "reason": "The table number, row grammar, and compact measure-value layout are specific to the DPCC phenotype paper and are available only for explicit paper-local reuse.",
       "analysis_responsibility": "table_shell",
       "analysis_input_state": "validated_table_values",
       "medical_family_ids": [
         "table_one_baseline"
+      ],
+      "paper_provenance_refs": [
+        "med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"
       ]
     },
     {
-      "family_id": "table3_transition_site_support_summary",
+      "template_id": "table3_transition_site_support_summary",
+      "resource_class": "paper_derived_reference",
+      "default_visible": false,
       "category": "Publication Shells and Tables",
       "title": "DPCC Transition and Site Support Summary",
       "figure_archetype": "compact_transition_support_measure_value_table_shell",
-      "canonical_template_id": "table3_transition_site_support_summary",
-      "default_visible": true,
-      "aliases": [],
-      "migration_reason": "DPCC transition and site support summary is a main-text support table shell with a compact layout contract; it is current rather than a baseline-table alias.",
+      "reason": "The table number and transition/site-support row grammar are specific to the DPCC phenotype paper and are available only for explicit paper-local reuse.",
       "analysis_responsibility": "table_shell",
       "analysis_input_state": "validated_table_values",
       "medical_family_ids": [
         "table_one_baseline"
+      ],
+      "paper_provenance_refs": [
+        "med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"
       ]
     }
   ]

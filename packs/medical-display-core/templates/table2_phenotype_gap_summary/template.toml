@@ -12,3 +12,6 @@ allowed_paper_roles = ["main_text", "supplementary"]
 execution_mode = "python_plugin"
 entrypoint = "fenggaolab_org_medical_display_core.table_shells:render_table_shell"
 paper_proven = true
+inventory_class = "paper_derived_reference"
+default_visible = false
+paper_provenance_refs = ["med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"]

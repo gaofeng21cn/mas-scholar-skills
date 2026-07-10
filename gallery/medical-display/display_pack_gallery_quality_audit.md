@@ -16,7 +16,7 @@ Machine boundary: 本文由 `scripts/build-display-pack-gallery.py` 从本地 Ga
 - design visual template count: `1`
 - table preview visual template count: `1`
 - total Gallery visual template count: `46`
-- non-visual inventory count: `9`
+- non-visual inventory count: `7`
 - lower-bound review required: `43`
 - blocked evidence templates: `0`
 - blocked gallery visual templates: `0`

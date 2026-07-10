@@ -607,14 +607,14 @@ for (.frame_index in rev(seq_len(sys.nframe()))) {
 source(.candidate_publication_renderer_path, local = environment())
 rm(.candidate_renderer_source_file, .candidate_publication_renderer_path, .frame_index, .frame_file)
 source_renderer_helper("registry_gallery_renderers.R")
-source_renderer_helper("dpcc_primary_care_renderers.R")
+source_renderer_helper("stratified_display_renderers.R")
 
 build_candidate_evidence_plot <- function(template_id, payload) {
   switch(
     template_id,
-    phenotype_gap_structure_figure = dpcc_plot_phenotype_gap_structure(payload),
-    site_held_out_stability_figure = dpcc_plot_transition_site_support(payload),
-    treatment_gap_alignment_figure = dpcc_plot_treatment_gap_alignment(payload),
+    phenotype_gap_structure_figure = plot_stratified_mismatch_matrix(payload),
+    site_held_out_stability_figure = plot_transition_support_matrix(payload),
+    treatment_gap_alignment_figure = plot_stratified_mismatch_burden(payload),
     time_to_event_discrimination_calibration_panel = candidate_plot_time_to_event_discrimination_calibration(payload),
     time_to_event_decision_curve = candidate_plot_time_to_event_decision_curve(payload),
     time_to_event_multihorizon_calibration_panel = candidate_plot_multihorizon_calibration(payload),
@@ -879,17 +879,17 @@ candidate_metrics_with_renderer <- function(template_id, display_payload, base_p
 
 build_candidate_layout_override <- function(template_id, display_payload, base_panel_box = NULL, base_guide_box = NULL) {
   display_payload <- candidate_single_display_payload(display_payload, template_id)
-  dpcc_override <- dpcc_layout_override(template_id, display_payload)
-  if (!is.null(dpcc_override)) {
+  stratified_override <- stratified_display_layout_override(template_id, display_payload)
+  if (!is.null(stratified_override)) {
     return(list(
-      layout_boxes = dpcc_override$layout_boxes,
-      panel_boxes = dpcc_override$panel_boxes,
-      guide_boxes = dpcc_override$guide_boxes,
+      layout_boxes = stratified_override$layout_boxes,
+      panel_boxes = stratified_override$panel_boxes,
+      guide_boxes = stratified_override$guide_boxes,
       metrics = candidate_metrics_with_renderer(
         template_id,
         display_payload,
         base_panel_box,
-        dpcc_override$metrics %||% list()
+        stratified_override$metrics %||% list()
       )
     ))
   }

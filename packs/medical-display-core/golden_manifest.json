@@ -30,11 +30,11 @@
   },
   "shared_gallery_snapshot_ref": {
     "path": "gallery/medical-display/gallery_snapshot.json",
-    "sha256": "2b39f376ec1a5d7779f1e49499f281568119295db6a23fead911a1e6dab76538"
+    "sha256": "56632100ee424f4a9800d07b07e8e612e1c6272c634bd11aafd50a82c7076003"
   },
   "shared_gallery_pdf_ref": {
     "path": "gallery/medical-display/medical_display_gallery.pdf",
-    "sha256": "a96763a241c4f3f558381b96ab0b6452eaf15aaaaa97a4325d3557fac8c407f0"
+    "sha256": "627ca0d6e89dc79d0c4d7090cb56bc687157f12a88ae10115a13123508d86944"
   },
   "known_limits": [
     "The checked-in gallery PDF and snapshot are shared review references, not per-template rendered artifacts.",

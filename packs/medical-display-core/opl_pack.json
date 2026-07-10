@@ -318,12 +318,16 @@
     {
       "resource_id": "template.table2_phenotype_gap_summary",
       "role": "template",
-      "ref": "templates/table2_phenotype_gap_summary/template.toml"
+      "ref": "templates/table2_phenotype_gap_summary/template.toml",
+      "inventory_class": "paper_derived_reference",
+      "default_visible": false
     },
     {
       "resource_id": "template.table3_transition_site_support_summary",
       "role": "template",
-      "ref": "templates/table3_transition_site_support_summary/template.toml"
+      "ref": "templates/table3_transition_site_support_summary/template.toml",
+      "inventory_class": "paper_derived_reference",
+      "default_visible": false
     }
   ],
   "artifact_lifecycle": {
