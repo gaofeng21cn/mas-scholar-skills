@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from typing import Any
 
 import matplotlib
@@ -47,6 +48,7 @@ def _validate_submission_graphical_abstract_payload(path: Path, payload: dict[st
         if panel_id in panel_ids:
             raise ValueError(f"{path.name} panels[{panel_index}].panel_id must be unique")
         panel_ids.add(panel_id)
+        panel_evidence_ref = str(panel.get("evidence_ref") or "").strip()
         rows_payload = panel.get("rows")
         if not isinstance(rows_payload, list) or not rows_payload:
             raise ValueError(f"{path.name} panels[{panel_index}].rows must be a non-empty list")
@@ -85,6 +87,16 @@ def _validate_submission_graphical_abstract_payload(path: Path, payload: dict[st
                         f"{path.name} panels[{panel_index}].rows[{row_index}].cards[{card_index}].accent_role "
                         "must be one of neutral, primary, secondary, contrast, audit"
                     )
+                card_value = _require_non_empty_string(
+                    card.get("value"),
+                    label=f"{path.name} panels[{panel_index}].rows[{row_index}].cards[{card_index}].value",
+                )
+                evidence_ref = str(card.get("evidence_ref") or panel_evidence_ref).strip()
+                if re.search(r"\d", card_value) and not evidence_ref:
+                    raise ValueError(
+                        f"{path.name} panels[{panel_index}].rows[{row_index}].cards[{card_index}] "
+                        "must provide evidence_ref before a numeric value can be rendered"
+                    )
                 normalized_cards.append(
                     {
                         "card_id": card_id,
@@ -92,10 +104,8 @@ def _validate_submission_graphical_abstract_payload(path: Path, payload: dict[st
                             card.get("title"),
                             label=f"{path.name} panels[{panel_index}].rows[{row_index}].cards[{card_index}].title",
                         ),
-                        "value": _require_non_empty_string(
-                            card.get("value"),
-                            label=f"{path.name} panels[{panel_index}].rows[{row_index}].cards[{card_index}].value",
-                        ),
+                        "value": card_value,
+                        "evidence_ref": evidence_ref,
                         "evidence_token": str(card.get("evidence_token") or "").strip(),
                         "detail": str(card.get("detail") or "").strip(),
                         "accent_role": accent_role,
@@ -119,6 +129,7 @@ def _validate_submission_graphical_abstract_payload(path: Path, payload: dict[st
                 ),
                 "visual_role": str(panel.get("visual_role") or "").strip().lower(),
                 "evidence_token": str(panel.get("evidence_token") or "").strip(),
+                "evidence_ref": panel_evidence_ref,
                 "rows": normalized_rows,
             }
         )
@@ -170,7 +181,10 @@ def _validate_submission_graphical_abstract_payload(path: Path, payload: dict[st
         "title": title,
         "caption": caption,
         "paper_role": str(payload.get("paper_role") or "submission_companion").strip() or "submission_companion",
-        "layout_style": str(payload.get("layout_style") or "horizontal_storyline").strip() or "horizontal_storyline",
+        "layout_style": str(payload.get("layout_style") or "clinical_storyline").strip() or "clinical_storyline",
+        "scientific_claim_carried": bool(payload.get("scientific_claim_carried", False)),
+        "quality_floor_policy": str(payload.get("quality_floor_policy") or "").strip(),
+        "figure_contract_ref": str(payload.get("figure_contract_ref") or "").strip(),
         "panels": normalized_panels,
         "footer_pills": normalized_footer_pills,
     }
