@@ -7,6 +7,7 @@ quality.
 
 from __future__ import annotations
 
+import math
 from copy import deepcopy
 from typing import Mapping, Sequence
 
@@ -18,9 +19,13 @@ def figure_outline_schema() -> dict[str, object]:
         "required": ["claim", "width_mm", "ncol", "row_heights_mm", "panels"],
         "properties": {
             "claim": {"type": "string"},
-            "width_mm": {"type": "number"},
-            "ncol": {"type": "integer"},
-            "row_heights_mm": {"type": "array", "items": {"type": "number"}},
+            "width_mm": {"type": "number", "exclusiveMinimum": 0},
+            "ncol": {"type": "integer", "minimum": 1},
+            "row_heights_mm": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "number", "exclusiveMinimum": 0},
+            },
             "panels": {
                 "type": "array",
                 "items": {
@@ -30,10 +35,10 @@ def figure_outline_schema() -> dict[str, object]:
                         "letter": {"type": "string"},
                         "role": {"type": "string"},
                         "message": {"type": "string"},
-                        "row": {"type": "integer"},
-                        "col": {"type": "integer"},
-                        "rowspan": {"type": "integer"},
-                        "colspan": {"type": "integer"},
+                        "row": {"type": "integer", "minimum": 0},
+                        "col": {"type": "integer", "minimum": 0},
+                        "rowspan": {"type": "integer", "minimum": 1},
+                        "colspan": {"type": "integer", "minimum": 1},
                         "panel_ref": {"type": "string"},
                         "fit_mode": {
                             "type": "string",
@@ -45,6 +50,33 @@ def figure_outline_schema() -> dict[str, object]:
             },
         },
     }
+
+
+def _finite_number(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a finite number")
+    try:
+        number = float(value)
+    except OverflowError as exc:
+        raise ValueError(f"{label} must be a finite number") from exc
+    if not math.isfinite(number):
+        raise ValueError(f"{label} must be a finite number")
+    return number
+
+
+def _strict_integer(value: object, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{label} must be an integer")
+    return value
+
+
+def _positive_pixels(value: float, label: str) -> int:
+    if not math.isfinite(value):
+        raise ValueError(f"{label} must be finite")
+    pixels = int(round(value))
+    if pixels <= 0:
+        raise ValueError(f"{label} must be positive")
+    return pixels
 
 
 def _panel_fit_mode(panel: Mapping[str, object]) -> str:
@@ -60,8 +92,19 @@ def validate_outline(outline: Mapping[str, object]) -> None:
     missing = required - set(outline)
     if missing:
         raise ValueError(f"outline missing required keys: {sorted(missing)}")
-    ncol = int(outline["ncol"])
-    row_count = len(outline["row_heights_mm"])
+    width_mm = _finite_number(outline["width_mm"], "width_mm")
+    if width_mm <= 0:
+        raise ValueError("width_mm must be positive")
+    ncol = _strict_integer(outline["ncol"], "ncol")
+    if ncol <= 0:
+        raise ValueError("ncol must be positive")
+    row_heights_mm = outline["row_heights_mm"]
+    if not isinstance(row_heights_mm, (list, tuple)) or not row_heights_mm:
+        raise ValueError("row_heights_mm must be a non-empty sequence")
+    for index, height in enumerate(row_heights_mm):
+        if _finite_number(height, f"row_heights_mm[{index}]") <= 0:
+            raise ValueError(f"row_heights_mm[{index}] must be positive")
+    row_count = len(row_heights_mm)
     seen: set[str] = set()
     occupied: dict[tuple[int, int], str] = {}
     for panel in outline["panels"]:
@@ -70,10 +113,10 @@ def validate_outline(outline: Mapping[str, object]) -> None:
         if letter in seen:
             raise ValueError(f"duplicate panel letter: {letter}")
         seen.add(letter)
-        row = int(panel["row"])
-        col = int(panel["col"])
-        rowspan = int(panel.get("rowspan", 1))
-        colspan = int(panel["colspan"])
+        row = _strict_integer(panel["row"], f"panel {letter} row")
+        col = _strict_integer(panel["col"], f"panel {letter} col")
+        rowspan = _strict_integer(panel.get("rowspan", 1), f"panel {letter} rowspan")
+        colspan = _strict_integer(panel["colspan"], f"panel {letter} colspan")
         if row < 0 or col < 0 or rowspan < 1 or colspan < 1:
             raise ValueError(f"invalid panel geometry for {letter}")
         if row + rowspan > row_count or col + colspan > ncol:
@@ -94,12 +137,26 @@ def grid_geometry(
 ) -> dict[str, object]:
     """Return deterministic pixel geometry for an outline grid."""
     validate_outline(outline)
-    scale = dpi / 25.4
-    width_px = int(round(float(outline["width_mm"]) * scale))
-    gutter_px = int(round(gutter_mm * scale))
-    ncol = int(outline["ncol"])
+    dpi_value = _finite_number(dpi, "dpi")
+    if dpi_value <= 0:
+        raise ValueError("dpi must be positive")
+    gutter_value = _finite_number(gutter_mm, "gutter_mm")
+    if gutter_value < 0:
+        raise ValueError("gutter_mm must be non-negative")
+    scale = dpi_value / 25.4
+    width_px = _positive_pixels(float(outline["width_mm"]) * scale, "pixel width")
+    gutter_px_value = gutter_value * scale
+    if not math.isfinite(gutter_px_value):
+        raise ValueError("pixel gutter must be finite")
+    gutter_px = int(round(gutter_px_value))
+    ncol = outline["ncol"]
     col_width_px = (width_px - gutter_px * (ncol - 1)) // ncol
-    row_heights_px = [int(round(float(h) * scale)) for h in outline["row_heights_mm"]]
+    if col_width_px <= 0:
+        raise ValueError("pixel grid column width must be positive")
+    row_heights_px = [
+        _positive_pixels(float(height) * scale, f"pixel row height {index}")
+        for index, height in enumerate(outline["row_heights_mm"])
+    ]
     row_y_px = [sum(row_heights_px[:i]) + gutter_px * i for i in range(len(row_heights_px))]
     height_px = row_y_px[-1] + row_heights_px[-1] if row_heights_px else 0
     return {
@@ -127,16 +184,18 @@ def panel_box(
     """Return ``(x0, y0, x1, y1)`` in composed-image pixels."""
     geom = grid_geometry(outline, dpi=dpi, gutter_mm=gutter_mm)
     panel = _panel(outline, letter)
-    row = int(panel["row"])
-    col = int(panel["col"])
-    rowspan = int(panel.get("rowspan", 1))
-    colspan = int(panel["colspan"])
+    row = panel["row"]
+    col = panel["col"]
+    rowspan = panel.get("rowspan", 1)
+    colspan = panel["colspan"]
     gutter = int(geom["gutter_px"])
     col_width = int(geom["col_width_px"])
     x0 = col * (col_width + gutter)
     y0 = geom["row_y_px"][row]
     width = col_width * colspan + gutter * (colspan - 1)
     height = sum(geom["row_heights_px"][row : row + rowspan]) + gutter * (rowspan - 1)
+    if width <= 0 or height <= 0:
+        raise ValueError(f"panel {letter} pixel dimensions must be positive")
     return (x0, y0, x0 + width, y0 + height)
 
 
@@ -356,6 +415,135 @@ def _self_check() -> None:
         assert "fit_mode" in str(exc)
     else:
         raise AssertionError("invalid fit_mode must fail validation")
+
+    strict_outline = {
+        "claim": "Strict geometry.",
+        "width_mm": 40,
+        "ncol": 2,
+        "row_heights_mm": [40, 40],
+        "panels": [
+            {
+                "letter": "a",
+                "role": "hero",
+                "message": "Panel",
+                "row": 0,
+                "col": 0,
+                "rowspan": 1,
+                "colspan": 1,
+            }
+        ],
+    }
+    invalid_numeric_outlines = []
+    for field, values in {
+        "ncol": (2.5, 2.0, True, "2"),
+        "width_mm": (0, -1, math.nan, math.inf, 10**400, True, "40"),
+    }.items():
+        for value in values:
+            candidate = deepcopy(strict_outline)
+            candidate[field] = value
+            invalid_numeric_outlines.append((field, repr(value), candidate))
+    for field, values in {
+        "row": (0.5, 0.0, True, "0"),
+        "col": (0.5, 0.0, True, "0"),
+        "rowspan": (1.5, 1.0, True, "1"),
+        "colspan": (1.5, 1.0, True, "1"),
+    }.items():
+        for value in values:
+            candidate = deepcopy(strict_outline)
+            candidate["panels"][0][field] = value
+            invalid_numeric_outlines.append((field, repr(value), candidate))
+    for value in ([0], [-1], [math.nan], [math.inf], [True], ["40"]):
+        candidate = deepcopy(strict_outline)
+        candidate["row_heights_mm"] = value
+        invalid_numeric_outlines.append(("row_heights_mm", repr(value), candidate))
+    empty_rows = deepcopy(strict_outline)
+    empty_rows["row_heights_mm"] = []
+    empty_rows["panels"] = []
+    invalid_numeric_outlines.append(("row_heights_mm", "[]", empty_rows))
+    zero_columns = deepcopy(strict_outline)
+    zero_columns["ncol"] = 0
+    zero_columns["panels"] = []
+    invalid_numeric_outlines.append(("ncol", "0", zero_columns))
+
+    rejection_failures = []
+
+    def check_rejected(label: str, value: str, operation) -> None:
+        try:
+            operation()
+        except ValueError as exc:
+            if label not in str(exc):
+                rejection_failures.append(
+                    f"{label}={value} raised ValueError without field context: {exc}"
+                )
+        except Exception as exc:
+            rejection_failures.append(
+                f"{label}={value} raised {type(exc).__name__}, expected ValueError"
+            )
+        else:
+            rejection_failures.append(f"{label}={value} was accepted")
+
+    for field, value, candidate in invalid_numeric_outlines:
+        check_rejected(field, value, lambda candidate=candidate: validate_outline(candidate))
+
+    for value in (0, -1, math.nan, math.inf, True, "300"):
+        check_rejected("dpi", repr(value), lambda value=value: grid_geometry(outline, dpi=value))
+    for value in (-1, math.nan, math.inf, True, "4"):
+        check_rejected(
+            "gutter_mm",
+            repr(value),
+            lambda value=value: grid_geometry(outline, gutter_mm=value),
+        )
+
+    zero_width_box = deepcopy(outline)
+    zero_width_box["width_mm"] = 1
+    check_rejected(
+        "pixel",
+        "zero-width box",
+        lambda: panel_box(zero_width_box, "a", dpi=25.4, gutter_mm=4),
+    )
+    zero_height_box = deepcopy(outline)
+    zero_height_box["row_heights_mm"][0] = 0.01
+    check_rejected(
+        "pixel",
+        "zero-height box",
+        lambda: panel_box(zero_height_box, "a", dpi=1, gutter_mm=0),
+    )
+    overflow_width = deepcopy(outline)
+    overflow_width["width_mm"] = 1e308
+    check_rejected(
+        "pixel",
+        "overflow width",
+        lambda: grid_geometry(overflow_width, dpi=300),
+    )
+    overflow_height = deepcopy(outline)
+    overflow_height["row_heights_mm"][0] = 1e308
+    check_rejected(
+        "pixel",
+        "overflow row height",
+        lambda: grid_geometry(overflow_height, dpi=300),
+    )
+    check_rejected(
+        "pixel",
+        "overflow dpi",
+        lambda: grid_geometry(outline, dpi=1e308),
+    )
+    check_rejected(
+        "pixel",
+        "overflow gutter",
+        lambda: grid_geometry(outline, gutter_mm=1e308),
+    )
+    assert not rejection_failures, "\n".join(rejection_failures)
+
+    outline_properties = figure_outline_schema()["properties"]
+    assert outline_properties["width_mm"]["exclusiveMinimum"] == 0
+    assert outline_properties["ncol"]["minimum"] == 1
+    assert outline_properties["row_heights_mm"]["minItems"] == 1
+    assert outline_properties["row_heights_mm"]["items"]["exclusiveMinimum"] == 0
+    panel_properties = outline_properties["panels"]["items"]["properties"]
+    assert panel_properties["row"]["minimum"] == 0
+    assert panel_properties["col"]["minimum"] == 0
+    assert panel_properties["rowspan"]["minimum"] == 1
+    assert panel_properties["colspan"]["minimum"] == 1
 
     square_outline = {
         "claim": "Preserve panel aspect ratio.",

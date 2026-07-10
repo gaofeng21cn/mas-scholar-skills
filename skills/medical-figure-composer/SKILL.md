@@ -38,8 +38,11 @@ If a composite annotation reveals a panel/source mismatch, emit
 
 ## Geometry And Fit Policy
 
-- `validate_outline` hard-fails duplicate panel letters, out-of-grid geometry,
-  overlapping grid cells, and unsupported `fit_mode` values. Do not silently
+- `validate_outline` hard-fails non-finite or non-positive physical dimensions,
+  non-integer grid coordinates/spans, duplicate panel letters, out-of-grid
+  geometry, overlapping grid cells, and unsupported `fit_mode` values.
+  `grid_geometry` also rejects non-positive `dpi`, negative `gutter_mm`, and
+  non-positive derived pixel boxes. Do not coerce invalid values or silently
   move, shrink, or reorder panels to repair an invalid outline.
 - Each panel may set `fit_mode: contain|crop`; the default is `contain`.
   `contain` preserves aspect ratio and centers the panel on white background.
