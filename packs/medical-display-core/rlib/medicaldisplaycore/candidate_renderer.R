@@ -620,6 +620,11 @@ build_candidate_evidence_plot <- function(template_id, payload) {
     time_to_event_risk_group_summary = candidate_plot_time_to_event_risk_group_summary(payload),
     center_transportability_governance_summary_panel = candidate_plot_center_transportability_governance(payload),
     risk_layering_monotonic_bars = candidate_plot_risk_layering(payload),
+    dot_range_summary_panel = candidate_plot_dot_range_summary(payload),
+    availability_bar_panel = candidate_plot_availability_bar(payload),
+    adult_multidimensional_phenotype_heatmap = candidate_plot_adult_multidimensional_phenotype_heatmap(payload),
+    xiangya_psychobehavioral_overlap_heatmap = candidate_plot_xiangya_psychobehavioral_overlap_heatmap(payload),
+    adult_bmi_waist_central_adiposity_bar = candidate_plot_adult_bmi_waist_central_adiposity_bar(payload),
     generalizability_subgroup_composite_panel = candidate_plot_generalizability(payload),
     coefficient_path_panel = candidate_plot_coefficient_path(payload),
     celltype_marker_dotplot_panel = candidate_plot_dot(payload),
@@ -1111,7 +1116,7 @@ build_candidate_metrics <- function(template_id, display_payload, panel_box) {
   } else {
     "r_ggplot2_promoted_subprocess_v1"
   }
-  list(
+  metrics <- list(
     renderer = renderer_id,
     renderer_family = "r_ggplot2",
     renderer_role = renderer_role,
@@ -1119,4 +1124,26 @@ build_candidate_metrics <- function(template_id, display_payload, panel_box) {
     data_fields = sort(names(display_payload)),
     panel_box_present = !is.null(panel_box)
   )
+  registry_gallery_templates <- c(
+    "dot_range_summary_panel",
+    "availability_bar_panel",
+    "adult_multidimensional_phenotype_heatmap",
+    "xiangya_psychobehavioral_overlap_heatmap",
+    "adult_bmi_waist_central_adiposity_bar"
+  )
+  if (template_id %in% registry_gallery_templates) {
+    record_field <- if (!is.null(display_payload$rows)) "rows" else "cells"
+    metrics <- c(
+      metrics,
+      list(
+        source_data_digest = candidate_non_empty(display_payload$source_data_digest, ""),
+        preview_only = isTRUE(display_payload$preview_only),
+        authority = FALSE,
+        publication_ready = FALSE,
+        record_field = record_field,
+        record_count = length(display_payload[[record_field]] %|||% list())
+      )
+    )
+  }
+  metrics
 }
