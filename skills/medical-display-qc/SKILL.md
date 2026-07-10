@@ -14,15 +14,30 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 mutate artifacts, write MAS truth, sign visual audit receipts or owner receipt,
 create typed blockers, accept figures, or claim publication readiness.
 
-Optional skill-local helper: `kernel.py` provides stdlib-only deterministic ref
-normalization, display QC skeletons, route hints, authority phrase lint, and self-checks.
+Optional skill-local helper: `kernel.py` provides deterministic ref helpers and
+a non-mutating rendered-artifact inspector. It imports Pillow or PyMuPDF only
+when the selected file type needs them; a missing dependency becomes a typed
+warning finding and is never installed automatically or turned into a blocker.
+
+```bash
+python3 skills/medical-display-qc/kernel.py --inspect <artifact.png|jpg|tiff|pdf>
+```
+
+The command prints JSON. It exits `2` only for missing, unreadable, zero-byte,
+uniformly blank, or clearly damaged artifacts; review warnings such as missing
+DPI, small dimensions, high content density, unavailable PDF inspection, or
+font metadata gaps exit `0` so ordinary stage progress can continue.
 
 ## Workflow
 
-1. Build `display_artifact_inventory_ref`: file paths/refs, pages, panels,
-   tables, captions, export format, dimensions, and source artifact refs.
-2. Check `export_integrity_ref`: nonblank pages/regions, missing panels,
-   raster/vector presence, font embedding/readability, and broken links.
+1. Run the inspector for each final rendered PNG/JPEG/TIFF/PDF when a local
+   path is available. Use its path, SHA-256, byte size, detected format,
+   dimensions, page/frame count, DPI, content density, font summary, and PDF
+   metadata as `display_artifact_inventory_ref` and
+   `programmatic_figure_audit_ref` candidate evidence.
+2. Check `export_integrity_ref`: distinguish hard artifact failures from
+   non-blocking review warnings; never promote an inspector result into a
+   visual quality verdict.
 3. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
    figure numbering, duplicated identifiers, and caption payload drift.
 4. Check `claim_display_alignment_ref`: displayed denominator, estimates,
@@ -37,6 +52,7 @@ normalization, display QC skeletons, route hints, authority phrase lint, and sel
 Return:
 
 - `display_artifact_inventory_ref`
+- `programmatic_figure_audit_ref`
 - `export_integrity_ref`
 - `panel_caption_consistency_ref`
 - `claim_display_alignment_ref`
@@ -48,4 +64,6 @@ Return:
 
 Do not turn a QC candidate into artifact authority, visual audit receipt,
 owner acceptance, typed blocker, current-package authority, or publication
-readiness.
+readiness. Programmatic inspection supplies evidence for the agent's visual
+review; it does not replace visual inspection, claim-display review, or the
+consuming domain owner's decision.
