@@ -144,6 +144,7 @@ readme = read_text("README.md")
 readme_zh = read_text("README.zh-CN.md")
 docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
+capability_modules_doc = read_text("docs/capability-modules.md")
 professional_ref_templates = read_text("references/professional-quality-ref-templates.md")
 if domain_descriptor.get("surface_kind") != "oma_capability_pack_target_descriptor":
     fail("domain descriptor must expose oma_capability_pack_target_descriptor")
@@ -1020,9 +1021,6 @@ professional_template_requirements = {
     ],
     "skills/mas-scholar-skills/SKILL.md": [
         "references/professional-quality-ref-templates.md",
-        "figure_contract_template_ref",
-        "source_ref_chain_template_ref",
-        "claim_citation_quality_loop_ref",
     ],
     "skills/medical-figure-design/SKILL.md": [
         "references/professional-quality-ref-templates.md",
@@ -1368,21 +1366,21 @@ for key in [
 
 for token in [
     "docs/no-authority-boundary.md",
-    "materialized_candidate_package",
-    "External Learning Module Fit",
-    "gallery/medical-display/medical_display_gallery.pdf",
-    "scholarskills_scientific_figure_quality_floor.v1",
-    "brief_first_reference_guided_ai_candidate_not_single_template_reuse",
-    "critic_review_ref",
-    "external_runtime_install_not_required_before_candidate_refs_or_checklists",
-    "FeedbackOps Refs-Only Adapter",
-    "target_agent_feedback_external_suite",
-    "feedbackops_refs_only_adapter_policy",
-    "feedback_self_evolution_trigger",
+    "docs/mas-scholar-skills-operating-model.md",
+    "docs/capability-modules.md",
+    "contracts/scholar-skills-capability-modules.json",
+    "contracts/capability_map.json",
+    "medical-manuscript-writing",
+    "medical-manuscript-review",
+    "medical-figure-design",
     "medical-research-lit",
+    "medical-statistical-review",
+    "medical-table-design",
+    "medical-submission-prep",
+    "medical-data-governance",
 ]:
     if token not in skill:
-        fail(f"SKILL.md missing required token: {token}")
+        fail(f"aggregate SKILL.md missing routing or owner-reference token: {token}")
 
 gallery_manifest = read_json("gallery/medical-display/gallery_manifest.json")
 snapshot = read_json("gallery/medical-display/gallery_snapshot.json")
@@ -2045,13 +2043,10 @@ for token in [
     "delete_safe_cache",
     "retired_tombstone",
 ]:
-    if token not in skill:
-        fail(f"SKILL.md missing Data lifecycle token: {token}")
+    if token not in capability_modules_doc:
+        fail(f"docs/capability-modules.md missing Data lifecycle token: {token}")
 
-for relative, text in [
-    ("skills/mas-scholar-skills/SKILL.md", skill),
-    ("skills/medical-data-governance/SKILL.md", data_governance_skill),
-]:
+for relative, text in [("skills/medical-data-governance/SKILL.md", data_governance_skill)]:
     for token in [
         "mas-scholar-skills.data",
         "medical-data-governance",
@@ -2068,7 +2063,6 @@ for token in [
     "candidate_package_ref",
     "execution_receipt_ref",
     "owner_gate_handoff_ref",
-    "Every module should expose the standard refs-only handoff family",
 ]:
     if token not in skill:
         fail(f"SKILL.md missing standard handoff token: {token}")

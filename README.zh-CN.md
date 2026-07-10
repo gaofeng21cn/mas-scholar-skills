@@ -24,6 +24,8 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
 
 `MAS Scholar Skills` 是这个仓库和产品的正式名称：一个由 OPL 持有、Codex 可发现、服务 MAS 医学论文能力的外置增强包。历史 `opl-scholarskills` 只保留为 history / tombstone / provenance，不再作为 active Codex skill。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及 4 个可选 router/reviewer skill 和 20 个可选 named-specialty skill 的单源。
 
+aggregate `mas-scholar-skills` Skill 现在有意保持为薄发现与路由入口：它只把模块映射到具体 `medical-*` skill，并保留共用 owner 边界。专业 checklist 留在被选中的 skill，模块和暴露细节留在 contract，安装、CLI、gallery 和运行说明留在 `docs/`，不再让 aggregate 复制每一套工作流。
+
 MAS 的 stage 主提示词留在 MAS domain-agent 仓：canonical stage source 是 MAS `agent/stages/` 和 `agent/prompts/`。MAS overlay Skill、工作区或 quest 内 `.codex/skills/` 同步副本是 Codex discovery projection / 兼容面，不是 stage authority 的源头；这个同步动作本身必须保留，因为 Codex 依靠 `.codex/skills/` 稳定发现本地技能。`write`、`review`、`figure`、`scout` 等阶段负责什么时候进入、证据够不够、交给谁、怎样 route-back、什么算 owner gate。本仓 `medical-*` 技能负责把已经分配下来的写作、审稿、图件、图件风格、图件构图、文献、统计、表格、投稿和临床数据治理任务做得更专业。
 
 简单说：MAS Scholar Skills 负责把“可以帮忙做什么、需要什么材料、会交出什么候选结果、最后由谁确认”讲清楚。公共 owner 边界统一看 [No-Authority Boundary](./docs/no-authority-boundary.md)；机器路由和 false-authority 标记以 `contracts/capability_map.json` 为准。

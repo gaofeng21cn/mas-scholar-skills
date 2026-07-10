@@ -1,0 +1,7 @@
+interface:
+  display_name: "MAS Scholar Skills"
+  short_description: "Route MAS medical-paper specialist skills"
+  default_prompt: "Use $mas-scholar-skills to route this MAS medical-paper task to the right specialist skill and preserve its owner-gated boundary."
+
+policy:
+  allow_implicit_invocation: true

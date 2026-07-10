@@ -19,6 +19,14 @@ It owns enhancement surfaces:
 
 It does not own MAS study truth, publication truth, owner receipts, typed blockers, human gates, runtime queues, provider attempts, ledgers, current-package authority, or publication readiness.
 
+The aggregate `skills/mas-scholar-skills/SKILL.md` is deliberately limited to
+pack-level discovery, module-to-skill routing, the standard refs-only handoff,
+and owner-reference navigation. Detailed specialist workflows live in the
+selected `medical-*` skill; module/exposure policy lives in contracts; install,
+CLI, gallery, and operational detail lives in this documentation. Repository
+verification must check each rule at its owner surface instead of requiring the
+aggregate Skill to repeat it.
+
 ## AI First, Contract Light
 
 MAS Scholar Skills keeps elastic medical judgment in the professional Skill
