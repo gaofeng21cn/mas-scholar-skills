@@ -40,7 +40,7 @@
       "can_claim_artifact_authority": false
     }
   },
-  "snapshot_created_utc": "2026-07-10T09:28:16Z",
+  "snapshot_created_utc": "2026-07-10T11:12:44Z",
   "status": "rendered",
   "visual_gallery_template_count": 46,
   "evidence_gallery_template_count": 43,
@@ -95,23 +95,23 @@
   "included_files": [
     {
       "path": "medical_display_gallery.pdf",
-      "sha256": "8b038e50ccc9925d97e753919809e35a8a7e52b21d3c00cd5062d3c4a60cec0f"
+      "sha256": "a96763a241c4f3f558381b96ab0b6452eaf15aaaaa97a4325d3557fac8c407f0"
     },
     {
       "path": "gallery_manifest.json",
-      "sha256": "f549372d1171cb08780d99b59a709422973b6c5b2bb1dec06afb5e1e9747bfd0"
+      "sha256": "ce2ac8874ea93de9bc0226561c67453b18781f3b72382409f3f72466240314e9"
     },
     {
       "path": "medical_display_gallery_reference.md",
-      "sha256": "041531e3c8f4707bc5710611b659d78bc5db263c4b93aaf0be0b3483075a10c2"
+      "sha256": "c716ff687489829e2897e7393bfa972a219011ebd3d4d74bd7f4bb957883fd97"
     },
     {
       "path": "display_pack_gallery_status.md",
-      "sha256": "49cc72bbb1b473113db3d785b70c5ee81dbadaa619c13dc420fc7081ba656b8b"
+      "sha256": "372aee212b66457e885ac112c4ce1bcbae77fd2c65e53e593a416cc3ea5c8921"
     },
     {
       "path": "display_pack_gallery_quality_audit.md",
-      "sha256": "28ca0ef31f2cac112f702e8c1a208220357100ff8e5ddb32b35d61447e681403"
+      "sha256": "11a0969f746616e44540d3ab5d118bd5460e6e9b9973fdd83adb767c62256cc9"
     }
   ],
   "excluded_intermediate_outputs": [

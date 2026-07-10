@@ -1,36 +1,33 @@
-# MAS Scholar Skills 医学论文配图 Gallery
+# MAS 医学论文配图 Gallery
 
-Owner: `MAS Scholar Skills Display`
-Purpose: `human_readable_gallery_for_scholarskills_medical_display_core`
-State: `active_support`
-Machine boundary: 人读示例文档。Pack source 与 compact review refs 归 `packs/medical-display-core/`、`gallery_manifest.json`、`gallery_snapshot.json` 和 repo-native verification；真实论文 artifacts、visual audit receipt、owner gate 和 publication readiness 仍归 MAS / consuming domain owner。
+Owner: `MedAutoScience`
+Purpose: `human_readable_gallery_for_builtin_mas_display_templates`
+State: `generated_support_reference`
+Machine boundary: 本文由 `scripts/build-display-pack-gallery.py` 从本地 Gallery manifest、canonical catalog 和 renderer inventory 生成。机器真相继续归 display-pack template descriptor、renderer source、`paper/publication_style_profile.json`、layout sidecar、display lock、publication manifest、tests 和真实论文 artifacts；本文不持有 artifact authority、publication readiness 或 owner receipt。MAS 不把本文发布为 tracked docs gallery；人读 compact review package 归 ScholarSkills。
 
-- [PDF Gallery](./medical_display_gallery.pdf)：面向人阅读的主文档，用于直观判断 Scholar Display 默认图页组织、非数据设计图起点、数据证据图起点和统一视觉风格。
+- [PDF Gallery](./medical_display_gallery.pdf)：面向人阅读的主文档，用于直观判断 MAS 默认图页组织、非数据设计图起点、数据证据图起点和统一视觉风格。
 - [生成状态](./display_pack_gallery_status.md)：从 manifest 生成的数量、路由和生成口径。
 - [质量审计](./display_pack_gallery_quality_audit.md)：从质量门生成的模板入库状态、风险项和论文使用前检查项。
 
-PDF 画册与 `gallery_snapshot.json` 可作为代表模板的 reference-snapshot
-golden baseline：用于对账 compact review package 成员、manifest refs、
-descriptor 口径和 included-file hash。它不证明 live renderer 当前可运行、
-像素一致、layout regression 无变化，也不替代真实论文语境下的 fresh render
-artifact 检查和 visual audit。
-
-本仓只维护 compact review refs。HTML、payload、layout sidecar、PNG/SVG/PDF 单图导出属于可再生成的本地输出或上游渲染工作区，不进入本仓。维护者替换最终 review refs 后运行：
+HTML、manifest、payload、layout sidecar、PNG/SVG/PDF 单图导出属于可再生成的本地输出，默认写入仓库忽略的 `outputs/display-pack-gallery/`。代码、payload 或 style 可能变化时运行默认增量构建：
 
 ```bash
-python3 scripts/verify-display-gallery-pack.py --check
-./scripts/verify.sh
+./scripts/run-python-clean.sh scripts/build-display-pack-gallery.py
 ```
 
-这些命令只校验 MAS Scholar Skills pack source、compact review refs、artifact fingerprints、禁止中间产物和 authority=false 边界；不生成 MAS owner receipt、typed blocker、publication readiness 或论文 artifact authority。
+只调整 Gallery 文档组织、标题、索引或 PDF 打包，不需要重新渲染图资产时，运行 package-only 快速打包；`--publish-docs` 只生成本地 MAS template catalog 快照，不复制 gallery PDF、manifest 或单图资产到 docs，也不把该快照作为 tracked inventory truth：
+
+```bash
+./scripts/run-python-clean.sh scripts/build-display-pack-gallery.py --package-only
+```
 
 ## 设计目的
 
-Scholar Display 的医学配图 source pack 提供统一、可审计、可继续打磨的论文配图起点。默认消费流程是：
+MAS 的绘图模板库提供统一、可审计、可继续打磨的论文配图起点。默认流程是：
 
 1. 先根据论文论点选择页面级图页方案。
 2. 再为每个数据证据面板选择 R/ggplot2 证据图起点。
-3. MAS 或 consuming domain owner 根据论文语义继续调整布局、标签、配色和面板结构。
+3. MAS 根据论文语义继续调整布局、标签、配色和面板结构。
 4. 最终论文图件经过真实论文语境下的视觉审查和证据引用检查。
 
 PDF 画册分为三部分：前部展示 6 类页面级图页方案，中部展示非数据设计/流程图起点，后部展示 43 个 R/ggplot2 数据证据图起点。cohort/participant reporting-flow 起点的 checked-in renderer 是 R/ggplot2 + `ggconsort`；缺 OPL prepared dependency receipt 或缺 `ggconsort` 时只记录 dependency gate，不回退到 Python generated participant flow。未证明优于 R/ggplot2 的 Python 数据证据模板不进入默认画册。

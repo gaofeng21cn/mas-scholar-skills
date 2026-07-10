@@ -733,7 +733,7 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
 
     category_specs = {
         "evidence": (
-            "evidence_gallery_templates",
+            "templates",
             "evidence_gallery_template_count",
             "evidence",
         ),

@@ -2140,7 +2140,7 @@ if renderer_policy.get("current_r_ggplot2_evidence_template_count") != gallery_m
     fail("gallery R/ggplot2 evidence count must match evidence gallery count")
 if renderer_policy.get("current_python_evidence_template_count") != 0:
     fail("gallery must keep current Python evidence templates at 0")
-quality_summary = gallery_manifest.get("quality_summary", {})
+quality_summary = gallery_manifest.get("quality_audit") or gallery_manifest.get("quality_summary", {})
 if quality_summary.get("publication_ready_claim_authorized") is not False:
     fail("gallery must not authorize publication-ready claims")
 if snapshot.get("publication_ready_claim_authorized") is not False:

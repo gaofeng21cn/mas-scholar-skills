@@ -1,9 +1,9 @@
-# MAS Scholar Skills 医学论文配图 Gallery 质量审计
+# MAS 医学论文配图 Gallery 质量审计
 
-Owner: `MAS Scholar Skills Display`
+Owner: `MedAutoScience`
 Purpose: `human_readable_quality_audit_for_display_pack_gallery`
-State: `active_support`
-Machine boundary: 人读质量审计。机器真相归 Gallery manifest、Gallery snapshot、template descriptor、renderer source 和 repo-native verification；真实论文 artifact、visual audit receipt、owner receipt、typed blocker 和 publication gate 仍归 MAS / consuming domain owner。
+State: `generated_support_reference`
+Machine boundary: 本文由 `scripts/build-display-pack-gallery.py` 从本地 Gallery manifest 和质量审计 builder 生成。机器真相继续归 Gallery manifest、template descriptor、renderer source、layout sidecar、display lock、publication manifest、真实论文 artifact 和 owner receipt；本文不持有 publication verdict、artifact authority 或 owner receipt。MAS 不把本文发布为 tracked docs gallery；人读 compact review package 归 ScholarSkills。
 
 ## 结论
 
@@ -99,7 +99,7 @@ Rebuild boundary:
 
 Template-library refactor decision:
 
-- `submission_graphical_abstract`: rebuilt back onto the no-regression full-width three-panel GA skeleton after the single-canvas experiment degraded layout balance. It keeps the medical `cohort -> risk signal -> care action` story, evidence cues, SVG source, and layout-QC sidecar. It is still a refs-only lower-bound example, not paper-specific publication authority.
+- `submission_graphical_abstract`: uses the ScholarSkills pack renderer as the only implementation and keeps the three-stage clinical storyline as one composition recipe. The visible artwork contains only the population, core finding or risk signal, and clinical meaning; evidence refs, owner gates, quality-floor metadata, and review state stay in the payload or layout sidecar. The Gallery example is deliberately non-quantitative, while numeric paper results require an explicit evidence ref before rendering. It remains a refs-only lower-bound example, not paper-specific publication authority.
 - `r_ggplot2_evidence_figures`: no wholesale visual redraw in this Gallery pass. Current R templates already share the publication theme/palette system; broad redraw would risk visual regression. Reuse work should continue through shared theme, legend, payload-normalization, and QC helpers with before/after screenshots.
 - `cohort_flow_figure` and `table1_baseline_characteristics`: remain reporting/table previews with their own authority boundaries; do not force them into the GA visual system.
 
