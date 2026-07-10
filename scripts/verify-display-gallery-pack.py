@@ -771,6 +771,39 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
             if container.get(count_key) != len(actual_ids):
                 fail(f"{label} {count_key} must be {len(actual_ids)}")
 
+    non_visual_entries = manifest.get("non_visual_inventory")
+    if not isinstance(non_visual_entries, list):
+        fail("gallery_manifest non_visual_inventory must be a list")
+    non_visual_ids: list[str] = []
+    for index, entry in enumerate(non_visual_entries):
+        if not isinstance(entry, dict):
+            fail(f"gallery_manifest non_visual_inventory[{index}] must be an object")
+        template_id = entry.get("template_id")
+        fact = template_facts.get(template_id)
+        if fact is None or fact["gallery_category"] != "table_shell":
+            fail(f"non_visual_inventory contains non-table-shell template {template_id}")
+        expected_fields = {
+            "canonical_family_id": fact["family_id"],
+            "canonical_family_title": fact["title"],
+            "canonical_family_category": fact["category"],
+            "renderer_family": fact["renderer_family"],
+            "analysis_responsibility": fact["analysis_responsibility"],
+            "medical_family_ids": fact["medical_family_ids"],
+        }
+        for field, expected in expected_fields.items():
+            if entry.get(field) != expected:
+                fail(
+                    f"non_visual_inventory {template_id} {field} must match "
+                    "canonical template metadata"
+                )
+        non_visual_ids.append(template_id)
+    if len(non_visual_ids) != len(set(non_visual_ids)):
+        fail("gallery_manifest non_visual_inventory has duplicate template IDs")
+    if set(non_visual_ids) != expected_ids["table_shell"]:
+        missing = sorted(expected_ids["table_shell"] - set(non_visual_ids))
+        extra = sorted(set(non_visual_ids) - expected_ids["table_shell"])
+        fail(f"non_visual_inventory template IDs mismatch: missing={missing} extra={extra}")
+
     all_gallery_ids = [
         template_id for ids in category_ids.values() for template_id in ids
     ]
