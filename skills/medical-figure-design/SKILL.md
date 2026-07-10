@@ -209,7 +209,10 @@ Before writing plotting code, produce or refresh a compact contract:
   variable types, comparison, uncertainty, visible claim, and evidence role;
   record mismatches instead of hiding them behind styling.
 - `adaptation_mode`: one of `declared_template`,
-  `schema_adapted_template`, or `reference_guided_new_render`.
+  `schema_adapted_template`, `reference_guided_new_render`, or
+  `original_new_render`. Pair `original_new_render` only with
+  `template_or_asset_ref=not_applicable:new_render`; do not invent reference
+  provenance for a panel rendered without a reusable source.
 - `transform_delta_ref`: the data mapping, geometry, crop, label, palette,
   annotation, or panel-order changes made relative to the selected template or
   asset.
@@ -431,7 +434,12 @@ rendering:
 - use `schema_adapted_template` when the template remains the rendering basis
   but input schema, mappings, geometry, or annotations change;
 - use `reference_guided_new_render` when a source is only a visual or workflow
-  reference and the panel is rendered anew from current evidence;
+  reference and the panel is rendered anew from current evidence; keep the
+  actual source ref visible;
+- use `original_new_render` when no reusable template or source asset is
+  consumed; set `template_or_asset_ref` to `not_applicable:new_render` and use
+  explicit not-applicable semantic/transform refs instead of fabricating
+  reference provenance;
 - record all transformations and the canonical source-data ref; never copy a
   plotting script and replace only its data path;
 - record an explicit degradation reason when the intended asset, transform, or
@@ -439,10 +447,12 @@ rendering:
   renderer family.
 
 An imperfect semantic match is normally a design repair hint: select a better
-template or move to `reference_guided_new_render` while the candidate can still
-advance. Stop or route back only when required evidence is missing, the output
-is missing/unreadable/blank, geometry is invalid, the visible claim becomes
-unsupported, or another hard figure-contract condition fails.
+template, move to `reference_guided_new_render` when a real reference remains
+in use, or use `original_new_render` when no reusable source is consumed while
+the candidate can still advance. Stop or route back only when required
+evidence is missing, the output is missing/unreadable/blank, geometry is
+invalid, the visible claim becomes unsupported, or another hard
+figure-contract condition fails.
 
 - Prefer MAS Display Pack and paper-local figure grammar for paper-facing
   evidence figures.

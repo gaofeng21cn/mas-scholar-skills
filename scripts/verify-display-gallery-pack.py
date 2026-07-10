@@ -28,7 +28,14 @@ ALLOWED_ADAPTATION_MODES = [
     "declared_template",
     "schema_adapted_template",
     "reference_guided_new_render",
+    "original_new_render",
 ]
+NOT_APPLICABLE_NEW_RENDER_REF = "not_applicable:new_render"
+ORIGINAL_NEW_RENDER_MODE = "original_new_render"
+LIVE_REGRESSION_ENGINE_REF = (
+    "packs/medical-display-core/src/"
+    "fenggaolab_org_medical_display_core/live_regression.py"
+)
 HARD_STOP_CONDITIONS = [
     "missing_required_evidence",
     "missing_or_unreadable_artifact",
@@ -85,8 +92,8 @@ def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
         fail("display-pack receipt templates contract has wrong contract_id")
-    if contract.get("schema_version") != "1.1.0":
-        fail("display-pack receipt templates contract must use schema_version 1.1.0")
+    if contract.get("schema_version") != "1.2.0":
+        fail("display-pack receipt templates contract must use schema_version 1.2.0")
     if contract.get("state") != "active_refs_only_template":
         fail("display-pack receipt templates contract must stay refs-only")
     require_false_flags(
@@ -112,6 +119,12 @@ def verify_receipt_templates() -> dict:
     adaptation_policy = contract.get("template_asset_adaptation_policy") or {}
     if adaptation_policy.get("allowed_adaptation_modes") != ALLOWED_ADAPTATION_MODES:
         fail("template/asset adaptation policy has invalid adaptation modes")
+    if adaptation_policy.get("not_applicable_new_render_mapping") != {
+        "template_or_asset_ref": NOT_APPLICABLE_NEW_RENDER_REF,
+        "adaptation_mode": ORIGINAL_NEW_RENDER_MODE,
+        "forbids_invented_reference_provenance": True,
+    }:
+        fail("template/asset adaptation policy must map no-source renders without invented provenance")
     if adaptation_policy.get("warnings_remain_repair_hints") is not True:
         fail("template/asset adaptation warnings must remain repair hints")
     if adaptation_policy.get("hard_stop_conditions") != HARD_STOP_CONDITIONS:
@@ -444,7 +457,8 @@ def verify_one_template_example(template_id: str) -> dict:
     if not str(example_receipt.get("layout_sidecar_ref") or "").startswith("repo-local:examples/not-rendered/"):
         fail(f"{template_id} example_render_receipt.json must use not-rendered layout sidecar ref")
     expected_template_ref = f"repo-local:packs/medical-display-core/templates/{template_id}/template.toml"
-    if example_receipt.get("template_or_asset_ref") != expected_template_ref:
+    template_or_asset_ref = example_receipt.get("template_or_asset_ref")
+    if template_or_asset_ref != expected_template_ref:
         fail(f"{template_id} example_render_receipt.json template_or_asset_ref mismatch")
     expected_source_ref = f"repo-local:packs/medical-display-core/templates/{template_id}/example_input.json"
     if example_receipt.get("source_data_ref") != expected_source_ref:
@@ -452,8 +466,16 @@ def verify_one_template_example(template_id: str) -> dict:
     for key in ["semantic_match_ref", "transform_delta_ref", "degradation_reason"]:
         if not isinstance(example_receipt.get(key), str) or not example_receipt[key].strip():
             fail(f"{template_id} example_render_receipt.json must declare {key}")
-    if example_receipt.get("adaptation_mode") not in ALLOWED_ADAPTATION_MODES:
+    adaptation_mode = example_receipt.get("adaptation_mode")
+    if adaptation_mode not in ALLOWED_ADAPTATION_MODES:
         fail(f"{template_id} example_render_receipt.json has invalid adaptation_mode")
+    if (template_or_asset_ref == NOT_APPLICABLE_NEW_RENDER_REF) != (
+        adaptation_mode == ORIGINAL_NEW_RENDER_MODE
+    ):
+        fail(
+            f"{template_id} example_render_receipt.json must pair "
+            "not_applicable:new_render with original_new_render"
+        )
     return {
         "descriptor": descriptor,
         "example_input_ref": template_dir / "example_input.json",
@@ -489,6 +511,30 @@ def verify_golden_manifest() -> dict:
             "can_claim_artifact_authority",
             "can_claim_live_render_regression",
             "can_claim_pixel_or_layout_regression",
+        ],
+    )
+
+    live_candidate = manifest.get("live_regression_candidate") or {}
+    if live_candidate.get("engine_ref") != LIVE_REGRESSION_ENGINE_REF:
+        fail("golden_manifest live_regression_candidate engine_ref mismatch")
+    if not (ROOT / LIVE_REGRESSION_ENGINE_REF).is_file():
+        fail("golden_manifest live_regression_candidate engine is missing")
+    if live_candidate.get("fixed_input_source") != "golden_templates[].example_input_ref":
+        fail("golden_manifest live_regression_candidate fixed_input_source mismatch")
+    if live_candidate.get("render_mode") != "candidate":
+        fail("golden_manifest live_regression_candidate render_mode must be candidate")
+    if live_candidate.get("execution_issue_field") != "execution_issue_candidate":
+        fail("golden_manifest live_regression_candidate must use execution_issue_candidate")
+    if live_candidate.get("fresh_run_required_for_ready_or_currentness_claim") is not True:
+        fail("golden_manifest live_regression_candidate must require fresh ready/currentness evidence")
+    require_false_flags(
+        live_candidate,
+        "golden_manifest live_regression_candidate",
+        [
+            "execution_issue_authority",
+            "can_create_typed_blocker",
+            "authority",
+            "publication_ready",
         ],
     )
 

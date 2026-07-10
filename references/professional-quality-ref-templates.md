@@ -84,8 +84,10 @@ Minimum fields:
   `not_applicable:new_render` when no reusable asset is consumed.
 - `semantic_match_ref`: variable, comparison, uncertainty, visible-claim, and
   evidence-role compatibility between the source and the intended panel.
-- `adaptation_mode`: `declared_template`, `schema_adapted_template`, or
-  `reference_guided_new_render`.
+- `adaptation_mode`: `declared_template`, `schema_adapted_template`,
+  `reference_guided_new_render`, or `original_new_render`. Use
+  `original_new_render` exactly when `template_or_asset_ref` is
+  `not_applicable:new_render`; do not invent reference provenance.
 - `transform_delta_ref`: data mapping, geometry, crop, label, palette,
   annotation, and panel-order differences from the selected source.
 - `source_data_ref`: canonical data or analysis-output ref that regenerates the
@@ -172,7 +174,11 @@ adaptation mode:
 - `schema_adapted_template`: the template remains the rendering basis, while
   schema, mappings, geometry, or annotations are explicitly transformed.
 - `reference_guided_new_render`: the source is only a visual or workflow
-  reference and the current panel is rendered anew from current evidence.
+  reference and the current panel is rendered anew from current evidence; keep
+  the actual source ref visible.
+- `original_new_render`: no reusable template or source asset is consumed. Set
+  `template_or_asset_ref` to `not_applicable:new_render` and use explicit
+  not-applicable semantic/transform refs rather than fabricating a source.
 
 Do not mechanically copy a plotting script and replace only its data path. Do
 not silently stretch an asset, substitute a renderer, or omit transform

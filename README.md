@@ -261,5 +261,6 @@ The verifier checks the plugin manifest, Skill entry, module catalog, gallery pa
 - [No-Authority Boundary](./docs/no-authority-boundary.md)
 - [MAS Scholar Skills Operating Model](./docs/mas-scholar-skills-operating-model.md)
 - [Candidate Artifact Engines](./docs/candidate-artifact-engines.md)
+- [Academic Figure Skill Learning Landing](./docs/academic-figure-skill-landing.md)
 - [Display Gallery](./docs/gallery/display-gallery.md)
 - [Gallery Snapshot](./gallery/medical-display/gallery_snapshot.json)
