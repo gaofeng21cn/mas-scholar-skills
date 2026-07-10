@@ -2122,19 +2122,28 @@ def require_gallery_import_policy(container: dict, label: str) -> None:
 require_gallery_import_policy(gallery_manifest, "gallery_manifest")
 require_gallery_import_policy(snapshot, "gallery_snapshot")
 
-expected_counts = {
-    "visual_gallery_template_count": 37,
-    "evidence_gallery_template_count": 34,
-    "composition_recipe_gallery_count": 6,
-}
-for key, expected in expected_counts.items():
-    if gallery_manifest.get(key) != expected:
-        fail(f"gallery manifest {key} must be {expected}")
-    if snapshot.get(key) != expected:
-        fail(f"gallery snapshot {key} must be {expected}")
+for key in [
+    "current_template_count",
+    "visual_gallery_template_count",
+    "non_visual_canonical_template_count",
+    "evidence_gallery_template_count",
+    "reporting_flow_gallery_template_count",
+    "design_gallery_template_count",
+    "table_preview_gallery_template_count",
+    "composition_recipe_gallery_count",
+]:
+    manifest_value = gallery_manifest.get(key)
+    if not isinstance(manifest_value, int):
+        fail(f"gallery manifest {key} must be an integer")
+    if manifest_value != snapshot.get(key):
+        fail(f"gallery manifest/snapshot {key} mismatch")
+if gallery_manifest.get("composition_recipe_gallery_count") != 6:
+    fail("gallery must keep 6 composition recipes")
 renderer_policy = gallery_manifest.get("renderer_policy_completion", {})
-if renderer_policy.get("current_r_ggplot2_evidence_template_count") != 34:
-    fail("gallery must keep 34 current R/ggplot2 evidence templates")
+if renderer_policy.get("current_r_ggplot2_evidence_template_count") != gallery_manifest.get(
+    "evidence_gallery_template_count"
+):
+    fail("gallery R/ggplot2 evidence count must match evidence gallery count")
 if renderer_policy.get("current_python_evidence_template_count") != 0:
     fail("gallery must keep current Python evidence templates at 0")
 quality_summary = gallery_manifest.get("quality_summary", {})

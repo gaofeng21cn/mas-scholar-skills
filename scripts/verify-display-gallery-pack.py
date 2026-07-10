@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import pathlib
@@ -317,7 +318,9 @@ def load_opl_pack(display_pack: dict) -> dict:
     return opl_pack
 
 
-def expected_template_resources(display_pack: dict) -> tuple[list[dict], dict[str, int]]:
+def expected_template_resources(
+    display_pack: dict,
+) -> tuple[list[dict], dict[str, int], dict[str, dict]]:
     catalog = read_json(PACK_ROOT / "canonical_template_catalog.json")
     if catalog.get("pack_id") != display_pack["pack_id"]:
         fail("canonical_template_catalog.json pack_id does not match display_pack.toml")
@@ -328,6 +331,7 @@ def expected_template_resources(display_pack: dict) -> tuple[list[dict], dict[st
     seen_template_ids: set[str] = set()
     renderer_counts: dict[str, int] = {}
     template_resources: list[dict] = []
+    template_facts: dict[str, dict] = {}
     pack_render_modes = display_pack["supported_render_modes"]
     for family in families:
         template_id = family.get("canonical_template_id")
@@ -345,6 +349,33 @@ def expected_template_resources(display_pack: dict) -> tuple[list[dict], dict[st
         renderer_family = descriptor.get("renderer_family")
         if not renderer_family:
             fail(f"{template_id} descriptor missing renderer_family")
+        kind = descriptor.get("kind")
+        if not kind:
+            fail(f"{template_id} descriptor missing kind")
+        gallery_category = {
+            ("evidence_figure", "r_ggplot2"): "evidence",
+            ("illustration_shell", "r_ggplot2"): "reporting_flow",
+            ("illustration_shell", "python"): "design",
+            ("table_shell", "n/a"): "table_shell",
+        }.get((kind, renderer_family))
+        if gallery_category is None:
+            fail(
+                f"canonical template {template_id} has unsupported gallery classification "
+                f"kind={kind} renderer_family={renderer_family}"
+            )
+        for field in (
+            "family_id",
+            "title",
+            "category",
+            "analysis_responsibility",
+        ):
+            if not family.get(field):
+                fail(f"catalog family {template_id} missing {field}")
+        medical_family_ids = family.get("medical_family_ids")
+        if not isinstance(medical_family_ids, list) or not medical_family_ids:
+            fail(f"catalog family {template_id} missing medical_family_ids")
+        if len(medical_family_ids) != len(set(medical_family_ids)):
+            fail(f"catalog family {template_id} has duplicate medical_family_ids")
         renderer_counts[renderer_family] = renderer_counts.get(renderer_family, 0) + 1
         if (template_dir / "render_candidate.R").exists():
             fail(f"{template_id} must not carry template-local render_candidate.R")
@@ -365,6 +396,17 @@ def expected_template_resources(display_pack: dict) -> tuple[list[dict], dict[st
                 "ref": f"templates/{template_id}/template.toml",
             }
         )
+        template_facts[template_id] = {
+            "template_id": template_id,
+            "kind": kind,
+            "renderer_family": renderer_family,
+            "gallery_category": gallery_category,
+            "family_id": family["family_id"],
+            "title": family["title"],
+            "category": family["category"],
+            "analysis_responsibility": family["analysis_responsibility"],
+            "medical_family_ids": medical_family_ids,
+        }
 
     descriptor_template_ids = {
         path.parent.name for path in (PACK_ROOT / "templates").glob("*/template.toml")
@@ -374,7 +416,7 @@ def expected_template_resources(display_pack: dict) -> tuple[list[dict], dict[st
         extra = sorted(descriptor_template_ids - seen_template_ids)
         fail(f"template descriptor/catalog mismatch: missing={missing} extra={extra}")
 
-    return template_resources, renderer_counts
+    return template_resources, renderer_counts, template_facts
 
 
 def is_template_resource(resource: dict) -> bool:
@@ -404,7 +446,9 @@ def generated_opl_pack(opl_pack: dict, template_resources: list[dict]) -> dict:
 def verify_source_pack() -> dict:
     display_pack = load_display_pack()
     opl_pack = load_opl_pack(display_pack)
-    template_resources, renderer_counts = expected_template_resources(display_pack)
+    template_resources, renderer_counts, template_facts = expected_template_resources(
+        display_pack
+    )
     generated = generated_opl_pack(opl_pack, template_resources)
     if opl_pack != generated:
         fail("opl_pack.json template resources drifted; run scripts/verify-display-gallery-pack.py --sync-opl-pack")
@@ -454,6 +498,7 @@ def verify_source_pack() -> dict:
         "catalog_template_count": len(seen_template_ids),
         "opl_template_resource_count": len(opl_template_ids),
         "renderer_counts": renderer_counts,
+        "template_facts": template_facts,
     }
 
 
@@ -610,7 +655,9 @@ def verify_golden_manifest() -> dict:
 def sync_opl_pack() -> None:
     display_pack = load_display_pack()
     opl_pack = load_opl_pack(display_pack)
-    template_resources, _renderer_counts = expected_template_resources(display_pack)
+    template_resources, _renderer_counts, _template_facts = expected_template_resources(
+        display_pack
+    )
     generated = generated_opl_pack(opl_pack, template_resources)
     if opl_pack == generated:
         print("opl_pack.json already synchronized")
@@ -619,7 +666,7 @@ def sync_opl_pack() -> None:
     print(f"opl_pack.json synchronized: {len(template_resources)} template resources")
 
 
-def verify_gallery_review_package() -> dict:
+def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
     manifest = read_json(GALLERY_ROOT / "gallery_manifest.json")
     snapshot = read_json(GALLERY_ROOT / "gallery_snapshot.json")
     require_review_policy(manifest, "gallery_manifest.json")
@@ -631,13 +678,157 @@ def verify_gallery_review_package() -> dict:
 
     if manifest.get("status") != "rendered" or snapshot.get("status") != "rendered":
         fail("gallery manifest and snapshot must stay rendered")
-    for key in [
-        "visual_gallery_template_count",
-        "evidence_gallery_template_count",
-        "composition_recipe_gallery_count",
-    ]:
-        if manifest.get(key) != snapshot.get(key):
-            fail(f"gallery manifest/snapshot {key} mismatch")
+
+    expected_ids = {
+        category: {
+            template_id
+            for template_id, fact in template_facts.items()
+            if fact["gallery_category"] == category
+        }
+        for category in ("evidence", "reporting_flow", "design", "table_shell")
+    }
+    canonical_counts = {
+        "current_template_count": len(template_facts),
+        "non_visual_canonical_template_count": len(expected_ids["table_shell"]),
+    }
+    for key, expected in canonical_counts.items():
+        for container, label in (
+            (manifest, "gallery_manifest"),
+            (snapshot, "gallery_snapshot"),
+        ):
+            if container.get(key) != expected:
+                fail(f"{label} {key} must be {expected}")
+
+    category_specs = {
+        "evidence": (
+            "evidence_gallery_templates",
+            "evidence_gallery_template_count",
+            "evidence",
+        ),
+        "reporting_flow": (
+            "reporting_flow_gallery_templates",
+            "reporting_flow_gallery_template_count",
+            "reporting_flow",
+        ),
+        "design": (
+            "design_gallery_templates",
+            "design_gallery_template_count",
+            "design",
+        ),
+        "table_preview": (
+            "table_preview_gallery_templates",
+            "table_preview_gallery_template_count",
+            "table_shell",
+        ),
+    }
+    category_ids: dict[str, list[str]] = {}
+    for category, (entries_key, count_key, expected_category) in category_specs.items():
+        entries = manifest.get(entries_key)
+        if not isinstance(entries, list):
+            fail(f"gallery_manifest {entries_key} must be a list")
+        ids: list[str] = []
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                fail(f"gallery_manifest {entries_key}[{index}] must be an object")
+            template_id = entry.get("template_id")
+            if not isinstance(template_id, str) or not template_id:
+                fail(f"gallery_manifest {entries_key}[{index}] missing template_id")
+            fact = template_facts.get(template_id)
+            if fact is None:
+                fail(f"{entries_key} contains non-canonical template {template_id}")
+            expected_fields = {
+                "canonical_family_id": fact["family_id"],
+                "canonical_family_title": fact["title"],
+                "canonical_family_category": fact["category"],
+                "renderer_family": fact["renderer_family"],
+                "analysis_responsibility": fact["analysis_responsibility"],
+                "medical_family_ids": fact["medical_family_ids"],
+            }
+            for field, expected in expected_fields.items():
+                if entry.get(field) != expected:
+                    fail(
+                        f"{entries_key} {template_id} {field} must match "
+                        "canonical template metadata"
+                    )
+            ids.append(template_id)
+        if len(ids) != len(set(ids)):
+            fail(f"gallery_manifest {entries_key} has duplicate template IDs")
+        actual_ids = set(ids)
+        expected_category_ids = expected_ids[expected_category]
+        category_ids[category] = ids
+        if category == "table_preview":
+            extra = sorted(actual_ids - expected_category_ids)
+            if extra:
+                fail(f"table preview template IDs must be table_shell members: extra={extra}")
+        elif actual_ids != expected_category_ids:
+            missing = sorted(expected_category_ids - actual_ids)
+            extra = sorted(actual_ids - expected_category_ids)
+            fail(f"{entries_key} template IDs mismatch: missing={missing} extra={extra}")
+        for container, label in (
+            (manifest, "gallery_manifest"),
+            (snapshot, "gallery_snapshot"),
+        ):
+            if container.get(count_key) != len(actual_ids):
+                fail(f"{label} {count_key} must be {len(actual_ids)}")
+
+    all_gallery_ids = [
+        template_id for ids in category_ids.values() for template_id in ids
+    ]
+    if len(all_gallery_ids) != len(set(all_gallery_ids)):
+        fail("gallery template IDs must not appear in multiple categories")
+    visual_count = len(all_gallery_ids)
+    for container, label in (
+        (manifest, "gallery_manifest"),
+        (snapshot, "gallery_snapshot"),
+    ):
+        if container.get("visual_gallery_template_count") != visual_count:
+            fail(f"{label} visual_gallery_template_count must be {visual_count}")
+    responsibility_counts = dict(
+        Counter(
+            template_facts[template_id]["analysis_responsibility"]
+            for template_id in all_gallery_ids
+        )
+    )
+    if manifest.get("analysis_responsibility_counts") != responsibility_counts:
+        fail("gallery_manifest analysis_responsibility_counts mismatch")
+
+    renderer_policy = manifest.get("renderer_policy_completion") or {}
+    if snapshot.get("evidence_renderer_policy") != renderer_policy:
+        fail("gallery manifest/snapshot renderer policy mismatch")
+    evidence_count = len(category_ids["evidence"])
+    default_visual_count = evidence_count + len(category_ids["reporting_flow"]) + len(
+        category_ids["design"]
+    )
+    expected_renderer_policy_counts = {
+        "current_template_count": visual_count,
+        "current_evidence_template_count": evidence_count,
+        "current_r_ggplot2_evidence_template_count": evidence_count,
+        "current_python_evidence_template_count": 0,
+        "default_visual_template_count": default_visual_count,
+        "default_evidence_template_count": evidence_count,
+        "default_r_ggplot2_evidence_template_count": evidence_count,
+        "default_python_evidence_template_count": 0,
+        "default_illustration_shell_count": len(category_ids["reporting_flow"])
+        + len(category_ids["design"]),
+        "all_evidence_template_count": evidence_count,
+        "all_r_ggplot2_evidence_template_count": evidence_count,
+        "python_evidence_template_count": 0,
+        "python_evidence_retained_count": 0,
+    }
+    for key, expected in expected_renderer_policy_counts.items():
+        if renderer_policy.get(key) != expected:
+            fail(f"gallery renderer policy {key} must be {expected}")
+    for key in (
+        "python_evidence_template_ids",
+        "python_only_evidence_family_ids_without_default_r_representative",
+    ):
+        if renderer_policy.get(key) != []:
+            fail(f"gallery renderer policy {key} must stay empty")
+
+    if manifest.get("composition_recipe_gallery_count") != snapshot.get(
+        "composition_recipe_gallery_count"
+    ):
+        fail("gallery manifest/snapshot composition_recipe_gallery_count mismatch")
     if snapshot.get("publication_ready_claim_authorized") is not False:
         fail("gallery snapshot must not authorize publication-ready claims")
     require_false_flags(
@@ -681,8 +872,8 @@ def verify_gallery_review_package() -> dict:
             fail(f"forbidden intermediate output present: {forbidden.relative_to(ROOT)}")
 
     return {
-        "visual_gallery_template_count": snapshot["visual_gallery_template_count"],
-        "evidence_gallery_template_count": snapshot["evidence_gallery_template_count"],
+        "visual_gallery_template_count": visual_count,
+        "evidence_gallery_template_count": evidence_count,
         "included_file_count": len(included),
     }
 
@@ -701,7 +892,7 @@ def main() -> None:
     verify_receipt_templates()
     pack_summary = verify_source_pack()
     example_summary = verify_template_examples()
-    gallery_summary = verify_gallery_review_package()
+    gallery_summary = verify_gallery_review_package(pack_summary["template_facts"])
     golden_summary = verify_golden_manifest()
     print(
         "display gallery pack verify ok: "
