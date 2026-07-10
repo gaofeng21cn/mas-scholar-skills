@@ -257,6 +257,11 @@ figure_purpose_for_template <- function(template_id) {
     phenotype_gap_structure_figure = "phenotype_composition_plus_treatment_gap_matrix",
     site_held_out_stability_figure = "phenotype_transition_stability_plus_site_held_out_support",
     treatment_gap_alignment_figure = "guideline_linked_treatment_gap_burden_small_multiples",
+    dot_range_summary_panel = "bmi_stratified_descriptive_prevalence_dot_range_summary",
+    availability_bar_panel = "registry_measure_availability_with_denominator_audit",
+    adult_multidimensional_phenotype_heatmap = "adult_bmi_stratified_multidimensional_phenotype_heatmap",
+    xiangya_psychobehavioral_overlap_heatmap = "psychobehavioral_symptom_overlap_row_percentage_heatmap",
+    adult_bmi_waist_central_adiposity_bar = "central_adiposity_prevalence_across_adult_bmi_categories",
     sprintf("purpose_first_%s", template_id)
   )
 }
@@ -414,7 +419,7 @@ build_layout_sidecar <- function(plot, template_id, display_payload) {
     heights,
     c("panel"),
     "panel",
-    if (template_id %in% c("heatmap_group_comparison", "performance_heatmap", "confusion_matrix_heatmap_binary", "correlation_heatmap", "clustered_heatmap", "gsva_ssgsea_heatmap")) "heatmap_tile_region" else "panel"
+    if (template_id %in% c("heatmap_group_comparison", "performance_heatmap", "confusion_matrix_heatmap_binary", "correlation_heatmap", "clustered_heatmap", "gsva_ssgsea_heatmap", "adult_multidimensional_phenotype_heatmap", "xiangya_psychobehavioral_overlap_heatmap")) "heatmap_tile_region" else "panel"
   )
   if (length(declared_panel_ids) == 1 && !is.null(panel_box)) {
     panel_box$panel_id <- declared_panel_ids[[1]]
@@ -424,8 +429,8 @@ build_layout_sidecar <- function(plot, template_id, display_payload) {
     widths,
     heights,
     c("guide-box"),
-    if (template_id %in% c("heatmap_group_comparison", "performance_heatmap", "confusion_matrix_heatmap_binary", "correlation_heatmap", "clustered_heatmap", "gsva_ssgsea_heatmap")) "colorbar" else "legend",
-    if (template_id %in% c("heatmap_group_comparison", "performance_heatmap", "confusion_matrix_heatmap_binary", "correlation_heatmap", "clustered_heatmap", "gsva_ssgsea_heatmap")) "colorbar" else "legend"
+    if (template_id %in% c("heatmap_group_comparison", "performance_heatmap", "confusion_matrix_heatmap_binary", "correlation_heatmap", "clustered_heatmap", "gsva_ssgsea_heatmap", "adult_multidimensional_phenotype_heatmap", "xiangya_psychobehavioral_overlap_heatmap")) "colorbar" else "legend",
+    if (template_id %in% c("heatmap_group_comparison", "performance_heatmap", "confusion_matrix_heatmap_binary", "correlation_heatmap", "clustered_heatmap", "gsva_ssgsea_heatmap", "adult_multidimensional_phenotype_heatmap", "xiangya_psychobehavioral_overlap_heatmap")) "colorbar" else "legend"
   )
   axis_left_box <- find_layout_box(gt, widths, heights, c("axis-l"), "axis_left", "axis_left")
   layout_boxes <- Filter(Negate(is.null), list(title_box, x_axis_title_box, y_axis_title_box))
@@ -470,4 +475,3 @@ build_layout_sidecar <- function(plot, template_id, display_payload) {
     style_profile = style_profile_sidecar(display_payload)
   )
 }
-

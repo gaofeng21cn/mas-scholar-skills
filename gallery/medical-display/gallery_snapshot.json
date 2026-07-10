@@ -5,11 +5,11 @@
   "source_snapshot_ref": "repo-local:gallery/medical-display/gallery_snapshot.json",
   "source_commit_policy": "not_self_referential; verify included_files sha256 and repo commit at release/readback time",
   "source_paths": [
-    "docs/delivery/medical-display/examples/medical_display_gallery.pdf",
-    "docs/delivery/medical-display/examples/gallery_manifest.json",
-    "docs/delivery/medical-display/examples/medical_display_gallery_reference.md",
-    "docs/delivery/medical-display/examples/display_pack_gallery_status.md",
-    "docs/delivery/medical-display/examples/display_pack_gallery_quality_audit.md"
+    "gallery/medical-display/medical_display_gallery.pdf",
+    "gallery/medical-display/gallery_manifest.json",
+    "gallery/medical-display/medical_display_gallery_reference.md",
+    "gallery/medical-display/display_pack_gallery_status.md",
+    "gallery/medical-display/display_pack_gallery_quality_audit.md"
   ],
   "opl_scholarskills_import_policy": {
     "policy_id": "opl_scholarskills_display_gallery_refs_only_source_manifest.v1",
@@ -40,28 +40,30 @@
       "can_claim_artifact_authority": false
     }
   },
-  "snapshot_created_utc": "2026-06-28T03:18:45Z",
+  "snapshot_created_utc": "2026-07-10T09:28:16Z",
   "status": "rendered",
-  "visual_gallery_template_count": 37,
-  "evidence_gallery_template_count": 34,
+  "visual_gallery_template_count": 46,
+  "evidence_gallery_template_count": 43,
   "composition_recipe_gallery_count": 6,
   "style_profile_id": "student_curated_clinical_publication_v1",
   "journal_palette_ref": "lidocaineq_figure_template_palette_20260621",
   "quality_summary": {
     "overall_status": "not_publication_ready",
     "publication_ready_claim_authorized": false,
-    "visual_template_count": 34,
+    "visual_template_count": 43,
+    "reporting_flow_visual_template_count": 1,
     "design_visual_template_count": 1,
     "table_preview_visual_template_count": 1,
-    "total_gallery_visual_template_count": 37,
-    "non_visual_template_count": 3,
+    "total_gallery_visual_template_count": 46,
+    "non_visual_template_count": 9,
     "blocked_template_count": 0,
-    "lower_bound_review_required_count": 34,
+    "gallery_visual_blocked_template_count": 0,
+    "lower_bound_review_required_count": 43,
     "gallery_lower_bound_admission_status": "gallery_lower_bound_passed_requires_paper_audit",
     "publication_quality_profile_coverage": {
       "schema_version": 1,
-      "current_template_count": 37,
-      "complete_profile_template_count": 37,
+      "current_template_count": 54,
+      "complete_profile_template_count": 54,
       "complete_profile_percent": 100,
       "medical_family_missing_template_ids": [],
       "starter_recipe_missing_template_ids": [],
@@ -71,18 +73,18 @@
     }
   },
   "evidence_renderer_policy": {
-    "current_template_count": 37,
-    "current_evidence_template_count": 34,
-    "current_r_ggplot2_evidence_template_count": 34,
+    "current_template_count": 54,
+    "current_evidence_template_count": 43,
+    "current_r_ggplot2_evidence_template_count": 43,
     "current_python_evidence_template_count": 0,
-    "default_visual_template_count": 36,
-    "default_evidence_template_count": 34,
-    "default_r_ggplot2_evidence_template_count": 34,
+    "default_visual_template_count": 45,
+    "default_evidence_template_count": 43,
+    "default_r_ggplot2_evidence_template_count": 43,
     "default_python_evidence_template_count": 0,
     "default_illustration_shell_count": 2,
     "default_surface_r_first_compliant": true,
-    "all_evidence_template_count": 34,
-    "all_r_ggplot2_evidence_template_count": 34,
+    "all_evidence_template_count": 43,
+    "all_r_ggplot2_evidence_template_count": 43,
     "python_evidence_template_count": 0,
     "python_evidence_retained_count": 0,
     "current_inventory_r_first_compliant": true,
@@ -93,23 +95,23 @@
   "included_files": [
     {
       "path": "medical_display_gallery.pdf",
-      "sha256": "f5c0037423d11d1f78c94d34794c8c4b48e8aafcc746a73999ee29422530d44c"
+      "sha256": "8b038e50ccc9925d97e753919809e35a8a7e52b21d3c00cd5062d3c4a60cec0f"
     },
     {
       "path": "gallery_manifest.json",
-      "sha256": "8b273aa8c4f9ead86c68048af0eb9b7c508d4db8876519f6b0539963f4e0144e"
+      "sha256": "f549372d1171cb08780d99b59a709422973b6c5b2bb1dec06afb5e1e9747bfd0"
     },
     {
       "path": "medical_display_gallery_reference.md",
-      "sha256": "507805702004609c60d5fd4581bb650f9df972550921c70eeb4287b363f522e5"
+      "sha256": "041531e3c8f4707bc5710611b659d78bc5db263c4b93aaf0be0b3483075a10c2"
     },
     {
       "path": "display_pack_gallery_status.md",
-      "sha256": "d630f4de9153284257d63d6fd21eff66208a1634722ec83802a911f62744159d"
+      "sha256": "49cc72bbb1b473113db3d785b70c5ee81dbadaa619c13dc420fc7081ba656b8b"
     },
     {
       "path": "display_pack_gallery_quality_audit.md",
-      "sha256": "6617b1ba0daa0a23c9397e6464fa6c1f34fcffda41d68576210b463ae8d61198"
+      "sha256": "28ca0ef31f2cac112f702e8c1a208220357100ff8e5ddb32b35d61447e681403"
     }
   ],
   "excluded_intermediate_outputs": [
@@ -127,5 +129,10 @@
     "can_create_typed_blocker": false,
     "can_claim_publication_ready": false,
     "can_claim_artifact_authority": false
-  }
+  },
+  "current_template_count": 54,
+  "reporting_flow_gallery_template_count": 1,
+  "design_gallery_template_count": 1,
+  "table_preview_gallery_template_count": 1,
+  "non_visual_canonical_template_count": 9
 }

@@ -262,6 +262,14 @@ plot_lidocaine_heatmap <- function(display_payload) {
       style_color(display_payload, "heatmap_high", "heatmap_high", "#B2182B")
     )
   )
+  grDevices::pdf(NULL)
+  capture_device <- grDevices::dev.cur()
+  on.exit({
+    active_devices <- grDevices::dev.list()
+    if (!is.null(active_devices) && capture_device %in% active_devices) {
+      grDevices::dev.off(capture_device)
+    }
+  }, add = TRUE)
   heatmap_grob <- grid::grid.grabExpr(
     ComplexHeatmap::draw(
       ComplexHeatmap::Heatmap(
@@ -294,6 +302,7 @@ plot_lidocaine_heatmap <- function(display_payload) {
       annotation_legend_side = "right"
     )
   )
+  grDevices::dev.off(capture_device)
   heatmap_grob
 }
 

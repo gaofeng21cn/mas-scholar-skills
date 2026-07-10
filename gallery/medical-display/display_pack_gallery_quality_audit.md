@@ -11,13 +11,13 @@ Machine boundary: 人读质量审计。机器真相归 Gallery manifest、Galler
 
 - overall_status: `not_publication_ready`
 - publication_ready_claim_authorized: `false`
-- visual template count: `34`
+- visual template count: `43`
 - reporting flow visual template count: `1`
 - design visual template count: `1`
 - table preview visual template count: `1`
-- total Gallery visual template count: `37`
-- non-visual inventory count: `3`
-- lower-bound review required: `34`
+- total Gallery visual template count: `46`
+- non-visual inventory count: `9`
+- lower-bound review required: `43`
 - blocked evidence templates: `0`
 - blocked gallery visual templates: `0`
 - publication polish policy: `mas_publication_polish_policy.v1`
@@ -44,6 +44,7 @@ Machine boundary: 人读质量审计。机器真相归 Gallery manifest、Galler
 - `paper_local_data_and_statistics_refs_present`
 - `semantic_palette_roles_resolved_from_article_style_profile`
 - `rendered_artifact_inspected_at_final_size`
+- `deterministic_qc_and_ai_visual_review_refs_recorded_or_residualized`
 - `guide_legend_colorbar_overlap_checked_after_render`
 - `revision_delta_or_residual_item_recorded`
 - `visual_audit_receipt_or_residual_item_recorded`
@@ -185,10 +186,10 @@ Reference learning lessons:
 | Warning | Templates |
 | --- | ---: |
 | `coefficient_path_semantic_fit_review` | 1 |
-| `composition_density_risk` | 4 |
+| `composition_density_risk` | 7 |
 | `illustration_shell_style_review_required` | 2 |
 | `km_risk_table_and_censor_mark_review` | 1 |
-| `legend_or_colorbar_overlap_risk` | 5 |
+| `legend_or_colorbar_overlap_risk` | 8 |
 | `multi_panel_readability_review` | 2 |
 | `oncoprint_annotation_track_review` | 1 |
 | `python_renderer_style_alignment_required` | 1 |
@@ -198,9 +199,13 @@ Reference learning lessons:
 
 | Template | Category | Renderer | Status | Blockers |
 | --- | --- | --- | --- | --- |
+| `adult_bmi_waist_central_adiposity_bar` | Publication Shells and Tables | r_ggplot2 | `lower_bound_review_required` | none |
+| `adult_multidimensional_phenotype_heatmap` | Matrix Pattern | r_ggplot2 | `lower_bound_review_required` | none |
 | `alluvial_transition` | Longitudinal and Patient Trajectory | r_ggplot2 | `lower_bound_review_required` | none |
+| `availability_bar_panel` | Publication Shells and Tables | r_ggplot2 | `lower_bound_review_required` | none |
 | `calibration_curve_binary` | Prediction Performance | r_ggplot2 | `lower_bound_review_required` | none |
 | `celltype_marker_dotplot_panel` | Genomic and Omics | r_ggplot2 | `lower_bound_review_required` | none |
+| `center_transportability_governance_summary_panel` | Generalizability | r_ggplot2 | `lower_bound_review_required` | none |
 | `cnv_recurrence_summary_panel` | Genomic and Omics | r_ggplot2 | `lower_bound_review_required` | none |
 | `coefficient_path_panel` | Effect Estimate | r_ggplot2 | `lower_bound_review_required` | none |
 | `composition_stacked_bar` | Population and Baseline | r_ggplot2 | `lower_bound_review_required` | none |
@@ -209,6 +214,7 @@ Reference learning lessons:
 | `cumulative_incidence_grouped` | Time-to-Event | r_ggplot2 | `lower_bound_review_required` | none |
 | `decision_curve_binary` | Clinical Utility | r_ggplot2 | `lower_bound_review_required` | none |
 | `distribution_violin_box` | Population and Baseline | r_ggplot2 | `lower_bound_review_required` | none |
+| `dot_range_summary_panel` | Matrix Pattern | r_ggplot2 | `lower_bound_review_required` | none |
 | `forest_effect_main` | Effect Estimate | r_ggplot2 | `lower_bound_review_required` | none |
 | `generalizability_subgroup_composite_panel` | Generalizability | r_ggplot2 | `lower_bound_review_required` | none |
 | `genomic_alteration_consequence_panel` | Genomic and Omics | r_ggplot2 | `lower_bound_review_required` | none |
@@ -219,6 +225,7 @@ Reference learning lessons:
 | `omics_volcano_panel` | Genomic and Omics | r_ggplot2 | `lower_bound_review_required` | none |
 | `pathway_enrichment_dotplot_panel` | Genomic and Omics | r_ggplot2 | `lower_bound_review_required` | none |
 | `pca_scatter_grouped` | Data Geometry | r_ggplot2 | `lower_bound_review_required` | none |
+| `phenotype_gap_structure_figure` | Population and Baseline | r_ggplot2 | `lower_bound_review_required` | none |
 | `pr_curve_binary` | Prediction Performance | r_ggplot2 | `lower_bound_review_required` | none |
 | `radar_profile` | Population and Baseline | r_ggplot2 | `lower_bound_review_required` | none |
 | `risk_layering_monotonic_bars` | Time-to-Event | r_ggplot2 | `lower_bound_review_required` | none |
@@ -226,12 +233,15 @@ Reference learning lessons:
 | `shap_dependence_panel` | Model Explanation | r_ggplot2 | `lower_bound_review_required` | none |
 | `shap_summary_beeswarm` | Model Explanation | r_ggplot2 | `lower_bound_review_required` | none |
 | `shap_waterfall_local_explanation_panel` | Model Explanation | r_ggplot2 | `lower_bound_review_required` | none |
+| `site_held_out_stability_figure` | Longitudinal and Patient Trajectory | r_ggplot2 | `lower_bound_review_required` | none |
 | `time_dependent_roc_horizon` | Time-to-Event | r_ggplot2 | `lower_bound_review_required` | none |
 | `time_to_event_decision_curve` | Clinical Utility | r_ggplot2 | `lower_bound_review_required` | none |
 | `time_to_event_multihorizon_calibration_panel` | Time-to-Event | r_ggplot2 | `lower_bound_review_required` | none |
+| `treatment_gap_alignment_figure` | Population and Baseline | r_ggplot2 | `lower_bound_review_required` | none |
 | `tsne_scatter_grouped` | Data Geometry | r_ggplot2 | `lower_bound_review_required` | none |
 | `umap_scatter_grouped` | Data Geometry | r_ggplot2 | `lower_bound_review_required` | none |
 | `waterfall_response` | Clinical Trial Response and Safety | r_ggplot2 | `lower_bound_review_required` | none |
+| `xiangya_psychobehavioral_overlap_heatmap` | Matrix Pattern | r_ggplot2 | `lower_bound_review_required` | none |
 
 ## 分类完成度
 
@@ -241,15 +251,15 @@ Reference learning lessons:
 | Clinical Utility | `done` | 100% | 2 | 2 | 0 |
 | Data Geometry | `done` | 100% | 3 | 3 | 0 |
 | Effect Estimate | `done` | 100% | 3 | 3 | 0 |
-| Generalizability | `done` | 100% | 1 | 1 | 0 |
+| Generalizability | `done` | 100% | 2 | 2 | 0 |
 | Genomic and Omics | `done` | 100% | 6 | 6 | 0 |
-| Longitudinal and Patient Trajectory | `done` | 100% | 1 | 1 | 0 |
-| Matrix Pattern | `done` | 100% | 2 | 2 | 0 |
+| Longitudinal and Patient Trajectory | `done` | 100% | 2 | 2 | 0 |
+| Matrix Pattern | `done` | 100% | 5 | 5 | 0 |
 | Model Audit | `done` | 100% | 1 | 1 | 0 |
 | Model Explanation | `done` | 100% | 3 | 3 | 0 |
-| Population and Baseline | `done` | 100% | 3 | 3 | 0 |
+| Population and Baseline | `done` | 100% | 5 | 5 | 0 |
 | Prediction Performance | `done` | 100% | 3 | 3 | 0 |
-| Publication Shells and Tables | `done` | 100% | 0 | 0 | 0 |
+| Publication Shells and Tables | `done` | 100% | 2 | 2 | 0 |
 | Time-to-Event | `done` | 100% | 5 | 5 | 0 |
 
 ## 当前 Python 数据证据模板

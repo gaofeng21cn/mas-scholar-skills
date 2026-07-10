@@ -75,12 +75,16 @@ Make the useful parts executable in the current Display family:
 
 ## Fresh Evidence Snapshot
 
-The following commands were run from the isolated landing lane on
+The following commands were run from the isolated landing and Gallery-currentness lanes on
 `2026-07-10`:
 
 - `python3 scripts/verify-display-gallery-pack.py --check`: exit 0; 54 catalog
   templates, 54 OPL template resources, 6 template examples, 6 golden
-  templates, 37 gallery visuals, and 5 review files verified.
+  templates, 46 gallery visuals, and 5 review files verified.
+- Full force-render through the prepared OPL run-context rendered `46/46`
+  Gallery visuals with `0` blocked visuals. The final 24-page PDF passed
+  Poppler full-page rendering, blank-page checks, contact-sheet review, and
+  focused review of the cohort-flow and five registry Gallery templates.
 - `python3 -S skills/medical-display-qc/kernel.py`: exit 0; 17 no-dependency
   checks passed. The default Python passed 30 checks with Pillow, and the
   prepared Python passed 34 checks with Pillow and PyMuPDF.

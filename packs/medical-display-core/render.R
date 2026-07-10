@@ -39,21 +39,26 @@ script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", grep("^--file=", script_args, value = TRUE)[[1]])
 pack_root <- dirname(normalizePath(script_file, mustWork = TRUE))
 
-old_source_only <- Sys.getenv("MAS_DISPLAY_RENDERER_SOURCE_ONLY", unset = "")
-old_render_mode <- Sys.getenv("MAS_DISPLAY_RENDER_MODE", unset = "")
-Sys.setenv(MAS_DISPLAY_RENDERER_SOURCE_ONLY = "1")
-Sys.setenv(MAS_DISPLAY_RENDER_MODE = render_mode)
-source(file.path(pack_root, "rlib", "medicaldisplaycore", "evidence_renderer.R"))
-source(file.path(pack_root, "rlib", "medicaldisplaycore", "candidate_renderer.R"))
-if (nzchar(old_source_only)) {
-  Sys.setenv(MAS_DISPLAY_RENDERER_SOURCE_ONLY = old_source_only)
+if (identical(template_id, "cohort_flow_figure")) {
+  source(file.path(pack_root, "rlib", "medicaldisplaycore", "cohort_flow_renderer.R"))
+  render_cohort_flow_request(request_path)
 } else {
-  Sys.unsetenv("MAS_DISPLAY_RENDERER_SOURCE_ONLY")
-}
-if (nzchar(old_render_mode)) {
-  Sys.setenv(MAS_DISPLAY_RENDER_MODE = old_render_mode)
-} else {
-  Sys.unsetenv("MAS_DISPLAY_RENDER_MODE")
-}
+  old_source_only <- Sys.getenv("MAS_DISPLAY_RENDERER_SOURCE_ONLY", unset = "")
+  old_render_mode <- Sys.getenv("MAS_DISPLAY_RENDER_MODE", unset = "")
+  Sys.setenv(MAS_DISPLAY_RENDERER_SOURCE_ONLY = "1")
+  Sys.setenv(MAS_DISPLAY_RENDER_MODE = render_mode)
+  source(file.path(pack_root, "rlib", "medicaldisplaycore", "evidence_renderer.R"))
+  source(file.path(pack_root, "rlib", "medicaldisplaycore", "candidate_renderer.R"))
+  if (nzchar(old_source_only)) {
+    Sys.setenv(MAS_DISPLAY_RENDERER_SOURCE_ONLY = old_source_only)
+  } else {
+    Sys.unsetenv("MAS_DISPLAY_RENDERER_SOURCE_ONLY")
+  }
+  if (nzchar(old_render_mode)) {
+    Sys.setenv(MAS_DISPLAY_RENDER_MODE = old_render_mode)
+  } else {
+    Sys.unsetenv("MAS_DISPLAY_RENDER_MODE")
+  }
 
-render_evidence_request(request_path, expected_template_id = template_id)
+  render_evidence_request(request_path, expected_template_id = template_id)
+}
