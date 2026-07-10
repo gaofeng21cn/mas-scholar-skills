@@ -785,8 +785,8 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
             fail(f"{label} visual_gallery_template_count must be {visual_count}")
     responsibility_counts = dict(
         Counter(
-            template_facts[template_id]["analysis_responsibility"]
-            for template_id in all_gallery_ids
+            fact["analysis_responsibility"]
+            for fact in template_facts.values()
         )
     )
     if manifest.get("analysis_responsibility_counts") != responsibility_counts:
