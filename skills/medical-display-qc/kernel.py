@@ -23,6 +23,11 @@ DISPLAY_QC_REFS = (
 
 SUPPORTED_RASTER_FORMATS = {"JPEG", "PNG", "TIFF"}
 RASTER_SUFFIXES = {".jpeg", ".jpg", ".png", ".tif", ".tiff"}
+RASTER_FORMAT_SUFFIXES = {
+    "JPEG": {".jpeg", ".jpg"},
+    "PNG": {".png"},
+    "TIFF": {".tif", ".tiff"},
+}
 MIN_RASTER_DIMENSION_PX = 600
 MIN_RASTER_DPI = 150.0
 HIGH_CONTENT_DENSITY = 0.95
@@ -205,6 +210,20 @@ def _raster_content_density(image: object) -> dict[str, Any]:
     }
 
 
+def _raster_blank_evidence(image: object) -> dict[str, Any]:
+    bands = image.getbands()
+    extrema = image.getextrema()
+    if not extrema:
+        return {"confirmed": False, "basis": "full_frame_extrema_unavailable"}
+    band_extrema = list(extrema) if isinstance(extrema[0], tuple) else [extrema]
+    if "A" in bands and band_extrema[bands.index("A")][1] == 0:
+        return {"confirmed": True, "basis": "full_frame_alpha_zero"}
+    return {
+        "confirmed": all(low == high for low, high in band_extrema),
+        "basis": "full_frame_channel_extrema",
+    }
+
+
 def _inspect_raster(
     path: Path,
     audit: dict[str, Any],
@@ -243,7 +262,7 @@ def _inspect_raster(
                 density = _raster_content_density(image)
                 density["frame"] = frame_index + 1
                 frame_densities.append(density)
-                if density["value"] == 0:
+                if _raster_blank_evidence(image)["confirmed"]:
                     blank_frames.append(frame_index + 1)
 
             audit["dimensions"] = frame_dimensions[0]
@@ -278,6 +297,7 @@ def _inspect_raster(
             audit["raster_metadata"] = {
                 "mode": image.mode,
                 "frame_count": frame_count,
+                "blank_detection_basis": "full_frame_visible_uniformity",
             }
             audit["blank"] = bool(blank_frames)
             audit["content_readable"] = True
@@ -315,12 +335,25 @@ def _inspect_raster(
                 detected_format=audit["format"],
             )
         )
+    expected_suffixes = RASTER_FORMAT_SUFFIXES.get(audit["format"])
+    if expected_suffixes and path.suffix.lower() not in expected_suffixes:
+        findings.append(
+            _finding(
+                "artifact_format_suffix_mismatch",
+                "warning",
+                "Artifact suffix does not match the decoded raster format",
+                "artifact_owner_repair",
+                suffix=path.suffix.lower() or None,
+                detected_format=audit["format"],
+                expected_suffixes=sorted(expected_suffixes),
+            )
+        )
     if audit["blank"]:
         findings.append(
             _finding(
                 "artifact_blank",
                 "hard_fail",
-                "One or more raster frames are uniformly blank",
+                "One or more raster frames are confirmed uniformly blank or transparent",
                 "artifact_owner_repair",
                 blank_frames=blank_frames,
             )
@@ -400,6 +433,17 @@ def _pdf_page_density(pixmap: object) -> dict[str, Any]:
     }
 
 
+def _font_embedding_state(font_type: object, font_program: object) -> bool | None:
+    if font_program:
+        return True
+    normalized_type = str(font_type or "").strip().lower()
+    if normalized_type == "type3":
+        return None
+    if normalized_type in {"type1", "mmtype1", "truetype"}:
+        return False
+    return None
+
+
 def _inspect_pdf(
     path: Path, audit: dict[str, Any], findings: list[dict[str, Any]]
 ) -> None:
@@ -477,22 +521,35 @@ def _inspect_pdf(
             has_text = has_text or bool(page.get_text("text").strip())
             for font in page.get_fonts(full=True):
                 xref = font[0] if font else 0
+                font_extension = font[1] if len(font) > 1 else ""
+                font_type = font[2] if len(font) > 2 else ""
                 basefont = font[3] if len(font) > 3 else ""
                 key = (xref, basefont)
                 if key in fonts:
                     continue
                 embedded: bool | None = None
+                embedding_evidence = "font_program_unverified"
                 if isinstance(xref, int) and xref > 0:
                     try:
                         extracted = document.extract_font(xref)
-                        embedded = bool(extracted and extracted[-1])
+                        font_program = extracted[-1] if extracted else None
+                        embedded = _font_embedding_state(font_type, font_program)
+                        if embedded is True:
+                            embedding_evidence = "extractable_font_program"
+                        elif embedded is False:
+                            embedding_evidence = "empty_extractable_font_program"
+                        elif str(font_type).lower() == "type3":
+                            embedding_evidence = "type3_charprocs_not_font_program"
                     except (OSError, RuntimeError, ValueError):
                         embedded = None
                 fonts[key] = {
+                    "font_file_extension": font_extension,
+                    "font_type": font_type,
                     "basefont": basefont,
                     "resource_name": font[4] if len(font) > 4 else "",
                     "encoding": font[5] if len(font) > 5 else "",
                     "embedded": embedded,
+                    "embedding_evidence": embedding_evidence,
                 }
             pixmap = page.get_pixmap(
                 matrix=fitz.Matrix(0.5, 0.5), colorspace=fitz.csGRAY, alpha=False
@@ -500,7 +557,8 @@ def _inspect_pdf(
             density = _pdf_page_density(pixmap)
             density["page"] = page_index + 1
             page_densities.append(density)
-            if density["value"] == 0:
+            get_bboxlog = getattr(page, "get_bboxlog", None)
+            if callable(get_bboxlog) and not get_bboxlog():
                 blank_pages.append(page_index + 1)
 
         audit["dimensions"] = {
@@ -535,6 +593,10 @@ def _inspect_pdf(
             "fonts": font_rows[:64],
             "fonts_truncated": len(font_rows) > 64,
         }
+        audit["blank_detection"] = {
+            "basis": "empty_pdf_page_display_list",
+            "confirmed_blank_pages": blank_pages[:20],
+        }
         audit["blank"] = bool(blank_pages)
         audit["content_readable"] = True
 
@@ -543,7 +605,7 @@ def _inspect_pdf(
                 _finding(
                     "artifact_blank",
                     "hard_fail",
-                    "One or more PDF pages are uniformly blank",
+                    "One or more PDF pages have a confirmed empty display list",
                     "artifact_owner_repair",
                     blank_page_count=len(blank_pages),
                     blank_pages=blank_pages[:20],
@@ -577,7 +639,9 @@ def _inspect_pdf(
                 )
             )
         unembedded_fonts = [
-            row["basefont"] for row in font_rows if row["embedded"] is False
+            row["basefont"] or row["resource_name"] or row["font_type"]
+            for row in font_rows
+            if row["embedded"] is False
         ]
         if unembedded_fonts:
             findings.append(
@@ -833,6 +897,9 @@ def _self_check() -> None:
     support = display_qc_support_map([{"artifact_ref": "fig:1", "issue": "caption drift"}])
     assert support[0]["route_back_candidate"] == "caption_numbering_repair"
     assert lint_forbidden_display_qc_claims("publication-ready with owner receipt")
+    assert _font_embedding_state("Type3", b"") is None
+    assert _font_embedding_state("Type1", b"") is False
+    assert _font_embedding_state("Type0", b"font-program") is True
 
     with TemporaryDirectory() as tmp_dir:
         root = Path(tmp_dir)
@@ -841,6 +908,7 @@ def _self_check() -> None:
         assert "artifact_missing" in missing["export_integrity_ref"]["finding_codes"]
 
         pillow_available = True
+        fitz_available = False
         try:
             from PIL import Image, ImageDraw
         except ImportError:
@@ -857,6 +925,26 @@ def _self_check() -> None:
             assert blank["export_integrity_ref"]["hard_fail"] is True
             assert "artifact_blank" in blank["export_integrity_ref"]["finding_codes"]
 
+            transparent_path = root / "transparent.png"
+            transparent_image = Image.new("RGBA", (1200, 900), (255, 0, 0, 0))
+            ImageDraw.Draw(transparent_image).rectangle(
+                (100, 100, 1100, 800), fill=(0, 0, 255, 0)
+            )
+            transparent_image.save(transparent_path, dpi=(300, 300))
+            transparent = inspect_display_artifact(transparent_path)
+            assert transparent["export_integrity_ref"]["hard_fail"] is True
+            assert "artifact_blank" in transparent["export_integrity_ref"][
+                "finding_codes"
+            ]
+
+            sparse_path = root / "sparse.png"
+            sparse_image = Image.new("1", (6000, 6000), 1)
+            sparse_image.putpixel((3000, 3000), 0)
+            sparse_image.save(sparse_path, dpi=(300, 300))
+            sparse = inspect_display_artifact(sparse_path)
+            assert sparse["export_integrity_ref"]["hard_fail"] is False
+            assert "artifact_blank" not in sparse["export_integrity_ref"]["finding_codes"]
+
             nonblank_image = Image.new("RGB", (1200, 900), "white")
             ImageDraw.Draw(nonblank_image).rectangle(
                 (100, 100, 1100, 800), fill="black"
@@ -870,6 +958,15 @@ def _self_check() -> None:
             assert audit["dimensions"] == {"width_px": 1200, "height_px": 900}
             assert audit["content_density"]["value"] > 0
 
+            mismatched_path = root / "nonblank.jpg"
+            mismatched_path.write_bytes(nonblank_path.read_bytes())
+            mismatched = inspect_display_artifact(mismatched_path)
+            assert mismatched["export_integrity_ref"]["hard_fail"] is False
+            assert "artifact_format_suffix_mismatch" in mismatched[
+                "export_integrity_ref"
+            ]["finding_codes"]
+            assert mismatched["programmatic_figure_audit_ref"]["format"] == "PNG"
+
             pdf_path = root / "minimal.pdf"
             nonblank_image.save(pdf_path, "PDF", resolution=150)
             pdf = inspect_display_artifact(pdf_path)
@@ -879,7 +976,33 @@ def _self_check() -> None:
             if pdf_audit["page_count"] is None:
                 assert "dependency_missing" in pdf["export_integrity_ref"]["finding_codes"]
             else:
+                fitz_available = True
                 assert pdf_audit["page_count"] == 1
+                fitz = _load_pymupdf()
+                empty_pdf_path = root / "empty.pdf"
+                document = fitz.open()
+                document.new_page(width=612, height=792)
+                document.save(empty_pdf_path)
+                document.close()
+                empty_pdf = inspect_display_artifact(empty_pdf_path)
+                assert empty_pdf["export_integrity_ref"]["hard_fail"] is True
+
+                sparse_pdf_path = root / "sparse.pdf"
+                document = fitz.open()
+                page = document.new_page(width=612, height=792)
+                page.draw_rect(
+                    fitz.Rect(300, 400, 300.01, 400.01),
+                    color=None,
+                    fill=(0, 0, 0),
+                    width=0,
+                )
+                document.save(sparse_pdf_path)
+                document.close()
+                sparse_pdf = inspect_display_artifact(sparse_pdf_path)
+                assert sparse_pdf["export_integrity_ref"]["hard_fail"] is False
+                assert "artifact_blank" not in sparse_pdf["export_integrity_ref"][
+                    "finding_codes"
+                ]
 
         unsupported_path = root / "notes.txt"
         unsupported_path.write_text("not a rendered artifact", encoding="utf-8")
@@ -888,7 +1011,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 20 if pillow_available else 14
+    checks = 34 if fitz_available else 30 if pillow_available else 17
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 
