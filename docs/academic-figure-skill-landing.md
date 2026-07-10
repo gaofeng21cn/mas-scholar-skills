@@ -41,7 +41,7 @@ Make the useful parts executable in the current Display family:
 | Artifact QC | `medical-display-qc` kernel and Skill | raster/PDF path, expected dimensions, optional page/panel refs | `programmatic_figure_audit_ref`, `export_integrity_ref`, findings and route-back candidate | kernel red/green self-check plus actual temp artifacts | deterministic inspection works without authority claims |
 | Composition geometry | `medical-figure-composer` kernel and Skill | outline, panel paths, explicit fit mode | overlap-safe boxes, contain/crop composition, physical-size/aspect findings | kernel red/green self-check with overlap and non-square panels | no implicit stretch; invalid overlap fails closed |
 | Pack live regression | `medical-display-core` pack source | six golden example inputs and current renderer entrypoint | temporary render outputs, fingerprints, layout/output inspection candidate | pack-local self-check and real golden render where dependencies are available | all selected examples render and inspect, or non-authoritative `execution_issue_candidate` evidence is returned |
-| Integration | Display receipt contract, `medical-figure-design`, shared ref template, this document | three verified lane commits | provenance fields, routing rules, external-learning record, mainline audit | focused checks, `./scripts/verify.sh`, manifest status, worktree absorption audit | all adopted/adapted items are done or no-code-needed |
+| Integration | Display receipt contract, `medical-figure-design`, shared ref template, this document | verified lane changes | provenance fields, routing rules, external-learning record, mainline audit | focused checks, `./scripts/verify.sh`, manifest status, worktree absorption audit | all adopted/adapted items are done or no-code-needed |
 
 ## Adoption Decisions
 
@@ -80,8 +80,9 @@ The following commands were run from the isolated landing lane on
 - `python3 scripts/verify-display-gallery-pack.py --check`: exit 0; 54 catalog
   templates, 54 OPL template resources, 6 template examples, 6 golden
   templates, 37 gallery visuals, and 5 review files verified.
-- `python3 skills/medical-display-qc/kernel.py`: exit 0; 20 deterministic
-  self-checks passed.
+- `python3 -S skills/medical-display-qc/kernel.py`: exit 0; 17 no-dependency
+  checks passed. The default Python passed 30 checks with Pillow, and the
+  prepared Python passed 34 checks with Pillow and PyMuPDF.
 - `python3 skills/medical-figure-composer/kernel.py`: exit 0; composition
   kernel self-check passed.
 - `python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py`:
@@ -106,7 +107,7 @@ current-package authority, submission readiness, or publication readiness.
 | Item | Pattern | Local owner surface | Target landing | Status | Completion | Fresh evidence | Missing refs | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Existing figure reasoning workflow | Contract-first, data-question-first figure judgment and final-scale QA | `medical-figure-design` and shared professional refs | Existing Skill workflow remains the canonical figure entry | `no_code_needed` | 100% | `./scripts/verify.sh` exit 0 plus current Skill/ref readback | none | Keep consuming through the existing Skill |
-| Executable artifact QC | Inspect actual raster/PDF exports and separate deterministic audit from visual review | `medical-display-qc` | Refs-only artifact inspection kernel and routing findings | `done` | 100% | QC kernel: exit 0, 20 checks | none | Consume findings as candidates under the domain owner gate |
+| Executable artifact QC | Inspect actual raster/PDF exports and separate deterministic audit from visual review | `medical-display-qc` | Refs-only artifact inspection kernel and routing findings | `done` | 100% | QC kernel: 17 no-dependency, 30 Pillow, and 34 Pillow/PyMuPDF checks; all exit 0 | none | Consume findings as candidates under the domain owner gate |
 | Aspect/collision-safe composition | Preserve aspect ratio, expose physical size, reject invalid overlap/geometry | `medical-figure-composer` | `contain`/`crop` composition and fail-closed geometry checks | `done` | 100% | Composer kernel self-check: exit 0 | none | Use compose-only route for existing panels |
 | Fixed-input live regression | Render six golden inputs and inspect ephemeral outputs | `medical-display-core` | Pack-owned live engine plus manifest and repo-native gate | `done` | 100% | Prepared runtime: 6 passed, 0 dependency unavailable, 0 render failed; default self-check exit 0 | none | Rerun for any future pixel/layout/currentness claim |
 | Panel asset provenance | Distinguish template reuse, reference-guided redraw, and source-free original render | Receipt contract, `medical-figure-design`, shared refs | Four adaptation modes with exact no-source mapping and no invented provenance | `done` | 100% | Display verifier and full repo verification: exit 0 | none | Emit refs-only receipts for owner consumption |
