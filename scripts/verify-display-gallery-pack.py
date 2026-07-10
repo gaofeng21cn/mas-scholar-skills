@@ -433,6 +433,7 @@ def verify_source_pack() -> dict:
         "opl_pack.json",
         "golden_manifest.json",
         "render.R",
+        "fixtures/registry_gallery_cases.json",
         "renderer_dependency_profile.json",
         "renderer_migration_ledger.json",
         "rlib/medicaldisplaycore/evidence_renderer.R",
@@ -440,7 +441,10 @@ def verify_source_pack() -> dict:
         "rlib/medicaldisplaycore/evidence_renderer_parts/layouts.R",
         "rlib/medicaldisplaycore/evidence_renderer_parts/style.R",
         "rlib/medicaldisplaycore/candidate_renderer.R",
+        "rlib/medicaldisplaycore/cohort_flow_renderer.R",
+        "rlib/medicaldisplaycore/registry_gallery_renderers.R",
         "src/fenggaolab_org_medical_display_core/__init__.py",
+        "tests/render_registry_gallery_templates.py",
     ]:
         if not (PACK_ROOT / required).is_file():
             fail(f"missing source pack file packs/medical-display-core/{required}")

@@ -59,6 +59,8 @@ R shared helpers live under:
 - `render.R`
 - `rlib/medicaldisplaycore/evidence_renderer.R`
 - `rlib/medicaldisplaycore/candidate_renderer.R`
+- `rlib/medicaldisplaycore/registry_gallery_renderers.R`
+- `rlib/medicaldisplaycore/cohort_flow_renderer.R`
 
 Template-local R wrappers are retired:
 
@@ -84,6 +86,21 @@ Illustration-shell entrypoint also remains stable at:
 The implementation is split under `src/fenggaolab_org_medical_display_core/illustration_shells/` by validator, renderer, and dispatcher.
 
 This keeps the manifest-facing API stable while making evidence-renderer policy simple: current data evidence is R/ggplot2; design expression can use Python/SVG composition.
+
+## Registry Gallery fixture
+
+`fixtures/registry_gallery_cases.json` is the single pack-owned payload source for the five
+fictional registry/phenotype Gallery previews. Consumers read `cases[template_id].payload`
+directly and must require exact parity with the registry templates they need; they must not
+copy the payloads into a second hard-coded mapping. The fixture keeps `preview_only = true`,
+`authority = false`, `publication_ready = false`, and a synthetic source digest, so it cannot
+be treated as study truth or a publication artifact.
+
+`tests/render_registry_gallery_templates.py` validates the fixture schema, renders all five
+cases, rejects count/denominator/percentage conflicts and mixed feature units, exercises the
+pack-level ggconsort cohort-flow dispatch, and confirms that ComplexHeatmap capture does not
+create `Rplots.pdf`. The default `scripts/verify.sh` runs this regression in the prepared
+display dependency environment.
 
 ## Purpose-first reporting-flow policy
 

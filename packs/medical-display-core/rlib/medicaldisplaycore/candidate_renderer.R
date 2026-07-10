@@ -606,6 +606,7 @@ for (.frame_index in rev(seq_len(sys.nframe()))) {
 }
 source(.candidate_publication_renderer_path, local = environment())
 rm(.candidate_renderer_source_file, .candidate_publication_renderer_path, .frame_index, .frame_file)
+source_renderer_helper("registry_gallery_renderers.R")
 source_renderer_helper("dpcc_primary_care_renderers.R")
 
 build_candidate_evidence_plot <- function(template_id, payload) {
@@ -1124,14 +1125,7 @@ build_candidate_metrics <- function(template_id, display_payload, panel_box) {
     data_fields = sort(names(display_payload)),
     panel_box_present = !is.null(panel_box)
   )
-  registry_gallery_templates <- c(
-    "dot_range_summary_panel",
-    "availability_bar_panel",
-    "adult_multidimensional_phenotype_heatmap",
-    "xiangya_psychobehavioral_overlap_heatmap",
-    "adult_bmi_waist_central_adiposity_bar"
-  )
-  if (template_id %in% registry_gallery_templates) {
+  if (template_id %in% registry_gallery_template_ids) {
     record_field <- if (!is.null(display_payload$rows)) "rows" else "cells"
     metrics <- c(
       metrics,
