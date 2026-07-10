@@ -27,7 +27,7 @@ The command prints JSON. It exits `2` only for missing, unreadable, zero-byte,
 confirmed uniformly blank or fully transparent, or clearly damaged artifacts.
 Review warnings such as missing DPI, small dimensions, high content density,
 an unavailable PDF inspector, unverified font embedding, or a suffix that does
-not match Pillow's decoded raster format exit `0` so ordinary stage progress
+not match the detected artifact format exit `0` so ordinary stage progress
 can continue. Low sampled density alone never proves that an artifact is blank,
 and an empty Type 3 font-program extraction remains unknown rather than being
 reported as an unembedded font.

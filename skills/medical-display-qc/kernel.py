@@ -853,6 +853,18 @@ def inspect_display_artifact(artifact_path: str | Path) -> dict[str, Any]:
 
     suffix = path.suffix.lower()
     if b"%PDF-" in prefix:
+        if suffix != ".pdf":
+            findings.append(
+                _finding(
+                    "artifact_format_suffix_mismatch",
+                    "warning",
+                    "Artifact suffix does not match the detected PDF format",
+                    "artifact_owner_repair",
+                    suffix=suffix or None,
+                    detected_format="PDF",
+                    expected_suffixes=[".pdf"],
+                )
+            )
         _inspect_pdf(path, audit, findings)
     elif suffix == ".pdf":
         audit["content_readable"] = False
@@ -966,6 +978,15 @@ def _self_check() -> None:
                 "export_integrity_ref"
             ]["finding_codes"]
             assert mismatched["programmatic_figure_audit_ref"]["format"] == "PNG"
+
+            pdf_mismatched_path = root / "minimal.png"
+            nonblank_image.save(pdf_mismatched_path, "PDF", resolution=150)
+            pdf_mismatched = inspect_display_artifact(pdf_mismatched_path)
+            assert pdf_mismatched["export_integrity_ref"]["hard_fail"] is False
+            assert "artifact_format_suffix_mismatch" in pdf_mismatched[
+                "export_integrity_ref"
+            ]["finding_codes"]
+            assert pdf_mismatched["programmatic_figure_audit_ref"]["format"] == "PDF"
 
             pdf_path = root / "minimal.pdf"
             nonblank_image.save(pdf_path, "PDF", resolution=150)
