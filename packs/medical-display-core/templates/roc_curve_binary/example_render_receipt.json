@@ -12,6 +12,12 @@
     "pdf_ref": "repo-local:examples/not-rendered/roc_curve_binary.pdf"
   },
   "layout_sidecar_ref": "repo-local:examples/not-rendered/roc_curve_binary.layout.json",
+  "template_or_asset_ref": "repo-local:packs/medical-display-core/templates/roc_curve_binary/template.toml",
+  "semantic_match_ref": "example:semantic_match/roc_curve_binary",
+  "adaptation_mode": "declared_template",
+  "transform_delta_ref": "example:transform_delta/none",
+  "source_data_ref": "repo-local:packs/medical-display-core/templates/roc_curve_binary/example_input.json",
+  "degradation_reason": "example_only_no_artifact_rendered",
   "known_limits": [
     "example receipt only; no artifact was rendered"
   ],

@@ -1,6 +1,6 @@
 {
   "contract_id": "mas_scholar_skills_display_pack_receipt_templates",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "owner": "MAS Scholar Skills Display",
   "state": "active_refs_only_template",
   "purpose": "Minimal refs-only handoff shapes for the medical figure contract, display-pack render receipt, and visual QA receipt loop.",
@@ -21,6 +21,22 @@
     "visual_qa_receipt_ref",
     "owner_gate_handoff_ref"
   ],
+  "template_asset_adaptation_policy": {
+    "allowed_adaptation_modes": [
+      "declared_template",
+      "schema_adapted_template",
+      "reference_guided_new_render"
+    ],
+    "warnings_remain_repair_hints": true,
+    "hard_stop_conditions": [
+      "missing_required_evidence",
+      "missing_or_unreadable_artifact",
+      "blank_artifact",
+      "invalid_geometry",
+      "unsupported_visible_claim",
+      "hard_figure_contract_failure"
+    ]
+  },
   "figure_contract_ref": {
     "required_fields": [
       "contract_id",
@@ -47,6 +63,12 @@
       "render_mode",
       "outputs",
       "layout_sidecar_ref",
+      "template_or_asset_ref",
+      "semantic_match_ref",
+      "adaptation_mode",
+      "transform_delta_ref",
+      "source_data_ref",
+      "degradation_reason",
       "known_limits",
       "authority",
       "publication_ready"
@@ -55,6 +77,12 @@
       "final",
       "candidate"
     ],
+    "allowed_adaptation_modes": [
+      "declared_template",
+      "schema_adapted_template",
+      "reference_guided_new_render"
+    ],
+    "degradation_reason_required_when_fidelity_reduced": true,
     "authority": false,
     "publication_ready": false
   },
