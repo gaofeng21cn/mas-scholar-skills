@@ -833,7 +833,7 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
         category_ids["design"]
     )
     expected_renderer_policy_counts = {
-        "current_template_count": visual_count,
+        "current_template_count": len(template_facts),
         "current_evidence_template_count": evidence_count,
         "current_r_ggplot2_evidence_template_count": evidence_count,
         "current_python_evidence_template_count": 0,
