@@ -90,9 +90,10 @@ The following commands were run from the isolated landing lane on
   exit 0; six fixed-input adapters, PNG/PDF/SVG/layout/text inspection,
   confirmed-blank rejection, and non-authoritative dependency classification
   passed without running the dependency-heavy live suite.
-- The system-Python full live path, which lacks the prepared PDF/plugin
-  dependencies, returned `dependency_unavailable=6`, `render_failed=0`, and
-  authority false instead of false-passing uninspected outputs.
+- The system-Python full live path returned `dependency_unavailable` for each
+  template whose optional PDF/plugin dependency was absent, with
+  `render_failed=0` and authority false instead of false-passing uninspected
+  outputs; exact counts vary with the local optional dependencies.
 - Prepared-runtime live check with `PYTHONPATH=/Users/gaofeng/workspace/med-autoscience/src`
   and `/Users/gaofeng/.py-global/bin/python .../live_regression.py --check --json`:
   exit 0; `state=passed`, `passed=6`, `dependency_unavailable=0`,
