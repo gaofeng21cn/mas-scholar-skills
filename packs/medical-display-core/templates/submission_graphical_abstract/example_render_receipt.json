@@ -12,6 +12,12 @@
     "svg_ref": "repo-local:examples/not-rendered/submission_graphical_abstract.svg"
   },
   "layout_sidecar_ref": "repo-local:examples/not-rendered/submission_graphical_abstract.layout.json",
+  "template_or_asset_ref": "repo-local:packs/medical-display-core/templates/submission_graphical_abstract/template.toml",
+  "semantic_match_ref": "example:semantic_match/submission_graphical_abstract",
+  "adaptation_mode": "declared_template",
+  "transform_delta_ref": "example:transform_delta/none",
+  "source_data_ref": "repo-local:packs/medical-display-core/templates/submission_graphical_abstract/example_input.json",
+  "degradation_reason": "example_only_no_artifact_rendered",
   "known_limits": [
     "example receipt only; no artifact was rendered",
     "illustration shell does not carry statistical evidence authority"

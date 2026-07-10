@@ -12,6 +12,12 @@
     "md_ref": "repo-local:examples/not-rendered/table1_baseline_characteristics.md"
   },
   "layout_sidecar_ref": "repo-local:examples/not-rendered/table1_baseline_characteristics.layout.json",
+  "template_or_asset_ref": "repo-local:packs/medical-display-core/templates/table1_baseline_characteristics/template.toml",
+  "semantic_match_ref": "example:semantic_match/table1_baseline_characteristics",
+  "adaptation_mode": "declared_template",
+  "transform_delta_ref": "example:transform_delta/none",
+  "source_data_ref": "repo-local:packs/medical-display-core/templates/table1_baseline_characteristics/example_input.json",
+  "degradation_reason": "example_only_no_artifact_rendered",
   "known_limits": [
     "example receipt only; no table artifact was rendered"
   ],

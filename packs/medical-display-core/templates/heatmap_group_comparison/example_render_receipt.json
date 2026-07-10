@@ -13,6 +13,12 @@
     "pdf_ref": "repo-local:examples/not-rendered/heatmap_group_comparison/heatmap_group_comparison.pdf"
   },
   "layout_sidecar_ref": "repo-local:examples/not-rendered/heatmap_group_comparison/heatmap_group_comparison.layout.json",
+  "template_or_asset_ref": "repo-local:packs/medical-display-core/templates/heatmap_group_comparison/template.toml",
+  "semantic_match_ref": "example:semantic_match/heatmap_group_comparison",
+  "adaptation_mode": "declared_template",
+  "transform_delta_ref": "example:transform_delta/none",
+  "source_data_ref": "repo-local:packs/medical-display-core/templates/heatmap_group_comparison/example_input.json",
+  "degradation_reason": "example_only_no_artifact_rendered",
   "known_limits": [
     "example receipt only; no artifact was rendered"
   ],

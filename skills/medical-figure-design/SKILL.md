@@ -199,6 +199,25 @@ Before writing plotting code, produce or refresh a compact contract:
 - `figure_archetype`: `quantitative_grid`, `schematic_led_composite`,
   `image_plate_plus_quant`, `asymmetric_mixed_modality`, or
   `clinical_evidence_summary`.
+- `template_selection_ref`: the selected pack template, paper-local grammar,
+  source asset, or explicit new-render decision plus the panel jobs it may
+  support.
+- `template_or_asset_ref`: the exact template or source asset used for each
+  panel, or an explicit `not_applicable:new_render` value when no reusable
+  asset is consumed.
+- `semantic_match_ref`: why the selected template or asset fits the panel's
+  variable types, comparison, uncertainty, visible claim, and evidence role;
+  record mismatches instead of hiding them behind styling.
+- `adaptation_mode`: one of `declared_template`,
+  `schema_adapted_template`, or `reference_guided_new_render`.
+- `transform_delta_ref`: the data mapping, geometry, crop, label, palette,
+  annotation, or panel-order changes made relative to the selected template or
+  asset.
+- `source_data_ref`: the canonical source-data or analysis-output ref used to
+  regenerate the panel.
+- `degradation_reason`: `none` when the intended render is preserved, otherwise
+  the explicit missing asset, unsupported transform, renderer limit, or export
+  constraint that reduced fidelity.
 - `renderer_decision_ref`: chosen renderer family, why it fits, and why
   alternatives were not used.
 - `data_profile_ref`: variable types, usable sample sizes, grouping structure,
@@ -239,8 +258,10 @@ Before writing plotting code, produce or refresh a compact contract:
   categorical and opposing encodings.
 - `multi_panel_outline_ref`: one figure claim, hook/hero panel, panel jobs,
   panel order, and layout intent before rendering.
-- `panel_render_receipt_ref`: per-panel data refs, code/command refs, output,
-  and known limits.
+- `panel_render_receipt_ref`: per-panel `template_or_asset_ref`,
+  `semantic_match_ref`, `adaptation_mode`, `transform_delta_ref`,
+  `source_data_ref`, code/command refs, output, `degradation_reason`, and known
+  limits.
 - `composite_review_ref`: panel-letter, gutter, resized-text, cross-panel
   consistency, and crop-level violation review.
 
@@ -400,6 +421,28 @@ not regenerate clean panels or add labels to a passing panel.
 ### 4. Template And Backend Selection
 
 Choose the figure grammar only after intent and refs are clear.
+
+For every reused template or asset, record the provenance and adaptation before
+rendering:
+
+- confirm the selected source is semantically compatible with the panel job;
+- use `declared_template` only when the current input matches the declared
+  template contract without a schema or meaning change;
+- use `schema_adapted_template` when the template remains the rendering basis
+  but input schema, mappings, geometry, or annotations change;
+- use `reference_guided_new_render` when a source is only a visual or workflow
+  reference and the panel is rendered anew from current evidence;
+- record all transformations and the canonical source-data ref; never copy a
+  plotting script and replace only its data path;
+- record an explicit degradation reason when the intended asset, transform, or
+  export cannot be preserved. Do not silently stretch, substitute, or switch
+  renderer family.
+
+An imperfect semantic match is normally a design repair hint: select a better
+template or move to `reference_guided_new_render` while the candidate can still
+advance. Stop or route back only when required evidence is missing, the output
+is missing/unreadable/blank, geometry is invalid, the visible claim becomes
+unsupported, or another hard figure-contract condition fails.
 
 - Prefer MAS Display Pack and paper-local figure grammar for paper-facing
   evidence figures.

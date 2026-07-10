@@ -24,6 +24,19 @@ EXPECTED_EXAMPLE_TEMPLATE_IDS = [
     "table1_baseline_characteristics",
 ]
 EXPECTED_GOLDEN_TEMPLATE_IDS = EXPECTED_EXAMPLE_TEMPLATE_IDS
+ALLOWED_ADAPTATION_MODES = [
+    "declared_template",
+    "schema_adapted_template",
+    "reference_guided_new_render",
+]
+HARD_STOP_CONDITIONS = [
+    "missing_required_evidence",
+    "missing_or_unreadable_artifact",
+    "blank_artifact",
+    "invalid_geometry",
+    "unsupported_visible_claim",
+    "hard_figure_contract_failure",
+]
 
 
 def fail(message: str) -> None:
@@ -72,6 +85,8 @@ def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
         fail("display-pack receipt templates contract has wrong contract_id")
+    if contract.get("schema_version") != "1.1.0":
+        fail("display-pack receipt templates contract must use schema_version 1.1.0")
     if contract.get("state") != "active_refs_only_template":
         fail("display-pack receipt templates contract must stay refs-only")
     require_false_flags(
@@ -94,6 +109,13 @@ def verify_receipt_templates() -> dict:
         "owner_gate_handoff_ref",
     ]:
         fail("display-pack receipt chain must remain figure->render->visual_qa->owner_gate")
+    adaptation_policy = contract.get("template_asset_adaptation_policy") or {}
+    if adaptation_policy.get("allowed_adaptation_modes") != ALLOWED_ADAPTATION_MODES:
+        fail("template/asset adaptation policy has invalid adaptation modes")
+    if adaptation_policy.get("warnings_remain_repair_hints") is not True:
+        fail("template/asset adaptation warnings must remain repair hints")
+    if adaptation_policy.get("hard_stop_conditions") != HARD_STOP_CONDITIONS:
+        fail("template/asset adaptation policy has invalid hard-stop conditions")
     require_all_fields(
         contract.get("figure_contract_ref") or {},
         "figure_contract_ref",
@@ -117,12 +139,22 @@ def verify_receipt_templates() -> dict:
             "render_mode",
             "outputs",
             "layout_sidecar_ref",
+            "template_or_asset_ref",
+            "semantic_match_ref",
+            "adaptation_mode",
+            "transform_delta_ref",
+            "source_data_ref",
+            "degradation_reason",
             "authority",
             "publication_ready",
         ],
     )
     if render_receipt.get("allowed_render_modes") != ["final", "candidate"]:
         fail("render_receipt_ref allowed_render_modes must be final/candidate")
+    if render_receipt.get("allowed_adaptation_modes") != ALLOWED_ADAPTATION_MODES:
+        fail("render_receipt_ref has invalid adaptation modes")
+    if render_receipt.get("degradation_reason_required_when_fidelity_reduced") is not True:
+        fail("render_receipt_ref must require an explicit fidelity degradation reason")
     require_false_flags(render_receipt, "render_receipt_ref", ["authority", "publication_ready"])
     visual_qa_receipt = contract.get("visual_qa_receipt_ref") or {}
     require_all_fields(
@@ -411,6 +443,17 @@ def verify_one_template_example(template_id: str) -> dict:
         fail(f"{template_id} example_render_receipt.json must declare output refs")
     if not str(example_receipt.get("layout_sidecar_ref") or "").startswith("repo-local:examples/not-rendered/"):
         fail(f"{template_id} example_render_receipt.json must use not-rendered layout sidecar ref")
+    expected_template_ref = f"repo-local:packs/medical-display-core/templates/{template_id}/template.toml"
+    if example_receipt.get("template_or_asset_ref") != expected_template_ref:
+        fail(f"{template_id} example_render_receipt.json template_or_asset_ref mismatch")
+    expected_source_ref = f"repo-local:packs/medical-display-core/templates/{template_id}/example_input.json"
+    if example_receipt.get("source_data_ref") != expected_source_ref:
+        fail(f"{template_id} example_render_receipt.json source_data_ref mismatch")
+    for key in ["semantic_match_ref", "transform_delta_ref", "degradation_reason"]:
+        if not isinstance(example_receipt.get(key), str) or not example_receipt[key].strip():
+            fail(f"{template_id} example_render_receipt.json must declare {key}")
+    if example_receipt.get("adaptation_mode") not in ALLOWED_ADAPTATION_MODES:
+        fail(f"{template_id} example_render_receipt.json has invalid adaptation_mode")
     return {
         "descriptor": descriptor,
         "example_input_ref": template_dir / "example_input.json",
