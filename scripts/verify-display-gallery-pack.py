@@ -32,6 +32,7 @@ ALLOWED_ADAPTATION_MODES = [
 ]
 NOT_APPLICABLE_NEW_RENDER_REF = "not_applicable:new_render"
 ORIGINAL_NEW_RENDER_MODE = "original_new_render"
+NO_REUSABLE_SOURCE_REF = "not_applicable:no_reusable_source"
 LIVE_REGRESSION_ENGINE_REF = (
     "packs/medical-display-core/src/"
     "fenggaolab_org_medical_display_core/live_regression.py"
@@ -88,6 +89,23 @@ def require_all_fields(container: dict, label: str, fields: list[str]) -> None:
             fail(f"{label} missing required field {field}")
 
 
+def require_adaptation_provenance(container: dict, label: str) -> None:
+    adaptation_mode = container.get("adaptation_mode")
+    if adaptation_mode not in ALLOWED_ADAPTATION_MODES:
+        fail(f"{label} has invalid adaptation_mode")
+    source_free = adaptation_mode == ORIGINAL_NEW_RENDER_MODE
+    if (
+        container.get("template_or_asset_ref") == NOT_APPLICABLE_NEW_RENDER_REF
+    ) != source_free:
+        fail(f"{label} must pair not_applicable:new_render with original_new_render")
+    for field in ("semantic_match_ref", "transform_delta_ref"):
+        if (container.get(field) == NO_REUSABLE_SOURCE_REF) != source_free:
+            fail(
+                f"{label} must reserve {NO_REUSABLE_SOURCE_REF} "
+                "for source-free provenance"
+            )
+
+
 def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
@@ -120,13 +138,19 @@ def verify_receipt_templates() -> dict:
     if adaptation_policy.get("allowed_adaptation_modes") != ALLOWED_ADAPTATION_MODES:
         fail("template/asset adaptation policy has invalid adaptation modes")
     if adaptation_policy.get("not_applicable_new_render_mapping") != {
+        "fixture_scope": "figure_or_panel_provenance_not_issued_render_receipt",
         "template_or_asset_ref": NOT_APPLICABLE_NEW_RENDER_REF,
         "adaptation_mode": ORIGINAL_NEW_RENDER_MODE,
-        "semantic_match_ref": "not_applicable:no_reusable_source",
-        "transform_delta_ref": "not_applicable:no_reusable_source",
+        "semantic_match_ref": NO_REUSABLE_SOURCE_REF,
+        "transform_delta_ref": NO_REUSABLE_SOURCE_REF,
+        "pack_render_receipt_requires_actual_outputs": True,
         "forbids_invented_reference_provenance": True,
     }:
         fail("template/asset adaptation policy must map no-source renders without invented provenance")
+    require_adaptation_provenance(
+        adaptation_policy["not_applicable_new_render_mapping"],
+        "source-free figure/panel provenance fixture",
+    )
     if adaptation_policy.get("warnings_remain_repair_hints") is not True:
         fail("template/asset adaptation warnings must remain repair hints")
     if adaptation_policy.get("hard_stop_conditions") != HARD_STOP_CONDITIONS:
@@ -468,16 +492,9 @@ def verify_one_template_example(template_id: str) -> dict:
     for key in ["semantic_match_ref", "transform_delta_ref", "degradation_reason"]:
         if not isinstance(example_receipt.get(key), str) or not example_receipt[key].strip():
             fail(f"{template_id} example_render_receipt.json must declare {key}")
-    adaptation_mode = example_receipt.get("adaptation_mode")
-    if adaptation_mode not in ALLOWED_ADAPTATION_MODES:
-        fail(f"{template_id} example_render_receipt.json has invalid adaptation_mode")
-    if (template_or_asset_ref == NOT_APPLICABLE_NEW_RENDER_REF) != (
-        adaptation_mode == ORIGINAL_NEW_RENDER_MODE
-    ):
-        fail(
-            f"{template_id} example_render_receipt.json must pair "
-            "not_applicable:new_render with original_new_render"
-        )
+    require_adaptation_provenance(
+        example_receipt, f"{template_id} example_render_receipt.json"
+    )
     return {
         "descriptor": descriptor,
         "example_input_ref": template_dir / "example_input.json",

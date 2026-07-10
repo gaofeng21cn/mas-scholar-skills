@@ -214,6 +214,9 @@ keep pre-render decisions in `figure_contract_ref`.
 `original_new_render` does not make pack runtime fields optional: if the pack
 does not return real template and layout-sidecar refs, do not emit a Display
 Pack receipt for that paper-local render.
+Checked-in `example_render_receipt.json` files with `example_only=true` and
+`examples/not-rendered` refs are non-issued schema fixtures, not render
+evidence or a lifecycle exception.
 
 ## Paper Narrative / Figure Deck Arc
 

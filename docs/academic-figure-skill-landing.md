@@ -102,6 +102,10 @@ The following commands were run from the isolated landing lane on
 - `./scripts/verify.sh`: exit 0, including the repo-native display contract
   gate, cheap live-regression self-check, all Skill kernels, OPL consumption
   projection currentness, repository consistency, and no-authority checks.
+- Two independent Skill forward-tests distinguished source-free
+  `original_new_render` from a real-reference `reference_guided_new_render`;
+  the source-free case used all four exact provenance sentinels and withheld
+  the render receipt until real pack output/readback exists.
 
 ## Learning Landing Audit
 
@@ -115,5 +119,6 @@ current-package authority, submission readiness, or publication readiness.
 | Executable artifact QC | Inspect actual raster/PDF exports and separate deterministic audit from visual review | `medical-display-qc` | Refs-only artifact inspection kernel and routing findings | `done` | 100% | QC kernel: 17 no-dependency, 30 Pillow, and 34 Pillow/PyMuPDF checks; all exit 0 | none | Consume findings as candidates under the domain owner gate |
 | Aspect/collision-safe composition | Preserve aspect ratio, expose physical size, reject invalid overlap/geometry | `medical-figure-composer` | `contain`/`crop` composition and fail-closed geometry checks | `done` | 100% | Composer kernel self-check: exit 0 | none | Use compose-only route for existing panels |
 | Fixed-input live regression | Render six golden inputs and inspect ephemeral outputs | `medical-display-core` | Pack-owned live engine plus manifest and repo-native gate | `done` | 100% | Prepared runtime: 6 passed, 0 dependency unavailable, 0 render failed; required PNG/PDF/SVG/layout/text blank fixtures rejected; dependency-only path produced no false pass | none | Rerun for any future pixel/layout/currentness claim |
-| Panel asset provenance | Distinguish template reuse, reference-guided redraw, and source-free original render | Receipt contract, `medical-figure-design`, shared refs | Four adaptation modes with exact no-source mapping and no invented provenance | `done` | 100% | Display verifier and full repo verification: exit 0 | none | Emit refs-only receipts for owner consumption |
+| Panel asset provenance | Distinguish template reuse, reference-guided redraw, and source-free original render | Receipt contract, `medical-figure-design`, shared refs | Four-field figure/panel provenance decision plus actual-pack receipt lifecycle guard | `done` | 100% | Verifier executes the positive source-free four-field fixture; two independent forward-tests selected exact modes/sentinels and refused pre-render receipts | none | Emit a Display Pack receipt only after actual output/sidecar readback |
+| Reviewer case structure | Learn only from evidence-backed recurring visual-audit cases | Existing MAS/domain visual-audit lessons | Observe upstream case organization without importing foreign cases or authority | `watch_only` | 100% decision coverage | Upstream case structure inspected; no stable local evidence justified a new case store or runtime | none | Revisit only after repeated local receipts identify a reusable owner-backed case; otherwise keep observing |
 | Rejected unsafe upstream patterns | Reject fixed thresholds, data-path-only script copying, Skill installs, provenance-free journal rules, and parse-only READY | Repo rules, Skill workflow, live self-check, verifier | Explicit prohibitions and evidence-based progress gates | `done` | 100% | Source scan plus live self-check and `./scripts/verify.sh`: exit 0 | none | Keep rejected unless a future owner-approved contract changes the boundary |

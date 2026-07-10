@@ -29,10 +29,12 @@
       "original_new_render"
     ],
     "not_applicable_new_render_mapping": {
+      "fixture_scope": "figure_or_panel_provenance_not_issued_render_receipt",
       "template_or_asset_ref": "not_applicable:new_render",
       "adaptation_mode": "original_new_render",
       "semantic_match_ref": "not_applicable:no_reusable_source",
       "transform_delta_ref": "not_applicable:no_reusable_source",
+      "pack_render_receipt_requires_actual_outputs": true,
       "forbids_invented_reference_provenance": true
     },
     "warnings_remain_repair_hints": true,

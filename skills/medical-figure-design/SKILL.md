@@ -533,6 +533,9 @@ keep pre-render decisions in the figure contract.
 `original_new_render` does not make pack runtime fields optional. If a pack did
 not return real template and layout-sidecar refs, do not emit a Display Pack
 receipt for that paper-local render.
+Treat checked-in `example_render_receipt.json` files marked `example_only=true`
+as non-issued schema fixtures, never as render evidence or permission to fill
+runtime fields before execution.
 
 ### 6. Visual QA
 
