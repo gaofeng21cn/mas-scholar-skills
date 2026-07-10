@@ -152,14 +152,20 @@ path. Python illustration/table examples execute their descriptor-declared
 plugin entrypoints. The report records the command, exit code, bounded
 stdout/stderr tails, artifact size and SHA-256, PNG dimensions and content
 density plus full-resolution uniformity, PDF signature/EOF/cross-reference
-structure, layout box geometry, and SVG XML parsing when those exports apply.
+structure plus rendered-page blank inspection, layout box geometry, SVG
+renderable-element candidates, and UTF-8 nonblank CSV/Markdown content when
+those exports apply. PDF visual inspection reuses optional PyMuPDF
+(`pymupdf`/`fitz`) and records confirmed blank page numbers.
 Missing binaries, R/Python packages, fonts, or render devices return the
 non-authoritative execution status `dependency_unavailable`; other renderer or
 artifact failures return `render_failed`. Details live under
 `execution_issue_candidate` with `authority = false`, never under a domain
 typed-blocker field. If Pillow is unavailable, the no-argument self-check and
 PNG-producing live checks return `dependency_unavailable`. The runner never
-installs or repairs dependencies.
+installs or repairs dependencies. If PyMuPDF is unavailable, the no-argument
+self-check validates that non-authoritative classification and still succeeds;
+affected full live checks return `dependency_unavailable` rather than passing
+without PDF visual inspection.
 
 Every report keeps `authority = false`, `publication_ready = false`, and
 `can_create_typed_blocker = false`.

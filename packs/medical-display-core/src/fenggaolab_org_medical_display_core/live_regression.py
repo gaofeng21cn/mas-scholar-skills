@@ -341,14 +341,96 @@ def _inspect_pdf(path: Path) -> dict[str, Any]:
     signature_valid = header.startswith(b"%PDF-")
     eof_present = b"%%EOF" in tail
     startxref_present = b"startxref" in tail
-    return {
-        "valid": signature_valid and eof_present and startxref_present,
+    structure_valid = signature_valid and eof_present and startxref_present
+    metadata: dict[str, Any] = {
+        "valid": structure_valid,
         "header": header.decode("latin-1", errors="replace"),
         "signature_valid": signature_valid,
         "eof_present": eof_present,
         "startxref_present": startxref_present,
         "validation_depth": "pdf_signature_eof_and_cross_reference_structure",
     }
+    if not structure_valid:
+        return metadata
+
+    pdf_module = None
+    for module_name in ("pymupdf", "fitz"):
+        try:
+            candidate = importlib.import_module(module_name)
+        except ImportError:
+            continue
+        if all(hasattr(candidate, attribute) for attribute in ("open", "Matrix", "csRGB")):
+            pdf_module = candidate
+            break
+    if pdf_module is None:
+        metadata.update(
+            {
+                "valid": None,
+                "confirmed_blank": None,
+                "confirmed_blank_pages": None,
+                "validation_depth": "pdf_visual_inspection_dependency_unavailable",
+                "execution_issue_candidate": {
+                    "type": "dependency_unavailable",
+                    "authority": False,
+                    "dependency_kind": "python_module",
+                    "dependency": "PyMuPDF",
+                    "import_names": ["pymupdf", "fitz"],
+                    "message": (
+                        "PyMuPDF is required for PDF visual blank inspection; "
+                        "the live-regression engine does not install dependencies."
+                    ),
+                },
+            }
+        )
+        return metadata
+
+    try:
+        document = pdf_module.open(str(path))
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(f"PDF could not be opened: {exc}") from exc
+    try:
+        if getattr(document, "needs_pass", False):
+            raise ValueError("PDF requires a password before visual inspection")
+        page_count = int(document.page_count)
+        if page_count < 1:
+            raise ValueError("PDF contains no pages")
+        confirmed_blank_pages: list[int] = []
+        for page_index in range(page_count):
+            page = document.load_page(page_index)
+            pixmap = page.get_pixmap(
+                matrix=pdf_module.Matrix(1.0, 1.0),
+                colorspace=pdf_module.csRGB,
+                alpha=False,
+            )
+            samples = memoryview(pixmap.samples)
+            if not samples:
+                raise ValueError(f"PDF page {page_index + 1} rendered no pixels")
+            channel_count = int(pixmap.n)
+            channel_extrema = [
+                {
+                    "min": min(samples[offset::channel_count]),
+                    "max": max(samples[offset::channel_count]),
+                }
+                for offset in range(channel_count)
+            ]
+            if all(item["min"] == item["max"] for item in channel_extrema):
+                confirmed_blank_pages.append(page_index + 1)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(f"PDF pages could not be visually inspected: {exc}") from exc
+    finally:
+        document.close()
+
+    metadata.update(
+        {
+            "valid": True,
+            "page_count": page_count,
+            "confirmed_blank": bool(confirmed_blank_pages),
+            "confirmed_blank_pages": confirmed_blank_pages,
+            "blank_basis": "72_dpi_full_page_rgb_uniformity",
+            "validation_depth": "pdf_structure_and_rendered_page_blank_inspection",
+        }
+    )
+    return metadata
 
 
 def _inspect_layout(path: Path) -> dict[str, Any]:
@@ -406,11 +488,131 @@ def _inspect_svg(path: Path) -> dict[str, Any]:
         root = ET.parse(path).getroot()
     except ET.ParseError as exc:
         raise ValueError(f"SVG XML could not be parsed: {exc}") from exc
-    local_name = root.tag.rsplit("}", 1)[-1].lower()
+    svg_namespace = "http://www.w3.org/2000/svg"
+    xlink_href = "{http://www.w3.org/1999/xlink}href"
+
+    def expanded_name(element: ET.Element) -> tuple[str | None, str]:
+        tag = str(element.tag)
+        if tag.startswith("{") and "}" in tag:
+            namespace, name = tag[1:].split("}", 1)
+            return namespace, name.lower()
+        return None, tag.lower()
+
+    def definitely_nonpositive_length(value: str | None, *, missing_is_zero: bool) -> bool:
+        if value is None:
+            return missing_is_zero
+        text = value.strip()
+        if not text:
+            return True
+        match = re.fullmatch(
+            r"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)(?:[A-Za-z%]+)?",
+            text,
+        )
+        return match is not None and float(match.group(1)) <= 0
+
+    def renderable_candidate(element: ET.Element, name: str) -> bool:
+        if name == "text":
+            return bool("".join(element.itertext()).strip())
+        if name == "path":
+            return bool((element.get("d") or "").strip())
+        required_lengths = {
+            "rect": ("width", "height"),
+            "circle": ("r",),
+            "ellipse": ("rx", "ry"),
+        }
+        if name in required_lengths:
+            return not any(
+                definitely_nonpositive_length(element.get(attribute), missing_is_zero=True)
+                for attribute in required_lengths[name]
+            )
+        if name in {"polygon", "polyline"}:
+            return bool((element.get("points") or "").strip())
+        if name in {"image", "use"}:
+            href = element.get("href") or element.get(xlink_href)
+            if not href or not href.strip():
+                return False
+            return not any(
+                definitely_nonpositive_length(element.get(attribute), missing_is_zero=False)
+                for attribute in ("width", "height")
+            )
+        if name == "foreignobject":
+            if any(
+                definitely_nonpositive_length(element.get(attribute), missing_is_zero=True)
+                for attribute in ("width", "height")
+            ):
+                return False
+            return bool(len(element) or "".join(element.itertext()).strip())
+        return True
+
+    root_namespace, local_name = expanded_name(root)
+    root_valid = local_name == "svg" and root_namespace in {None, svg_namespace}
+    renderable_elements = {
+        "circle",
+        "ellipse",
+        "foreignobject",
+        "image",
+        "line",
+        "path",
+        "polygon",
+        "polyline",
+        "rect",
+        "text",
+        "use",
+    }
+    non_rendered_containers = {
+        "clippath",
+        "desc",
+        "defs",
+        "marker",
+        "mask",
+        "metadata",
+        "pattern",
+        "script",
+        "style",
+        "symbol",
+        "title",
+    }
+    candidate_counts: dict[str, int] = {}
+    if root_valid:
+        stack: list[tuple[ET.Element, bool]] = [(root, False)]
+        while stack:
+            element, suppressed = stack.pop()
+            element_namespace, element_name = expanded_name(element)
+            suppressed = (
+                suppressed
+                or element_namespace != root_namespace
+                or element_name in non_rendered_containers
+            )
+            if (
+                not suppressed
+                and element_name in renderable_elements
+                and renderable_candidate(element, element_name)
+            ):
+                candidate_counts[element_name] = candidate_counts.get(element_name, 0) + 1
+            stack.extend((child, suppressed) for child in reversed(element))
+    candidate_count = sum(candidate_counts.values())
     return {
-        "valid": local_name == "svg",
+        "valid": root_valid,
         "root_element": local_name,
+        "root_namespace": root_namespace,
         "child_count": len(root),
+        "renderable_element_candidate_count": candidate_count,
+        "renderable_element_candidate_counts": candidate_counts,
+        "confirmed_blank": root_valid and candidate_count == 0,
+        "blank_basis": "no_definitely_renderable_svg_element_candidate",
+    }
+
+
+def _inspect_text(path: Path) -> dict[str, Any]:
+    value = path.read_text(encoding="utf-8-sig").lstrip("\ufeff")
+    if "\x00" in value:
+        raise ValueError("text export contains a NUL character")
+    return {
+        "valid": True,
+        "encoding": "utf-8-sig",
+        "character_count": len(value),
+        "confirmed_blank": not value.strip(),
+        "blank_basis": "utf8_text_empty_after_bom_and_whitespace_strip",
     }
 
 
@@ -432,6 +634,8 @@ def _artifact_metadata(path: Path, kind: str) -> dict[str, Any]:
             metadata.update(_inspect_layout(path))
         elif kind == "svg":
             metadata.update(_inspect_svg(path))
+        elif kind in {"csv", "md"}:
+            metadata.update(_inspect_text(path))
         else:
             metadata["valid"] = path.stat().st_size > 0
     except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -466,11 +670,28 @@ def _collect_artifacts(
         artifacts[kind] = metadata
         if not metadata.get("exists"):
             validation_errors.append(f"missing required {kind} output")
+        elif (
+            isinstance(metadata.get("execution_issue_candidate"), dict)
+            and metadata["execution_issue_candidate"].get("type") == "dependency_unavailable"
+        ):
+            continue
         elif metadata.get("valid") is not True:
             validation_errors.append(f"invalid required {kind} output")
-        elif kind == "png" and metadata.get("confirmed_blank") is True:
-            validation_errors.append("PNG full-resolution inspection confirms a blank render")
+        elif metadata.get("confirmed_blank") is True:
+            validation_errors.append(
+                f"{kind.upper()} content inspection confirms a blank required output"
+            )
     return artifacts, validation_errors
+
+
+def _artifact_dependency_issue(
+    artifacts: dict[str, dict[str, Any]],
+) -> dict[str, Any] | None:
+    for metadata in artifacts.values():
+        issue = metadata.get("execution_issue_candidate")
+        if isinstance(issue, dict) and issue.get("type") == "dependency_unavailable":
+            return {**issue, "authority": False}
+    return None
 
 
 def _tail(value: str) -> str:
@@ -503,6 +724,51 @@ def _dependency_issue(stderr: str) -> dict[str, Any] | None:
             "message": _tail(stderr),
         }
     return None
+
+
+def _execution_result_update(
+    *,
+    exit_code: int,
+    stderr: str,
+    artifacts: dict[str, dict[str, Any]],
+    validation_errors: list[str],
+) -> dict[str, Any]:
+    def render_failure(reason: str, message: str) -> dict[str, Any]:
+        return {
+            "status": "render_failed",
+            "execution_issue_candidate": {
+                "type": "render_failed",
+                "authority": False,
+                "reason": reason,
+                "message": message,
+            },
+        }
+
+    if any(metadata.get("confirmed_blank") is True for metadata in artifacts.values()):
+        return render_failure(
+            "artifact_validation_failed",
+            "; ".join(validation_errors)
+            or "content inspection confirms a blank required output",
+        )
+    if exit_code != 0:
+        dependency = _dependency_issue(stderr)
+        if dependency is not None:
+            return {
+                "status": "dependency_unavailable",
+                "execution_issue_candidate": dependency,
+            }
+        return render_failure(
+            "renderer_exit_nonzero", _tail(stderr) or f"renderer exited {exit_code}"
+        )
+    if validation_errors:
+        return render_failure("artifact_validation_failed", "; ".join(validation_errors))
+    artifact_dependency_issue = _artifact_dependency_issue(artifacts)
+    if artifact_dependency_issue is not None:
+        return {
+            "status": "dependency_unavailable",
+            "execution_issue_candidate": artifact_dependency_issue,
+        }
+    return {"status": "passed"}
 
 
 def _python_plugin_command(request_path: Path, template_id: str) -> list[str]:
@@ -718,41 +984,14 @@ def _run_one(
         )
         artifacts, validation_errors = _collect_artifacts(output_paths, descriptor)
         result["artifacts"] = artifacts
-        if completed.returncode != 0:
-            dependency = _dependency_issue(completed.stderr)
-            if dependency is not None:
-                result.update(
-                    {
-                        "status": "dependency_unavailable",
-                        "execution_issue_candidate": dependency,
-                    }
-                )
-            else:
-                result.update(
-                    {
-                        "status": "render_failed",
-                        "execution_issue_candidate": {
-                            "type": "render_failed",
-                            "authority": False,
-                            "reason": "renderer_exit_nonzero",
-                            "message": _tail(completed.stderr) or f"renderer exited {completed.returncode}",
-                        },
-                    }
-                )
-        elif validation_errors:
-            result.update(
-                {
-                    "status": "render_failed",
-                    "execution_issue_candidate": {
-                        "type": "render_failed",
-                        "authority": False,
-                        "reason": "artifact_validation_failed",
-                        "message": "; ".join(validation_errors),
-                    },
-                }
+        result.update(
+            _execution_result_update(
+                exit_code=completed.returncode,
+                stderr=completed.stderr,
+                artifacts=artifacts,
+                validation_errors=validation_errors,
             )
-        else:
-            result["status"] = "passed"
+        )
     except (KeyError, OSError, ValueError, json.JSONDecodeError, tomllib.TOMLDecodeError) as exc:
         result.update(
             {
@@ -871,22 +1110,39 @@ def run_self_check(pack_root: Path = PACK_ROOT, repo_root: Path = REPO_ROOT) -> 
 
     with tempfile.TemporaryDirectory(prefix="medical-display-live-regression-self-check-") as temporary:
         root = Path(temporary)
+
+        def fixture(name: str, value: str | bytes) -> Path:
+            path = root / name
+            if isinstance(value, bytes):
+                path.write_bytes(value)
+            else:
+                path.write_text(value, encoding="utf-8")
+            return path
+
         png_path = root / "check.png"
         sparse_png_path = root / "sparse.png"
-        pdf_path = root / "check.pdf"
-        truncated_pdf_path = root / "truncated.pdf"
-        layout_path = root / "check.layout.json"
-        empty_layout_path = root / "empty.layout.json"
-        svg_path = root / "check.svg"
-        truncated_svg_path = root / "truncated.svg"
+        blank_pdf_path = root / "blank.pdf"
+        nonblank_pdf_path = root / "nonblank.pdf"
+        mixed_pdf_path = root / "mixed.pdf"
         _write_self_check_png(png_path)
         Image, _ = _pillow_modules()
         sparse = Image.new("RGB", (2048, 2048), "white")
         sparse.putpixel((1024, 1024), (0, 0, 0))
         sparse.save(sparse_png_path, format="PNG")
-        Image.new("RGB", (16, 16), "white").save(pdf_path, format="PDF")
-        truncated_pdf_path.write_bytes(b"%PDF-1.7\n")
-        layout_path.write_text(
+        blank_page = Image.new("RGB", (64, 64), "white")
+        nonblank_page = blank_page.copy()
+        nonblank_page.putpixel((32, 32), (0, 0, 0))
+        blank_page.save(blank_pdf_path, format="PDF")
+        nonblank_page.save(nonblank_pdf_path, format="PDF")
+        blank_page.save(
+            mixed_pdf_path,
+            format="PDF",
+            save_all=True,
+            append_images=[nonblank_page],
+        )
+        truncated_pdf_path = fixture("truncated.pdf", b"%PDF-1.7\n")
+        layout_path = fixture(
+            "check.layout.json",
             json.dumps(
                 {
                     "template_id": "self_check",
@@ -903,27 +1159,68 @@ def run_self_check(pack_root: Path = PACK_ROOT, repo_root: Path = REPO_ROOT) -> 
                 }
             )
             + "\n",
-            encoding="utf-8",
         )
-        empty_layout_path.write_text("{}\n", encoding="utf-8")
-        svg_path.write_text(
-            '<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1"/></svg>\n',
-            encoding="utf-8",
-        )
-        truncated_svg_path.write_text("<svg", encoding="utf-8")
+        empty_layout_path = fixture("empty.layout.json", "{}\n")
+        svg_paths = {
+            "visible": fixture(
+                "visible.svg",
+                '<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1"/><text>label</text></svg>\n',
+            ),
+            "empty": fixture("empty.svg", '<svg xmlns="http://www.w3.org/2000/svg"/>\n'),
+            "definitely_empty": fixture(
+                "definitely-empty.svg",
+                '<svg xmlns="http://www.w3.org/2000/svg" xmlns:x="urn:example">'
+                '<rect width="0" height="1"/><path d=""/><image width="1" height="1"/>'
+                '<x:rect width="1" height="1"/></svg>\n',
+            ),
+            "uncertain": fixture(
+                "uncertain.svg",
+                '<svg xmlns="http://www.w3.org/2000/svg"><rect width="calc(1px)" '
+                'height="var(--height)" style="opacity:var(--opacity)"/></svg>\n',
+            ),
+            "deep": fixture(
+                "deep.svg",
+                '<svg xmlns="http://www.w3.org/2000/svg">'
+                + "<g>" * 1100
+                + '<rect width="1" height="1"/>'
+                + "</g>" * 1100
+                + "</svg>\n",
+            ),
+        }
+        truncated_svg_path = fixture("truncated.svg", "<svg")
+        text_paths = {
+            "csv": (fixture("check.csv", "name,value\nexample,1\n"), "csv"),
+            "blank_csv": (fixture("blank.csv", " \n\t"), "csv"),
+            "md": (fixture("check.md", "# Example\n"), "md"),
+            "blank_md": (fixture("blank.md", b"\xef\xbb\xbf\n \t"), "md"),
+            "nul_md": (fixture("nul.md", b"\x00"), "md"),
+            "invalid_md": (fixture("invalid.md", b"\xff\xfe"), "md"),
+        }
+
         png = _inspect_png(png_path)
         sparse_png = _inspect_png(sparse_png_path)
-        pdf = _inspect_pdf(pdf_path)
+        blank_pdf = _inspect_pdf(blank_pdf_path)
+        nonblank_pdf = _inspect_pdf(nonblank_pdf_path)
+        mixed_pdf = _inspect_pdf(mixed_pdf_path)
         layout = _inspect_layout(layout_path)
-        svg = _inspect_svg(svg_path)
-        if png["width"] != 2 or png["height"] != 2 or png["content_density"] <= 0:
-            raise ValueError("PNG inspection self-check failed")
-        if sparse_png["confirmed_blank"] is not False:
-            raise ValueError("sparse nonblank PNG must not be classified as blank")
-        if pdf["valid"] is not True or _inspect_pdf(truncated_pdf_path)["valid"] is not False:
-            raise ValueError("PDF structural inspection self-check failed")
-        if layout["parse_ok"] is not True or svg["valid"] is not True:
-            raise ValueError("layout/SVG inspection self-check failed")
+        svg_metadata = {name: _artifact_metadata(path, "svg") for name, path in svg_paths.items()}
+        text_metadata = {
+            name: _artifact_metadata(path, kind) for name, (path, kind) in text_paths.items()
+        }
+
+        content_failures: list[str] = []
+
+        def expect(condition: bool, message: str) -> None:
+            if not condition:
+                content_failures.append(message)
+
+        expect(
+            png["width"] == 2 and png["height"] == 2 and png["content_density"] > 0,
+            "PNG inspection failed",
+        )
+        expect(sparse_png["confirmed_blank"] is False, "sparse PNG was classified blank")
+        expect(_inspect_pdf(truncated_pdf_path)["valid"] is False, "corrupt PDF was accepted")
+        expect(layout["parse_ok"] is True, "layout inspection failed")
         for invalid_path, inspector in (
             (empty_layout_path, _inspect_layout),
             (truncated_svg_path, _inspect_svg),
@@ -933,12 +1230,103 @@ def run_self_check(pack_root: Path = PACK_ROOT, repo_root: Path = REPO_ROOT) -> 
             except ValueError:
                 pass
             else:
-                raise ValueError(f"invalid artifact was accepted: {invalid_path.name}")
-    checks.append("pillow_artifact_inspection")
+                content_failures.append(f"invalid artifact was accepted: {invalid_path.name}")
+
+        pdf_issue = blank_pdf.get("execution_issue_candidate")
+        if pdf_issue is not None:
+            expect(
+                blank_pdf.get("valid") is None
+                and pdf_issue.get("type") == "dependency_unavailable"
+                and pdf_issue.get("authority") is False,
+                "missing PyMuPDF was not a non-authoritative dependency issue",
+            )
+        else:
+            expect(blank_pdf.get("confirmed_blank") is True, "uniform PDF was not blank")
+            expect(nonblank_pdf.get("confirmed_blank") is False, "sparse PDF was blank")
+            expect(mixed_pdf.get("confirmed_blank_pages") == [1], "PDF blank pages were wrong")
+
+        for name, expected_blank in (
+            ("visible", False),
+            ("empty", True),
+            ("definitely_empty", True),
+            ("uncertain", False),
+            ("deep", False),
+        ):
+            expect(
+                svg_metadata[name].get("confirmed_blank") is expected_blank,
+                f"SVG {name} blank classification failed",
+            )
+        for name, expected_valid, expected_blank in (
+            ("csv", True, False),
+            ("blank_csv", True, True),
+            ("md", True, False),
+            ("blank_md", True, True),
+            ("nul_md", False, None),
+            ("invalid_md", False, None),
+        ):
+            metadata = text_metadata[name]
+            expect(metadata.get("valid") is expected_valid, f"text {name} validity failed")
+            if expected_blank is not None:
+                expect(
+                    metadata.get("confirmed_blank") is expected_blank,
+                    f"text {name} blank classification failed",
+                )
+
+        _, blank_errors = _collect_artifacts(
+            {
+                "svg": svg_paths["empty"],
+                "csv": text_paths["blank_csv"][0],
+                "md": text_paths["blank_md"][0],
+            },
+            {"required_exports": ["svg", "csv", "md"]},
+        )
+        expect(len(blank_errors) == 3, "required non-PNG blanks did not all fail collection")
+        if content_failures:
+            raise ValueError(
+                "artifact content inspection self-check failed: "
+                + "; ".join(content_failures)
+            )
+    checks.append("artifact_content_inspection")
 
     issue = _dependency_issue("ModuleNotFoundError: No module named 'example_dependency'")
     if issue is None or issue.get("type") != "dependency_unavailable":
         raise ValueError("dependency classification self-check failed")
+    artifact_issue = _artifact_dependency_issue(
+        {
+            "pdf": {
+                "execution_issue_candidate": {
+                    "type": "dependency_unavailable",
+                    "authority": True,
+                    "dependency": "PyMuPDF",
+                }
+            }
+        }
+    )
+    if (
+        artifact_issue is None
+        or artifact_issue.get("type") != "dependency_unavailable"
+        or artifact_issue.get("authority") is not False
+    ):
+        raise ValueError("artifact dependency projection self-check failed")
+    blank_over_dependency = _execution_result_update(
+        exit_code=1,
+        stderr="ModuleNotFoundError: No module named 'renderer_dependency'",
+        artifacts={"pdf": {"confirmed_blank": True}},
+        validation_errors=["PDF content inspection confirms a blank required output"],
+    )
+    missing_under_dependency = _execution_result_update(
+        exit_code=1,
+        stderr="ModuleNotFoundError: No module named 'renderer_dependency'",
+        artifacts={"pdf": {"exists": False}},
+        validation_errors=["missing required pdf output"],
+    )
+    if (
+        blank_over_dependency.get("status") != "render_failed"
+        or blank_over_dependency.get("execution_issue_candidate", {}).get("reason")
+        != "artifact_validation_failed"
+        or missing_under_dependency.get("status") != "dependency_unavailable"
+    ):
+        raise ValueError("blank/dependency priority self-check failed")
     checks.append("non_authoritative_dependency_classification")
     return {
         "schema_version": 1,
