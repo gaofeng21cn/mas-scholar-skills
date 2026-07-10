@@ -60,6 +60,10 @@ Make the useful parts executable in the current Display family:
 - Risk class: `L3 behavior/contract change`
 - Verification budget: `standard`
 - TDD: selected only for deterministic QC and composition regressions; each new behavior must fail first in the lane self-check.
+- Progress-first gate: ordinary semantic/style/export warnings remain repair
+  hints; only missing/unreadable/blank artifacts, invalid geometry,
+  unsupported visible claims, or another hard contract failure stop the
+  candidate path.
 - Required final evidence:
   - focused kernel checks;
   - actual raster/PDF inspection;

@@ -77,6 +77,21 @@ Minimum fields:
   unexplained error bars, chartjunk, categorical lines, and missing colorbars.
 - `figure_archetype`: evidence grid, mechanism schematic, mixed-modality
   composite, clinical evidence summary, or image-plus-quant panel set.
+- `template_selection_ref`: the selected Display Pack template, paper-local
+  grammar, source asset, or explicit new-render choice and the panel jobs it may
+  support.
+- `template_or_asset_ref`: exact per-panel template or source asset ref, or
+  `not_applicable:new_render` when no reusable asset is consumed.
+- `semantic_match_ref`: variable, comparison, uncertainty, visible-claim, and
+  evidence-role compatibility between the source and the intended panel.
+- `adaptation_mode`: `declared_template`, `schema_adapted_template`, or
+  `reference_guided_new_render`.
+- `transform_delta_ref`: data mapping, geometry, crop, label, palette,
+  annotation, and panel-order differences from the selected source.
+- `source_data_ref`: canonical data or analysis-output ref that regenerates the
+  panel.
+- `degradation_reason`: `none` or the explicit asset, transform, renderer, or
+  export limitation that reduced fidelity.
 - `renderer_decision_ref`: selected renderer family and rejected alternatives.
 - `style_brief_ref`: journal class, audience, hierarchy, palette, and allowed
   visual references.
@@ -117,8 +132,10 @@ Minimum fields:
   especially for binary/opposing categories.
 - `multi_panel_outline_ref`: one figure claim, hook/hero panel, panel jobs,
   panel order, and layout intent.
-- `panel_render_receipt_ref`: one receipt per rendered panel with data refs,
-  code/command refs, output path, and panel-level known limits.
+- `panel_render_receipt_ref`: one receipt per rendered panel with
+  `template_or_asset_ref`, `semantic_match_ref`, `adaptation_mode`,
+  `transform_delta_ref`, `source_data_ref`, code/command refs, output path,
+  `degradation_reason`, and panel-level known limits.
 - `composite_review_ref`: post-composition review of panel-letter placement,
   gutters, resized text, cross-panel consistency, and panel-level violations.
 - `route_back_hard_evidence_ref`: only missing source/data/evidence refs,
@@ -144,6 +161,26 @@ review loop: first write the figure claim and panel outline, then render only
 the affected panels, then review the composed figure and crops before handoff.
 Do not regenerate clean panels just to make the package look more active.
 
+## Template And Asset Adaptation Ref
+
+Use the provenance fields above for every reused template or source asset.
+Confirm semantic compatibility before rendering, then select exactly one
+adaptation mode:
+
+- `declared_template`: the input already satisfies the declared template
+  contract without changing scientific meaning.
+- `schema_adapted_template`: the template remains the rendering basis, while
+  schema, mappings, geometry, or annotations are explicitly transformed.
+- `reference_guided_new_render`: the source is only a visual or workflow
+  reference and the current panel is rendered anew from current evidence.
+
+Do not mechanically copy a plotting script and replace only its data path. Do
+not silently stretch an asset, substitute a renderer, or omit transform
+differences. Treat a weak semantic match as a repair hint and choose a better
+template or a new render so progress can continue. Route back only for missing
+required evidence, missing/unreadable/blank output, invalid geometry,
+unsupported visible claims, or another hard contract failure.
+
 ## Display Pack Receipt Chain
 
 Use `contracts/display-pack-receipt-templates.json` when a figure handoff needs a
@@ -153,7 +190,9 @@ machine-readable minimum shape for the Display Pack loop:
   renderer-decision, export, forbidden-drift, and owner-gate handoff refs before
   drawing.
 - `render_receipt_ref`: the pack id, template id, renderer family, render mode,
-  output refs, layout sidecar ref, and known limits after the pack render.
+  output refs, layout sidecar ref, per-panel template/asset provenance,
+  adaptation and source-data refs, degradation reason, and known limits after
+  the pack render.
 - `visual_qa_receipt_ref`: final-size export, export lint, grayscale or
   color-vision readback, label economy, route-back items, and owner-gate target
   after inspecting the real output.
