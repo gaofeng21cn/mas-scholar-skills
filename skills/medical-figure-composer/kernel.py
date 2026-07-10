@@ -35,11 +35,23 @@ def figure_outline_schema() -> dict[str, object]:
                         "rowspan": {"type": "integer"},
                         "colspan": {"type": "integer"},
                         "panel_ref": {"type": "string"},
+                        "fit_mode": {
+                            "type": "string",
+                            "enum": ["contain", "crop"],
+                            "default": "contain",
+                        },
                     },
                 },
             },
         },
     }
+
+
+def _panel_fit_mode(panel: Mapping[str, object]) -> str:
+    fit_mode = str(panel.get("fit_mode", "contain"))
+    if fit_mode not in {"contain", "crop"}:
+        raise ValueError(f"invalid fit_mode for panel {panel.get('letter', '?')}: {fit_mode}")
+    return fit_mode
 
 
 def validate_outline(outline: Mapping[str, object]) -> None:
@@ -51,8 +63,10 @@ def validate_outline(outline: Mapping[str, object]) -> None:
     ncol = int(outline["ncol"])
     row_count = len(outline["row_heights_mm"])
     seen: set[str] = set()
+    occupied: dict[tuple[int, int], str] = {}
     for panel in outline["panels"]:
         letter = str(panel["letter"])
+        _panel_fit_mode(panel)
         if letter in seen:
             raise ValueError(f"duplicate panel letter: {letter}")
         seen.add(letter)
@@ -64,6 +78,15 @@ def validate_outline(outline: Mapping[str, object]) -> None:
             raise ValueError(f"invalid panel geometry for {letter}")
         if row + rowspan > row_count or col + colspan > ncol:
             raise ValueError(f"panel {letter} exceeds outline grid")
+        for grid_row in range(row, row + rowspan):
+            for grid_col in range(col, col + colspan):
+                cell = (grid_row, grid_col)
+                if cell in occupied:
+                    raise ValueError(
+                        f"panel {letter} overlaps panel {occupied[cell]} "
+                        f"at row {grid_row} col {grid_col}"
+                    )
+                occupied[cell] = letter
 
 
 def grid_geometry(
@@ -157,7 +180,7 @@ def compose_figure(
     letter_case: str = "lower",
 ) -> tuple[str, tuple[int, int]]:
     """Compose existing panel images with optional Pillow."""
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
 
     if letter_case not in {"lower", "upper"}:
         raise ValueError("letter_case must be 'lower' or 'upper'")
@@ -173,15 +196,69 @@ def compose_figure(
         if letter not in panel_paths:
             raise KeyError(f"missing panel path for {letter}")
         x0, y0, x1, y1 = panel_box(outline, letter, dpi=dpi, gutter_mm=gutter_mm)
-        image = Image.open(panel_paths[letter]).convert("RGBA")
+        fit_mode = _panel_fit_mode(panel)
+        with Image.open(panel_paths[letter]) as source:
+            image = source.convert("RGBA")
         target_size = (x1 - x0, y1 - y0)
         if image.size != target_size:
-            image = image.resize(target_size)
-        canvas.paste(image, (x0, y0), image)
+            resize = ImageOps.fit if fit_mode == "crop" else ImageOps.contain
+            image = resize(image, target_size, method=Image.Resampling.LANCZOS)
+        paste_at = (x0 + (target_size[0] - image.width) // 2, y0 + (target_size[1] - image.height) // 2)
+        canvas.paste(image, paste_at, image)
         stamp = letter.lower() if letter_case == "lower" else letter.upper()
         draw.text((x0 + int(1.5 / 25.4 * dpi), y0 + int(1 / 25.4 * dpi)), stamp, fill="black", font=font)
     canvas.save(out_path)
     return out_path, canvas.size
+
+
+def composition_layout_findings(
+    outline: Mapping[str, object],
+    panel_paths: Mapping[str, str],
+    *,
+    dpi: int = 300,
+    gutter_mm: float = 4.0,
+    minimum_panel_mm: float = 35.0,
+) -> list[dict[str, object]]:
+    """Return refs-only physical-size and aspect-ratio findings for each panel."""
+    from PIL import Image
+
+    validate_outline(outline)
+    boxes = panel_boxes(outline, dpi=dpi, gutter_mm=gutter_mm)
+    findings = []
+    for panel in outline["panels"]:
+        letter = str(panel["letter"])
+        if letter not in panel_paths:
+            raise KeyError(f"missing panel path for {letter}")
+        x0, y0, x1, y1 = boxes[letter]
+        target_width = x1 - x0
+        target_height = y1 - y0
+        physical_width_mm = round(target_width * 25.4 / dpi, 3)
+        physical_height_mm = round(target_height * 25.4 / dpi, 3)
+        warning_codes = []
+        if physical_width_mm < minimum_panel_mm:
+            warning_codes.append("panel_width_below_minimum")
+        if physical_height_mm < minimum_panel_mm:
+            warning_codes.append("panel_height_below_minimum")
+        with Image.open(panel_paths[letter]) as source:
+            source_width, source_height = source.size
+        findings.append(
+            {
+                "finding_kind": "composition_layout_finding",
+                "authority": False,
+                "panel_letter": letter,
+                "panel_ref": panel.get("panel_ref", letter),
+                "fit_mode": _panel_fit_mode(panel),
+                "physical_width_mm": physical_width_mm,
+                "physical_height_mm": physical_height_mm,
+                "source_aspect_ratio": round(source_width / source_height, 6),
+                "target_aspect_ratio": round(target_width / target_height, 6),
+                "minimum_panel_mm": minimum_panel_mm,
+                "severity": "warning" if warning_codes else "info",
+                "warning_codes": warning_codes,
+                "blocks_progress": False,
+            }
+        )
+    return findings
 
 
 def composition_review_prompt(
@@ -245,7 +322,14 @@ def _sample_outline() -> dict[str, object]:
 
 
 def _self_check() -> None:
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    from PIL import Image
+
     outline = _sample_outline()
+    fit_schema = figure_outline_schema()["properties"]["panels"]["items"]["properties"]["fit_mode"]
+    assert fit_schema == {"type": "string", "enum": ["contain", "crop"], "default": "contain"}
     geom = grid_geometry(outline)
     assert geom["width_px"] == 1417
     assert panel_box(outline, "a") == (0, 0, 1417, 531)
@@ -254,6 +338,95 @@ def _self_check() -> None:
     ref = composition_review_ref(outline, "figure.png", [{"severity": "minor"}])
     assert ref["authority"] is False
     assert clone_outline(outline)["panels"][0]["letter"] == "a"
+
+    overlapping = clone_outline(outline)
+    overlapping["panels"][2]["col"] = 0
+    try:
+        validate_outline(overlapping)
+    except ValueError as exc:
+        assert "overlap" in str(exc)
+    else:
+        raise AssertionError("overlapping panels must fail validation")
+
+    invalid_fit = clone_outline(outline)
+    invalid_fit["panels"][0]["fit_mode"] = "stretch"
+    try:
+        validate_outline(invalid_fit)
+    except ValueError as exc:
+        assert "fit_mode" in str(exc)
+    else:
+        raise AssertionError("invalid fit_mode must fail validation")
+
+    square_outline = {
+        "claim": "Preserve panel aspect ratio.",
+        "width_mm": 40,
+        "ncol": 1,
+        "row_heights_mm": [40],
+        "panels": [
+            {
+                "letter": "a",
+                "role": "hero",
+                "message": "Wide panel",
+                "row": 0,
+                "col": 0,
+                "colspan": 1,
+            }
+        ],
+    }
+    with TemporaryDirectory() as temp_dir:
+        temp = Path(temp_dir)
+        source_path = temp / "wide.png"
+        contain_path = temp / "contain.png"
+        red = (220, 20, 60)
+        blue = (30, 90, 210)
+        source = Image.new("RGB", (200, 100), red)
+        source.paste(blue, (75, 25, 125, 75))
+        source.save(source_path)
+        compose_figure(square_outline, {"a": str(source_path)}, str(contain_path), dpi=25.4)
+        with Image.open(contain_path) as contained:
+            assert contained.getpixel((20, 5)) == (255, 255, 255)
+            red_pixels = [
+                (x, y)
+                for y in range(contained.height)
+                for x in range(contained.width)
+                if contained.getpixel((x, y)) == red
+            ]
+            red_width = max(x for x, _ in red_pixels) - min(x for x, _ in red_pixels) + 1
+            red_height = max(y for _, y in red_pixels) - min(y for _, y in red_pixels) + 1
+            assert red_width / red_height == 2
+
+        crop_outline = clone_outline(square_outline)
+        crop_outline["panels"][0]["fit_mode"] = "crop"
+        crop_path = temp / "crop.png"
+        compose_figure(crop_outline, {"a": str(source_path)}, str(crop_path), dpi=25.4)
+        with Image.open(crop_path) as cropped:
+            assert cropped.getpixel((20, 5)) == red
+            assert cropped.getpixel((20, 35)) == red
+            blue_pixels = [
+                (x, y)
+                for y in range(cropped.height)
+                for x in range(cropped.width)
+                if cropped.getpixel((x, y)) == blue
+            ]
+            blue_width = max(x for x, _ in blue_pixels) - min(x for x, _ in blue_pixels) + 1
+            blue_height = max(y for _, y in blue_pixels) - min(y for _, y in blue_pixels) + 1
+            assert blue_width == blue_height
+
+        narrow_outline = clone_outline(square_outline)
+        narrow_outline["width_mm"] = 30
+        finding = composition_layout_findings(
+            narrow_outline, {"a": str(source_path)}, dpi=25.4
+        )[0]
+        assert finding["panel_letter"] == "a"
+        assert finding["physical_width_mm"] == 30
+        assert finding["physical_height_mm"] == 40
+        assert finding["source_aspect_ratio"] == 2
+        assert finding["target_aspect_ratio"] == 0.75
+        assert finding["fit_mode"] == "contain"
+        assert finding["severity"] == "warning"
+        assert finding["warning_codes"] == ["panel_width_below_minimum"]
+        assert finding["blocks_progress"] is False
+        assert finding["authority"] is False
 
 
 if __name__ == "__main__":

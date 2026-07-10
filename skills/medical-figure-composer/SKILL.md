@@ -20,10 +20,10 @@ Skills: outline -> panel render receipt -> composite review, with existing
 panels treated as inputs rather than data to redraw.
 
 Optional helper: use `kernel.py` for deterministic outline schema, grid
-geometry, panel boxes/crops, optional Pillow composition from existing panel
-exports, and composite review prompt/ref skeletons. The helper is a refs-only
-style/composition aid; it must not redraw data, mutate artifacts, or decide
-publication quality.
+geometry, panel boxes/crops, physical-layout findings, optional Pillow
+composition from existing panel exports, and composite review prompt/ref
+skeletons. The helper is a refs-only style/composition aid; it must not redraw
+data, mutate artifacts, or decide publication quality.
 
 ## Boundary
 
@@ -35,6 +35,25 @@ visual-audit authority, or claim publication readiness.
 If a composite annotation reveals a panel/source mismatch, emit
 `annotation_to_source_regeneration_ref` and route that panel back to
 `medical-figure-design`; do not solve scientific drift with layout edits.
+
+## Geometry And Fit Policy
+
+- `validate_outline` hard-fails duplicate panel letters, out-of-grid geometry,
+  overlapping grid cells, and unsupported `fit_mode` values. Do not silently
+  move, shrink, or reorder panels to repair an invalid outline.
+- Each panel may set `fit_mode: contain|crop`; the default is `contain`.
+  `contain` preserves aspect ratio and centers the panel on white background.
+  `crop` must be explicit; it preserves aspect ratio while filling the target
+  box and may remove edge content. Never stretch a panel to fit.
+- The figure contract and AI-selected outline continue to decide the hook or
+  hero panel, panel order, and grid. Do not add a hero-selection or layout
+  heuristic in the composer.
+- Use `composition_layout_findings` to report each panel's physical width and
+  height, source/target aspect ratio, and fit mode. A width or height below the
+  default 35 mm floor is a refs-only warning with `blocks_progress: false`, not
+  a composition gate. Keep clean work moving and route only the affected panel
+  or composite for final-scale review. Invalid geometry or fit mode remains a
+  hard failure.
 
 Use `professional_ai_quality_floor_ref` without expanding this subskill's
 authority. Composite critique becomes `critique_as_repair_hint_ref` only for
@@ -51,13 +70,16 @@ return to figure design, statistics, table, data, writing, or review.
    panel jobs, panel order, and layout intent.
 2. Confirm each `panel_render_receipt_ref`: panel input ref, data/evidence refs,
    output path, visible claim, and known panel-level limits.
-3. Compose from existing panel exports only. If a panel needs scientific
+3. Validate the outline and choose explicit per-panel `fit_mode` only where
+   cropping is intended and reviewable. Record physical-layout warnings without
+   blocking unaffected panel progress.
+4. Compose from existing panel exports only. If a panel needs scientific
    rerendering, route that panel back to `medical-figure-design`.
-4. Check `composite_review_ref`: panel letters, gutters, resized text,
+5. Check `composite_review_ref`: panel letters, gutters, resized text,
    cross-panel consistency, crop-level violations, and export dimensions.
    Add `final_scale_visual_qa_ref` for final manuscript-size composite
    inspection.
-5. Rerender only affected panels or the composite when the finding is scoped.
+6. Rerender only affected panels or the composite when the finding is scoped.
    Do not regenerate clean panels for activity.
 
 ## Output
@@ -66,6 +88,8 @@ Produce a compact `figure_composition_review_ref` with:
 
 - input panel refs and panel render receipts
 - layout/export decision and composite output ref
+- refs-only `composition_layout_findings` with physical size, aspect-ratio, fit
+  mode, and non-blocking sub-35 mm warnings
 - composite findings and scoped fixes
 - `visual_qa_receipt_ref` when the composite export was inspected
 - `final_scale_visual_qa_ref` when final-size composite readability was
