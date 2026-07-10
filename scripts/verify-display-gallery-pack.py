@@ -737,6 +737,7 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
             if fact is None:
                 fail(f"{entries_key} contains non-canonical template {template_id}")
             expected_fields = {
+                "kind": fact["kind"],
                 "canonical_family_id": fact["family_id"],
                 "canonical_family_title": fact["title"],
                 "canonical_family_category": fact["category"],
@@ -750,6 +751,8 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
                         f"{entries_key} {template_id} {field} must match "
                         "canonical template metadata"
                     )
+            if entry.get("visual_gallery_visible") is not True:
+                fail(f"{entries_key} {template_id} must be visual_gallery_visible")
             ids.append(template_id)
         if len(ids) != len(set(ids)):
             fail(f"gallery_manifest {entries_key} has duplicate template IDs")
@@ -775,6 +778,7 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
     if not isinstance(non_visual_entries, list):
         fail("gallery_manifest non_visual_inventory must be a list")
     non_visual_ids: list[str] = []
+    non_visual_visible_ids: set[str] = set()
     for index, entry in enumerate(non_visual_entries):
         if not isinstance(entry, dict):
             fail(f"gallery_manifest non_visual_inventory[{index}] must be an object")
@@ -783,6 +787,7 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
         if fact is None or fact["gallery_category"] != "table_shell":
             fail(f"non_visual_inventory contains non-table-shell template {template_id}")
         expected_fields = {
+            "kind": fact["kind"],
             "canonical_family_id": fact["family_id"],
             "canonical_family_title": fact["title"],
             "canonical_family_category": fact["category"],
@@ -796,6 +801,14 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
                     f"non_visual_inventory {template_id} {field} must match "
                     "canonical template metadata"
                 )
+        visible = entry.get("visual_gallery_visible")
+        if not isinstance(visible, bool):
+            fail(
+                f"non_visual_inventory {template_id} visual_gallery_visible "
+                "must be a boolean"
+            )
+        if visible:
+            non_visual_visible_ids.add(template_id)
         non_visual_ids.append(template_id)
     if len(non_visual_ids) != len(set(non_visual_ids)):
         fail("gallery_manifest non_visual_inventory has duplicate template IDs")
@@ -803,6 +816,10 @@ def verify_gallery_review_package(template_facts: dict[str, dict]) -> dict:
         missing = sorted(expected_ids["table_shell"] - set(non_visual_ids))
         extra = sorted(set(non_visual_ids) - expected_ids["table_shell"])
         fail(f"non_visual_inventory template IDs mismatch: missing={missing} extra={extra}")
+    if non_visual_visible_ids != set(category_ids["table_preview"]):
+        fail(
+            "non_visual_inventory visual members must match table preview template IDs"
+        )
 
     all_gallery_ids = [
         template_id for ids in category_ids.values() for template_id in ids
