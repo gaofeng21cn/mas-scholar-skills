@@ -31,6 +31,8 @@
     "not_applicable_new_render_mapping": {
       "template_or_asset_ref": "not_applicable:new_render",
       "adaptation_mode": "original_new_render",
+      "semantic_match_ref": "not_applicable:no_reusable_source",
+      "transform_delta_ref": "not_applicable:no_reusable_source",
       "forbids_invented_reference_provenance": true
     },
     "warnings_remain_repair_hints": true,

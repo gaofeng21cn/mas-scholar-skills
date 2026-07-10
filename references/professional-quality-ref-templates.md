@@ -87,7 +87,8 @@ Minimum fields:
 - `adaptation_mode`: `declared_template`, `schema_adapted_template`,
   `reference_guided_new_render`, or `original_new_render`. Use
   `original_new_render` exactly when `template_or_asset_ref` is
-  `not_applicable:new_render`; do not invent reference provenance.
+  `not_applicable:new_render`; set both semantic/transform refs to
+  `not_applicable:no_reusable_source` and do not invent provenance.
 - `transform_delta_ref`: data mapping, geometry, crop, label, palette,
   annotation, and panel-order differences from the selected source.
 - `source_data_ref`: canonical data or analysis-output ref that regenerates the
@@ -177,8 +178,9 @@ adaptation mode:
   reference and the current panel is rendered anew from current evidence; keep
   the actual source ref visible.
 - `original_new_render`: no reusable template or source asset is consumed. Set
-  `template_or_asset_ref` to `not_applicable:new_render` and use explicit
-  not-applicable semantic/transform refs rather than fabricating a source.
+  `template_or_asset_ref` to `not_applicable:new_render`; set both
+  `semantic_match_ref` and `transform_delta_ref` to
+  `not_applicable:no_reusable_source` rather than fabricating a source.
 
 Do not mechanically copy a plotting script and replace only its data path. Do
 not silently stretch an asset, substitute a renderer, or omit transform
@@ -206,6 +208,9 @@ machine-readable minimum shape for the Display Pack loop:
 These receipts are candidate refs only. A passed render receipt or visual QA
 receipt is not MAS artifact authority, owner acceptance, typed blocker,
 current-package freshness, quality verdict, or publication readiness.
+Do not emit a render receipt before an actual pack render or invent pack,
+template, layout-sidecar, output, or degradation values to complete a draft;
+keep pre-render decisions in `figure_contract_ref`.
 
 ## Paper Narrative / Figure Deck Arc
 

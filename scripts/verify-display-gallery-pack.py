@@ -122,6 +122,8 @@ def verify_receipt_templates() -> dict:
     if adaptation_policy.get("not_applicable_new_render_mapping") != {
         "template_or_asset_ref": NOT_APPLICABLE_NEW_RENDER_REF,
         "adaptation_mode": ORIGINAL_NEW_RENDER_MODE,
+        "semantic_match_ref": "not_applicable:no_reusable_source",
+        "transform_delta_ref": "not_applicable:no_reusable_source",
         "forbids_invented_reference_provenance": True,
     }:
         fail("template/asset adaptation policy must map no-source renders without invented provenance")

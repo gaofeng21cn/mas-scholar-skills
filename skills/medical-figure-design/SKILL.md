@@ -211,8 +211,9 @@ Before writing plotting code, produce or refresh a compact contract:
 - `adaptation_mode`: one of `declared_template`,
   `schema_adapted_template`, `reference_guided_new_render`, or
   `original_new_render`. Pair `original_new_render` only with
-  `template_or_asset_ref=not_applicable:new_render`; do not invent reference
-  provenance for a panel rendered without a reusable source.
+  `template_or_asset_ref=not_applicable:new_render`; set both
+  `semantic_match_ref` and `transform_delta_ref` to
+  `not_applicable:no_reusable_source` for a panel without a reusable source.
 - `transform_delta_ref`: the data mapping, geometry, crop, label, palette,
   annotation, or panel-order changes made relative to the selected template or
   asset.
@@ -437,9 +438,10 @@ rendering:
   reference and the panel is rendered anew from current evidence; keep the
   actual source ref visible;
 - use `original_new_render` when no reusable template or source asset is
-  consumed; set `template_or_asset_ref` to `not_applicable:new_render` and use
-  explicit not-applicable semantic/transform refs instead of fabricating
-  reference provenance;
+  consumed; set `template_or_asset_ref` to `not_applicable:new_render`, and set
+  both `semantic_match_ref` and `transform_delta_ref` to
+  `not_applicable:no_reusable_source` instead of fabricating reference
+  provenance;
 - record all transformations and the canonical source-data ref; never copy a
   plotting script and replace only its data path;
 - record an explicit degradation reason when the intended asset, transform, or
@@ -525,6 +527,9 @@ when available. Record:
 
 The first render and its `render_receipt_ref` are refs-only draft evidence, not
 acceptance or artifact authority.
+Do not create a `render_receipt_ref` before an actual pack render or invent
+pack, template, layout-sidecar, output, or degradation values to fill one;
+keep pre-render decisions in the figure contract.
 
 ### 6. Visual QA
 
