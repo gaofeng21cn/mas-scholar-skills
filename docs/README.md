@@ -6,8 +6,11 @@ State: `active_index`
 Machine boundary: Human-readable navigation. Machine truth remains in
 contracts, especially `contracts/domain_descriptor.json`,
 `contracts/capability_map.json`, and
-`contracts/scholar-skills-capability-modules.json`, skill pack files, source,
-gallery manifests, OPL Framework readback, and repo-native verification.
+`contracts/scholar-skills-capability-modules.json`; the generated
+`contracts/scholar-skills-opl-consumption-projection.json` is the deterministic
+OPL consumer projection of that canonical contract. Skill pack files, source,
+gallery manifests, OPL Framework readback, and repo-native verification remain
+the corresponding owner surfaces.
 
 `MAS Scholar Skills` is the OPL-owned `mas-scholar-skills` external enhancement
 pack for MAS medical-paper work. The historical `opl-scholarskills` name is

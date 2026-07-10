@@ -52,6 +52,7 @@ if plugin_exposure.get("optionalInstallPolicy") != "named_specialty_only":
     fail("plugin manifest optional install policy must be named_specialty_only")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
+opl_consumption_projection = read_json("contracts/scholar-skills-opl-consumption-projection.json")
 domain_descriptor = read_json("contracts/domain_descriptor.json")
 capability_map = read_json("contracts/capability_map.json")
 classification_policy = contract.get("capability_module_classification_policy") or {}
@@ -1075,7 +1076,7 @@ modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 8:
     fail("contract must contain exactly 8 active ScholarSkills modules")
 active_module_ids = {item.get("module_id") for item in modules}
-expected_active_module_ids = {
+expected_active_module_order = [
     "mas-scholar-skills.display",
     "mas-scholar-skills.tables",
     "mas-scholar-skills.stats",
@@ -1084,9 +1085,59 @@ expected_active_module_ids = {
     "mas-scholar-skills.review",
     "mas-scholar-skills.submit",
     "mas-scholar-skills.data",
-}
+]
+expected_active_module_ids = set(expected_active_module_order)
 if active_module_ids != expected_active_module_ids:
     fail("active module ids must use mas-scholar-skills.* canonical ids")
+if [item.get("module_id") for item in modules] != expected_active_module_order:
+    fail("active modules must keep the canonical projection order")
+
+projection_policy = contract.get("opl_consumption_projection_policy") or {}
+if projection_policy.get("policy_id") != "mas_scholar_skills_opl_consumption_projection.v1":
+    fail("contract missing the OPL consumption projection policy")
+if projection_policy.get("canonical_owner_repo") != "mas-scholar-skills":
+    fail("OPL consumption projection must keep mas-scholar-skills as canonical owner")
+if projection_policy.get("consumer") != "one-person-lab":
+    fail("OPL consumption projection must name one-person-lab as consumer")
+if projection_policy.get("module_ids") != expected_active_module_order:
+    fail("OPL consumption projection policy must keep the canonical module order")
+for key in [
+    "projection_can_write_domain_truth",
+    "projection_can_mutate_artifact_body",
+    "projection_can_sign_owner_receipt",
+    "projection_can_create_typed_blocker",
+    "projection_can_claim_quality_verdict",
+    "projection_can_claim_publication_readiness",
+    "projection_can_claim_current_package_authority",
+]:
+    if projection_policy.get(key) is not False:
+        fail(f"OPL consumption projection policy flag {key} must be false")
+
+if opl_consumption_projection.get("projection_kind") != "mas_scholar_skills_opl_consumption_projection.v1":
+    fail("generated OPL consumption projection has the wrong projection kind")
+if opl_consumption_projection.get("canonical_owner_repo") != "mas-scholar-skills":
+    fail("generated OPL consumption projection must point to mas-scholar-skills")
+if opl_consumption_projection.get("consumer") != "one-person-lab":
+    fail("generated OPL consumption projection must name one-person-lab as consumer")
+if opl_consumption_projection.get("source_contract_ref") != "contracts/scholar-skills-capability-modules.json":
+    fail("generated OPL consumption projection must point to the canonical module contract")
+if opl_consumption_projection.get("module_ids") != expected_active_module_order:
+    fail("generated OPL consumption projection must keep the canonical module order")
+projection_modules = opl_consumption_projection.get("modules") or []
+if [item.get("module_id") for item in projection_modules] != expected_active_module_order:
+    fail("generated OPL consumption projection modules must keep the canonical order")
+if not re.fullmatch(r"[0-9a-f]{64}", str(opl_consumption_projection.get("source_projection_sha256") or "")):
+    fail("generated OPL consumption projection must carry a sha256 source fingerprint")
+if opl_consumption_projection.get("validator_policy") != contract.get("opl_consumption_validation_policy"):
+    fail("generated OPL consumption projection validator policy must match the canonical contract")
+candidate_artifact_policy = opl_consumption_projection.get("candidate_artifact_policy") or {}
+canonical_artifact_policy = contract.get("candidate_artifact_engine_policy") or {}
+if candidate_artifact_policy.get("policy_id") != canonical_artifact_policy.get("policy_id"):
+    fail("generated OPL consumption projection artifact policy id must match the canonical contract")
+if candidate_artifact_policy.get("body_policy") != canonical_artifact_policy.get("body_policy"):
+    fail("generated OPL consumption projection body policy must match the canonical contract")
+if candidate_artifact_policy.get("authority_flags") != canonical_artifact_policy.get("authority_flags"):
+    fail("generated OPL consumption projection authority flags must match the canonical contract")
 expected_legacy_module_ids = {
     "mas-scholar-skills.display": "opl.scholarskills.display",
     "mas-scholar-skills.tables": "opl.scholarskills.tables",
