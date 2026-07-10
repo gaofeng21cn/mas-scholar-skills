@@ -15,6 +15,19 @@
     "can_claim_live_render_regression": false,
     "can_claim_pixel_or_layout_regression": false
   },
+  "live_regression_candidate": {
+    "engine_ref": "packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py",
+    "fixed_input_source": "golden_templates[].example_input_ref",
+    "render_mode": "candidate",
+    "output_policy": "ephemeral_temporary_directory_no_repo_write",
+    "output_hash_policy": "fresh_run_receipt_only_not_checked_in_truth",
+    "execution_issue_field": "execution_issue_candidate",
+    "execution_issue_authority": false,
+    "can_create_typed_blocker": false,
+    "fresh_run_required_for_ready_or_currentness_claim": true,
+    "authority": false,
+    "publication_ready": false
+  },
   "shared_gallery_snapshot_ref": {
     "path": "gallery/medical-display/gallery_snapshot.json",
     "sha256": "fb2be1585a3cb0fd6f33c81acd6b2a5417dee4f46d0807b769f3c0efa225df33"
@@ -25,8 +38,9 @@
   },
   "known_limits": [
     "The checked-in gallery PDF and snapshot are shared review references, not per-template rendered artifacts.",
-    "This manifest proves descriptor/example/gallery hash linkage only.",
-    "Pixel, layout, OCR, and live renderer regression require future fixed-input rerendered artifacts and layout sidecars."
+    "The checked-in baseline remains descriptor/example/gallery hash linkage; the pack-owned engine supplements it with executable fixed-input live regression candidates.",
+    "Live-regression output hashes are per-run evidence and are never pinned here as artifact truth.",
+    "Every ready, currentness, pixel, or layout claim still requires a fresh engine run plus the owning domain's visual audit and authority surfaces."
   ],
   "golden_templates": [
     {

@@ -129,6 +129,44 @@ included-file SHA-256 checks. It is not a live renderer, pixel, or layout
 regression authority; fresh render output and paper-local visual audit remain
 required for those claims.
 
+### Fixed-input live regression candidate
+
+The pack-owned runner supplements the hash-only reference snapshot with fresh,
+fixed-input execution evidence. With no arguments it runs a structural
+self-check that does not require R. PNG verification and sampled content-density
+inspection reuse Pillow, which is already used by the pack's Python composition
+and display-QC surfaces. `--check` reads the six entries in
+`golden_manifest.json`, adapts their checked-in example inputs to the current
+renderer contracts, and writes all requests and outputs to an ephemeral system
+temporary directory rather than the repository.
+
+```bash
+python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py
+python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py --check --template roc_curve_binary --json
+python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py --check --json
+```
+
+R/ggplot2 evidence templates execute the current
+`render.R --template <template_id> --mode candidate --request <request_json>`
+path. Python illustration/table examples execute their descriptor-declared
+plugin entrypoints. The report records the command, exit code, bounded
+stdout/stderr tails, artifact size and SHA-256, PNG dimensions and content
+density plus full-resolution uniformity, PDF signature/EOF/cross-reference
+structure, layout box geometry, and SVG XML parsing when those exports apply.
+Missing binaries, R/Python packages, fonts, or render devices return the
+non-authoritative execution status `dependency_unavailable`; other renderer or
+artifact failures return `render_failed`. Details live under
+`execution_issue_candidate` with `authority = false`, never under a domain
+typed-blocker field. If Pillow is unavailable, the no-argument self-check and
+PNG-producing live checks return `dependency_unavailable`. The runner never
+installs or repairs dependencies.
+
+Every report keeps `authority = false`, `publication_ready = false`, and
+`can_create_typed_blocker = false`.
+Artifact hashes are fresh-run receipts only, not a checked-in golden truth, and
+the command does not replace paper-local visual review, owner receipt, release
+currentness, or publication authority.
+
 Validate the pack and review package from this repository:
 
 ```bash
