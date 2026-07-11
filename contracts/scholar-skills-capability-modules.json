@@ -568,13 +568,9 @@
         "source_ref_chain_template_ref",
         "literature_retrieval_contract_ref",
         "query_plan_ref",
-        "scientific_connector_source_refs",
-        "scientific_connector_invocation_refs",
+        "mas_provider_lookup_ref",
         "pubmed_source_refs",
         "fallback_source_refs",
-        "connector_receipt_candidate_refs",
-        "cache_retry_metadata_ref",
-        "connector_no_authority_flags_ref",
         "identifier_resolution_ref",
         "database_endpoint_provenance_ref",
         "retrieval_count_reconciliation_ref",
@@ -678,56 +674,6 @@
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
     "can_claim_publication_readiness": false
-  },
-  "runtime_environment_bridge": {
-    "mode": "refs_only",
-    "owner": "OPL Framework",
-    "dependency_profile_owner_commands": [
-      "opl runtime env prepare --domain mas-scholar-skills --profile <profile> --platform <platform> --requirement-profile <path> --paper-root <path> --json"
-    ],
-    "run_context_owner_commands": [
-      "opl runtime env run-context --domain mas-scholar-skills --profile <profile> --json"
-    ],
-    "scholar_skill_prepare_commands": [
-      "opl scholar-skills prepare --module <module_id> --profile <profile> --platform <platform> --requirement-profile <path> --paper-root <path> --json"
-    ],
-    "scholar_skill_run_context_commands": [
-      "opl scholar-skills run-context --module <module_id> --profile <profile> --json"
-    ],
-    "scholar_skill_invocation_commands": [
-      "opl scholar-skills invoke --module <module_id> --input-ref <ref> --artifact-root <ref> --json"
-    ],
-    "scholar_skill_receipt_commands": [
-      "opl scholar-skills receipt --module <module_id> --input-ref <ref> --artifact-root <ref> --json"
-    ],
-    "scholar_skill_materialize_commands": [
-      "opl scholar-skills materialize --module <module_id> --input-ref <ref> --artifact-root <ref-or-path> --output-root <path> --json"
-    ],
-    "scholar_skill_runtime_prepare_commands": [
-      "opl scholar-skills runtime-prepare --module <module_id> --profile <profile> --platform <platform> --requirement-profile <path> --paper-root <path> [--apply] --json"
-    ],
-    "scholar_skill_runtime_run_context_commands": [
-      "opl scholar-skills runtime-run-context --module <module_id> --profile <profile> --platform <platform> --paper-root <path> --json"
-    ],
-    "bridge_envelope_policy": {
-      "refs_only": true,
-      "prepared": false,
-      "can_claim_cache_hit": false,
-      "can_write_runtime_state": false,
-      "can_claim_runtime_ready": false,
-      "can_mutate_artifact_body": false,
-      "can_sign_owner_receipt": false,
-      "can_create_typed_blocker": false,
-      "can_claim_publication_readiness": false,
-      "can_claim_owner_acceptance": false,
-      "can_claim_current_package_authority": false
-    },
-    "can_write_runtime_state": false,
-    "can_claim_runtime_ready": false,
-    "can_claim_domain_ready": false,
-    "can_claim_publication_readiness": false,
-    "can_claim_owner_acceptance": false,
-    "can_claim_current_package_authority": false
   },
   "feedbackops_refs_only_adapter_policy": {
     "policy_id": "scholarskills_feedbackops_refs_only_adapter.v1",
@@ -852,744 +798,6 @@
     "can_replace_domain_owner": false,
     "can_replace_ai_executor_planning": false
   },
-  "opl_consumption_projection_policy": {
-    "policy_id": "mas_scholar_skills_opl_consumption_projection.v1",
-    "canonical_owner_repo": "mas-scholar-skills",
-    "source_contract_ref": "contracts/scholar-skills-capability-modules.json",
-    "projection_contract_ref": "contracts/scholar-skills-opl-consumption-projection.json",
-    "export_command": "python3 scripts/export-opl-consumption-projection.py",
-    "write_command": "python3 scripts/export-opl-consumption-projection.py --output contracts/scholar-skills-opl-consumption-projection.json",
-    "check_command": "python3 scripts/export-opl-consumption-projection.py --check",
-    "consumer": "one-person-lab",
-    "consumer_role": "generic_contract_validator_catalog_projector_and_candidate_artifact_materializer_only",
-    "module_ids": [
-      "mas-scholar-skills.display",
-      "mas-scholar-skills.tables",
-      "mas-scholar-skills.stats",
-      "mas-scholar-skills.lit",
-      "mas-scholar-skills.write",
-      "mas-scholar-skills.review",
-      "mas-scholar-skills.submit",
-      "mas-scholar-skills.data"
-    ],
-    "module_order_is_contractual": true,
-    "consumer_must_not_copy_medical_rule_code": true,
-    "consumer_must_validate_projection_fingerprint": true,
-    "projection_can_write_domain_truth": false,
-    "projection_can_mutate_artifact_body": false,
-    "projection_can_sign_owner_receipt": false,
-    "projection_can_create_typed_blocker": false,
-    "projection_can_claim_quality_verdict": false,
-    "projection_can_claim_publication_readiness": false,
-    "projection_can_claim_current_package_authority": false
-  },
-  "opl_consumption_validation_policy": {
-    "policy_id": "mas_scholar_skills_opl_contract_validation.v1",
-    "required_root_fields": [
-      "contract_id",
-      "schema_version",
-      "owner",
-      "state",
-      "brand_family",
-      "purpose",
-      "machine_boundary",
-      "runtime_environment_bridge",
-      "authority_boundary",
-      "modules"
-    ],
-    "root_exact_values": {
-      "contract_id": "opl_scholarskills_capability_modules",
-      "brand_family": "MAS Scholar Skills"
-    },
-    "module_id_prefix": "mas-scholar-skills.",
-    "exact_module_ids_ref": "#/opl_consumption_projection_policy/module_ids",
-    "modules_must_match_exact_ids_in_order": true,
-    "required_module_fields": [
-      "module_id",
-      "brand_family",
-      "display_name",
-      "stage_fit",
-      "input_schema_refs",
-      "output_schema_refs",
-      "dependency_profile_refs",
-      "run_context_refs",
-      "invocation_entries",
-      "artifact_refs",
-      "receipt_policy.accepted_receipt_refs",
-      "receipt_policy.can_sign_owner_receipt",
-      "quality_evidence.required_ref_shapes",
-      "quality_evidence.can_claim_quality_verdict",
-      "authority_boundary",
-      "allowed_writes",
-      "forbidden_writes"
-    ],
-    "nonempty_module_array_fields": [
-      "stage_fit",
-      "input_schema_refs",
-      "output_schema_refs",
-      "dependency_profile_refs",
-      "run_context_refs",
-      "invocation_entries",
-      "artifact_refs",
-      "receipt_policy.accepted_receipt_refs",
-      "quality_evidence.required_ref_shapes",
-      "forbidden_writes"
-    ],
-    "authority_false_fields": [
-      "can_claim_domain_ready",
-      "can_claim_quality_verdict",
-      "can_claim_artifact_authority",
-      "can_claim_production_ready",
-      "can_claim_runtime_ready",
-      "can_claim_publication_readiness",
-      "can_claim_owner_acceptance",
-      "can_claim_current_package_authority",
-      "can_schedule_runtime",
-      "can_write_domain_truth",
-      "can_write_runtime_state",
-      "can_write_memory_body",
-      "can_mutate_artifact_body",
-      "can_sign_owner_receipt",
-      "can_create_typed_blocker",
-      "can_replace_domain_owner",
-      "can_replace_ai_executor_planning"
-    ],
-    "runtime_bridge_exact_values": {
-      "mode": "refs_only",
-      "owner": "OPL Framework"
-    },
-    "runtime_bridge_false_fields": [
-      "can_write_runtime_state",
-      "can_claim_runtime_ready",
-      "can_claim_domain_ready",
-      "can_claim_publication_readiness",
-      "can_claim_owner_acceptance",
-      "can_claim_current_package_authority"
-    ],
-    "receipt_false_fields": [
-      "can_sign_owner_receipt"
-    ],
-    "quality_false_fields": [
-      "can_claim_quality_verdict"
-    ],
-    "required_artifact_engine_fields": [
-      "engine_id",
-      "engine_version",
-      "body_format",
-      "output_kind",
-      "required_artifact_ref_families",
-      "execution_receipt_ref_families",
-      "required_payload_fields",
-      "optional_payload_fields",
-      "quality_checks",
-      "candidate_sections"
-    ],
-    "allowed_artifact_body_formats": [
-      "json",
-      "markdown",
-      "svg"
-    ],
-    "artifact_authority_false_fields": [
-      "counts_as_paper_truth",
-      "counts_as_owner_receipt",
-      "can_authorize_publication_readiness",
-      "can_claim_quality_verdict",
-      "can_claim_artifact_authority",
-      "can_mutate_artifact_body",
-      "can_write_domain_truth",
-      "can_write_runtime_state",
-      "can_sign_owner_receipt",
-      "can_create_typed_blocker"
-    ],
-    "cross_checks": [
-      "module_ids_unique_and_exact",
-      "artifact_engine_ids_unique",
-      "artifact_engine_module_ids_equal_catalog_module_ids",
-      "required_artifact_ref_families_declared_by_module_artifact_refs",
-      "all_authority_flags_false",
-      "projection_fingerprint_matches_selected_canonical_inputs"
-    ]
-  },
-  "candidate_artifact_engine_policy": {
-    "policy_id": "mas_scholar_skills_candidate_artifact_engines.v1",
-    "body_policy": "opl_generated_non_authoritative_candidate_body_requires_domain_owner_consumption",
-    "authority_flags": {
-      "counts_as_paper_truth": false,
-      "counts_as_owner_receipt": false,
-      "can_authorize_publication_readiness": false,
-      "can_claim_quality_verdict": false,
-      "can_claim_artifact_authority": false,
-      "can_mutate_artifact_body": false,
-      "can_write_domain_truth": false,
-      "can_write_runtime_state": false,
-      "can_sign_owner_receipt": false,
-      "can_create_typed_blocker": false
-    },
-    "engine_specs": {
-      "mas-scholar-skills.display": {
-        "engine_id": "scholar_display_candidate_visual_plan_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "svg",
-        "output_kind": "visual_display_candidate",
-        "required_artifact_ref_families": [
-          "display_pack_agent_orchestration"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "render_cache",
-          "artifact_manifest",
-          "visual_audit_or_gallery_preview"
-        ],
-        "required_payload_fields": [
-          "title",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "variables",
-          "panel_plan",
-          "figure_type",
-          "cohort_ref",
-          "color_vision",
-          "grayscale",
-          "panel_to_code_review",
-          "source_preservation"
-        ],
-        "quality_checks": [
-          "visual_qa_preview",
-          "programmatic_figure_audit",
-          "final_size_inspection",
-          "color_vision/grayscale",
-          "panel_to_code_review",
-          "source_preservation",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "visual_qa_preview",
-          "programmatic_figure_audit",
-          "final_size_inspection",
-          "color_vision/grayscale",
-          "panel_to_code_review",
-          "source_preservation"
-        ]
-      },
-      "mas-scholar-skills.tables": {
-        "engine_id": "scholar_tables_candidate_table_manifest_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "json",
-        "output_kind": "table_manifest_candidate",
-        "required_artifact_ref_families": [
-          "table_manifest",
-          "table_qc"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "table_manifest",
-          "table_qc"
-        ],
-        "required_payload_fields": [
-          "title",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "title",
-          "columns",
-          "row_groups",
-          "footnotes",
-          "stat_refs",
-          "booktabs_or_minimal_ink",
-          "table_qc",
-          "claim_table_alignment",
-          "result_metric_registry",
-          "ai_table_verdict_candidate"
-        ],
-        "quality_checks": [
-          "table_shell",
-          "metric_extraction",
-          "booktabs_or_minimal_ink",
-          "table_qc",
-          "claim_table_alignment",
-          "result_metric_registry",
-          "ai_table_verdict_candidate",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "table_shell",
-          "metric_extraction",
-          "booktabs_or_minimal_ink",
-          "table_qc",
-          "claim_table_alignment",
-          "result_metric_registry",
-          "ai_table_verdict_candidate"
-        ]
-      },
-      "mas-scholar-skills.stats": {
-        "engine_id": "scholar_stats_candidate_analysis_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "json",
-        "output_kind": "statistical_analysis_candidate",
-        "required_artifact_ref_families": [
-          "analysis_manifest",
-          "reproducibility_check"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "analysis_manifest",
-          "reproducibility_check"
-        ],
-        "required_payload_fields": [
-          "analysis_question",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "analysis_question",
-          "model",
-          "variables",
-          "cohort_ref",
-          "sensitivity_checks",
-          "effect_size_or_metric_extraction",
-          "reproducibility_check",
-          "statistical_review",
-          "dataset_metric_benchmark",
-          "result_metric_registry",
-          "ai_statistical_verdict_candidate",
-          "no_statistical_conclusion_claim"
-        ],
-        "quality_checks": [
-          "analysis_plan",
-          "effect_size_or_metric_extraction",
-          "reproducibility_check",
-          "statistical_review",
-          "dataset_metric_benchmark",
-          "result_metric_registry",
-          "ai_statistical_verdict_candidate",
-          "no_statistical_conclusion_claim",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "analysis_plan",
-          "effect_size_or_metric_extraction",
-          "reproducibility_check",
-          "statistical_review",
-          "dataset_metric_benchmark",
-          "result_metric_registry",
-          "ai_statistical_verdict_candidate",
-          "no_statistical_conclusion_claim"
-        ]
-      },
-      "mas-scholar-skills.lit": {
-        "engine_id": "scholar_lit_candidate_evidence_map_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "json",
-        "output_kind": "literature_evidence_map_candidate",
-        "required_artifact_ref_families": [
-          "evidence_map",
-          "citation_manifest"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "evidence_map",
-          "citation_manifest"
-        ],
-        "required_payload_fields": [
-          "question",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "question",
-          "databases",
-          "query_terms",
-          "inclusion_criteria",
-          "citation_refs",
-          "source_verification",
-          "citation_coverage",
-          "evidence_map",
-          "metadata_scrape",
-          "claim_support",
-          "systematic_review_protocol",
-          "inclusion_exclusion_criteria",
-          "data_extraction_schema",
-          "quality_appraisal",
-          "citation_graph_snowball",
-          "multi_source_paper_search",
-          "confirm_or_drop_source_verification",
-          "ai_literature_verdict_candidate"
-        ],
-        "quality_checks": [
-          "citation_manifest",
-          "source_verification",
-          "citation_coverage",
-          "evidence_map",
-          "metadata_scrape",
-          "claim_support",
-          "systematic_review_protocol",
-          "inclusion_exclusion_criteria",
-          "data_extraction_schema",
-          "quality_appraisal",
-          "citation_graph_snowball",
-          "multi_source_paper_search",
-          "confirm_or_drop_source_verification",
-          "ai_literature_verdict_candidate",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "citation_manifest",
-          "source_verification",
-          "citation_coverage",
-          "evidence_map",
-          "metadata_scrape",
-          "claim_support",
-          "systematic_review_protocol",
-          "inclusion_exclusion_criteria",
-          "data_extraction_schema",
-          "quality_appraisal",
-          "citation_graph_snowball",
-          "multi_source_paper_search",
-          "confirm_or_drop_source_verification",
-          "ai_literature_verdict_candidate"
-        ]
-      },
-      "mas-scholar-skills.write": {
-        "engine_id": "scholar_write_candidate_section_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "markdown",
-        "output_kind": "draft_section_candidate",
-        "required_artifact_ref_families": [
-          "draft_section_manifest",
-          "source_trace"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "draft_section_manifest",
-          "source_trace"
-        ],
-        "required_payload_fields": [
-          "section_goal",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "section_goal",
-          "outline",
-          "claims",
-          "target_journal",
-          "tone",
-          "reverse_outline",
-          "claim_evidence_map",
-          "source_trace",
-          "unsupported_claim_route_back",
-          "confirm_or_drop_source_verification",
-          "ai_claim_support_verdict_candidate",
-          "continue_or_route_back_recommendation"
-        ],
-        "quality_checks": [
-          "section_outline",
-          "reverse_outline",
-          "claim_evidence_map",
-          "source_trace",
-          "unsupported_claim_route_back",
-          "confirm_or_drop_source_verification",
-          "ai_claim_support_verdict_candidate",
-          "continue_or_route_back_recommendation",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "section_outline",
-          "reverse_outline",
-          "claim_evidence_map",
-          "source_trace",
-          "unsupported_claim_route_back",
-          "confirm_or_drop_source_verification",
-          "ai_claim_support_verdict_candidate",
-          "continue_or_route_back_recommendation"
-        ]
-      },
-      "mas-scholar-skills.review": {
-        "engine_id": "scholar_review_candidate_report_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "markdown",
-        "output_kind": "reviewer_report_candidate",
-        "required_artifact_ref_families": [
-          "reviewer_report",
-          "route_back"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "reviewer_report",
-          "route_back"
-        ],
-        "required_payload_fields": [
-          "review_scope",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "review_scope",
-          "rubric",
-          "concerns",
-          "acceptance_criteria",
-          "route_back_refs",
-          "revision_action",
-          "halt_or_revert_rule",
-          "route_back",
-          "residual_risk",
-          "systematic_review_protocol",
-          "quality_appraisal",
-          "confirm_or_drop_source_verification",
-          "ai_review_verdict_candidate",
-          "continue_or_route_back_recommendation"
-        ],
-        "quality_checks": [
-          "adversarial_review",
-          "revision_action",
-          "halt_or_revert_rule",
-          "route_back",
-          "residual_risk",
-          "systematic_review_protocol",
-          "quality_appraisal",
-          "confirm_or_drop_source_verification",
-          "ai_review_verdict_candidate",
-          "continue_or_route_back_recommendation",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "adversarial_review",
-          "revision_action",
-          "halt_or_revert_rule",
-          "route_back",
-          "residual_risk",
-          "systematic_review_protocol",
-          "quality_appraisal",
-          "confirm_or_drop_source_verification",
-          "ai_review_verdict_candidate",
-          "continue_or_route_back_recommendation"
-        ]
-      },
-      "mas-scholar-skills.submit": {
-        "engine_id": "scholar_submit_candidate_package_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "markdown",
-        "output_kind": "submission_package_candidate",
-        "required_artifact_ref_families": [
-          "package_manifest",
-          "submission_checklist"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "package_manifest",
-          "submission_checklist"
-        ],
-        "required_payload_fields": [
-          "submission_goal",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "submission_goal",
-          "journal",
-          "required_files",
-          "cover_letter_points",
-          "compliance_checks",
-          "journal_rule",
-          "format_sanity",
-          "ai_disclosure",
-          "rebuttal_audit",
-          "no_publication_ready_authorization",
-          "ai_submission_sanity_verdict_candidate",
-          "continue_or_route_back_recommendation"
-        ],
-        "quality_checks": [
-          "submission_checklist",
-          "journal_rule",
-          "format_sanity",
-          "ai_disclosure",
-          "rebuttal_audit",
-          "no_publication_ready_authorization",
-          "ai_submission_sanity_verdict_candidate",
-          "continue_or_route_back_recommendation",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "submission_checklist",
-          "journal_rule",
-          "format_sanity",
-          "ai_disclosure",
-          "rebuttal_audit",
-          "no_publication_ready_authorization",
-          "ai_submission_sanity_verdict_candidate",
-          "continue_or_route_back_recommendation"
-        ]
-      },
-      "mas-scholar-skills.data": {
-        "engine_id": "scholar_data_candidate_lineage_engine",
-        "engine_version": "2026-06-24",
-        "body_format": "json",
-        "output_kind": "data_lineage_candidate",
-        "required_artifact_ref_families": [
-          "data_manifest",
-          "dataset_manifest",
-          "data_governance_handoff",
-          "data_governance_assessment",
-          "data_operation_receipt",
-          "manifest_completeness_check",
-          "privacy_tier_check",
-          "study_impact_check",
-          "registry_lineage",
-          "semantic_readiness",
-          "study_binding",
-          "privacy_access_tier",
-          "retention_guardrail",
-          "storage_tier",
-          "authoritative_body_boundary",
-          "derived_copy_inventory",
-          "analytical_format_strategy",
-          "cold_restore_proof",
-          "read_model_boundary",
-          "lineage_readiness"
-        ],
-        "execution_receipt_ref_families": [
-          "input_fingerprint",
-          "dependency_profile",
-          "prepared_run_context",
-          "data_manifest",
-          "dataset_manifest",
-          "data_governance_handoff",
-          "data_governance_assessment",
-          "data_operation_receipt",
-          "manifest_completeness_check",
-          "privacy_tier_check",
-          "study_impact_check",
-          "registry_lineage",
-          "semantic_readiness",
-          "study_binding",
-          "privacy_access_tier",
-          "retention_guardrail",
-          "storage_tier",
-          "authoritative_body_boundary",
-          "derived_copy_inventory",
-          "analytical_format_strategy",
-          "cold_restore_proof",
-          "read_model_boundary",
-          "lineage_readiness"
-        ],
-        "required_payload_fields": [
-          "dataset_goal",
-          "source_refs"
-        ],
-        "optional_payload_fields": [
-          "dataset_goal",
-          "dataset_refs",
-          "variables",
-          "provenance",
-          "privacy_constraints",
-          "metadata_scrape",
-          "source_lineage",
-          "artifact_bundle_manifest",
-          "data_dictionary",
-          "data_governance_handoff",
-          "data_governance_assessment",
-          "data_operation_receipt",
-          "data_operation_category",
-          "manifest_completeness_check",
-          "privacy_tier_check",
-          "study_impact_check",
-          "privacy_access_tier",
-          "study_refs",
-          "semantic_dictionary_refs",
-          "retention_policy_refs",
-          "storage_tier_refs",
-          "authoritative_body_refs",
-          "derived_copy_refs",
-          "analytical_format_refs",
-          "cold_restore_refs",
-          "read_model_refs",
-          "systematic_review_protocol",
-          "inclusion_exclusion_criteria",
-          "data_extraction_schema",
-          "quality_appraisal",
-          "dataset_metric_benchmark",
-          "result_metric_registry",
-          "ai_data_readiness_verdict_candidate"
-        ],
-        "quality_checks": [
-          "metadata_scrape",
-          "source_lineage",
-          "artifact_bundle_manifest",
-          "data_dictionary",
-          "data_governance_handoff",
-          "data_governance_assessment",
-          "data_operation_receipt",
-          "manifest_completeness_declared",
-          "privacy_access_tier_declared",
-          "study_impact_declared",
-          "operation_receipt_category_declared",
-          "legacy_opl_scholarskills_data_alias_only",
-          "no_authority_flags_false",
-          "privacy_access_tier",
-          "dataset_goal_present",
-          "source_refs_present",
-          "dataset_manifest_required",
-          "registry_lineage_required",
-          "semantic_readiness_required",
-          "study_binding_required",
-          "privacy_access_tier_required",
-          "retention_guardrail_required",
-          "storage_tier_required",
-          "authoritative_body_boundary_required",
-          "derived_copy_inventory_required",
-          "analytical_format_strategy_required",
-          "cold_restore_proof_required_before_body_retirement",
-          "read_model_boundary_required",
-          "lineage_readiness_required",
-          "systematic_review_protocol",
-          "inclusion_exclusion_criteria",
-          "data_extraction_schema",
-          "quality_appraisal",
-          "dataset_metric_benchmark",
-          "result_metric_registry",
-          "ai_data_readiness_verdict_candidate",
-          "owner_gate_required"
-        ],
-        "candidate_sections": [
-          "metadata_scrape",
-          "source_lineage",
-          "artifact_bundle_manifest",
-          "data_dictionary",
-          "data_governance_handoff",
-          "data_governance_assessment",
-          "data_operation_receipt",
-          "manifest_completeness_check",
-          "privacy_tier_check",
-          "study_impact_check",
-          "privacy_access_tier",
-          "retention_guardrail",
-          "storage_tier",
-          "authoritative_body_boundary",
-          "derived_copy_inventory",
-          "analytical_format_strategy",
-          "cold_restore_proof",
-          "read_model_boundary",
-          "systematic_review_protocol",
-          "inclusion_exclusion_criteria",
-          "data_extraction_schema",
-          "quality_appraisal",
-          "dataset_metric_benchmark",
-          "result_metric_registry",
-          "ai_data_readiness_verdict_candidate"
-        ]
-      }
-    }
-  },
   "modules": [
     {
       "module_id": "mas-scholar-skills.display",
@@ -1625,9 +833,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_display_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.display --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -1836,12 +1044,11 @@
           "skill_pack_governance_policy_ref",
           "final_size_export_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "display_quality_floor_policy": {
         "policy_id": "scholarskills_display_quality_floor.v1",
@@ -2086,9 +1293,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_tables_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.tables --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -2171,12 +1378,11 @@
           "dataset_metric_benchmark_ref",
           "result_metric_registry_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -2255,9 +1461,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_stats_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.stats --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -2362,13 +1568,12 @@
           "annotation_to_source_regeneration_ref",
           "skill_pack_governance_policy_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
         "can_claim_statistical_conclusion": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -2453,19 +1658,16 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_lit_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.lit --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         },
         {
-          "entry_id": "connect_scientific_source_search",
-          "legacy_entry_ids": [
-            "connect_pubmed_search"
-          ],
-          "entry_kind": "external_source_connector",
-          "command": "opl connect pubmed search --query <query> --limit <n> --json",
+          "entry_id": "mas_domain_provider_lookup",
+          "entry_kind": "domain_owned_source_lookup",
+          "command": "research-integrity-reference-verification",
           "mutation": false,
           "descriptor_only": false,
           "provider_priority": [
@@ -2473,8 +1675,7 @@
             "crossref_metadata_fallback",
             "openalex_coverage_or_citation_graph_fallback"
           ],
-          "authority_boundary": "read_only_scientific_connector_refs_not_citation_acceptance_literature_verdict_or_domain_truth",
-          "legacy_authority_boundary_alias": "read_only_normalized_source_refs_not_literature_verdict_or_domain_truth"
+          "authority_boundary": "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth"
         }
       ],
       "artifact_refs": [
@@ -2527,52 +1728,16 @@
           "body_policy": "refs_only_literature_hint_requires_domain_owner_gate"
         },
         {
-          "ref_id": "scientific_connector_source_refs",
-          "ref_kind": "external_source_ref",
-          "role": "opl_connect_normalized_pubmed_crossref_openalex_source_refs",
-          "body_policy": "refs_only_scientific_connector_metadata_not_citation_acceptance_or_literature_verdict"
-        },
-        {
-          "ref_id": "scientific_connector_invocation_refs",
-          "ref_kind": "execution_receipt_ref",
-          "role": "opl_connect_scientific_connector_invocation_read_receipt_candidates",
-          "body_policy": "connect_invocation_receipt_candidates_not_owner_receipts_or_live_readiness_claims"
-        },
-        {
           "ref_id": "pubmed_source_refs",
           "ref_kind": "external_source_ref",
-          "role": "pubmed_normalized_metadata_refs_from_opl_connect",
+          "role": "pubmed_normalized_metadata_refs_from_mas_domain_provider_lookup",
           "body_policy": "refs_only_pubmed_metadata_not_fulltext_or_literature_verdict"
-        },
-        {
-          "ref_id": "pubmed_connector_invocation_ref",
-          "ref_kind": "execution_receipt_ref",
-          "role": "opl_connect_pubmed_request_read_receipt_candidate",
-          "body_policy": "connect_invocation_receipt_candidate_not_owner_receipt"
         },
         {
           "ref_id": "fallback_source_refs",
           "ref_kind": "external_source_ref",
           "role": "crossref_openalex_or_other_approved_metadata_coverage_citation_graph_fallback_refs",
           "body_policy": "fallback_refs_are_not_citation_acceptance_or_literature_verdict"
-        },
-        {
-          "ref_id": "connector_receipt_candidate_refs",
-          "ref_kind": "execution_receipt_ref",
-          "role": "read_only_scientific_connector_receipt_candidates",
-          "body_policy": "connector_receipt_candidates_not_owner_receipts"
-        },
-        {
-          "ref_id": "cache_retry_metadata_ref",
-          "ref_kind": "connector_metadata_ref",
-          "role": "provider_cache_retry_metadata_candidate",
-          "body_policy": "connector_operational_metadata_not_provider_readiness_claim"
-        },
-        {
-          "ref_id": "connector_no_authority_flags_ref",
-          "ref_kind": "authority_boundary_ref",
-          "role": "scientific_connector_no_authority_flags",
-          "body_policy": "connector_flags_confirm_no_citation_acceptance_or_owner_authority"
         },
         {
           "ref_id": "claim_support_map_ref",
@@ -2639,6 +1804,12 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "reference_integrity_and_missing_citation_candidate",
           "body_policy": "refs_only_reference_completeness_hint_not_literature_verdict"
+        },
+        {
+          "ref_id": "mas_provider_lookup_ref",
+          "ref_kind": "domain_action_ref",
+          "role": "mas_domain_owned_pubmed_provider_evidence_lookup",
+          "body_policy": "read_only_provider_evidence_input_not_citation_acceptance_or_owner_authority"
         }
       ],
       "receipt_policy": {
@@ -2672,14 +1843,8 @@
           "identifier_resolution_ref",
           "database_endpoint_provenance_ref",
           "retrieval_count_reconciliation_ref",
-          "scientific_connector_source_refs",
-          "scientific_connector_invocation_refs",
           "pubmed_source_refs",
-          "pubmed_connector_invocation_ref",
           "fallback_source_refs",
-          "connector_receipt_candidate_refs",
-          "cache_retry_metadata_ref",
-          "connector_no_authority_flags_ref",
           "systematic_review_protocol_ref",
           "inclusion_exclusion_criteria_ref",
           "data_extraction_schema_ref",
@@ -2690,12 +1855,12 @@
           "source_acceptance_decision_ref",
           "reference_integrity_floor_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
-          "owner_gate_handoff_ref"
+          "candidate_refs",
+          "owner_gate_handoff_ref",
+          "mas_provider_lookup_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -2742,7 +1907,7 @@
           "citation_manifest_before_claim_use",
           "source_verification_and_coverage_gap_map",
           "metadata_scrape_receipt_before_evidence_map",
-          "pubmed_readonly_connector_before_citation_manifest_when_pubmed_is_relevant",
+          "mas_domain_provider_lookup_before_citation_manifest_when_pubmed_is_relevant",
           "claim_support_route_back_when_sources_do_not_cover_claim",
           "systematic_review_protocol_and_criteria_before_screening",
           "slr_data_extraction_schema_and_quality_appraisal_as_candidate_refs",
@@ -2762,14 +1927,9 @@
           "citation_coverage_ref",
           "evidence_map_ref",
           "metadata_scrape_ref",
-          "scientific_connector_source_refs",
-          "scientific_connector_invocation_refs",
+          "mas_provider_lookup_ref",
           "pubmed_source_refs",
-          "pubmed_connector_invocation_ref",
           "fallback_source_refs",
-          "connector_receipt_candidate_refs",
-          "cache_retry_metadata_ref",
-          "connector_no_authority_flags_ref",
           "claim_support_ref",
           "claim_support_map_ref",
           "systematic_review_protocol_ref",
@@ -2815,9 +1975,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_write_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.write --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -2931,12 +2091,11 @@
           "manuscript_body_volume_floor_ref",
           "internal_report_prose_route_back_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -3036,9 +2195,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_review_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.review --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -3293,12 +2452,11 @@
           "wide_table_routing_ref",
           "discussion_theme_compression_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -3512,9 +2670,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_submit_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.submit --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -3588,12 +2746,11 @@
           "ai_disclosure_ref",
           "rebuttal_audit_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -3707,9 +2864,9 @@
       ],
       "invocation_entries": [
         {
-          "entry_id": "scholar_data_descriptor",
-          "entry_kind": "descriptor_readback",
-          "command": "opl scholar-skills inspect --module mas-scholar-skills.data --json",
+          "entry_id": "capability_pack_descriptor",
+          "entry_kind": "capability_pack_descriptor_readback",
+          "command": "opl connect skills --domain mas-scholar-skills --json",
           "mutation": false,
           "descriptor_only": true
         }
@@ -3965,12 +3122,11 @@
           "prune_dry_run_ref",
           "post_cleanup_readback_ref",
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "can_claim_quality_verdict": false,
-        "handoff_policy": "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff"
+        "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
       },
       "authority_boundary": {
         "can_claim_domain_ready": false,
@@ -4009,8 +3165,7 @@
         "legacy_id_policy": "legacy_alias_provenance_only_not_active_module_id",
         "required_handoff_refs": [
           "source_pack_ref",
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref",
           "data_governance_handoff_ref"
         ],
@@ -4142,15 +3297,14 @@
     }
   ],
   "standard_handoff_ref_families": {
-    "policy_id": "scholarskills_standard_refs_only_handoff.v1",
+    "policy_id": "scholarskills_standard_refs_only_handoff.v2",
     "applies_to_modules": "active_professional_skill_modules",
     "required_ref_shapes": [
       "source_pack_ref",
-      "candidate_package_ref",
-      "execution_receipt_ref",
+      "candidate_refs",
       "owner_gate_handoff_ref"
     ],
-    "no_authority_policy": "source_pack_candidate_package_execution_receipt_and_owner_gate_handoff_refs_only",
+    "no_authority_policy": "source_pack_candidate_refs_and_owner_gate_handoff_only",
     "can_write_domain_truth": false,
     "can_write_runtime_state": false,
     "can_mutate_artifact_body": false,
@@ -4167,7 +3321,7 @@
     "codex_discovery_policy": "the module-level router/reviewer skills and each named medical-method specialist are real Codex skills with SKILL.md frontmatter under skills/<skill_id>/SKILL.md; none is part of default workspace or quest exposure",
     "candidate_role": "refs_only_medical_method_router_candidate_helper",
     "required_handoff_refs": [
-      "candidate_package_ref",
+      "candidate_refs",
       "route_back_candidate",
       "owner_gate_handoff_ref"
     ],
@@ -4204,7 +3358,7 @@
         ],
         "candidate_role": "refs_only_medical_method_router_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ],
@@ -4255,7 +3409,7 @@
         ],
         "candidate_role": "refs_only_medical_method_router_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ],
@@ -4307,7 +3461,7 @@
         ],
         "candidate_role": "refs_only_medical_method_router_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ],
@@ -4366,7 +3520,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4409,7 +3563,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4450,7 +3604,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4492,7 +3646,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4533,7 +3687,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4575,7 +3729,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4618,7 +3772,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4661,7 +3815,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4704,7 +3858,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4747,7 +3901,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4790,7 +3944,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4833,7 +3987,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -4876,7 +4030,7 @@
           "can_claim_owner_closeout": false
         },
         "required_handoff_refs": [
-          "candidate_package_ref",
+          "candidate_refs",
           "route_back_candidate",
           "owner_gate_handoff_ref"
         ]
@@ -5033,8 +4187,7 @@
         ],
         "candidate_role": "refs_only_advanced_biomed_router_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5087,8 +4240,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5137,8 +4289,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5183,8 +4334,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5232,8 +4382,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5279,8 +4428,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5328,8 +4476,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5380,8 +4527,7 @@
         ],
         "candidate_role": "refs_only_external_specialist_candidate_helper",
         "required_handoff_refs": [
-          "candidate_package_ref",
-          "execution_receipt_ref",
+          "candidate_refs",
           "owner_gate_handoff_ref"
         ],
         "authority_boundary": {
@@ -5429,5 +4575,27 @@
       "scientific-compute-runner"
     ],
     "no_regression_policy": "The router is a selector, not a replacement for named specialist playbooks. Former narrow advanced skills remain real named-specialty SKILL.md sources with default_exposure=false."
+  },
+  "capability_pack_consumption_policy": {
+    "policy_id": "mas_scholar_skills_capability_pack_descriptor.v1",
+    "canonical_owner_repo": "mas-scholar-skills",
+    "descriptor_sources": [
+      ".codex-plugin/plugin.json",
+      "skills/mas-scholar-skills/SKILL.md",
+      "contracts/scholar-skills-capability-modules.json"
+    ],
+    "descriptor_readback_command": "opl connect skills --domain mas-scholar-skills --json",
+    "consumer": "one-person-lab",
+    "consumer_role": "validation_install_sync_and_provenance_only",
+    "module_execution_projection": false,
+    "candidate_artifact_materialization": false,
+    "runtime_bridge_projection": false,
+    "can_write_domain_truth": false,
+    "can_mutate_artifact_body": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_publication_readiness": false,
+    "can_claim_current_package_authority": false
   }
 }

@@ -463,22 +463,15 @@ skill.
 Never fabricate citations or infer PMID/DOI metadata from memory.
 
 For biomedical claim support, source verification, guideline lookup, DOI/PMID
-lookup, or citation repair, use the read-only OPL Connect PubMed path when
-available:
-
-```bash
-opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json
-```
-
-Record candidate results as `pubmed_source_refs` and
-`scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`.
-Use `opl connect pubmed search --query "<query>" --limit <n> --json` only as
-the compatibility entry when the current Connect surface requires it. If the
-claim needs DOI/title metadata or citation-graph coverage beyond PubMed, route
-to `medical-research-lit` for Crossref/OpenAlex `fallback_source_refs`; do not
-perform fallback acceptance inside writing. Screen sources before manuscript
-use. MAS still owns citation acceptance, citation ledger updates,
-claim-evidence support, and publication-quality judgment.
+lookup, or citation repair, route the request to MAS
+`research-integrity-reference-verification`. It returns
+`mas_provider_lookup_ref` and `pubmed_source_refs` as non-authoritative
+evidence inputs. If the claim needs DOI/title metadata or citation-graph
+coverage beyond PubMed, route to `medical-research-lit` for Crossref/OpenAlex
+`fallback_source_refs`; do not perform fallback acceptance inside writing.
+Screen sources before manuscript use. MAS still owns citation acceptance,
+citation ledger updates, claim-evidence support, and publication-quality
+judgment.
 
 If the connector is unavailable, record a `connector_gap` with the attempted
 query and route the citation repair; do not fill citation gaps from memory.

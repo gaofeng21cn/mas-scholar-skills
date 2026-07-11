@@ -79,7 +79,6 @@ def display_qc_skeleton(artifact_ref: object) -> dict[str, Any]:
         "artifact_ref": normalize_evidence_ref(artifact_ref),
         "required_refs": list(DISPLAY_QC_REFS),
         "candidate_refs": {ref: None for ref in DISPLAY_QC_REFS},
-        "candidate_package_ref": None,
         "route_back_candidate": None,
         "owner_gate_handoff_ref": None,
         "authority": {

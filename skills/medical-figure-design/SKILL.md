@@ -375,16 +375,11 @@ Missing refs are blockers, not styling issues. Do not fill missing evidence
 with template defaults, synthetic labels, or caption prose.
 
 If the caption, methods note, or reviewer handoff needs biomedical literature,
-guideline, PMID, DOI, or citation support, get candidate refs through:
-
-```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
-```
-
-Record `pubmed_source_refs` and `pubmed_connector_invocation_ref`. Use the
-returned refs only as inputs to MAS evidence, citation, and review workflows.
-Do not invent citations, PMIDs, DOIs, guideline requirements, or source
-metadata.
+guideline, PMID, DOI, or citation support, route it to MAS
+`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
+and `pubmed_source_refs` only as inputs to MAS evidence, citation, and review
+workflows. Do not invent citations, PMIDs, DOIs, guideline requirements, or
+source metadata.
 
 ### 3. Panel Plan
 

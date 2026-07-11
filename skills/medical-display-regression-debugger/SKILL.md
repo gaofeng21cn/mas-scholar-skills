@@ -44,7 +44,7 @@ Return:
 - `source_renderer_boundary_ref`
 - `reproduction_probe_ref`
 - `repair_route_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

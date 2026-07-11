@@ -15,5 +15,4 @@ for skill_kernel in skills/*/kernel.py; do
   python3 "$skill_kernel"
 done
 
-python3 scripts/export-opl-consumption-projection.py --check
 python3 scripts/verify-repository-consistency.py

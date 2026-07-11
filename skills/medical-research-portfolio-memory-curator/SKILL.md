@@ -72,7 +72,7 @@ Return:
 - `study_recall_index_ref`
 - `external_reports_ref`
 - `reuse_stale_writeback_proposal_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

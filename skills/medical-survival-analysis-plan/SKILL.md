@@ -43,7 +43,7 @@ Return:
 - `model_plan_ref`
 - `diagnostic_plan_ref`
 - `survival_support_map_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

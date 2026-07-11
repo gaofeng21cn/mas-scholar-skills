@@ -42,7 +42,7 @@ Return:
 - `contradiction_and_gap_ref`
 - `claim_revision_candidate_ref`
 - `evidence_synthesis_summary_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

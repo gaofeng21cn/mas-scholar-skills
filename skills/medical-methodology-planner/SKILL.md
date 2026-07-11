@@ -47,7 +47,7 @@ Return:
 - `methodology_route_ref`
 - `methodology_plan_ref`
 - `methodology_support_map_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

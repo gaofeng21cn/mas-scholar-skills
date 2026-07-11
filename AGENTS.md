@@ -8,7 +8,7 @@
 
 - `MAS Scholar Skills` 是 OPL-owned MAS 医学论文能力增强包，不是 MAS/MAG/RCA domain truth owner，也不是额外 OPL 品牌模块。历史 `OPL ScholarSkills` / `opl-scholarskills` 只作为 legacy alias 和 provenance 使用。
 - 本仓持有可分发 Codex plugin/skill、八个 active 专业 Skill-backed capability module contract、gallery 人审发布包和人读说明。
-- OPL Framework 继续持有 `opl scholar-skills *` CLI、Connect 同步、runtime env bridge、App/workbench action 与 framework runtime substrate。
+- OPL Framework 只提供通用 capability-pack 的校验、安装、Connect 同步与 provenance readback；当前可用入口是 `opl connect skills` 与 `opl connect sync-skills`，不保留历史 module execution CLI 或医学 module execution bridge。
 - MAS 等 domain agent 继续持有 study truth、publication truth、quality verdict、artifact authority、owner receipt、typed blocker、human gate 和 current package authority。
 
 ## 开发原则

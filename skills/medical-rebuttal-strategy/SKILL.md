@@ -41,7 +41,7 @@ Return:
 - `manuscript_delta_plan_ref`
 - `rebuttal_strategy_ref`
 - `stop_or_continue_recommendation`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

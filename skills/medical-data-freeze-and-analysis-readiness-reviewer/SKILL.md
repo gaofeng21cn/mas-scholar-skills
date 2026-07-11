@@ -50,7 +50,7 @@ Return:
 - `dictionary_and_lineage_ref`
 - `missingness_and_exclusion_ref`
 - `analysis_readiness_gap_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

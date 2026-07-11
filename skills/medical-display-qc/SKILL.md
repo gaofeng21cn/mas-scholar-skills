@@ -62,7 +62,7 @@ Return:
 - `claim_display_alignment_ref`
 - `accessibility_and_size_ref`
 - `display_qc_support_map_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

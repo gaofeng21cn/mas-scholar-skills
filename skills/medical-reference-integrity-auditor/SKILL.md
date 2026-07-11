@@ -40,7 +40,7 @@ Return:
 - `claim_citation_support_map_ref`
 - `duplicate_or_placeholder_ref`
 - `support_gap_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

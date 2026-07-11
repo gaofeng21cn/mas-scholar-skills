@@ -423,21 +423,14 @@ Review must treat citation quality as part of medical rigor.
 
 When a finding needs external biomedical literature search, source
 verification, guideline lookup, PMID lookup, DOI lookup, or citation repair,
-use:
-
-```bash
-opl connect scientific search --provider pubmed --query "<query>" --limit <n> --json
-```
-
-Record returned `scientific_connector_source_refs`, `pubmed_source_refs`, and
-`scientific_connector_invocation_refs` / `pubmed_connector_invocation_ref`. Use
-`opl connect pubmed search --query "<query>" --limit <n> --json` only as the
-compatibility entry when needed. If PubMed cannot answer metadata, coverage, or
-citation-graph questions, route the issue to `medical-research-lit` for
-Crossref/OpenAlex `fallback_source_refs`; the review records the route-back,
-not source acceptance. The results are candidate refs only. MAS still owns
-source screening, contradiction handling, claim-evidence mapping, review ledger
-updates, route-back decisions, and publication-quality verdicts.
+route the request to MAS `research-integrity-reference-verification`. Record
+the resulting `mas_provider_lookup_ref` and `pubmed_source_refs` as candidate
+evidence. If PubMed cannot answer metadata, coverage, or citation-graph
+questions, route the issue to `medical-research-lit` for Crossref/OpenAlex
+`fallback_source_refs`; the review records the route-back, not source
+acceptance. MAS still owns source screening, contradiction handling,
+claim-evidence mapping, review ledger updates, route-back decisions, and
+publication-quality verdicts.
 
 Open a citation repair request when:
 

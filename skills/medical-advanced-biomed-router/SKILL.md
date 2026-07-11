@@ -59,7 +59,7 @@ Return:
 - `execution_intent_ref`
 - `candidate_result_ref`
 - `deterministic_receipt_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

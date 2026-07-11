@@ -90,7 +90,7 @@ Return:
 - `routeback_option_map_ref`
 - `residual_risk_ref`
 - `stop_or_continue_recommendation`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

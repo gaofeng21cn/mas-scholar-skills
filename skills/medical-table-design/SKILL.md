@@ -128,15 +128,10 @@ or a MAS owner gate before producing final-looking tables.
 9. Produce a candidate table manifest and route-back list.
 
 If a table note, benchmark, guideline, endpoint definition, or clinical
-interpretation needs biomedical literature support, use:
-
-```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
-```
-
-Record returned `pubmed_source_refs` and
-`pubmed_connector_invocation_ref`. The results are candidate refs only; MAS
-still decides citation acceptance and manuscript use.
+interpretation needs biomedical literature support, route it to MAS
+`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
+and `pubmed_source_refs` as candidate refs only; MAS still decides citation
+acceptance and manuscript use.
 
 ## Quality Checks
 

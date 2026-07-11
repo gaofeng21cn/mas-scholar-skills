@@ -43,7 +43,7 @@ Return:
 - `bias_and_identifiability_ref`
 - `sensitivity_plan_ref`
 - `claim_strength_calibration_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

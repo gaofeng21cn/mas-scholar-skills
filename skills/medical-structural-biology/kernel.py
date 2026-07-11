@@ -41,8 +41,7 @@ def structure_candidate_skeleton(structural_question: str = "") -> dict[str, Any
         "docking_candidate_ref": "",
         "confidence_metrics_ref": "",
         "model_output_manifest_ref": "",
-        "candidate_package_ref": "",
-        "execution_receipt_ref": "",
+        "candidate_refs": [],
         "failure_or_warning_ref": "",
         "route_back_candidate": "",
         "owner_gate_handoff_ref": "",
@@ -91,7 +90,7 @@ def _float_or_none(value: Any) -> float | None:
 
 def _self_check() -> None:
     assert normalize_sequence(" acd ef ") == "ACDEF"
-    assert structure_candidate_skeleton("dock")["execution_receipt_ref"] == ""
+    assert structure_candidate_skeleton("dock")["candidate_refs"] == []
     summary = summarize_confidence_metrics({"plddt": 65, "iptm": 0.5, "pae_mean": 12})
     assert summary["warnings"] == ["low_plddt", "low_iptm", "high_pae_mean"]
     assert model_output_manifest_skeleton(["pdb:1"])["authority"] is False

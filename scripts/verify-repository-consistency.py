@@ -52,11 +52,30 @@ if plugin_exposure.get("optionalInstallPolicy") != "named_specialty_only":
     fail("plugin manifest optional install policy must be named_specialty_only")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
-opl_consumption_projection = read_json("contracts/scholar-skills-opl-consumption-projection.json")
 domain_descriptor = read_json("contracts/domain_descriptor.json")
 capability_map = read_json("contracts/capability_map.json")
 classification_policy = contract.get("capability_module_classification_policy") or {}
 contract_text = json.dumps(contract, ensure_ascii=False)
+retired_execution_projection_fields = [
+    "runtime_environment_bridge",
+    "opl_consumption_projection_policy",
+    "opl_consumption_validation_policy",
+    "candidate_artifact_engine_policy",
+]
+for field in retired_execution_projection_fields:
+    if field in contract:
+        fail(f"contract must retire {field} in favor of generic capability-pack consumption")
+if (root / "contracts/scholar-skills-opl-consumption-projection.json").exists():
+    fail("generated ScholarSkills OPL execution projection must be absent")
+if (root / "scripts/export-opl-consumption-projection.py").exists():
+    fail("ScholarSkills execution projection exporter must be absent")
+capability_pack_consumption = contract.get("capability_pack_consumption_policy") or {}
+if capability_pack_consumption.get("policy_id") != "mas_scholar_skills_capability_pack_descriptor.v1":
+    fail("contract must declare the generic capability-pack descriptor policy")
+if capability_pack_consumption.get("descriptor_readback_command") != "opl connect skills --domain mas-scholar-skills --json":
+    fail("capability-pack descriptor policy must use the generic OPL Connect readback")
+if capability_pack_consumption.get("consumer_role") != "validation_install_sync_and_provenance_only":
+    fail("capability-pack descriptor consumer must remain generic and provenance-only")
 expected_capability_skills = classification_policy.get("real_syncable_specialist_skills") or []
 advanced_specialist_skill_ids = classification_policy.get("optional_external_specialist_skills") or []
 medical_method_specialist_skill_ids = classification_policy.get("optional_medical_method_specialist_skills") or []
@@ -146,6 +165,32 @@ docs_index = read_text("docs/README.md")
 operating_model = read_text("docs/mas-scholar-skills-operating-model.md")
 capability_modules_doc = read_text("docs/capability-modules.md")
 professional_ref_templates = read_text("references/professional-quality-ref-templates.md")
+
+# The pack is descriptor/provenance-only. Do not let skill-local skeletons or
+# human-facing active docs revive the retired module execution transport.
+retired_execution_transport_tokens = [
+    "candidate_package_ref",
+    "execution_receipt_ref",
+    "scientific_connector_invocation_refs",
+    "pubmed_connector_invocation_ref",
+]
+active_surface_paths = [
+    root / "AGENTS.md",
+    root / "README.md",
+    root / "README.zh-CN.md",
+    root / "docs/README.md",
+    root / "docs/no-authority-boundary.md",
+    root / "docs/capability-modules.md",
+    root / "docs/mas-scholar-skills-operating-model.md",
+    *sorted((root / "skills").glob("*/SKILL.md")),
+    *sorted((root / "skills").glob("*/kernel.py")),
+]
+for path in active_surface_paths:
+    text = path.read_text(encoding="utf-8")
+    for token in retired_execution_transport_tokens:
+        if token in text:
+            fail(f"{path.relative_to(root)} must not retain retired execution transport token: {token}")
+
 if domain_descriptor.get("surface_kind") != "oma_capability_pack_target_descriptor":
     fail("domain descriptor must expose oma_capability_pack_target_descriptor")
 if domain_descriptor.get("domain_id") != "mas-scholar-skills":
@@ -764,7 +809,7 @@ for skill_id, expected in advanced_expected.items():
     require_all(
         f"advanced specialist required handoff refs for {skill_id}",
         item.get("required_handoff_refs"),
-        ["candidate_package_ref", "execution_receipt_ref", "owner_gate_handoff_ref"],
+        ["candidate_refs", "owner_gate_handoff_ref"],
     )
     for key in [
         "can_replace_default_eight_skills",
@@ -824,7 +869,7 @@ for skill_id, expected in method_expected.items():
 require_all(
     "medical-method specialist required handoff refs",
     method_policy.get("required_handoff_refs"),
-    ["candidate_package_ref", "route_back_candidate", "owner_gate_handoff_ref"],
+    ["candidate_refs", "route_back_candidate", "owner_gate_handoff_ref"],
 )
 for key in [
     "can_replace_default_eight_skills",
@@ -997,13 +1042,23 @@ for forbidden in [
     if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
         fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
 for token in [
-    "connect_pubmed_search",
+    "mas_domain_provider_lookup",
+    "mas_provider_lookup_ref",
     "pubmed_source_refs",
-    "pubmed_connector_invocation_ref",
-    "read_only_normalized_source_refs_not_literature_verdict_or_domain_truth",
+    "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth",
 ]:
     if token not in contract_text:
-        fail(f"contract missing PubMed Connect Lit token: {token}")
+        fail(f"contract missing MAS domain PubMed token: {token}")
+for retired_token in [
+    "opl scholar-skills",
+    "connect_pubmed_search",
+    "pubmed_connector_invocation_ref",
+    "scientific_connector_invocation_refs",
+    "candidate_package_ref",
+    "execution_receipt_ref",
+]:
+    if retired_token in contract_text:
+        fail(f"contract must not retain retired execution or PubMed token: {retired_token}")
 
 professional_template_requirements = {
     "references/professional-quality-ref-templates.md": [
@@ -1090,52 +1145,33 @@ if active_module_ids != expected_active_module_ids:
 if [item.get("module_id") for item in modules] != expected_active_module_order:
     fail("active modules must keep the canonical projection order")
 
-projection_policy = contract.get("opl_consumption_projection_policy") or {}
-if projection_policy.get("policy_id") != "mas_scholar_skills_opl_consumption_projection.v1":
-    fail("contract missing the OPL consumption projection policy")
-if projection_policy.get("canonical_owner_repo") != "mas-scholar-skills":
-    fail("OPL consumption projection must keep mas-scholar-skills as canonical owner")
-if projection_policy.get("consumer") != "one-person-lab":
-    fail("OPL consumption projection must name one-person-lab as consumer")
-if projection_policy.get("module_ids") != expected_active_module_order:
-    fail("OPL consumption projection policy must keep the canonical module order")
+if capability_pack_consumption.get("canonical_owner_repo") != "mas-scholar-skills":
+    fail("capability-pack descriptor policy must keep mas-scholar-skills as canonical owner")
+if capability_pack_consumption.get("consumer") != "one-person-lab":
+    fail("capability-pack descriptor policy must name one-person-lab as consumer")
+require_all(
+    "capability-pack descriptor sources",
+    capability_pack_consumption.get("descriptor_sources"),
+    [
+        ".codex-plugin/plugin.json",
+        "skills/mas-scholar-skills/SKILL.md",
+        "contracts/scholar-skills-capability-modules.json",
+    ],
+)
 for key in [
-    "projection_can_write_domain_truth",
-    "projection_can_mutate_artifact_body",
-    "projection_can_sign_owner_receipt",
-    "projection_can_create_typed_blocker",
-    "projection_can_claim_quality_verdict",
-    "projection_can_claim_publication_readiness",
-    "projection_can_claim_current_package_authority",
+    "module_execution_projection",
+    "candidate_artifact_materialization",
+    "runtime_bridge_projection",
+    "can_write_domain_truth",
+    "can_mutate_artifact_body",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_quality_verdict",
+    "can_claim_publication_readiness",
+    "can_claim_current_package_authority",
 ]:
-    if projection_policy.get(key) is not False:
-        fail(f"OPL consumption projection policy flag {key} must be false")
-
-if opl_consumption_projection.get("projection_kind") != "mas_scholar_skills_opl_consumption_projection.v1":
-    fail("generated OPL consumption projection has the wrong projection kind")
-if opl_consumption_projection.get("canonical_owner_repo") != "mas-scholar-skills":
-    fail("generated OPL consumption projection must point to mas-scholar-skills")
-if opl_consumption_projection.get("consumer") != "one-person-lab":
-    fail("generated OPL consumption projection must name one-person-lab as consumer")
-if opl_consumption_projection.get("source_contract_ref") != "contracts/scholar-skills-capability-modules.json":
-    fail("generated OPL consumption projection must point to the canonical module contract")
-if opl_consumption_projection.get("module_ids") != expected_active_module_order:
-    fail("generated OPL consumption projection must keep the canonical module order")
-projection_modules = opl_consumption_projection.get("modules") or []
-if [item.get("module_id") for item in projection_modules] != expected_active_module_order:
-    fail("generated OPL consumption projection modules must keep the canonical order")
-if not re.fullmatch(r"[0-9a-f]{64}", str(opl_consumption_projection.get("source_projection_sha256") or "")):
-    fail("generated OPL consumption projection must carry a sha256 source fingerprint")
-if opl_consumption_projection.get("validator_policy") != contract.get("opl_consumption_validation_policy"):
-    fail("generated OPL consumption projection validator policy must match the canonical contract")
-candidate_artifact_policy = opl_consumption_projection.get("candidate_artifact_policy") or {}
-canonical_artifact_policy = contract.get("candidate_artifact_engine_policy") or {}
-if candidate_artifact_policy.get("policy_id") != canonical_artifact_policy.get("policy_id"):
-    fail("generated OPL consumption projection artifact policy id must match the canonical contract")
-if candidate_artifact_policy.get("body_policy") != canonical_artifact_policy.get("body_policy"):
-    fail("generated OPL consumption projection body policy must match the canonical contract")
-if candidate_artifact_policy.get("authority_flags") != canonical_artifact_policy.get("authority_flags"):
-    fail("generated OPL consumption projection authority flags must match the canonical contract")
+    if capability_pack_consumption.get(key) is not False:
+        fail(f"capability-pack descriptor policy flag {key} must be false")
 expected_legacy_module_ids = {
     "mas-scholar-skills.display": "opl.scholarskills.display",
     "mas-scholar-skills.tables": "opl.scholarskills.tables",
@@ -1157,17 +1193,16 @@ for retired_module_id in ["mas-scholar-skills.omics", "mas-scholar-skills.intake
 
 standard_handoff_refs = [
     "source_pack_ref",
-    "candidate_package_ref",
-    "execution_receipt_ref",
+    "candidate_refs",
     "owner_gate_handoff_ref",
 ]
 standard_handoff = contract.get("standard_handoff_ref_families") or {}
-if standard_handoff.get("policy_id") != "scholarskills_standard_refs_only_handoff.v1":
+if standard_handoff.get("policy_id") != "scholarskills_standard_refs_only_handoff.v2":
     fail("contract missing standard refs-only handoff policy")
 if standard_handoff.get("applies_to_modules") != "active_professional_skill_modules":
     fail("standard handoff policy must apply to active professional skill modules")
 require_all("standard handoff refs", standard_handoff.get("required_ref_shapes"), standard_handoff_refs)
-if standard_handoff.get("no_authority_policy") != "source_pack_candidate_package_execution_receipt_and_owner_gate_handoff_refs_only":
+if standard_handoff.get("no_authority_policy") != "source_pack_candidate_refs_and_owner_gate_handoff_only":
     fail("standard handoff policy must stay refs-only/no-authority")
 for key in [
     "can_write_domain_truth",
@@ -1216,9 +1251,41 @@ for module in modules:
         if receipt_policy.get(key) is not False:
             fail(f"{module_id} receipt policy flag {key} must be false")
     quality = module.get("quality_evidence") or {}
-    if quality.get("handoff_policy") != "standard_refs_only_source_pack_candidate_package_execution_receipt_owner_gate_handoff":
+    if quality.get("handoff_policy") != "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff":
         fail(f"{module_id} quality evidence missing standard handoff policy")
     require_all(f"{module_id} standard handoff refs", quality.get("required_ref_shapes"), standard_handoff_refs)
+
+expected_descriptor_entry = {
+    "entry_id": "capability_pack_descriptor",
+    "entry_kind": "capability_pack_descriptor_readback",
+    "command": "opl connect skills --domain mas-scholar-skills --json",
+    "mutation": False,
+    "descriptor_only": True,
+}
+for module in modules:
+    entries = module.get("invocation_entries") or []
+    if not entries or entries[0] != expected_descriptor_entry:
+        fail(f"{module.get('module_id')} must begin with the generic capability-pack descriptor readback")
+    if any(str(entry.get("command") or "").startswith("opl scholar-skills") for entry in entries):
+        fail(f"{module.get('module_id')} must not retain the retired OPL ScholarSkills CLI")
+    if module.get("module_id") == "mas-scholar-skills.lit":
+        expected_lookup = {
+            "entry_id": "mas_domain_provider_lookup",
+            "entry_kind": "domain_owned_source_lookup",
+            "command": "research-integrity-reference-verification",
+            "mutation": False,
+            "descriptor_only": False,
+            "provider_priority": [
+                "pubmed_pmc_first",
+                "crossref_metadata_fallback",
+                "openalex_coverage_or_citation_graph_fallback",
+            ],
+            "authority_boundary": "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth",
+        }
+        if entries != [expected_descriptor_entry, expected_lookup]:
+            fail("Lit must expose only the generic package descriptor and MAS domain provider lookup")
+    elif entries != [expected_descriptor_entry]:
+        fail(f"{module.get('module_id')} must not project a module execution surface")
 
 contract_boundary = contract.get("authority_boundary") or {}
 for key in [
@@ -1228,17 +1295,6 @@ for key in [
 ]:
     if contract_boundary.get(key) is not False:
         fail(f"top-level authority flag {key} must be false")
-bridge = contract.get("runtime_environment_bridge") or {}
-bridge_policy = bridge.get("bridge_envelope_policy") or {}
-for container, label in [(bridge, "runtime bridge"), (bridge_policy, "bridge envelope")]:
-    for key in [
-        "can_claim_publication_readiness",
-        "can_claim_owner_acceptance",
-        "can_claim_current_package_authority",
-    ]:
-        if container.get(key) is not False:
-            fail(f"{label} authority flag {key} must be false")
-
 feedbackops = contract.get("feedbackops_refs_only_adapter_policy") or {}
 if feedbackops.get("policy_id") != "scholarskills_feedbackops_refs_only_adapter.v1":
     fail("contract missing FeedbackOps refs-only adapter policy")
@@ -1942,8 +1998,7 @@ require_all(
     data_assessment_policy.get("required_handoff_refs"),
     [
         "source_pack_ref",
-        "candidate_package_ref",
-        "execution_receipt_ref",
+        "candidate_refs",
         "owner_gate_handoff_ref",
         "data_governance_handoff_ref",
     ],
@@ -2060,8 +2115,7 @@ for relative, text in [("skills/medical-data-governance/SKILL.md", data_governan
 
 for token in [
     "source_pack_ref",
-    "candidate_package_ref",
-    "execution_receipt_ref",
+    "candidate_refs",
     "owner_gate_handoff_ref",
 ]:
     if token not in skill:

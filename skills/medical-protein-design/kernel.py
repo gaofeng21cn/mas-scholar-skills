@@ -50,8 +50,7 @@ def design_handoff_skeleton(design_question: str = "") -> dict[str, Any]:
         "embedding_ref": "",
         "fold_back_validation_ref": "",
         "environment_receipt_ref": "",
-        "candidate_package_ref": "",
-        "execution_receipt_ref": "",
+        "candidate_refs": [],
         "route_back_candidate": "",
         "owner_gate_handoff_ref": "",
     }

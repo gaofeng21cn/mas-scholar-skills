@@ -47,9 +47,9 @@ aggregate only identifies the route.
 
 ## Handoff And Authority
 
-Use the shared refs-only handoff family when the routed skill materializes a
-handoff: `source_pack_ref`, `candidate_package_ref`,
-`execution_receipt_ref`, and `owner_gate_handoff_ref`.
+Use the shared refs-only handoff family when the routed skill prepares a
+handoff: `source_pack_ref`, `candidate_refs`, and
+`owner_gate_handoff_ref`.
 
 MAS Scholar Skills may prepare candidate refs, quality hints, candidate
 packages, and route-back recommendations. It must not write domain or study

@@ -74,8 +74,7 @@ def compute_handoff_skeleton(compute_question: str = "") -> dict[str, Any]:
         "job_plan_ref": "",
         "endpoint_request_ref": "",
         "deterministic_receipt_ref": "",
-        "candidate_package_ref": "",
-        "execution_receipt_ref": "",
+        "candidate_refs": [],
         "output_manifest_ref": "",
         "failure_classification_ref": "",
         "route_back_candidate": "",
@@ -158,7 +157,7 @@ def _self_check() -> None:
     assert spec["packages"] == ["numpy", "scipy"]
     assert spec["env_vars"] == ["TOKEN"]
     assert provider_intent_envelope("fit model", "modal")["authority"] is False
-    assert compute_handoff_skeleton("fit")["execution_receipt_ref"] == ""
+    assert compute_handoff_skeleton("fit")["candidate_refs"] == []
     summary = summarize_compute_log("warning\napi_key=abc\nERROR exit code: 137")
     assert summary["exit_code"] == 137
     assert summary["signals"]["errors"] == 1

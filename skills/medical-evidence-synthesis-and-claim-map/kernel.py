@@ -104,7 +104,7 @@ def evidence_synthesis_handoff_skeleton() -> dict[str, object]:
         "support_strength_map_ref": "",
         "contradiction_and_gap_ref": "",
         "claim_revision_candidate_ref": "",
-        "candidate_package_ref": "",
+        "candidate_refs": [],
         "route_back_candidate": "",
         "owner_gate_handoff_ref": "",
     }

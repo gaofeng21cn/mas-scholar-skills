@@ -40,8 +40,7 @@ def dossier_handoff_skeleton(indication_question: str = "") -> dict[str, Any]:
         "synthesis_candidate_ref": "",
         "source_manifest_ref": "",
         "environment_receipt_ref": "",
-        "candidate_package_ref": "",
-        "execution_receipt_ref": "",
+        "candidate_refs": [],
         "route_back_candidate": "",
         "owner_gate_handoff_ref": "",
     }

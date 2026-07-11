@@ -45,7 +45,7 @@ Return:
 - `missingness_and_sensitivity_ref`
 - `reporting_guideline_ref`
 - `support_map_ref`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

@@ -215,15 +215,10 @@ classes, or release-level counts as prevalence, true non-treatment, guideline
 nonadherence, or treatment effect without the required design and evidence.
 
 If a statistical method, reporting claim, guideline statement, or clinical
-interpretation needs biomedical literature support, use:
-
-```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
-```
-
-Record returned `pubmed_source_refs` and
-`pubmed_connector_invocation_ref`. The results are candidate refs only; MAS
-still decides citation acceptance and manuscript use.
+interpretation needs biomedical literature support, route it to MAS
+`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
+and `pubmed_source_refs` as candidate refs only; MAS still decides citation
+acceptance and manuscript use.
 
 ## Common Route-Backs
 

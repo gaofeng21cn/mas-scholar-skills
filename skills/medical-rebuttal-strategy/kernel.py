@@ -87,7 +87,6 @@ def rebuttal_strategy_skeleton(review_ref: object) -> dict[str, Any]:
         "review_ref": normalize_evidence_ref(review_ref),
         "required_refs": list(REBUTTAL_REFS),
         "candidate_refs": {ref: None for ref in REBUTTAL_REFS},
-        "candidate_package_ref": None,
         "route_back_candidate": None,
         "owner_gate_handoff_ref": None,
         "authority": {

@@ -32,11 +32,11 @@ In practical terms, MAS Scholar Skills says what each capability can help with, 
 
 The operating rule is progress-first and AI auto-judgment-first. MAS should let AI judge everything that can be judged from available evidence, and MAS Scholar Skills should supply AI-consumable evidence, `verdict_candidate`, `route_back_candidate`, and stop/continue recommendations. Work goes to the domain owner or human only when the next action would cross into domain truth, publication readiness, owner receipt, typed blocker creation, or a real human gate.
 
-Display is one active professional module. MAS Scholar Skills is also the source, contract, and documentation home for Lit, Tables, Stats, Submit, Write, Review, and Data Governance. Every active module uses the same refs-only handoff frame: `source_pack_ref`, `candidate_package_ref`, `execution_receipt_ref`, and `owner_gate_handoff_ref`. Those refs describe candidate material and the next owner gate; they do not create runtime authority or acceptance.
+Display is one active professional module. MAS Scholar Skills is also the source, contract, and documentation home for Lit, Tables, Stats, Submit, Write, Review, and Data Governance. Every active module uses the same refs-only handoff frame: `source_pack_ref`, `candidate_refs`, and `owner_gate_handoff_ref`. Those refs describe candidate material and the next owner gate; they do not create runtime authority or acceptance.
 
 The current classification is fixed: eight active professional modules, all backed by syncable real Codex specialist skills. Their active ids are `mas-scholar-skills.display`, `mas-scholar-skills.tables`, `mas-scholar-skills.stats`, `mas-scholar-skills.lit`, `mas-scholar-skills.write`, `mas-scholar-skills.review`, `mas-scholar-skills.submit`, and `mas-scholar-skills.data`; historical `opl.scholarskills.*` ids remain legacy aliases/provenance only. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are syncable skill sources; `medical-figure-style` and `medical-figure-composer` are display subskills under `medical-figure-design`, not new active modules. Default Codex exposure is compact workspace/quest install only: aggregate `mas-scholar-skills` plus these core skills. Optional specialists require a named specialty scope, and `opl-scholarskills` has no active `SKILL.md`. Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics will enter MAS Scholar Skills only when MAS has a stable real omics specialist workflow to maintain.
 
-For literature work, `medical-research-lit` is the real AI-first specialist skill. It consumes OPL Connect scientific connector refs rather than copying provider clients into the skill. PubMed/PMC stays first for biomedical sources through `opl connect scientific search --provider pubmed --query ... --limit ... --json`; `opl connect pubmed search` is only the PubMed compatibility entry. Crossref and OpenAlex are fallback refs for metadata, coverage, or citation graph needs, not citation acceptance. OPL Connect owns provider access, normalized `scientific_connector_source_refs`, `scientific_connector_invocation_refs`, receipt candidates, cache/retry metadata, and no-authority flags. `medical-research-lit` owns query strategy, source screening, fallback reasons, `claim_support_map_ref`, and `owner_gate_handoff_ref`; MAS owns citation acceptance and manuscript use.
+For literature work, `medical-research-lit` is the real AI-first specialist skill. PubMed/PMC stays first for biomedical sources through MAS `research-integrity-reference-verification`, which returns `mas_provider_lookup_ref` and `pubmed_source_refs` as non-authoritative evidence inputs. Crossref and OpenAlex are optional OPL Connect fallback refs for metadata, coverage, or citation graph needs, not citation acceptance. `medical-research-lit` owns query strategy, source screening, fallback reasons, `claim_support_map_ref`, and `owner_gate_handoff_ref`; MAS owns provider lookup, citation acceptance, and manuscript use.
 
 The current professional quality floor lives in the real skills. Shared
 handoff shapes live in
@@ -239,13 +239,11 @@ The target should receive only the aggregate skill, core medical-paper skills, p
 ### Common Readbacks
 
 ```bash
-opl scholar-skills list --json
-opl scholar-skills inspect --module mas-scholar-skills.display --json
-opl scholar-skills materialize --module mas-scholar-skills.display --input-ref <ref> --artifact-root <ref-or-path> --output-root <path> --json
-opl connect sync-skills --domain mas-scholar-skills --scope codex --json
+opl connect skills --domain mas-scholar-skills --json
+opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-workspace <workspace_root> --json
 ```
 
-Cloning this repository does not install OPL Framework executable surfaces. Prepare the current `one-person-lab` checkout or release bundle when CLI execution is needed. The legacy `--domain mas-scholar-skills` form remains accepted for existing workspaces.
+Cloning this repository does not install OPL Framework executable surfaces. Prepare the current `one-person-lab` checkout or release bundle for descriptor readback and explicit skill sync. The package does not expose a module execution CLI.
 
 </details>
 

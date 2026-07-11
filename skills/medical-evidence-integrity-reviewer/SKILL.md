@@ -78,7 +78,7 @@ Return:
 - `identifier_integrity_ref`
 - `evidence_gap_decision_candidate_ref`
 - `verdict_candidate`
-- `candidate_package_ref`
+- `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 

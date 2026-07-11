@@ -157,15 +157,10 @@ produce route-back rather than inventing content.
 10. Produce a submission action matrix and owner-gate handoff.
 
 If journal-facing background, reporting-standard, data-sharing, guideline, or
-reviewer-response text needs biomedical literature support, use:
-
-```bash
-opl connect pubmed search --query "<query>" --limit <n> --json
-```
-
-Record returned `pubmed_source_refs` and
-`pubmed_connector_invocation_ref`. The results are candidate refs only; MAS
-still decides citation acceptance and manuscript use.
+reviewer-response text needs biomedical literature support, route it to MAS
+`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
+and `pubmed_source_refs` as candidate refs only; MAS still decides citation
+acceptance and manuscript use.
 
 ## Reviewer Response Mode
 
