@@ -25,3 +25,11 @@
 - `contracts/scholar-skills-capability-modules.json` 是本仓承载的 module catalog snapshot；OPL Framework 内的 executable contract/CLI 实现仍由 `one-person-lab` 维护。
 - `gallery/medical-display/` 只承载最终审阅包，不承载生成工作区。
 - `docs/` 只做说明、边界和运维导航，不做第二 truth source。
+
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+- 本仓库使用本地 `.codegraph/` 索引；该目录不得纳入 Git。
+- 定义、调用、影响范围和代码路径等结构检索优先使用 CodeGraph；字面文本检索使用 `rg`。
+- 索引缺失或过期时运行 `codegraph init .` 或 `codegraph sync .`。
+<!-- CODEGRAPH_END -->
