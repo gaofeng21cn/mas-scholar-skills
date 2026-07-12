@@ -54,6 +54,7 @@ if plugin_exposure.get("optionalInstallPolicy") != "named_specialty_only":
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 domain_descriptor = read_json("contracts/domain_descriptor.json")
 capability_map = read_json("contracts/capability_map.json")
+package_manifest = read_json("contracts/opl_capability_package_manifest.json")
 classification_policy = contract.get("capability_module_classification_policy") or {}
 contract_text = json.dumps(contract, ensure_ascii=False)
 retired_execution_projection_fields = [
@@ -97,6 +98,67 @@ aggregate_skill_ids = ["mas-scholar-skills"]
 expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
 expected_optional_skill_ids = [*optional_router_skill_ids, *optional_named_specialty_skill_ids]
 expected_discoverable_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
+
+if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
+    fail("capability package manifest must use opl_capability_package_manifest.v2")
+if package_manifest.get("package_id") != "mas-scholar-skills":
+    fail("capability package manifest package_id must be mas-scholar-skills")
+if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
+    fail("capability package manifest must point to the OPL capability package schema")
+primary_consumer = package_manifest.get("primary_consumer") or {}
+if primary_consumer.get("agent_id") != "mas" or primary_consumer.get("required") is not True:
+    fail("capability package manifest must declare MAS as its required primary consumer")
+if primary_consumer.get("dependency_kind") != "hard_runtime_dependency":
+    fail("MAS Scholar Skills must remain a hard runtime dependency of MAS")
+capability_abi = package_manifest.get("capability_abi") or {}
+if capability_abi.get("id") != primary_consumer.get("capability_abi"):
+    fail("provider and primary-consumer capability ABI declarations must match")
+consumer_policy = package_manifest.get("consumer_policy") or {}
+if consumer_policy.get("supported_required_by") != ["mas"]:
+    fail("only MAS may be declared as a supported required consumer")
+if consumer_policy.get("non_primary_runtime_dependency_supported") is not False:
+    fail("non-primary consumers must not receive a runtime compatibility promise")
+package_exports = package_manifest.get("exports") or {}
+if package_exports.get("core_skill_ids") != expected_default_exposure_skill_ids:
+    fail("capability package core skills must match the canonical default exposure policy")
+expected_module_ids = [module.get("module_id") for module in contract.get("modules") or []]
+if package_exports.get("core_module_ids") != expected_module_ids:
+    fail("capability package core modules must match the canonical module catalog order")
+if package_exports.get("optional_skills_installed_by_default") is not False:
+    fail("optional named specialty skills must not be installed by default")
+lifecycle = package_manifest.get("lifecycle") or {}
+if lifecycle.get("default_install_trigger") != "dependency_of_mas":
+    fail("capability package default install trigger must be the MAS dependency closure")
+if lifecycle.get("disable_or_uninstall_when_required_by_installed_consumer") != "forbidden":
+    fail("capability package removal must be forbidden while MAS depends on it")
+expected_status_commands = {
+    "workspace": "opl packages status --package-id mas --scope workspace --target-workspace <workspace-root> --json",
+    "quest": "opl packages status --package-id mas --scope quest --target-quest <quest-root> --json",
+}
+expected_repair_commands = {
+    "workspace": "opl packages repair --package-id mas --scope workspace --target-workspace <workspace-root> --json",
+    "quest": "opl packages repair --package-id mas --scope quest --target-quest <quest-root> --json",
+}
+if lifecycle.get("status_command_templates") != expected_status_commands:
+    fail("capability package status must use the unified scoped OPL packages surface")
+if lifecycle.get("repair_command_templates") != expected_repair_commands:
+    fail("capability package repair must use the unified scoped OPL packages surface")
+activation_materialization = lifecycle.get("activation_materialization") or {}
+if activation_materialization.get("required") is not True:
+    fail("MAS workspace or quest activation must require core Skill materialization")
+if activation_materialization.get("scopes") != ["workspace", "quest"]:
+    fail("capability package must materialize core Skills for workspace and quest scopes")
+if activation_materialization.get("skill_ids_ref") != "#/exports/core_skill_ids":
+    fail("activation materialization must consume the provider core Skill single source")
+if activation_materialization.get("receipt_required") is not True:
+    fail("workspace or quest Skill materialization must emit a receipt")
+plugin_package_ref = plugin_exposure.get("capabilityPackageManifestRef")
+if plugin_package_ref != "contracts/opl_capability_package_manifest.json":
+    fail("plugin manifest must point to the capability package manifest")
+if plugin_exposure.get("capabilityAbi") != capability_abi.get("id"):
+    fail("plugin manifest capability ABI must match the capability package manifest")
+if plugin_exposure.get("requiredBy") != ["mas"]:
+    fail("plugin manifest must declare MAS as the required consumer")
 
 
 def without_redirect_tombstones(skill_ids):

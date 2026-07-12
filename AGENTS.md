@@ -6,9 +6,9 @@
 
 ## 定位
 
-- `MAS Scholar Skills` 是 OPL-owned MAS 医学论文能力增强包，不是 MAS/MAG/RCA domain truth owner，也不是额外 OPL 品牌模块。历史 `OPL ScholarSkills` / `opl-scholarskills` 只作为 legacy alias 和 provenance 使用。
+- `MAS Scholar Skills` 是 MAS 必需的能力包和硬依赖；独立仓库只隔离源码维护、版本与发布，不表示产品可选。它不是 MAS/MAG/RCA domain truth owner，也不是额外 OPL 品牌模块。历史 `OPL ScholarSkills` / `opl-scholarskills` 只作为 legacy alias 和 provenance 使用。
 - 本仓持有可分发 Codex plugin/skill、八个 active 专业 Skill-backed capability module contract、gallery 人审发布包和人读说明。
-- OPL Framework 只提供通用 capability-pack 的校验、安装、Connect 同步与 provenance readback；当前可用入口是 `opl connect skills` 与 `opl connect sync-skills`，不保留历史 module execution CLI 或医学 module execution bridge。
+- OPL Framework 通过统一 `opl packages` 生命周期解析、安装、锁定、更新、修复和回滚 MAS 与本包的依赖闭包；不得新增 ScholarSkills 专属安装入口。`opl connect skills` / `sync-skills` 只属于 Framework 内部发现、物化或开发诊断，不是用户安装心智。
 - MAS 等 domain agent 继续持有 study truth、publication truth、quality verdict、artifact authority、owner receipt、typed blocker、human gate 和 current package authority。
 
 ## 开发原则
@@ -21,7 +21,7 @@
 
 ## 文件边界
 
-- `.codex-plugin/plugin.json` 与 `skills/mas-scholar-skills/SKILL.md` 是 canonical Codex plugin/skill 入口；历史 `opl-scholarskills` 只在 contract / provenance 中保留 legacy alias，不存在 active `skills/opl-scholarskills/SKILL.md`。
+- `contracts/opl_capability_package_manifest.json` 是 package identity、ABI、核心 exports、内容 digest 和 MAS 硬依赖关系的机器权威；`.codex-plugin/plugin.json` 与 `skills/mas-scholar-skills/SKILL.md` 是 Codex carrier/skill 入口。历史 `opl-scholarskills` 只在 contract / provenance 中保留 legacy alias，不存在 active `skills/opl-scholarskills/SKILL.md`。
 - `contracts/scholar-skills-capability-modules.json` 是本仓承载的 module catalog snapshot；OPL Framework 内的 executable contract/CLI 实现仍由 `one-person-lab` 维护。
 - `gallery/medical-display/` 只承载最终审阅包，不承载生成工作区。
 - `docs/` 只做说明、边界和运维导航，不做第二 truth source。

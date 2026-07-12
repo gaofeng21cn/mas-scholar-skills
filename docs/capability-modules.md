@@ -7,8 +7,9 @@ Machine boundary: This is human-readable navigation. Module truth, exposure poli
 
 ## Positioning
 
-`MAS Scholar Skills` is the external enhancement pack for MAS medical-paper
-capabilities. It is not an OPL runtime base, an additional brand module, or a MAS
+`MAS Scholar Skills` is the required capability package for MAS medical-paper
+capabilities. Its external repository is a maintenance boundary, not an optional
+product boundary. It is not an OPL runtime base, an additional brand module, or a MAS
 domain-truth owner. It supplies professional Codex skills, source packs, quality
 floors, candidate-ref vocabulary, and external-learning references.
 
@@ -53,7 +54,19 @@ fallback is necessary, OPL Connect may supply Crossref/OpenAlex metadata,
 coverage, or citation-graph inputs as `fallback_source_refs`. None of these refs
 is citation acceptance, a literature verdict, or a publication decision.
 
-## Generic OPL Readback
+## OPL Package Readback
+
+```bash
+opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
+opl packages repair --package-id mas --scope workspace --target-workspace <workspace_root> --json
+```
+
+The package is installed, updated, locked, and rolled back as part of the MAS
+dependency closure. Missing or incompatible core exports make MAS
+`operational_ready=false`; OPL must not silently continue with a reduced product.
+Optional named-specialty Skills remain outside this readiness floor.
+
+Provider-source development may additionally use the internal discovery surfaces:
 
 ```bash
 opl connect skills --domain mas-scholar-skills --json
@@ -61,7 +74,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The descriptor readback reports package identity, discovery sources, sync
+The internal descriptor readback reports package identity, discovery sources, sync
 eligibility, provenance, and false-authority state. Sync copies only selected
 Codex discovery material. It does not make the pack a default stage entry, write
 MAS files, or make any readiness claim.

@@ -4,15 +4,16 @@ Owner: `One Person Lab`
 Purpose: `docs_index`
 State: `active_index`
 Machine boundary: Human-readable navigation. Machine truth remains in
-contracts, especially `contracts/domain_descriptor.json`,
+contracts, especially `contracts/opl_capability_package_manifest.json`, `contracts/domain_descriptor.json`,
 `contracts/capability_map.json`, and
 `contracts/scholar-skills-capability-modules.json`. OPL consumes this pack only
 through generic descriptor/provenance readback; skill pack files, source,
 gallery manifests, OPL Framework readback, and repo-native verification remain
 the corresponding owner surfaces.
 
-`MAS Scholar Skills` is the OPL-owned `mas-scholar-skills` external enhancement
-pack for MAS medical-paper work. The historical `opl-scholarskills` name is
+`MAS Scholar Skills` is MAS's required `mas-scholar-skills` capability package.
+The external repository separates maintenance and releases; it does not make the
+capability optional for MAS. The historical `opl-scholarskills` name is
 only history/tombstone/provenance and is not an active Codex skill. This repo owns module contracts, source packs,
 quality-floor references, compact review refs, and syncable `medical-*`
 professional skills. It does not own MAS study truth, artifacts, owner

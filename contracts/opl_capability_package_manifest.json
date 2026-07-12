@@ -1,32 +1,123 @@
 {
-  "surface_kind": "opl_capability_package_manifest.v1",
+  "surface_kind": "opl_capability_package_manifest.v2",
   "package_id": "mas-scholar-skills",
   "display_name": "MAS Scholar Skills",
   "publisher": "one-person-lab",
   "version": "0.1.0",
   "source": "first_party_repo_local",
-  "package_role": "framework_capability_package",
-  "carrier_source_role": "codex_plugin_default_carrier_not_package_truth",
+  "package_role": "required_agent_capability_package",
+  "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
+  "primary_consumer": {
+    "agent_id": "mas",
+    "package_id": "mas",
+    "dependency_kind": "hard_runtime_dependency",
+    "required": true,
+    "version_requirement": ">=0.1.0 <0.2.0",
+    "capability_abi": "mas-scholar-skills.v1"
+  },
+  "consumer_policy": {
+    "compatibility_commitment": "primary_consumer_only",
+    "supported_required_by": [
+      "mas"
+    ],
+    "non_primary_read_only_discovery_allowed": true,
+    "non_primary_runtime_dependency_supported": false,
+    "relationship": "one_required_product_consumer_with_read_only_observers"
+  },
+  "capability_abi": {
+    "id": "mas-scholar-skills.v1",
+    "version": "1.0.0",
+    "compatibility_policy": "same_major",
+    "breaking_change_requires": "new_abi_major_and_mas_consumer_update"
+  },
+  "exports": {
+    "core_skill_ids": [
+      "mas-scholar-skills",
+      "medical-manuscript-writing",
+      "medical-manuscript-review",
+      "medical-figure-design",
+      "medical-figure-style",
+      "medical-figure-composer",
+      "medical-research-lit",
+      "medical-statistical-review",
+      "medical-table-design",
+      "medical-submission-prep",
+      "medical-data-governance"
+    ],
+    "core_module_ids": [
+      "mas-scholar-skills.display",
+      "mas-scholar-skills.tables",
+      "mas-scholar-skills.stats",
+      "mas-scholar-skills.lit",
+      "mas-scholar-skills.write",
+      "mas-scholar-skills.review",
+      "mas-scholar-skills.submit",
+      "mas-scholar-skills.data"
+    ],
+    "optional_skill_policy_ref": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy/optional_named_specialty_skill_ids",
+    "optional_skills_installed_by_default": false
+  },
+  "content_lock": {
+    "algorithm": "sha256",
+    "canonicalization": "ordered_path_nul_file_bytes",
+    "paths": [
+      ".codex-plugin/plugin.json",
+      "contracts/scholar-skills-capability-modules.json",
+      "skills/mas-scholar-skills/SKILL.md",
+      "skills/medical-manuscript-writing/SKILL.md",
+      "skills/medical-manuscript-review/SKILL.md",
+      "skills/medical-figure-design/SKILL.md",
+      "skills/medical-figure-style/SKILL.md",
+      "skills/medical-figure-composer/SKILL.md",
+      "skills/medical-research-lit/SKILL.md",
+      "skills/medical-statistical-review/SKILL.md",
+      "skills/medical-table-design/SKILL.md",
+      "skills/medical-submission-prep/SKILL.md",
+      "skills/medical-data-governance/SKILL.md"
+    ],
+    "digest": "sha256:86d56c9219656ceda92b9f934de902bc7cd5e739f5881bc9046c2d34f2cecfde"
+  },
+  "lifecycle": {
+    "owner": "one-person-lab",
+    "default_install_trigger": "dependency_of_mas",
+    "direct_install_supported_for_development": true,
+    "disable_or_uninstall_when_required_by_installed_consumer": "forbidden",
+    "update_transaction": "consumer_dependency_closure_atomic",
+    "rollback_transaction": "consumer_dependency_closure_atomic",
+    "status_command_templates": {
+      "workspace": "opl packages status --package-id mas --scope workspace --target-workspace <workspace-root> --json",
+      "quest": "opl packages status --package-id mas --scope quest --target-quest <quest-root> --json"
+    },
+    "repair_command_templates": {
+      "workspace": "opl packages repair --package-id mas --scope workspace --target-workspace <workspace-root> --json",
+      "quest": "opl packages repair --package-id mas --scope quest --target-quest <quest-root> --json"
+    },
+    "activation_materialization": {
+      "required": true,
+      "owner": "one-person-lab",
+      "trigger": "mas_workspace_or_quest_activation",
+      "scopes": [
+        "workspace",
+        "quest"
+      ],
+      "skill_ids_ref": "#/exports/core_skill_ids",
+      "target_path_template": "<scope-root>/.codex/skills/<skill-id>",
+      "receipt_required": true,
+      "readiness_policy": "all_core_skills_current_for_active_scope"
+    }
+  },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
-    "standalone_distribution": "capability_pack_carrier_source",
-    "required_skill_ids": [
-      "mas-scholar-skills"
-    ],
+    "carrier_source_role": "codex_plugin_carrier_not_package_truth",
+    "required_skill_ids_ref": "#/exports/core_skill_ids",
     "codex_default_exposure": false,
-    "on_demand_sync_scopes": [
-      "workspace",
-      "quest"
-    ]
+    "optional_install_policy": "named_specialty_only"
   },
   "authority_boundary": {
     "can_write_domain_truth": false,
     "can_sign_owner_receipt": false,
     "can_create_typed_blocker": false,
-    "can_write_runtime_queue": false
-  },
-  "sync_command_refs": [
-    "opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-workspace <workspace-root> --json",
-    "opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest-root> --json"
-  ]
+    "can_write_runtime_queue": false,
+    "can_claim_mas_operational_readiness": false
+  }
 }

@@ -3,12 +3,13 @@
 Owner: `One Person Lab`
 Purpose: Explain how `mas-scholar-skills` supplies professional skill capability without becoming MAS domain truth.
 State: `active_operating_model`
-Machine boundary: Human-readable operating model. Machine truth remains in `contracts/scholar-skills-capability-modules.json`, `.codex-plugin/plugin.json`, the selected `skills/medical-*/SKILL.md`, OPL Connect readback, and MAS owner surfaces.
+Machine boundary: Human-readable operating model. Package identity, ABI, core exports, and content digest live in `contracts/opl_capability_package_manifest.json`; module and Skill truth remain in `contracts/scholar-skills-capability-modules.json`, `.codex-plugin/plugin.json`, the selected `skills/medical-*/SKILL.md`, OPL package readback, and MAS owner surfaces.
 
 ## Role
 
-MAS Scholar Skills is an OPL-owned external enhancement pack for medical-paper
-work. It owns maintained professional playbooks, source packs, quality floors,
+MAS Scholar Skills is the required capability package for MAS medical-paper
+work. The separate repository is a development, versioning, and release boundary,
+not an optional product boundary. It owns maintained professional playbooks, source packs, quality floors,
 route-back hints, and candidate-ref vocabulary. It does not own study truth,
 publication truth, runtime attempts, provider attempts, ledgers, owner receipts,
 typed blockers, human gates, current-package authority, or publication readiness.
@@ -37,7 +38,7 @@ there is no pack-specific medical module execution surface.
 | --- | --- | --- |
 | Active professional modules | `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, `data` | Contract ids and candidate-ref vocabulary backed by real skills |
 | Default professional skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance` | AI-first playbooks that can be selectively synchronized for Codex discovery |
-| Optional specialist skills | Advanced and medical-method specialist skills | Named-task helpers; refs-only and never blockers for ordinary MAS progress |
+| Optional specialist skills | Advanced and medical-method specialist skills | Named-task helpers; refs-only and never part of the MAS hard-dependency readiness floor |
 
 The quality floor belongs in the relevant professional skill. Change a module
 contract only for an id, mapping, ref vocabulary, exposure policy, or boundary
@@ -72,7 +73,20 @@ provide explicit generic fallback metadata, coverage, or citation-graph inputs;
 it does not decide source acceptance. All provider outputs are read-only evidence
 inputs, not a citation verdict, owner receipt, blocker, or publication claim.
 
-## Sync And Discovery
+## Package Lifecycle And Discovery
+
+```bash
+opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
+opl packages repair --package-id mas --scope workspace --target-workspace <workspace_root> --json
+```
+
+Installing MAS is the single user action. OPL resolves and installs this package
+inside the MAS dependency closure, records compatible version and content locks,
+and prevents disabling or uninstalling it while MAS remains installed. Missing or
+incompatible core exports make MAS operationally unavailable and route to the
+repair command above; there is no partial or silent-degradation mode.
+
+Framework development and diagnostics may still inspect the provider source:
 
 ```bash
 opl connect skills --domain mas-scholar-skills --json
@@ -80,7 +94,8 @@ opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-w
 opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
 ```
 
-The first command is descriptor/provenance readback. The other commands copy
+These are internal descriptor/materialization surfaces, not alternative user
+installation interfaces. The first command is descriptor/provenance readback. The other commands copy
 only selected skills and compact discovery material into a workspace or quest.
 Optional specialists require a named task; the historical aggregate alias is not
 installed as an active skill. Do not copy the full repository, MAS render outputs,

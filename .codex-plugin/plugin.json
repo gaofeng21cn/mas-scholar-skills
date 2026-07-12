@@ -15,6 +15,11 @@
   ],
   "skills": "./skills/",
   "masScholarSkillsExposure": {
+    "capabilityPackageManifestRef": "contracts/opl_capability_package_manifest.json",
+    "capabilityAbi": "mas-scholar-skills.v1",
+    "requiredBy": [
+      "mas"
+    ],
     "policyRef": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy",
     "codexDefaultExposure": false,
     "defaultWorkspaceOrQuestInstall": [
