@@ -95,17 +95,17 @@ opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest
 ```
 
 These are internal descriptor/materialization surfaces, not alternative user
-installation interfaces. The first command is descriptor/provenance readback. The other commands copy
-only selected skills and compact discovery material into a workspace or quest.
-Optional specialists require a named task; the historical aggregate alias is not
-installed as an active skill. Do not copy the full repository, MAS render outputs,
+installation interfaces. The first command is descriptor/provenance readback.
+Scope materialization copies all 35 exported skills and compact discovery
+material into a workspace or quest so Codex can discover specialties before
+execution. Specialty skills still require a matching named task; the historical
+aggregate alias is not installed as an active skill. Do not copy the full repository, MAS render outputs,
 caches, dependency locks, or intermediate gallery workspaces into a paper
 workspace.
 
-When a named specialty is not covered by the default pack, discover and inspect
-one external skill through OPL Connect before selectively syncing it. This is a
-refs-only capability lookup, not a replacement for MAS stage policy, domain truth,
-or owner authority.
+When a task needs a named specialty, route to the already-materialized specialist
+or its router. Discovery and presence do not replace MAS stage policy, domain
+truth, or owner authority.
 
 ## Gallery And Ownership
 

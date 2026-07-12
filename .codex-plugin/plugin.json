@@ -1,6 +1,6 @@
 {
   "name": "mas-scholar-skills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Repo-tracked Codex plugin for MAS Scholar Skills active medical-paper professional specialist skills and optional module-level router/reviewer skills.",
   "author": {
     "name": "One Person Lab"
@@ -33,9 +33,34 @@
       "medical-statistical-review",
       "medical-table-design",
       "medical-submission-prep",
-      "medical-data-governance"
+      "medical-data-governance",
+      "medical-advanced-biomed-router",
+      "medical-methodology-planner",
+      "medical-evidence-integrity-reviewer",
+      "medical-publication-routeback-reviewer",
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner",
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer",
+      "medical-research-portfolio-memory-curator"
     ],
-    "optionalInstallPolicy": "named_specialty_only",
+    "optionalInstallPolicy": "all_exported_skills",
+    "specialtyRoutingPolicy": "materialized_by_default_selected_only_for_matching_tasks",
     "tombstoneSkillIds": [
       "opl-scholarskills"
     ],
@@ -64,13 +89,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "optionalSkillIds": [
       "medical-advanced-biomed-router",
@@ -94,19 +115,15 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ]
   },
   "interface": {
     "displayName": "MAS Scholar Skills",
     "shortDescription": "MAS medical-paper specialist skills and refs.",
-    "longDescription": "Provides the maintained professional Codex skills for MAS medical writing, review, figure, literature, statistics, table, submission, and clinical data governance workflows, plus a small optional router/reviewer layer for advanced biomedical routing, methodology planning, evidence integrity review, and publication route-back review. Named optional specialists remain real SKILL.md playbooks but are installed only for named specialty tasks. All outputs stay refs-only candidate handoffs under MAS owner-gated authority boundaries.",
+    "longDescription": "Provides all maintained professional Codex skills for MAS medical writing, review, figures, literature, statistics, tables, submission, clinical data governance, advanced biomedical routing, methodology, evidence integrity, publication route-back, and named specialties. All 35 exported skills are materialized into an active MAS workspace or quest for native Codex discovery; specialty skills remain task-routed and outside the 11-skill hard readiness floor. All outputs stay refs-only candidate handoffs under MAS owner-gated authority boundaries.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -118,8 +135,8 @@
       "Use MAS Scholar Skills to inspect active medical-paper professional skills.",
       "Use medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance for MAS medical-paper specialist workflows.",
       "Use medical-research-lit to plan PubMed-backed literature discovery.",
-      "Keep default workspace or quest exposure to mas-scholar-skills plus the core medical-paper specialist skills; install optional specialists only for named specialty tasks.",
-      "Use optional router/reviewer skills only for named specialty tasks; named optional specialists are real SKILL.md playbooks outside default exposure, and their absence does not block the default MAS Scholar Skills.",
+      "Materialize all 35 exported skills into each active MAS workspace or quest so Codex can discover every maintained specialty before execution starts.",
+      "Use specialty router, reviewer, and playbook skills only when the task semantics match; their default discovery does not make them part of the 11-skill hard readiness floor.",
       "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],
     "brandColor": "#2563EB"

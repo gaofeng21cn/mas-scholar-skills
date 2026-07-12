@@ -175,7 +175,7 @@
     "policy_id": "mas_scholar_skills_codex_skill_exposure.v1",
     "source_of_truth": "contracts/scholar-skills-capability-modules.json",
     "plugin_manifest_ref": ".codex-plugin/plugin.json",
-    "default_install_policy": "compact_workspace_or_quest_install_includes_aggregate_and_core_skills_only",
+    "default_install_policy": "workspace_or_quest_install_includes_all_exported_skills",
     "codex_default_exposure": false,
     "aggregate_skill_ids": [
       "mas-scholar-skills"
@@ -192,6 +192,8 @@
       "medical-submission-prep",
       "medical-data-governance"
     ],
+    "optional_skills_installed_by_default": true,
+    "specialty_routing_policy": "materialized_by_default_selected_only_for_matching_tasks",
     "default_exposure_skill_ids": [
       "mas-scholar-skills",
       "medical-manuscript-writing",
@@ -203,7 +205,31 @@
       "medical-statistical-review",
       "medical-table-design",
       "medical-submission-prep",
-      "medical-data-governance"
+      "medical-data-governance",
+      "medical-advanced-biomed-router",
+      "medical-methodology-planner",
+      "medical-evidence-integrity-reviewer",
+      "medical-publication-routeback-reviewer",
+      "medical-structural-biology",
+      "medical-protein-design",
+      "medical-genomics-foundation-models",
+      "medical-single-cell-modeling",
+      "medical-indication-dossier",
+      "research-pdf-evidence-explorer",
+      "scientific-compute-runner",
+      "medical-protocol-and-sap-planner",
+      "medical-cohort-phenotyping",
+      "medical-evidence-synthesis-and-claim-map",
+      "medical-reference-integrity-auditor",
+      "medical-rebuttal-strategy",
+      "medical-display-qc",
+      "medical-causal-inference-plan",
+      "medical-survival-analysis-plan",
+      "medical-risk-model-transportability-reviewer",
+      "medical-registry-atlas-story-architect",
+      "medical-display-regression-debugger",
+      "medical-data-freeze-and-analysis-readiness-reviewer",
+      "medical-research-portfolio-memory-curator"
     ],
     "optional_skill_ids": [
       "medical-advanced-biomed-router",
@@ -246,8 +272,8 @@
         "explicit_codex_developer"
       ],
       "optional": [
-        "named_specialty_workspace",
-        "named_specialty_quest",
+        "workspace",
+        "quest",
         "explicit_codex_developer"
       ],
       "tombstone": [],
@@ -255,8 +281,8 @@
         "legacy_named_specialty_redirect_only"
       ],
       "optional_named_specialty": [
-        "named_specialty_workspace",
-        "named_specialty_quest",
+        "workspace",
+        "quest",
         "explicit_codex_developer"
       ]
     },

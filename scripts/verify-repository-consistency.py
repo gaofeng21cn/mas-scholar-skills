@@ -48,8 +48,10 @@ if plugin_exposure.get("policyRef") != "contracts/scholar-skills-capability-modu
     fail("plugin manifest must point to codex skill exposure policy")
 if plugin_exposure.get("codexDefaultExposure") is not False:
     fail("plugin manifest codex default exposure must be false")
-if plugin_exposure.get("optionalInstallPolicy") != "named_specialty_only":
-    fail("plugin manifest optional install policy must be named_specialty_only")
+if plugin_exposure.get("optionalInstallPolicy") != "all_exported_skills":
+    fail("plugin manifest must materialize all exported skills by default")
+if plugin_exposure.get("specialtyRoutingPolicy") != "materialized_by_default_selected_only_for_matching_tasks":
+    fail("plugin manifest must separate specialty discovery from task routing")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 domain_descriptor = read_json("contracts/domain_descriptor.json")
@@ -98,6 +100,7 @@ aggregate_skill_ids = ["mas-scholar-skills"]
 expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
 expected_optional_skill_ids = [*optional_router_skill_ids, *optional_named_specialty_skill_ids]
 expected_discoverable_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
+expected_all_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
 
 if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
@@ -121,11 +124,19 @@ if consumer_policy.get("non_primary_runtime_dependency_supported") is not False:
 package_exports = package_manifest.get("exports") or {}
 if package_exports.get("core_skill_ids") != expected_default_exposure_skill_ids:
     fail("capability package core skills must match the canonical default exposure policy")
+if package_exports.get("specialty_skill_ids") != expected_optional_skill_ids:
+    fail("capability package specialty skills must match the canonical optional skill catalog")
+if package_exports.get("all_skill_ids") != expected_all_skill_ids:
+    fail("capability package all skills must equal core plus specialty skills")
 expected_module_ids = [module.get("module_id") for module in contract.get("modules") or []]
 if package_exports.get("core_module_ids") != expected_module_ids:
     fail("capability package core modules must match the canonical module catalog order")
-if package_exports.get("optional_skills_installed_by_default") is not False:
-    fail("optional named specialty skills must not be installed by default")
+if package_exports.get("optional_skills_installed_by_default") is not True:
+    fail("all specialty skills must be installed by default")
+if package_exports.get("default_materialization_policy") != "all_exported_skills":
+    fail("capability package must use all-exported-skills materialization")
+if package_exports.get("specialty_routing_policy") != "materialized_by_default_selected_only_for_matching_tasks":
+    fail("capability package must keep specialty routing task-selective")
 lifecycle = package_manifest.get("lifecycle") or {}
 if lifecycle.get("default_install_trigger") != "dependency_of_mas":
     fail("capability package default install trigger must be the MAS dependency closure")
@@ -148,8 +159,12 @@ if activation_materialization.get("required") is not True:
     fail("MAS workspace or quest activation must require core Skill materialization")
 if activation_materialization.get("scopes") != ["workspace", "quest"]:
     fail("capability package must materialize core Skills for workspace and quest scopes")
-if activation_materialization.get("skill_ids_ref") != "#/exports/core_skill_ids":
-    fail("activation materialization must consume the provider core Skill single source")
+if activation_materialization.get("skill_ids_ref") != "#/exports/all_skill_ids":
+    fail("activation materialization must consume all exported Skills")
+if activation_materialization.get("readiness_skill_ids_ref") != "#/exports/core_skill_ids":
+    fail("activation readiness must remain anchored to the core Skill floor")
+if activation_materialization.get("materialization_policy") != "all_exported_skills":
+    fail("activation must materialize all exported Skills")
 if activation_materialization.get("receipt_required") is not True:
     fail("workspace or quest Skill materialization must emit a receipt")
 plugin_package_ref = plugin_exposure.get("capabilityPackageManifestRef")
@@ -462,9 +477,9 @@ for skill_id in expected_optional_skill_ids:
     if item.get("external_repo_ref") != f"external_repo:mas-scholar-skills/skills/{skill_id}/SKILL.md":
         fail(f"optional specialist external repo ref for {skill_id} must point to its SKILL.md")
     if item.get("default_exposure") is not False:
-        fail(f"optional specialist {skill_id} must not be default exposure")
+        fail(f"optional specialist {skill_id} must not be selected for generic tasks")
     if item.get("optional_named_specialty_only") is not True:
-        fail(f"optional specialist {skill_id} must be named-specialty only")
+        fail(f"optional specialist {skill_id} must remain named-specialty routed")
     if item.get("blocks_core_progress_when_missing") is not False:
         fail(f"optional specialist {skill_id} must not block core progress when missing")
     for key in [
@@ -689,14 +704,18 @@ if exposure_policy.get("plugin_manifest_ref") != ".codex-plugin/plugin.json":
     fail("codex skill exposure policy must point to plugin manifest")
 if exposure_policy.get("codex_default_exposure") is not False:
     fail("codex skill exposure policy default exposure must be false")
-if exposure_policy.get("default_install_policy") != "compact_workspace_or_quest_install_includes_aggregate_and_core_skills_only":
-    fail("codex skill exposure policy must keep default install compact")
+if exposure_policy.get("default_install_policy") != "workspace_or_quest_install_includes_all_exported_skills":
+    fail("codex skill exposure policy must install all exported skills")
 if exposure_policy.get("aggregate_skill_ids") != aggregate_skill_ids:
     fail("codex skill exposure aggregate skill ids must match")
 if exposure_policy.get("core_skill_ids") != expected_capability_skills:
     fail("codex skill exposure core skill ids must match real syncable skills")
-if exposure_policy.get("default_exposure_skill_ids") != expected_default_exposure_skill_ids:
-    fail("codex skill exposure default skill ids must be aggregate + core skills")
+if exposure_policy.get("default_exposure_skill_ids") != expected_all_skill_ids:
+    fail("codex skill exposure default skill ids must include all exported skills")
+if exposure_policy.get("optional_skills_installed_by_default") is not True:
+    fail("codex skill exposure must install specialty skills by default")
+if exposure_policy.get("specialty_routing_policy") != "materialized_by_default_selected_only_for_matching_tasks":
+    fail("codex skill exposure must separate materialization from specialty routing")
 if exposure_policy.get("optional_skill_ids") != expected_optional_skill_ids:
     fail("codex skill exposure optional skill ids must match optional specialist policies")
 if exposure_policy.get("optional_router_skill_ids") != optional_router_skill_ids:
@@ -717,19 +736,19 @@ for category in ["aggregate", "core"]:
 require_all(
     "codex skill exposure optional scopes",
     allowed_scopes.get("optional"),
-    ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
+    ["workspace", "quest", "explicit_codex_developer"],
 )
 require_all(
     "codex skill exposure optional named specialty scopes",
     allowed_scopes.get("optional_named_specialty"),
-    ["named_specialty_workspace", "named_specialty_quest", "explicit_codex_developer"],
+    ["workspace", "quest", "explicit_codex_developer"],
 )
 redirect_policy = exposure_policy.get("redirect_tombstone_policy", "")
 if "Retired optional professional skill metadata" not in redirect_policy or "capability_preserved=true" not in redirect_policy:
     fail("codex skill exposure redirect policy must describe retired optional professional skill redirects")
 if "Only opl-scholarskills" not in exposure_policy.get("tombstone_policy", ""):
     fail("codex skill exposure tombstone policy must tombstone only opl-scholarskills")
-if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_default_exposure_skill_ids:
+if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_all_skill_ids:
     fail("plugin manifest default workspace/quest install must match exposure policy")
 if plugin_exposure.get("optionalRouterSkillIds") != optional_router_skill_ids:
     fail("plugin manifest optional router skill ids must match exposure policy")

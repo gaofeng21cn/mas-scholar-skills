@@ -34,7 +34,7 @@ The operating rule is progress-first and AI auto-judgment-first. MAS should let 
 
 Display is one active professional module. MAS Scholar Skills is also the source, contract, and documentation home for Lit, Tables, Stats, Submit, Write, Review, and Data Governance. Every active module uses the same refs-only handoff frame: `source_pack_ref`, `candidate_refs`, and `owner_gate_handoff_ref`. Those refs describe candidate material and the next owner gate; they do not create runtime authority or acceptance.
 
-The current classification is fixed: eight active professional modules, all backed by syncable real Codex specialist skills. Their active ids are `mas-scholar-skills.display`, `mas-scholar-skills.tables`, `mas-scholar-skills.stats`, `mas-scholar-skills.lit`, `mas-scholar-skills.write`, `mas-scholar-skills.review`, `mas-scholar-skills.submit`, and `mas-scholar-skills.data`; historical `opl.scholarskills.*` ids remain legacy aliases/provenance only. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are syncable skill sources; `medical-figure-style` and `medical-figure-composer` are display subskills under `medical-figure-design`, not new active modules. Default Codex exposure is the required compact MAS dependency install: aggregate `mas-scholar-skills` plus these core skills. Optional specialists require a named specialty scope, and `opl-scholarskills` has no active `SKILL.md`. Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder. Omics will enter MAS Scholar Skills only when MAS has a stable real omics specialist workflow to maintain.
+The current classification is fixed: eight active professional modules, all backed by syncable real Codex specialist skills. Their active ids are `mas-scholar-skills.display`, `mas-scholar-skills.tables`, `mas-scholar-skills.stats`, `mas-scholar-skills.lit`, `mas-scholar-skills.write`, `mas-scholar-skills.review`, `mas-scholar-skills.submit`, and `mas-scholar-skills.data`; historical `opl.scholarskills.*` ids remain legacy aliases/provenance only. `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` define the hard core. Every active MAS workspace or quest receives all 35 exported skills for native Codex discovery; the other 24 remain specialty-routed and outside the 11-skill hard readiness floor. `opl-scholarskills` has no active `SKILL.md`. Generic source or external-learning intake belongs to OPL Framework or MAS stage/source surfaces and is not kept here as a contract placeholder.
 
 For literature work, `medical-research-lit` is the real AI-first specialist skill. PubMed/PMC stays first for biomedical sources through MAS `research-integrity-reference-verification`, which returns `mas_provider_lookup_ref` and `pubmed_source_refs` as non-authoritative evidence inputs. Crossref and OpenAlex are optional OPL Connect fallback refs for metadata, coverage, or citation graph needs, not citation acceptance. `medical-research-lit` owns query strategy, source screening, fallback reasons, `claim_support_map_ref`, and `owner_gate_handoff_ref`; MAS owns provider lookup, citation acceptance, and manuscript use.
 
@@ -55,12 +55,12 @@ no-authority candidate helpers. They do not replace the default medical-paper
 skills, do not become MAS authority owners, and do not block MAS ordinary
 progress when absent.
 
-The 20 narrower optional skills, such as `medical-structural-biology`,
+The 20 narrower specialty skills, such as `medical-structural-biology`,
 `medical-protocol-and-sap-planner`, `medical-reference-integrity-auditor`,
 `medical-display-qc`, and `scientific-compute-runner`, remain real
-named-specialty `SKILL.md` playbooks. They should not be installed by default;
-OPL Connect should sync one only for an explicit named specialty or after a
-router selects it.
+named-specialty `SKILL.md` playbooks. They are materialized by default so Codex
+can discover them before execution starts, but a router should select one only
+for a matching specialty task.
 
 Four formerly separate optional professional skills are now reviewer modes
 rather than independent Codex metadata: evidence-gap triage is covered by
@@ -95,7 +95,7 @@ MAS Scholar Skills turns the reusable support material into active professional 
 - MAS overlay and MAS medical-research skills can ask for display, table, statistics, literature, writing, review, submission, or data governance support through one shared vocabulary.
 - Each module explains what it is for, what inputs it expects, what candidate output it can prepare, and what review is still required.
 - `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance` are real Codex skills in this source repository; they are not only module descriptors, plugin mirrors, or connector descriptors.
-- Optional named-specialty work uses four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`, plus 20 named-specialty `SKILL.md` playbooks that are synced only on demand; four narrower legacy capabilities are retained as modes under the broader reviewers.
+- Specialty work uses four router/reviewer skills: `medical-methodology-planner`, `medical-evidence-integrity-reviewer`, `medical-publication-routeback-reviewer`, and `medical-advanced-biomed-router`, plus 20 named-specialty `SKILL.md` playbooks. All are materialized for discovery, but selected only for matching tasks; four narrower legacy capabilities are retained as modes under the broader reviewers.
 - `opl-scholarskills` is a tombstone/provenance alias only. It is not installed or discovered as an active Codex skill.
 - Source/external-learning intake is handled by OPL Framework or MAS stage/source surfaces, not as an active module or contract placeholder here; future omics support should be added here as a real professional skill when a stable MAS workflow exists.
 - By default, a professional specialist skill belongs in the consuming domain-agent repo next to the stage prompts. MAS Scholar Skills is the external pack exception for MAS writing, review, figure, literature, statistics, table, submission, Display, and source refs because these surfaces are reusable across workspaces and independently syncable.
@@ -228,14 +228,14 @@ The recommended consuming surface is a local Codex discovery copy inside the act
 ```
 
 Use the unified OPL Packages surface. Installing MAS resolves this required
-package and materializes the core Skills into the selected scope:
+package and materializes all 35 exported Skills into the selected scope:
 
 ```bash
 opl packages install mas --scope workspace --target-workspace <workspace_root> --json
 opl packages install mas --scope quest --target-quest <quest_root> --json
 ```
 
-The target should receive only the aggregate skill, core medical-paper skills, plugin/module refs, and compact gallery review refs needed for local discovery and review. Optional specialist skills are synced only for named specialty tasks. Do not copy the whole source repository, MAS `outputs/display-pack-gallery/`, render caches, single-figure exports, dependency locks, or other gallery intermediates into each paper workspace or quest.
+The target receives all 35 exported skills for native discovery, plus only the compact plugin/module and gallery review refs needed by the package. Specialty skills remain task-routed even though they are present. Do not copy the whole source repository, MAS `outputs/display-pack-gallery/`, render caches, single-figure exports, dependency locks, or other gallery intermediates into each paper workspace or quest.
 
 ### Common Readbacks
 

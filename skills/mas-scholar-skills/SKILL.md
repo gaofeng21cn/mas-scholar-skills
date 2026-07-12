@@ -32,18 +32,20 @@ specialist for professional judgment and candidate handoff preparation.
 
 ## Optional Routing
 
-Use optional skills only for a named specialty that the core skills do not
-cover. Start from the closest router/reviewer:
+All exported specialty skills are already discoverable in an active MAS
+workspace or quest. Use them only when a named specialty is not covered by the
+core skills. Start from the closest router/reviewer:
 
 - `medical-methodology-planner`
 - `medical-evidence-integrity-reviewer`
 - `medical-publication-routeback-reviewer`
 - `medical-advanced-biomed-router`
 
-Let that router select one narrow optional skill. Missing optional skills do
-not block ordinary MAS medical-paper work. OPL Framework and OPL Connect own
-installation, sync, CLI, connector access, and runtime bridge behavior; this
-aggregate only identifies the route.
+Let that router select one narrow specialty skill. Specialty skills stay
+outside the 11-skill hard readiness floor even though they are materialized by
+default. OPL Framework owns installation, refresh, scope materialization, CLI,
+connector access, and runtime bridge behavior; this aggregate only identifies
+the route.
 
 ## Handoff And Authority
 
