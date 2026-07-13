@@ -11,6 +11,8 @@ import pathlib
 import sys
 import tomllib
 
+from gallery_policy import verify_gallery_import_policy
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACK_ROOT = ROOT / "packs" / "medical-display-core"
@@ -213,46 +215,6 @@ def verify_receipt_templates() -> dict:
     )
     require_false_flags(visual_qa_receipt, "visual_qa_receipt_ref", ["authority", "publication_ready"])
     return {"receipt_contract_id": contract["contract_id"]}
-
-
-def require_review_policy(container: dict, label: str) -> None:
-    policy = container.get("opl_scholarskills_import_policy") or {}
-    if policy.get("policy_id") != "opl_scholarskills_display_gallery_refs_only_source_manifest.v1":
-        fail(f"{label} missing ScholarSkills gallery refs-only policy")
-    if policy.get("import_role") != "pack_native_human_review_ref_and_source_snapshot":
-        fail(f"{label} must be a pack-native human review snapshot")
-    if policy.get("source_repo") != "mas-scholar-skills":
-        fail(f"{label} source_repo must be mas-scholar-skills")
-    if policy.get("source_authority") != "opl_scholarskills_display_pack_review_surface":
-        fail(f"{label} source_authority must be the ScholarSkills display review surface")
-    if not str(policy.get("source_snapshot_ref") or "").startswith("repo-local:gallery/medical-display/"):
-        fail(f"{label} must use a repo-local gallery source_snapshot_ref")
-    if "not_self_referential" not in str(policy.get("source_commit_policy") or ""):
-        fail(f"{label} must not use a self-referential source commit")
-    if policy.get("no_second_truth") is not True:
-        fail(f"{label} policy must forbid second truth")
-    require_false_flags(
-        policy.get("authority_boundary") or {},
-        f"{label} review policy authority boundary",
-        [
-            "can_write_domain_truth",
-            "can_sign_owner_receipt",
-            "can_create_typed_blocker",
-            "can_claim_publication_ready",
-            "can_claim_artifact_authority",
-        ],
-    )
-    forbidden = set(policy.get("forbidden_uses") or [])
-    for item in [
-        "mas_display_truth",
-        "publication_ready_claim",
-        "owner_receipt",
-        "typed_blocker",
-        "artifact_authority",
-        "runtime_or_package_authority",
-    ]:
-        if item not in forbidden:
-            fail(f"{label} review policy must forbid {item}")
 
 
 def format_counts(counts: dict[str, int]) -> str:
@@ -778,8 +740,8 @@ def verify_gallery_review_package(
 ) -> dict:
     manifest = read_json(GALLERY_ROOT / "gallery_manifest.json")
     snapshot = read_json(GALLERY_ROOT / "gallery_snapshot.json")
-    require_review_policy(manifest, "gallery_manifest.json")
-    require_review_policy(snapshot, "gallery_snapshot.json")
+    verify_gallery_import_policy(manifest, "gallery_manifest.json", fail)
+    verify_gallery_import_policy(snapshot, "gallery_snapshot.json", fail)
     if not str(snapshot.get("source_snapshot_ref") or "").startswith("repo-local:gallery/medical-display/"):
         fail("gallery_snapshot must use a repo-local source_snapshot_ref")
     if "not_self_referential" not in str(snapshot.get("source_commit_policy") or ""):

@@ -5,6 +5,8 @@ import pathlib
 import re
 import sys
 
+from gallery_policy import verify_gallery_import_policy
+
 root = pathlib.Path(__file__).resolve().parents[1]
 
 def fail(message: str) -> None:
@@ -2205,51 +2207,8 @@ for token in [
 if gallery_manifest.get("status") != "rendered":
     fail("gallery manifest status must be rendered")
 
-def require_gallery_import_policy(container: dict, label: str) -> None:
-    policy = container.get("opl_scholarskills_import_policy") or {}
-    if policy.get("policy_id") != "opl_scholarskills_display_gallery_refs_only_source_manifest.v1":
-        fail(f"{label} missing ScholarSkills gallery refs-only import policy")
-    if policy.get("import_role") != "pack_native_human_review_ref_and_source_snapshot":
-        fail(f"{label} gallery import role must stay pack-native refs/source snapshot only")
-    if policy.get("source_repo") != "mas-scholar-skills":
-        fail(f"{label} gallery source repo must remain mas-scholar-skills")
-    if policy.get("source_authority") != "opl_scholarskills_display_pack_review_surface":
-        fail(f"{label} gallery source authority must remain ScholarSkills display review surface")
-    if not str(policy.get("source_snapshot_ref") or "").startswith("repo-local:gallery/medical-display/"):
-        fail(f"{label} gallery import policy must use a repo-local source_snapshot_ref")
-    if "not_self_referential" not in str(policy.get("source_commit_policy") or ""):
-        fail(f"{label} gallery import policy must not use a self-referential source commit")
-    if policy.get("no_second_truth") is not True:
-        fail(f"{label} gallery import policy must explicitly forbid second truth")
-    require_all(
-        f"{label} gallery allowed uses",
-        policy.get("allowed_uses"),
-        ["gallery_review_ref", "source_manifest_ref", "quality_floor_ref"],
-    )
-    forbidden_uses = set(policy.get("forbidden_uses") or [])
-    for forbidden in [
-        "mas_display_truth",
-        "publication_ready_claim",
-        "owner_receipt",
-        "typed_blocker",
-        "artifact_authority",
-        "runtime_or_package_authority",
-    ]:
-        if forbidden not in forbidden_uses:
-            fail(f"{label} gallery import policy must forbid {forbidden}")
-    boundary = policy.get("authority_boundary") or {}
-    for key in [
-        "can_write_domain_truth",
-        "can_sign_owner_receipt",
-        "can_create_typed_blocker",
-        "can_claim_publication_ready",
-        "can_claim_artifact_authority",
-    ]:
-        if boundary.get(key) is not False:
-            fail(f"{label} gallery import authority flag {key} must be false")
-
-require_gallery_import_policy(gallery_manifest, "gallery_manifest")
-require_gallery_import_policy(snapshot, "gallery_snapshot")
+verify_gallery_import_policy(gallery_manifest, "gallery_manifest", fail)
+verify_gallery_import_policy(snapshot, "gallery_snapshot", fail)
 
 for key in [
     "current_template_count",

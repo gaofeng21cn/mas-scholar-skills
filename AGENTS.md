@@ -16,7 +16,7 @@
 - 修改前先读用户级 `~/.codex/TASTE.md`、相关 contract、Skill、gallery manifest 和 README；事实以源码、contract、manifest、验证脚本和 GitHub readback 为准。
 - 保持 no-authority boundary：本仓产物只能作为 refs-only candidate 或 human-review ref，不能声明 domain ready、runtime ready、publication ready、owner accepted 或 artifact authority。
 - Gallery 只提交最终人审包：PDF、顶层 manifest、reference/status/audit 文档和 snapshot 元数据。不要提交 MAS 生成过程中的 `outputs/`、单图 PNG/SVG/HTML、render cache、layout sidecar、dependency lock 或中间资产目录。
-- 默认验证入口是 `scripts/verify.sh`。
+- 默认验证入口是 `scripts/verify.sh`（等价于快速的 `fast` lane）；涉及 Display renderer 或 gallery 时运行 `scripts/verify.sh render`，合并验证运行 `scripts/verify.sh full`。
 - 发布或 currentness claim 必须绑定到本仓 GitHub remote、commit SHA、gallery artifact fingerprint 和验证输出。
 
 ## 文件边界

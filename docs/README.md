@@ -32,6 +32,23 @@ Use this page as navigation only:
   executable evidence:
   [Academic Figure Skill learning landing](./academic-figure-skill-landing.md).
 
+## Verification Lanes
+
+- `scripts/verify.sh` / `scripts/verify.sh fast` runs contracts, repository
+  consistency, and all kernel self-checks without starting the R renderer.
+- `scripts/verify.sh render` runs the committed gallery checks, live Display
+  regression, and registry renderer regression. The registry cases share one R
+  process while restoring options, environment, graphics devices, and random
+  state after every case.
+- `scripts/verify.sh full` is the union used before integration or release.
+
+Both the gallery-pack verifier and repository consistency verifier consume
+`scripts/gallery_policy.py`; Gallery import and no-authority rules therefore
+have one executable owner instead of two near-duplicate implementations.
+
+Passing any lane remains structural or test evidence only; it does not create
+MAS artifact authority, publication readiness, or owner acceptance.
+
 ## Current Docs
 
 | Doc | Role | Boundary |

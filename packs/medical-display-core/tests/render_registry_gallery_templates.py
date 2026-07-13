@@ -10,11 +10,12 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 
 PACK_ROOT = Path(__file__).resolve().parents[1]
-RENDERER = PACK_ROOT / "render.R"
+BATCH_RENDERER = PACK_ROOT / "tests" / "render_registry_gallery_batch.R"
 FIXTURE_PATH = PACK_ROOT / "fixtures" / "registry_gallery_cases.json"
 EXPECTED_CASE_IDS = {
     "adult_bmi_waist_central_adiposity_bar",
@@ -75,13 +76,14 @@ def output_paths(case_root: Path, template_id: str) -> dict[str, Path]:
     }
 
 
-def run_renderer(
+def prepare_batch_job(
+    case_id: str,
     template_id: str,
     payload: dict[str, Any],
     case_root: Path,
     *,
     dependency_environment: dict[str, Any] | None = None,
-) -> tuple[subprocess.CompletedProcess[str], dict[str, Path]]:
+) -> tuple[dict[str, str], dict[str, Path]]:
     case_root.mkdir(parents=True, exist_ok=True)
     paths = output_paths(case_root, template_id)
     request: dict[str, Any] = {
@@ -94,23 +96,46 @@ def run_renderer(
     if dependency_environment is not None:
         request["dependency_environment"] = dependency_environment
     paths["request"].write_text(json.dumps(request, indent=2), encoding="utf-8")
+    return {
+        "case_id": case_id,
+        "template_id": template_id,
+        "render_mode": "candidate",
+        "request_path": str(paths["request"]),
+    }, paths
+
+
+def run_renderer_batch(output_root: Path, jobs: list[dict[str, str]]) -> dict[str, SimpleNamespace]:
+    expected_case_ids = [job["case_id"] for job in jobs]
+    if len(set(expected_case_ids)) != len(expected_case_ids):
+        raise ValueError("batch renderer case_id values must be unique")
+    batch_path = output_root / "render-batch.json"
+    batch_path.write_text(
+        json.dumps({"pack_root": str(PACK_ROOT), "jobs": jobs}, indent=2),
+        encoding="utf-8",
+    )
     completed = subprocess.run(
-        [
-            "Rscript",
-            str(RENDERER),
-            "--template",
-            template_id,
-            "--mode",
-            "candidate",
-            "--request",
-            str(paths["request"]),
-        ],
-        cwd=case_root,
+        ["Rscript", str(BATCH_RENDERER), str(batch_path)],
+        cwd=output_root,
         text=True,
         capture_output=True,
         check=False,
     )
-    return completed, paths
+    if completed.returncode != 0:
+        raise RuntimeError(f"batch renderer failed: {completed.stderr.strip()}")
+    payload = json.loads(completed.stdout)
+    actual_case_ids = [item.get("case_id") for item in payload.get("results", [])]
+    if len(actual_case_ids) != len(set(actual_case_ids)) or set(actual_case_ids) != set(expected_case_ids):
+        raise RuntimeError(
+            f"batch renderer result identity mismatch: expected={expected_case_ids} actual={actual_case_ids}"
+        )
+    return {
+        item["case_id"]: SimpleNamespace(
+            returncode=0 if item["ok"] else 1,
+            stdout=item.get("stdout") or "",
+            stderr=item.get("error") or "",
+        )
+        for item in payload["results"]
+    }
 
 
 def output_errors(paths: dict[str, Path]) -> tuple[list[str], dict[str, Any] | None]:
@@ -131,9 +156,13 @@ def rplots_error(case_root: Path) -> list[str]:
     return ["renderer created unexpected Rplots.pdf"] if (case_root / "Rplots.pdf").exists() else []
 
 
-def run_case(template_id: str, case: dict[str, Any], output_root: Path) -> list[str]:
-    case_root = output_root / "registry" / template_id
-    completed, paths = run_renderer(template_id, case["payload"], case_root)
+def validate_case(
+    template_id: str,
+    case: dict[str, Any],
+    case_root: Path,
+    completed: SimpleNamespace,
+    paths: dict[str, Path],
+) -> list[str]:
     if completed.returncode != 0:
         return [f"renderer exited {completed.returncode}: {completed.stderr.strip()}"]
     errors, layout = output_errors(paths)
@@ -215,15 +244,14 @@ def invalid_payload_cases(cases: dict[str, dict[str, Any]]) -> list[tuple[str, s
     return checks
 
 
-def run_invalid_case(
+def validate_invalid_case(
     check_id: str,
     template_id: str,
     payload: dict[str, Any],
     expected_error: str,
-    output_root: Path,
+    case_root: Path,
+    completed: SimpleNamespace,
 ) -> list[str]:
-    case_root = output_root / "invalid" / check_id
-    completed, _ = run_renderer(template_id, payload, case_root)
     errors = rplots_error(case_root)
     if completed.returncode == 0:
         errors.append("invalid payload rendered successfully")
@@ -256,13 +284,11 @@ def heatmap_group_comparison_payload() -> dict[str, Any]:
     }
 
 
-def run_null_device_regression(output_root: Path) -> list[str]:
-    case_root = output_root / "null-device" / "heatmap_group_comparison"
-    completed, paths = run_renderer(
-        "heatmap_group_comparison",
-        heatmap_group_comparison_payload(),
-        case_root,
-    )
+def validate_null_device_regression(
+    case_root: Path,
+    completed: SimpleNamespace,
+    paths: dict[str, Path],
+) -> list[str]:
     if completed.returncode != 0:
         return [f"renderer exited {completed.returncode}: {completed.stderr.strip()}"]
     errors, _ = output_errors(paths)
@@ -300,19 +326,13 @@ def cohort_flow_payload() -> dict[str, Any]:
     }
 
 
-def run_cohort_flow_regression(output_root: Path) -> tuple[list[str], str]:
-    dependency_environment = {
-        "status": "gallery_preview",
-        "run_context_ref": "fixture:cohort-flow-regression",
-        "run_context_fingerprint": "sha256:fictional-cohort-flow-regression",
-    }
-    case_root = output_root / "cohort-flow" / "valid"
-    completed, paths = run_renderer(
-        "cohort_flow_figure",
-        cohort_flow_payload(),
-        case_root,
-        dependency_environment=dependency_environment,
-    )
+def validate_cohort_flow_regression(
+    case_root: Path,
+    completed: SimpleNamespace,
+    paths: dict[str, Path],
+    missing_receipt_root: Path,
+    missing_receipt: SimpleNamespace,
+) -> tuple[list[str], str]:
     if completed.returncode != 0:
         if COHORT_DEPENDENCY_UNAVAILABLE_MARKER in completed.stderr:
             if os.environ.get("OPL_RUNTIME_ENVIRONMENT_STATUS") == "prepared":
@@ -332,12 +352,6 @@ def run_cohort_flow_regression(output_root: Path) -> tuple[list[str], str]:
     if metrics.get("source_renderer") != "MAS/ReportingFlow::cohort_flow_figure":
         errors.append("cohort flow source_renderer mismatch")
 
-    missing_receipt_root = output_root / "cohort-flow" / "missing-receipt"
-    missing_receipt, _ = run_renderer(
-        "cohort_flow_figure",
-        cohort_flow_payload(),
-        missing_receipt_root,
-    )
     errors.extend(rplots_error(missing_receipt_root))
     if missing_receipt.returncode == 0:
         errors.append("cohort flow rendered without prepared dependency receipt")
@@ -364,18 +378,94 @@ def main() -> int:
         cleanup = tempfile.TemporaryDirectory(prefix="medical-display-gallery-regression-")
         output_root = Path(cleanup.name)
     failures: dict[str, list[str]] = {}
+    jobs: list[dict[str, str]] = []
+    paths_by_case: dict[str, dict[str, Path]] = {}
+    roots_by_case: dict[str, Path] = {}
     for template_id, case in cases.items():
-        errors = run_case(template_id, case, output_root)
+        case_root = output_root / "registry" / template_id
+        job, paths = prepare_batch_job(template_id, template_id, case["payload"], case_root)
+        jobs.append(job)
+        paths_by_case[template_id] = paths
+        roots_by_case[template_id] = case_root
+    invalid_checks = invalid_payload_cases(cases)
+    for check_id, template_id, payload, _expected_error in invalid_checks:
+        case_root = output_root / "invalid" / check_id
+        job, paths = prepare_batch_job(check_id, template_id, payload, case_root)
+        jobs.append(job)
+        paths_by_case[check_id] = paths
+        roots_by_case[check_id] = case_root
+    null_case_id = "null_device_Rplots"
+    null_root = output_root / "null-device" / "heatmap_group_comparison"
+    job, paths = prepare_batch_job(
+        null_case_id,
+        "heatmap_group_comparison",
+        heatmap_group_comparison_payload(),
+        null_root,
+    )
+    jobs.append(job)
+    paths_by_case[null_case_id] = paths
+    roots_by_case[null_case_id] = null_root
+    dependency_environment = {
+        "status": "gallery_preview",
+        "run_context_ref": "fixture:cohort-flow-regression",
+        "run_context_fingerprint": "sha256:fictional-cohort-flow-regression",
+    }
+    cohort_root = output_root / "cohort-flow" / "valid"
+    job, paths = prepare_batch_job(
+        "cohort_valid",
+        "cohort_flow_figure",
+        cohort_flow_payload(),
+        cohort_root,
+        dependency_environment=dependency_environment,
+    )
+    jobs.append(job)
+    paths_by_case["cohort_valid"] = paths
+    cohort_missing_root = output_root / "cohort-flow" / "missing-receipt"
+    job, paths = prepare_batch_job(
+        "cohort_missing_receipt",
+        "cohort_flow_figure",
+        cohort_flow_payload(),
+        cohort_missing_root,
+    )
+    jobs.append(job)
+    paths_by_case["cohort_missing_receipt"] = paths
+
+    results = run_renderer_batch(output_root, jobs)
+    for template_id, case in cases.items():
+        errors = validate_case(
+            template_id,
+            case,
+            roots_by_case[template_id],
+            results[template_id],
+            paths_by_case[template_id],
+        )
         if errors:
             failures[template_id] = errors
-    for check in invalid_payload_cases(cases):
-        errors = run_invalid_case(*check, output_root)
+    for check_id, template_id, payload, expected_error in invalid_checks:
+        errors = validate_invalid_case(
+            check_id,
+            template_id,
+            payload,
+            expected_error,
+            roots_by_case[check_id],
+            results[check_id],
+        )
         if errors:
-            failures[check[0]] = errors
-    null_device_errors = run_null_device_regression(output_root)
+            failures[check_id] = errors
+    null_device_errors = validate_null_device_regression(
+        null_root,
+        results[null_case_id],
+        paths_by_case[null_case_id],
+    )
     if null_device_errors:
         failures["null_device_Rplots"] = null_device_errors
-    cohort_errors, cohort_flow_dispatch = run_cohort_flow_regression(output_root)
+    cohort_errors, cohort_flow_dispatch = validate_cohort_flow_regression(
+        cohort_root,
+        results["cohort_valid"],
+        paths_by_case["cohort_valid"],
+        cohort_missing_root,
+        results["cohort_missing_receipt"],
+    )
     if cohort_errors:
         failures["cohort_flow_figure"] = cohort_errors
     if cleanup is not None:
@@ -389,7 +479,7 @@ def main() -> int:
                 "ok": True,
                 "fixture_ref": str(FIXTURE_PATH.relative_to(PACK_ROOT)),
                 "templates": sorted(cases),
-                "negative_contract_checks": len(invalid_payload_cases(cases)),
+                "negative_contract_checks": len(invalid_checks),
                 "cohort_flow_dispatch": cohort_flow_dispatch,
                 "null_device_Rplots": False,
                 "output_root": str(output_root),
