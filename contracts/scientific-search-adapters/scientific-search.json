@@ -1,0 +1,65 @@
+{
+  "surface_kind": "opl_connect_scientific_search_provider_profile.v1",
+  "schema_ref": "contracts/scientific-search-adapters/scientific-search-provider-profile.schema.json",
+  "profile_id": "mas-scholar-skills.scientific-search.v1",
+  "profile_role": "optional_connector_profile",
+  "registry_owner": "mas-scholar-skills.scientific-search-adapters",
+  "provider_ontology_owner": "profile_not_framework_core",
+  "adapter_package": {
+    "package_id": "mas-scholar-skills",
+    "module_id": "mas-scholar-skills.scientific-search-adapters",
+    "package_role": "capability_package_runtime_module",
+    "adapter_abi": "opl-connect-scientific-search-adapter.v1",
+    "registry_ref": "contracts/scientific-search-adapters/scientific-search-adapter-registry.json",
+    "handler_ref": "runtime/scientific-search-adapters/index.ts#runScientificSearchAdapterStep",
+    "adapter_ids": [
+      "crossref_search_rest",
+      "openalex_search_rest"
+    ],
+    "byte_authority": "installed_capability_package_source_commit_and_content_digest"
+  },
+  "default_provider_ids": [
+    "crossref",
+    "openalex"
+  ],
+  "providers": [
+    {
+      "provider_id": "crossref",
+      "adapter_id": "crossref_search_rest",
+      "source_provider": "Crossref",
+      "endpoint": {
+        "default_base_url": "https://api.crossref.org",
+        "environment_override": "OPL_CONNECT_CROSSREF_API_BASE",
+        "allowed_origins": [
+          "https://api.crossref.org"
+        ]
+      }
+    },
+    {
+      "provider_id": "openalex",
+      "adapter_id": "openalex_search_rest",
+      "source_provider": "OpenAlex",
+      "endpoint": {
+        "default_base_url": "https://api.openalex.org",
+        "environment_override": "OPL_CONNECT_OPENALEX_API_BASE",
+        "allowed_origins": [
+          "https://api.openalex.org"
+        ]
+      }
+    }
+  ],
+  "no_authority_boundary": {
+    "can_perform_network_io": false,
+    "can_read_environment": false,
+    "can_write_files": false,
+    "can_spawn_processes": false,
+    "can_define_framework_core_identity": false,
+    "can_write_domain_truth": false,
+    "can_create_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_reference_truth": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_domain_ready": false,
+    "can_claim_production_ready": false
+  }
+}

@@ -3395,6 +3395,75 @@
         "typed blockers",
         "reference acceptance or quality verdicts"
       ]
+    },
+    {
+      "module_id": "mas-scholar-skills.scientific-search-adapters",
+      "legacy_module_ids": [],
+      "brand_family": "MAS Scholar Skills",
+      "display_name": "Scientific Search Adapters",
+      "module_kind": "opl_connect_scientific_search_adapter",
+      "specialist_skill_id": null,
+      "stage_fit": [
+        "read_only_scientific_search_candidate_discovery"
+      ],
+      "input_schema_refs": [
+        "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json#/$defs/request"
+      ],
+      "output_schema_refs": [
+        "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json#/$defs/result"
+      ],
+      "profile_ref": "contracts/scientific-search-adapters/scientific-search.json",
+      "registry_ref": "contracts/scientific-search-adapters/scientific-search-adapter-registry.json",
+      "adapter_abi": "opl-connect-scientific-search-adapter.v1",
+      "adapter_ids": [
+        "crossref_search_rest",
+        "openalex_search_rest"
+      ],
+      "state_machine_contract": {
+        "operations": [
+          "build_search_request",
+          "parse_search_response"
+        ],
+        "max_steps": 1,
+        "http_execution_owner": "opl_connect",
+        "candidate_consumption_owner": "opl_connect_then_domain_owner",
+        "adapter_input_output_policy": "serializable_request_state_response_only"
+      },
+      "authority_boundary": {
+        "can_perform_network_io": false,
+        "can_read_environment": false,
+        "can_write_files": false,
+        "can_spawn_processes": false,
+        "can_claim_domain_ready": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_artifact_authority": false,
+        "can_claim_production_ready": false,
+        "can_claim_runtime_ready": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_owner_acceptance": false,
+        "can_claim_current_package_authority": false,
+        "can_schedule_runtime": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_write_memory_body": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_replace_domain_owner": false,
+        "can_replace_ai_executor_planning": false,
+        "can_claim_reference_truth": false
+      },
+      "allowed_writes": [],
+      "forbidden_writes": [
+        "network or environment access",
+        "filesystem or process mutation",
+        "domain truth",
+        "artifact bodies",
+        "runtime queues/outbox/state",
+        "owner receipts",
+        "typed blockers",
+        "search candidate acceptance or quality verdicts"
+      ]
     }
   ],
   "standard_handoff_ref_families": {
@@ -4686,7 +4755,9 @@
       "contracts/scholar-skills-capability-modules.json",
       "contracts/opl_capability_package_manifest.json",
       "contracts/reference-provider-adapters/scientific-metadata.json",
-      "contracts/reference-provider-adapters/reference-provider-adapter-registry.json"
+      "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+      "contracts/scientific-search-adapters/scientific-search.json",
+      "contracts/scientific-search-adapters/scientific-search-adapter-registry.json"
     ],
     "descriptor_readback_command": "opl connect skills --domain mas-scholar-skills --json",
     "consumer": "one-person-lab",
@@ -4695,7 +4766,8 @@
     "module_execution_projection_scope": "professional_skill_modules_only",
     "runtime_adapter_module_projection": true,
     "runtime_adapter_module_ids": [
-      "mas-scholar-skills.reference-provider-adapters"
+      "mas-scholar-skills.reference-provider-adapters",
+      "mas-scholar-skills.scientific-search-adapters"
     ],
     "runtime_adapter_execution_owner": "opl_connect",
     "candidate_artifact_materialization": false,

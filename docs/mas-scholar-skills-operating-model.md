@@ -61,18 +61,22 @@ For literature work, the provider split is explicit:
 
 ```text
 medical-research-lit strategy
-  -> OPL Connect executes the installed ScholarSkills provider adapter profile
-  -> package adapter builds/parses bounded provider steps
-  -> OPL Connect strict match + read-only provider receipt
+  -> optional search companion returns Crossref/OpenAlex candidates[]
+  -> domain owner selects a candidate reference
+  -> verification companion checks the selected reference through bounded providers
+  -> OPL Connect executes HTTP and materializes generic evidence/receipts
   -> source screening and claim-support candidate_refs
   -> MAS citation acceptance and manuscript use
 ```
 
-ScholarSkills owns only provider-specific request/response mapping. OPL Connect
-owns HTTP, retry, cache, strict matching, receipts, and connector errors. MAS
-still decides source acceptance and manuscript use. All provider outputs are
-read-only evidence inputs, not a citation verdict, owner receipt, blocker, or
-publication claim.
+Search and reference verification are separate companion ABIs. Search accepts
+`provider + query + limit`, performs at most one described HTTP step, and returns
+normalized `candidates[]`. Verification accepts a known reference and may perform
+up to two described provider steps. ScholarSkills owns only provider-specific
+request/response mapping. OPL Connect owns HTTP, retry, cache, strict matching,
+receipts, and connector errors. MAS still decides candidate selection, source
+acceptance, and manuscript use. All provider outputs are read-only inputs, not a
+citation verdict, owner receipt, blocker, or publication claim.
 
 ## Package Lifecycle And Discovery
 

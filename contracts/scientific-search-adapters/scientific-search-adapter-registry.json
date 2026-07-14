@@ -1,0 +1,69 @@
+{
+  "surface_kind": "opl_connect_scientific_search_adapter_registry.v1",
+  "schema_ref": "contracts/scientific-search-adapters/scientific-search-adapter-registry.schema.json",
+  "package_id": "mas-scholar-skills",
+  "module_id": "mas-scholar-skills.scientific-search-adapters",
+  "module_kind": "opl_connect_scientific_search_adapter",
+  "adapter_abi": "opl-connect-scientific-search-adapter.v1",
+  "profile_ref": "contracts/scientific-search-adapters/scientific-search.json",
+  "step_schema_ref": "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json",
+  "handler": {
+    "kind": "typescript_export",
+    "file": "runtime/scientific-search-adapters/index.ts",
+    "export": "runScientificSearchAdapterStep"
+  },
+  "state_machine_exports": [
+    "build_search_request",
+    "parse_search_response"
+  ],
+  "max_steps": 1,
+  "adapters": [
+    {
+      "adapter_id": "crossref_search_rest",
+      "provider_id": "crossref",
+      "initial_step": "search",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "openalex_search_rest",
+      "provider_id": "openalex",
+      "initial_step": "search",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    }
+  ],
+  "contained_implementation_files": [
+    "runtime/reference-provider-adapters/types.ts",
+    "runtime/reference-provider-adapters/normalization.ts",
+    "runtime/scientific-search-adapters/types.ts",
+    "runtime/scientific-search-adapters/search-adapters.ts",
+    "runtime/scientific-search-adapters/index.ts"
+  ],
+  "sandbox": {
+    "network_io": false,
+    "environment_read": false,
+    "filesystem_read": false,
+    "filesystem_write": false,
+    "process_spawn": false,
+    "dynamic_module_load": false,
+    "input_output_policy": "serializable_request_state_response_only"
+  },
+  "no_authority_boundary": {
+    "can_perform_network_io": false,
+    "can_read_environment": false,
+    "can_write_files": false,
+    "can_spawn_processes": false,
+    "can_write_domain_truth": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_reference_truth": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_domain_ready": false,
+    "can_claim_production_ready": false
+  }
+}

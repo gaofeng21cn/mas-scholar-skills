@@ -116,7 +116,8 @@
       "mas-scholar-skills.review",
       "mas-scholar-skills.submit",
       "mas-scholar-skills.data",
-      "mas-scholar-skills.reference-provider-adapters"
+      "mas-scholar-skills.reference-provider-adapters",
+      "mas-scholar-skills.scientific-search-adapters"
     ],
     "runtime_module_bindings": [
       {
@@ -168,6 +169,56 @@
           "can_claim_domain_ready": false,
           "can_claim_production_ready": false
         }
+      },
+      {
+        "module_id": "mas-scholar-skills.scientific-search-adapters",
+        "module_kind": "opl_connect_scientific_search_adapter",
+        "adapter_abi": "opl-connect-scientific-search-adapter.v1",
+        "profile_ref": "contracts/scientific-search-adapters/scientific-search.json",
+        "profile_schema_ref": "contracts/scientific-search-adapters/scientific-search-provider-profile.schema.json",
+        "registry_ref": "contracts/scientific-search-adapters/scientific-search-adapter-registry.json",
+        "registry_schema_ref": "contracts/scientific-search-adapters/scientific-search-adapter-registry.schema.json",
+        "step_schema_ref": "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json",
+        "handler": {
+          "kind": "typescript_export",
+          "file": "runtime/scientific-search-adapters/index.ts",
+          "export": "runScientificSearchAdapterStep"
+        },
+        "max_steps": 1,
+        "contained_implementation_files": [
+          "runtime/reference-provider-adapters/types.ts",
+          "runtime/reference-provider-adapters/normalization.ts",
+          "runtime/scientific-search-adapters/types.ts",
+          "runtime/scientific-search-adapters/search-adapters.ts",
+          "runtime/scientific-search-adapters/index.ts"
+        ],
+        "exports": [
+          "runScientificSearchAdapterStep",
+          "build_search_request",
+          "parse_search_response"
+        ],
+        "sandbox": {
+          "network_io": false,
+          "environment_read": false,
+          "filesystem_read": false,
+          "filesystem_write": false,
+          "process_spawn": false,
+          "dynamic_module_load": false,
+          "input_output_policy": "serializable_request_state_response_only"
+        },
+        "authority_boundary": {
+          "can_perform_network_io": false,
+          "can_read_environment": false,
+          "can_write_files": false,
+          "can_spawn_processes": false,
+          "can_write_domain_truth": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_reference_truth": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_domain_ready": false,
+          "can_claim_production_ready": false
+        }
       }
     ],
     "optional_skill_policy_ref": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy/optional_named_specialty_skill_ids",
@@ -190,6 +241,14 @@
       "runtime/reference-provider-adapters/normalization.ts",
       "runtime/reference-provider-adapters/provider-adapters.ts",
       "runtime/reference-provider-adapters/index.ts",
+      "contracts/scientific-search-adapters/scientific-search.json",
+      "contracts/scientific-search-adapters/scientific-search-provider-profile.schema.json",
+      "contracts/scientific-search-adapters/scientific-search-adapter-registry.json",
+      "contracts/scientific-search-adapters/scientific-search-adapter-registry.schema.json",
+      "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json",
+      "runtime/scientific-search-adapters/types.ts",
+      "runtime/scientific-search-adapters/search-adapters.ts",
+      "runtime/scientific-search-adapters/index.ts",
       "skills/mas-scholar-skills/SKILL.md",
       "skills/medical-manuscript-writing/SKILL.md",
       "skills/medical-manuscript-review/SKILL.md",
@@ -226,7 +285,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:2b73f3c81b599a215f64fcbb64c6688c68e7ce4303cf3c49fd3480fd3b339efc"
+    "digest": "sha256:5bec11604da95afef4431c126aef17d83a513aeb4f42229ec0adeb641834cafd"
   },
   "lifecycle": {
     "owner": "one-person-lab",

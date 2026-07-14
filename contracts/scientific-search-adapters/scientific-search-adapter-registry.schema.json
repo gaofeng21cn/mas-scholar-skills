@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-person-lab.dev/contracts/scientific-search-adapter-registry.schema.json",
+  "title": "ScholarSkills scientific search adapter registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "surface_kind",
+    "schema_ref",
+    "package_id",
+    "module_id",
+    "module_kind",
+    "adapter_abi",
+    "profile_ref",
+    "step_schema_ref",
+    "handler",
+    "state_machine_exports",
+    "max_steps",
+    "adapters",
+    "contained_implementation_files",
+    "sandbox",
+    "no_authority_boundary"
+  ],
+  "properties": {
+    "surface_kind": {
+      "const": "opl_connect_scientific_search_adapter_registry.v1"
+    },
+    "schema_ref": {
+      "const": "contracts/scientific-search-adapters/scientific-search-adapter-registry.schema.json"
+    },
+    "package_id": {
+      "const": "mas-scholar-skills"
+    },
+    "module_id": {
+      "const": "mas-scholar-skills.scientific-search-adapters"
+    },
+    "module_kind": {
+      "const": "opl_connect_scientific_search_adapter"
+    },
+    "adapter_abi": {
+      "const": "opl-connect-scientific-search-adapter.v1"
+    },
+    "profile_ref": {
+      "const": "contracts/scientific-search-adapters/scientific-search.json"
+    },
+    "step_schema_ref": {
+      "const": "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json"
+    },
+    "handler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "file",
+        "export"
+      ],
+      "properties": {
+        "kind": {
+          "const": "typescript_export"
+        },
+        "file": {
+          "const": "runtime/scientific-search-adapters/index.ts"
+        },
+        "export": {
+          "const": "runScientificSearchAdapterStep"
+        }
+      }
+    },
+    "state_machine_exports": {
+      "const": [
+        "build_search_request",
+        "parse_search_response"
+      ]
+    },
+    "max_steps": {
+      "const": 1
+    },
+    "adapters": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "adapter_id",
+          "provider_id",
+          "initial_step",
+          "max_steps",
+          "response_kinds"
+        ],
+        "properties": {
+          "adapter_id": {
+            "enum": [
+              "crossref_search_rest",
+              "openalex_search_rest"
+            ]
+          },
+          "provider_id": {
+            "enum": [
+              "crossref",
+              "openalex"
+            ]
+          },
+          "initial_step": {
+            "const": "search"
+          },
+          "max_steps": {
+            "const": 1
+          },
+          "response_kinds": {
+            "const": [
+              "json"
+            ]
+          }
+        }
+      }
+    },
+    "contained_implementation_files": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^runtime/(?:reference-provider-adapters|scientific-search-adapters)/"
+      }
+    },
+    "sandbox": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "no_authority_boundary": {
+      "type": "object",
+      "additionalProperties": {
+        "const": false
+      },
+      "minProperties": 1
+    }
+  }
+}

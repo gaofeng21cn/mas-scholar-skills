@@ -67,6 +67,11 @@ reference_provider_registry = read_json("contracts/reference-provider-adapters/r
 read_json("contracts/reference-provider-adapters/reference-provider-profile.schema.json")
 read_json("contracts/reference-provider-adapters/reference-provider-adapter-registry.schema.json")
 read_json("contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json")
+scientific_search_profile = read_json("contracts/scientific-search-adapters/scientific-search.json")
+scientific_search_registry = read_json("contracts/scientific-search-adapters/scientific-search-adapter-registry.json")
+read_json("contracts/scientific-search-adapters/scientific-search-provider-profile.schema.json")
+read_json("contracts/scientific-search-adapters/scientific-search-adapter-registry.schema.json")
+read_json("contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json")
 classification_policy = contract.get("capability_module_classification_policy") or {}
 contract_text = json.dumps(contract, ensure_ascii=False)
 retired_execution_projection_fields = [
@@ -144,10 +149,13 @@ expected_module_ids = [module.get("module_id") for module in contract.get("modul
 if package_exports.get("core_module_ids") != expected_module_ids:
     fail("capability package core modules must match the canonical module catalog order")
 runtime_module_id = "mas-scholar-skills.reference-provider-adapters"
+search_runtime_module_id = "mas-scholar-skills.scientific-search-adapters"
+runtime_module_ids = [runtime_module_id, search_runtime_module_id]
 runtime_bindings = package_exports.get("runtime_module_bindings") or []
-if len(runtime_bindings) != 1:
-    fail("capability package must export exactly one reference-provider runtime binding")
+if [binding.get("module_id") for binding in runtime_bindings] != runtime_module_ids:
+    fail("capability package must export the reference verification and scientific search runtime bindings in canonical order")
 runtime_binding = runtime_bindings[0]
+search_runtime_binding = runtime_bindings[1]
 expected_runtime_handler = {
     "kind": "typescript_export",
     "file": "runtime/reference-provider-adapters/index.ts",
@@ -183,12 +191,35 @@ if runtime_binding.get("sandbox") != expected_runtime_sandbox:
     fail("reference-provider runtime binding sandbox must forbid direct I/O and process access")
 if any(value is not False for value in (runtime_binding.get("authority_boundary") or {}).values()):
     fail("reference-provider runtime binding authority flags must all be false")
+expected_search_runtime_handler = {
+    "kind": "typescript_export",
+    "file": "runtime/scientific-search-adapters/index.ts",
+    "export": "runScientificSearchAdapterStep",
+}
+if search_runtime_binding.get("module_kind") != "opl_connect_scientific_search_adapter":
+    fail("scientific search binding must declare the OPL Connect search adapter kind")
+if search_runtime_binding.get("adapter_abi") != "opl-connect-scientific-search-adapter.v1":
+    fail("scientific search binding must use the v1 search adapter ABI")
+if search_runtime_binding.get("handler") != expected_search_runtime_handler:
+    fail("scientific search binding must expose the canonical TypeScript handler")
+if search_runtime_binding.get("max_steps") != 1:
+    fail("scientific search binding must cap every provider search at one HTTP step")
+if search_runtime_binding.get("exports") != [
+    "runScientificSearchAdapterStep",
+    "build_search_request",
+    "parse_search_response",
+]:
+    fail("scientific search binding must expose its handler and two state-machine operations")
+if search_runtime_binding.get("sandbox") != expected_runtime_sandbox:
+    fail("scientific search runtime binding sandbox must forbid direct I/O and process access")
+if any(value is not False for value in (search_runtime_binding.get("authority_boundary") or {}).values()):
+    fail("scientific search runtime binding authority flags must all be false")
 plugin_runtime_modules = manifest.get("oplRuntimeModules") or {}
 if plugin_runtime_modules != {
     "manifestRef": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
-    "moduleIds": [runtime_module_id],
+    "moduleIds": runtime_module_ids,
 }:
-    fail("plugin runtime module projection must point to the package runtime binding")
+    fail("plugin runtime module projection must point to both package runtime bindings")
 runtime_contract_paths = [
     "contracts/reference-provider-adapters/scientific-metadata.json",
     "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
@@ -199,16 +230,28 @@ runtime_contract_paths = [
 runtime_source_paths = runtime_binding.get("contained_implementation_files") or []
 if runtime_source_paths != reference_provider_registry.get("contained_implementation_files"):
     fail("manifest and adapter registry must lock the same implementation files")
-for relative in [*runtime_contract_paths, *runtime_source_paths]:
+search_runtime_contract_paths = [
+    "contracts/scientific-search-adapters/scientific-search.json",
+    "contracts/scientific-search-adapters/scientific-search-provider-profile.schema.json",
+    "contracts/scientific-search-adapters/scientific-search-adapter-registry.json",
+    "contracts/scientific-search-adapters/scientific-search-adapter-registry.schema.json",
+    "contracts/scientific-search-adapters/scientific-search-adapter-step.schema.json",
+]
+search_runtime_source_paths = search_runtime_binding.get("contained_implementation_files") or []
+if search_runtime_source_paths != scientific_search_registry.get("contained_implementation_files"):
+    fail("manifest and scientific search registry must lock the same implementation files")
+all_runtime_contract_paths = [*runtime_contract_paths, *search_runtime_contract_paths]
+all_runtime_source_paths = list(dict.fromkeys([*runtime_source_paths, *search_runtime_source_paths]))
+for relative in [*all_runtime_contract_paths, *all_runtime_source_paths]:
     if not (root / relative).is_file():
-        fail(f"reference-provider runtime source is missing: {relative}")
+        fail(f"package runtime source is missing: {relative}")
 content_lock_paths = package_manifest.get("content_lock", {}).get("paths") or []
 if len(content_lock_paths) != len(set(content_lock_paths)):
     fail("capability package content lock paths must be unique")
 require_all(
-    "capability package reference-provider content lock",
+    "capability package runtime content lock",
     content_lock_paths,
-    [*runtime_contract_paths, *runtime_source_paths],
+    [*all_runtime_contract_paths, *all_runtime_source_paths],
 )
 
 profile_package = reference_provider_profile.get("adapter_package") or {}
@@ -267,7 +310,72 @@ for provider in provider_rows:
     if default_origin not in (endpoint.get("allowed_origins") or []):
         fail(f"provider {provider.get('provider_id')} default origin must be allowlisted")
 
-for relative in runtime_source_paths:
+search_profile_package = scientific_search_profile.get("adapter_package") or {}
+if search_profile_package.get("package_id") != "mas-scholar-skills":
+    fail("scientific search profile must bind the installed ScholarSkills package")
+if search_profile_package.get("module_id") != search_runtime_module_id:
+    fail("scientific search profile must bind the canonical runtime module")
+if search_profile_package.get("adapter_abi") != search_runtime_binding.get("adapter_abi"):
+    fail("scientific search profile and package binding adapter ABIs must match")
+if search_profile_package.get("registry_ref") != search_runtime_binding.get("registry_ref"):
+    fail("scientific search profile and package binding registry refs must match")
+if search_profile_package.get("handler_ref") != "runtime/scientific-search-adapters/index.ts#runScientificSearchAdapterStep":
+    fail("scientific search profile must select the canonical state-machine handler")
+if search_profile_package.get("byte_authority") != "installed_capability_package_source_commit_and_content_digest":
+    fail("scientific search profile byte authority must bind source commit and package content digest")
+search_profile_adapter_ids = search_profile_package.get("adapter_ids") or []
+search_registry_adapters = scientific_search_registry.get("adapters") or []
+search_registry_adapter_ids = [item.get("adapter_id") for item in search_registry_adapters]
+if search_profile_adapter_ids != search_registry_adapter_ids:
+    fail("scientific search profile and registry adapter ids must match in canonical order")
+if scientific_search_registry.get("module_id") != search_runtime_module_id:
+    fail("scientific search registry must use the canonical runtime module id")
+if scientific_search_registry.get("adapter_abi") != search_runtime_binding.get("adapter_abi"):
+    fail("scientific search registry and package adapter ABIs must match")
+if scientific_search_registry.get("handler") != expected_search_runtime_handler:
+    fail("scientific search registry must expose the canonical TypeScript handler")
+if scientific_search_registry.get("state_machine_exports") != ["build_search_request", "parse_search_response"]:
+    fail("scientific search registry must expose its two bounded state-machine phases")
+if scientific_search_registry.get("max_steps") != 1:
+    fail("scientific search registry must cap provider searches at one step")
+if scientific_search_registry.get("sandbox") != expected_runtime_sandbox:
+    fail("scientific search registry sandbox must match the package runtime binding")
+if any(value is not False for value in (scientific_search_registry.get("no_authority_boundary") or {}).values()):
+    fail("scientific search registry authority flags must all be false")
+if any(value is not False for value in (scientific_search_profile.get("no_authority_boundary") or {}).values()):
+    fail("scientific search profile authority flags must all be false")
+if len(search_profile_adapter_ids) != 2 or len(set(search_profile_adapter_ids)) != 2:
+    fail("scientific search package must export exactly two unique adapters")
+search_provider_rows = scientific_search_profile.get("providers") or []
+search_provider_ids = [item.get("provider_id") for item in search_provider_rows]
+if scientific_search_profile.get("default_provider_ids") != search_provider_ids:
+    fail("scientific search defaults must follow the canonical provider order")
+if len(search_provider_ids) != len(set(search_provider_ids)):
+    fail("scientific search provider ids must be unique")
+expected_search_provider_bindings = [
+    ("crossref", "crossref_search_rest", "Crossref"),
+    ("openalex", "openalex_search_rest", "OpenAlex"),
+]
+if [
+    (item.get("provider_id"), item.get("adapter_id"), item.get("source_provider"))
+    for item in search_provider_rows
+] != expected_search_provider_bindings:
+    fail("scientific search profile must preserve canonical provider and adapter pairings")
+if [
+    (item.get("provider_id"), item.get("adapter_id"))
+    for item in search_registry_adapters
+] != [(provider_id, adapter_id) for provider_id, adapter_id, _ in expected_search_provider_bindings]:
+    fail("scientific search registry must preserve canonical provider and adapter pairings")
+for provider in search_provider_rows:
+    if provider.get("adapter_id") not in search_profile_adapter_ids:
+        fail(f"scientific search provider {provider.get('provider_id')} selects an unexported adapter")
+    endpoint = provider.get("endpoint") or {}
+    parsed_default = urlparse(endpoint.get("default_base_url") or "")
+    default_origin = parsed_default.scheme + "://" + parsed_default.netloc
+    if default_origin not in (endpoint.get("allowed_origins") or []):
+        fail(f"scientific search provider {provider.get('provider_id')} default origin must be allowlisted")
+
+for relative in all_runtime_source_paths:
     source = read_text(relative)
     if re.search(r"(?:from|import\s*)\s*['\"](?:node:)?(?:fs|http|https|net|tls|child_process|worker_threads)", source):
         fail(f"{relative} must not import direct I/O or process modules")
@@ -435,8 +543,8 @@ require_all(
     domain_descriptor.get("capability_pack", {}).get("syncable_real_skills"),
     expected_capability_skills,
 )
-if domain_descriptor.get("capability_pack", {}).get("runtime_module_ids") != [runtime_module_id]:
-    fail("domain descriptor must expose the reference-provider runtime module")
+if domain_descriptor.get("capability_pack", {}).get("runtime_module_ids") != runtime_module_ids:
+    fail("domain descriptor must expose both package runtime modules")
 if domain_descriptor.get("capability_pack", {}).get("runtime_module_bindings_ref") != "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings":
     fail("domain descriptor must point to the package runtime module bindings")
 if domain_descriptor.get("capability_pack", {}).get("runtime_module_consumption_mode") != "opl_connect_executes_http_package_adapter_builds_and_parses_bounded_steps":
@@ -1367,8 +1475,8 @@ for relative, tokens in professional_template_requirements.items():
             fail(f"{relative} missing professional quality template token: {token}")
 
 modules = contract.get("modules")
-if not isinstance(modules, list) or len(modules) != 9:
-    fail("contract must contain eight professional modules and one reference-provider adapter module")
+if not isinstance(modules, list) or len(modules) != 10:
+    fail("contract must contain eight professional modules and two package runtime adapter modules")
 active_module_ids = {item.get("module_id") for item in modules}
 expected_active_module_order = [
     "mas-scholar-skills.display",
@@ -1380,14 +1488,16 @@ expected_active_module_order = [
     "mas-scholar-skills.submit",
     "mas-scholar-skills.data",
     "mas-scholar-skills.reference-provider-adapters",
+    "mas-scholar-skills.scientific-search-adapters",
 ]
 expected_active_module_ids = set(expected_active_module_order)
 if active_module_ids != expected_active_module_ids:
     fail("active module ids must use mas-scholar-skills.* canonical ids")
 if [item.get("module_id") for item in modules] != expected_active_module_order:
     fail("active modules must keep the canonical projection order")
-professional_modules = modules[:-1]
-runtime_adapter_module = modules[-1]
+professional_modules = modules[:-2]
+runtime_adapter_module = modules[-2]
+search_runtime_adapter_module = modules[-1]
 if runtime_adapter_module.get("module_id") != runtime_module_id:
     fail("reference-provider adapter module must follow the professional module catalog")
 if runtime_adapter_module.get("module_kind") != "opl_connect_reference_provider_adapter":
@@ -1411,6 +1521,29 @@ if any(value is not False for value in (runtime_adapter_module.get("authority_bo
     fail("reference-provider adapter module authority flags must all be false")
 if runtime_adapter_module.get("allowed_writes") != []:
     fail("reference-provider adapter module must not declare writes")
+if search_runtime_adapter_module.get("module_id") != search_runtime_module_id:
+    fail("scientific search adapter module must follow the reference-provider adapter module")
+if search_runtime_adapter_module.get("module_kind") != "opl_connect_scientific_search_adapter":
+    fail("scientific search adapter module must declare its runtime module kind")
+if search_runtime_adapter_module.get("profile_ref") != search_runtime_binding.get("profile_ref"):
+    fail("scientific search module catalog and runtime binding profile refs must match")
+if search_runtime_adapter_module.get("registry_ref") != search_runtime_binding.get("registry_ref"):
+    fail("scientific search module catalog and runtime binding registry refs must match")
+if search_runtime_adapter_module.get("adapter_abi") != search_runtime_binding.get("adapter_abi"):
+    fail("scientific search module catalog and runtime binding adapter ABIs must match")
+if search_runtime_adapter_module.get("adapter_ids") != search_profile_adapter_ids:
+    fail("scientific search module catalog and provider profile adapter ids must match")
+search_state_machine_contract = search_runtime_adapter_module.get("state_machine_contract") or {}
+if search_state_machine_contract.get("operations") != ["build_search_request", "parse_search_response"]:
+    fail("scientific search adapter module must expose its two bounded state-machine phases")
+if search_state_machine_contract.get("max_steps") != 1:
+    fail("scientific search adapter module must cap provider searches at one step")
+if search_state_machine_contract.get("http_execution_owner") != "opl_connect":
+    fail("OPL Connect must remain the scientific search HTTP execution owner")
+if any(value is not False for value in (search_runtime_adapter_module.get("authority_boundary") or {}).values()):
+    fail("scientific search adapter module authority flags must all be false")
+if search_runtime_adapter_module.get("allowed_writes") != []:
+    fail("scientific search adapter module must not declare writes")
 
 if capability_pack_consumption.get("canonical_owner_repo") != "mas-scholar-skills":
     fail("capability-pack descriptor policy must keep mas-scholar-skills as canonical owner")
@@ -1426,6 +1559,8 @@ require_all(
         "contracts/opl_capability_package_manifest.json",
         "contracts/reference-provider-adapters/scientific-metadata.json",
         "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+        "contracts/scientific-search-adapters/scientific-search.json",
+        "contracts/scientific-search-adapters/scientific-search-adapter-registry.json",
     ],
 )
 for key in [
@@ -1445,8 +1580,8 @@ for key in [
 if capability_pack_consumption.get("module_execution_projection_scope") != "professional_skill_modules_only":
     fail("retired module execution projection flag must be scoped to professional skill modules")
 if capability_pack_consumption.get("runtime_adapter_module_projection") is not True:
-    fail("capability package must expose its pure reference-provider runtime adapter module")
-if capability_pack_consumption.get("runtime_adapter_module_ids") != [runtime_module_id]:
+    fail("capability package must expose its pure runtime adapter modules")
+if capability_pack_consumption.get("runtime_adapter_module_ids") != runtime_module_ids:
     fail("capability package runtime adapter module ids must match the package binding")
 if capability_pack_consumption.get("runtime_adapter_execution_owner") != "opl_connect":
     fail("OPL Connect must execute adapter-declared HTTP requests")

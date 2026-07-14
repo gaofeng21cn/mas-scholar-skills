@@ -17,7 +17,8 @@
   "oplRuntimeModules": {
     "manifestRef": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
     "moduleIds": [
-      "mas-scholar-skills.reference-provider-adapters"
+      "mas-scholar-skills.reference-provider-adapters",
+      "mas-scholar-skills.scientific-search-adapters"
     ]
   },
   "masScholarSkillsExposure": {

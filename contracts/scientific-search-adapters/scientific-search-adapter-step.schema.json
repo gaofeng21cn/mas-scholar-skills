@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-person-lab.dev/contracts/scientific-search-adapter-step.schema.json",
+  "title": "OPL Connect scientific search adapter step",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/result"
+    }
+  ],
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_abi",
+        "operation",
+        "provider",
+        "query",
+        "limit"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_scientific_search_adapter_step_request.v1"
+        },
+        "adapter_abi": {
+          "const": "opl-connect-scientific-search-adapter.v1"
+        },
+        "operation": {
+          "enum": [
+            "build_search_request",
+            "parse_search_response"
+          ]
+        },
+        "provider": {
+          "type": "object"
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        },
+        "response": {
+          "$ref": "#/$defs/response"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "parse_search_response"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "required": [
+              "state",
+              "response"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_abi",
+        "next"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_scientific_search_adapter_step_result.v1"
+        },
+        "adapter_abi": {
+          "const": "opl-connect-scientific-search-adapter.v1"
+        },
+        "next": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/requestNext"
+            },
+            {
+              "$ref": "#/$defs/completeNext"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "requestNext": {
+      "type": "object",
+      "required": [
+        "kind",
+        "request",
+        "state"
+      ],
+      "properties": {
+        "kind": {
+          "const": "request"
+        },
+        "request": {
+          "type": "object",
+          "required": [
+            "method",
+            "url",
+            "body"
+          ],
+          "properties": {
+            "method": {
+              "const": "GET"
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "body": {
+              "type": "null"
+            }
+          },
+          "additionalProperties": false
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_id",
+        "step",
+        "step_index",
+        "max_steps",
+        "query",
+        "limit"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_scientific_search_adapter_state.v1"
+        },
+        "adapter_id": {
+          "enum": [
+            "crossref_search_rest",
+            "openalex_search_rest"
+          ]
+        },
+        "step": {
+          "const": "search"
+        },
+        "step_index": {
+          "const": 1
+        },
+        "max_steps": {
+          "const": 1
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "response": {
+      "type": "object",
+      "required": [
+        "status",
+        "body"
+      ],
+      "properties": {
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "url": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "body": true
+      },
+      "additionalProperties": false
+    },
+    "completeNext": {
+      "type": "object",
+      "required": [
+        "kind",
+        "candidates"
+      ],
+      "properties": {
+        "kind": {
+          "const": "complete"
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "required": [
+        "source_ref",
+        "source_kind",
+        "source_provider",
+        "provider_id",
+        "doi",
+        "pmid",
+        "openalex_id",
+        "title",
+        "journal",
+        "publication_year",
+        "authors",
+        "source_urls"
+      ],
+      "properties": {
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_kind": {
+          "const": "literature_article"
+        },
+        "source_provider": {
+          "enum": [
+            "Crossref",
+            "OpenAlex"
+          ]
+        },
+        "provider_id": {
+          "enum": [
+            "crossref",
+            "openalex"
+          ]
+        },
+        "doi": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pmid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "openalex_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "journal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "publication_year": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source_urls": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

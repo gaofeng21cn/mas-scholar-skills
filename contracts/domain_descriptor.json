@@ -41,7 +41,8 @@
       "data"
     ],
     "runtime_module_ids": [
-      "mas-scholar-skills.reference-provider-adapters"
+      "mas-scholar-skills.reference-provider-adapters",
+      "mas-scholar-skills.scientific-search-adapters"
     ],
     "runtime_module_bindings_ref": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
     "runtime_module_consumption_mode": "opl_connect_executes_http_package_adapter_builds_and_parses_bounded_steps",

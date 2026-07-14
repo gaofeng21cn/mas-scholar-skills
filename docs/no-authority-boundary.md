@@ -40,12 +40,14 @@ not active module owners. They may emit specialty candidate refs, support maps,
 default medical-paper work. Retired optional ids remain redirect tombstones only,
 not discoverable `SKILL.md` surfaces.
 
-`mas-scholar-skills.reference-provider-adapters` is a ninth machine module, not
-a ninth professional Skill and not a Stage owner. It only maps a serialized
-reference/provider input to a bounded HTTP request description, parses a supplied
-response, and chooses at most one Europe PMC full-text follow-up. Its network,
-environment, filesystem, process, receipt, verdict, blocker, and domain authority
-flags are all false.
+`mas-scholar-skills.reference-provider-adapters` and
+`mas-scholar-skills.scientific-search-adapters` are machine companion modules,
+not professional Skills or Stage owners. The first maps a known reference/provider
+input to bounded HTTP request descriptions, parses supplied responses, and may
+choose one Europe PMC full-text follow-up. The second maps
+`provider + query + limit` to one Crossref/OpenAlex request and normalizes all
+returned candidates. Both modules keep network, environment, filesystem, process,
+receipt, verdict, blocker, reference-truth, and domain-authority flags false.
 
 ## Owner Route
 

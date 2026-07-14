@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-person-lab.dev/contracts/scientific-search-provider-profile.schema.json",
+  "title": "ScholarSkills scientific search provider profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "surface_kind",
+    "schema_ref",
+    "profile_id",
+    "profile_role",
+    "registry_owner",
+    "provider_ontology_owner",
+    "adapter_package",
+    "default_provider_ids",
+    "providers",
+    "no_authority_boundary"
+  ],
+  "properties": {
+    "surface_kind": {
+      "const": "opl_connect_scientific_search_provider_profile.v1"
+    },
+    "schema_ref": {
+      "const": "contracts/scientific-search-adapters/scientific-search-provider-profile.schema.json"
+    },
+    "profile_id": {
+      "const": "mas-scholar-skills.scientific-search.v1"
+    },
+    "profile_role": {
+      "const": "optional_connector_profile"
+    },
+    "registry_owner": {
+      "const": "mas-scholar-skills.scientific-search-adapters"
+    },
+    "provider_ontology_owner": {
+      "const": "profile_not_framework_core"
+    },
+    "adapter_package": {
+      "$ref": "#/$defs/adapterPackage"
+    },
+    "default_provider_ids": {
+      "const": [
+        "crossref",
+        "openalex"
+      ]
+    },
+    "providers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/provider"
+      }
+    },
+    "no_authority_boundary": {
+      "$ref": "#/$defs/noAuthorityBoundary"
+    }
+  },
+  "$defs": {
+    "adapterPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "module_id",
+        "package_role",
+        "adapter_abi",
+        "registry_ref",
+        "handler_ref",
+        "adapter_ids",
+        "byte_authority"
+      ],
+      "properties": {
+        "package_id": {
+          "const": "mas-scholar-skills"
+        },
+        "module_id": {
+          "const": "mas-scholar-skills.scientific-search-adapters"
+        },
+        "package_role": {
+          "const": "capability_package_runtime_module"
+        },
+        "adapter_abi": {
+          "const": "opl-connect-scientific-search-adapter.v1"
+        },
+        "registry_ref": {
+          "const": "contracts/scientific-search-adapters/scientific-search-adapter-registry.json"
+        },
+        "handler_ref": {
+          "const": "runtime/scientific-search-adapters/index.ts#runScientificSearchAdapterStep"
+        },
+        "adapter_ids": {
+          "const": [
+            "crossref_search_rest",
+            "openalex_search_rest"
+          ]
+        },
+        "byte_authority": {
+          "const": "installed_capability_package_source_commit_and_content_digest"
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider_id",
+        "adapter_id",
+        "source_provider",
+        "endpoint"
+      ],
+      "properties": {
+        "provider_id": {
+          "enum": [
+            "crossref",
+            "openalex"
+          ]
+        },
+        "adapter_id": {
+          "enum": [
+            "crossref_search_rest",
+            "openalex_search_rest"
+          ]
+        },
+        "source_provider": {
+          "enum": [
+            "Crossref",
+            "OpenAlex"
+          ]
+        },
+        "endpoint": {
+          "$ref": "#/$defs/endpoint"
+        }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_base_url",
+        "environment_override",
+        "allowed_origins"
+      ],
+      "properties": {
+        "default_base_url": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "environment_override": {
+          "type": "string",
+          "pattern": "^OPL_CONNECT_[A-Z0-9_]+$"
+        },
+        "allowed_origins": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^https://[^/]+$"
+          }
+        }
+      }
+    },
+    "noAuthorityBoundary": {
+      "type": "object",
+      "additionalProperties": {
+        "const": false
+      },
+      "minProperties": 1
+    }
+  }
+}

@@ -58,7 +58,7 @@ function parse(providerId, inputReference, requestResult, response) {
   });
 }
 
-test('package manifest, profile, registry, and plugin expose one locked runtime module', () => {
+test('package manifest, profile, registry, and plugin expose the locked reference runtime module', () => {
   const manifest = readJson('contracts/opl_capability_package_manifest.json');
   const plugin = readJson('.codex-plugin/plugin.json');
   const binding = manifest.exports.runtime_module_bindings[0];
