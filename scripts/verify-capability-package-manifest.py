@@ -9,12 +9,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "contracts" / "opl_capability_package_manifest.json"
+CANONICAL_CONTENT_LOCK = "ordered_path_length_file_length_bytes"
 
 
 def content_digest(manifest: dict[str, object]) -> str:
     content_lock = manifest.get("content_lock")
     if not isinstance(content_lock, dict):
         raise ValueError("manifest content_lock must be an object")
+    if content_lock.get("algorithm") != "sha256":
+        raise ValueError("manifest content_lock.algorithm must be sha256")
+    if content_lock.get("canonicalization") != CANONICAL_CONTENT_LOCK:
+        raise ValueError(
+            "manifest content_lock.canonicalization must be "
+            f"{CANONICAL_CONTENT_LOCK}"
+        )
     paths = content_lock.get("paths")
     if not isinstance(paths, list) or not paths:
         raise ValueError("manifest content_lock.paths must be a non-empty array")
@@ -29,9 +37,12 @@ def content_digest(manifest: dict[str, object]) -> str:
         source_path = ROOT / relative_path
         if not source_path.is_file():
             raise ValueError(f"content lock path does not exist: {raw_path}")
-        digest.update(raw_path.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(source_path.read_bytes())
+        path_bytes = raw_path.encode("utf-8")
+        file_bytes = source_path.read_bytes()
+        digest.update(len(path_bytes).to_bytes(8, byteorder="big"))
+        digest.update(path_bytes)
+        digest.update(len(file_bytes).to_bytes(8, byteorder="big"))
+        digest.update(file_bytes)
     return f"sha256:{digest.hexdigest()}"
 
 

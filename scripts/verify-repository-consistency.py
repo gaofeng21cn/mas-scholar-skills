@@ -42,8 +42,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.2":
-    fail("plugin version must be 0.2.2")
+if manifest.get("version") != "0.2.3":
+    fail("plugin version must be 0.2.3")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -121,8 +121,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.2":
-    fail("capability package version must be 0.2.2")
+if package_manifest.get("version") != "0.2.3":
+    fail("capability package version must be 0.2.3")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -245,7 +245,12 @@ all_runtime_source_paths = list(dict.fromkeys([*runtime_source_paths, *search_ru
 for relative in [*all_runtime_contract_paths, *all_runtime_source_paths]:
     if not (root / relative).is_file():
         fail(f"package runtime source is missing: {relative}")
-content_lock_paths = package_manifest.get("content_lock", {}).get("paths") or []
+content_lock = package_manifest.get("content_lock") or {}
+if content_lock.get("algorithm") != "sha256":
+    fail("capability package content lock must use sha256")
+if content_lock.get("canonicalization") != "ordered_path_length_file_length_bytes":
+    fail("capability package content lock must use the length-prefixed canonical boundary")
+content_lock_paths = content_lock.get("paths") or []
 if len(content_lock_paths) != len(set(content_lock_paths)):
     fail("capability package content lock paths must be unique")
 require_all(
