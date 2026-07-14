@@ -3,7 +3,7 @@
   "package_id": "mas-scholar-skills",
   "display_name": "MAS Scholar Skills",
   "publisher": "one-person-lab",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "source": "first_party_repo_local",
   "package_role": "required_agent_capability_package",
   "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
@@ -115,7 +115,60 @@
       "mas-scholar-skills.write",
       "mas-scholar-skills.review",
       "mas-scholar-skills.submit",
-      "mas-scholar-skills.data"
+      "mas-scholar-skills.data",
+      "mas-scholar-skills.reference-provider-adapters"
+    ],
+    "runtime_module_bindings": [
+      {
+        "module_id": "mas-scholar-skills.reference-provider-adapters",
+        "module_kind": "opl_connect_reference_provider_adapter",
+        "adapter_abi": "opl-connect-reference-provider-adapter.v1",
+        "profile_ref": "contracts/reference-provider-adapters/scientific-metadata.json",
+        "profile_schema_ref": "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
+        "registry_ref": "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+        "registry_schema_ref": "contracts/reference-provider-adapters/reference-provider-adapter-registry.schema.json",
+        "step_schema_ref": "contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json",
+        "handler": {
+          "kind": "typescript_export",
+          "file": "runtime/reference-provider-adapters/index.ts",
+          "export": "runReferenceProviderAdapterStep"
+        },
+        "max_steps": 2,
+        "contained_implementation_files": [
+          "runtime/reference-provider-adapters/types.ts",
+          "runtime/reference-provider-adapters/normalization.ts",
+          "runtime/reference-provider-adapters/provider-adapters.ts",
+          "runtime/reference-provider-adapters/index.ts"
+        ],
+        "exports": [
+          "runReferenceProviderAdapterStep",
+          "build_request",
+          "parse_response",
+          "next_step"
+        ],
+        "sandbox": {
+          "network_io": false,
+          "environment_read": false,
+          "filesystem_read": false,
+          "filesystem_write": false,
+          "process_spawn": false,
+          "dynamic_module_load": false,
+          "input_output_policy": "serializable_request_state_response_only"
+        },
+        "authority_boundary": {
+          "can_perform_network_io": false,
+          "can_read_environment": false,
+          "can_write_files": false,
+          "can_spawn_processes": false,
+          "can_write_domain_truth": false,
+          "can_sign_owner_receipt": false,
+          "can_create_typed_blocker": false,
+          "can_claim_reference_truth": false,
+          "can_claim_quality_verdict": false,
+          "can_claim_domain_ready": false,
+          "can_claim_production_ready": false
+        }
+      }
     ],
     "optional_skill_policy_ref": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy/optional_named_specialty_skill_ids",
     "optional_skills_installed_by_default": true,
@@ -128,6 +181,15 @@
     "paths": [
       ".codex-plugin/plugin.json",
       "contracts/scholar-skills-capability-modules.json",
+      "contracts/reference-provider-adapters/scientific-metadata.json",
+      "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
+      "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+      "contracts/reference-provider-adapters/reference-provider-adapter-registry.schema.json",
+      "contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json",
+      "runtime/reference-provider-adapters/types.ts",
+      "runtime/reference-provider-adapters/normalization.ts",
+      "runtime/reference-provider-adapters/provider-adapters.ts",
+      "runtime/reference-provider-adapters/index.ts",
       "skills/mas-scholar-skills/SKILL.md",
       "skills/medical-manuscript-writing/SKILL.md",
       "skills/medical-manuscript-review/SKILL.md",
@@ -164,7 +226,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:12609ec31094dc7469c012fc8c6034ebb0119537f9018ea2048b7a8921e5ec81"
+    "digest": "sha256:2b73f3c81b599a215f64fcbb64c6688c68e7ce4303cf3c49fd3480fd3b339efc"
   },
   "lifecycle": {
     "owner": "one-person-lab",

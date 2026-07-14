@@ -1,6 +1,6 @@
 {
   "name": "mas-scholar-skills",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Repo-tracked Codex plugin for MAS Scholar Skills active medical-paper professional specialist skills and optional module-level router/reviewer skills.",
   "author": {
     "name": "One Person Lab"
@@ -14,6 +14,12 @@
     "codex-skill"
   ],
   "skills": "./skills/",
+  "oplRuntimeModules": {
+    "manifestRef": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
+    "moduleIds": [
+      "mas-scholar-skills.reference-provider-adapters"
+    ]
+  },
   "masScholarSkillsExposure": {
     "capabilityPackageManifestRef": "contracts/opl_capability_package_manifest.json",
     "capabilityAbi": "mas-scholar-skills.v1",

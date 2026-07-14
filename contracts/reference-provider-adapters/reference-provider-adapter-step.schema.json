@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-person-lab.dev/contracts/reference-provider-adapter-step.schema.json",
+  "title": "OPL Connect reference provider adapter step",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/result"
+    }
+  ],
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_abi",
+        "operation",
+        "provider",
+        "reference"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_reference_provider_adapter_step_request.v1"
+        },
+        "adapter_abi": {
+          "const": "opl-connect-reference-provider-adapter.v1"
+        },
+        "operation": {
+          "enum": [
+            "build_request",
+            "parse_response"
+          ]
+        },
+        "provider": {
+          "type": "object"
+        },
+        "reference": {
+          "type": "object"
+        },
+        "state": {
+          "type": "object"
+        },
+        "response": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_abi",
+        "next"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_reference_provider_adapter_step_result.v1"
+        },
+        "adapter_abi": {
+          "const": "opl-connect-reference-provider-adapter.v1"
+        },
+        "next": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/requestNext"
+            },
+            {
+              "$ref": "#/$defs/completeNext"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "requestNext": {
+      "type": "object",
+      "required": [
+        "kind",
+        "request",
+        "state"
+      ],
+      "properties": {
+        "kind": {
+          "const": "request"
+        },
+        "request": {
+          "type": "object",
+          "required": [
+            "method",
+            "url",
+            "body"
+          ],
+          "properties": {
+            "method": {
+              "const": "GET"
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "body": {
+              "type": "null"
+            }
+          },
+          "additionalProperties": false
+        },
+        "state": {
+          "type": "object",
+          "required": [
+            "surface_kind",
+            "adapter_id",
+            "step",
+            "step_index",
+            "max_steps"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "completeNext": {
+      "type": "object",
+      "required": [
+        "kind",
+        "evidence"
+      ],
+      "properties": {
+        "kind": {
+          "const": "complete"
+        },
+        "evidence": {
+          "type": "object",
+          "required": [
+            "match_basis",
+            "provider_identifiers",
+            "metadata",
+            "retraction_or_update_flags",
+            "normalized"
+          ],
+          "properties": {
+            "match_basis": {
+              "enum": [
+                "doi",
+                "pmid",
+                "pmcid",
+                "title",
+                "none"
+              ]
+            },
+            "provider_identifiers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "retraction_or_update_flags": {
+              "type": "object"
+            },
+            "normalized": {
+              "type": "object"
+            },
+            "verification_scope": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

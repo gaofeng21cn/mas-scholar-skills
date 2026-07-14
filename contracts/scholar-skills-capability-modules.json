@@ -4,8 +4,8 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical active professional-skill catalog for the OPL-owned MAS Scholar Skills external enhancement pack and specialist Codex skills for MAS medical-paper writing, review, figure design, figure style, figure composition, literature, statistics, table, submission, medical data governance, and optional advanced or medical-method specialist workflows. MAS can discover these skill-backed capabilities through stage operating prompts, consume refs-only candidate outputs, package them through OPL Pack, prepare runtime context through OPL runtime env, and sync local Codex discovery copies through OPL Connect.",
-  "machine_boundary": "This contract describes MAS Scholar Skills enhancement modules, syncable medical-paper professional specialist skills, optional specialist discovery skills, and their descriptor, dependency, run-context, artifact, receipt, and quality-evidence refs. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel default entry set outside medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-figure-style, medical-figure-composer, medical-research-lit, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance. MAS consumes the professional specialist skills from this repository and remains the runtime, study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. Optional specialist skills are refs-only helpers, not active modules or owner surfaces. This contract does not add an eleventh OPL brand module, execute domain stages, write domain truth, mutate clinical data bodies or artifact bodies, schedule runtime attempts, sign owner receipts, create typed blockers, write ledgers, or claim runtime, domain, quality, artifact, source, data, publication, App, or production readiness.",
+  "purpose": "Canonical active professional-skill catalog and read-only scientific reference-provider adapter catalog for the OPL-owned MAS Scholar Skills capability package. The package covers medical-paper writing, review, figure design, figure style, figure composition, literature, statistics, tables, submission, medical data governance, optional advanced or medical-method specialist workflows, and pure provider response normalization. MAS can discover the skill-backed capabilities through stage operating prompts; OPL Connect may execute adapter-declared HTTP requests outside the package sandbox and return response bytes for pure parsing.",
+  "machine_boundary": "This contract describes MAS Scholar Skills professional modules, optional specialist discovery skills, and one read-only reference-provider adapter runtime module. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel stage entry. MAS remains the study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. OPL Connect owns HTTP execution, retry, cache, strict matching, receipts, and errors; the adapter module only builds bounded request descriptions, parses supplied responses, and selects a bounded next step. It cannot perform network I/O, read environment state, write files, spawn processes, issue receipts or verdicts, schedule runtime attempts, write domain truth, mutate artifact bodies, or claim readiness.",
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
@@ -3320,6 +3320,81 @@
         "default_completed_project_policy": "Prefer semantic reproducibility over byte preservation of historical process bodies. Preserve current cohort bodies hot; migrate useful historical information into semantic capsules; keep byte-level capsules only for active analysis, legal/regulatory retention, external handoff, or explicit owner decision; delete covered raw history and rebuildable caches.",
         "no_authority_policy": "Medical Data Governance may propose closeout refs and catalog shape, but cannot move, thin, delete, compact, publish, sign owner receipt, create typed blocker, or waive reproducibility."
       }
+    },
+    {
+      "module_id": "mas-scholar-skills.reference-provider-adapters",
+      "legacy_module_ids": [],
+      "brand_family": "MAS Scholar Skills",
+      "display_name": "Scientific Reference Provider Adapters",
+      "module_kind": "opl_connect_reference_provider_adapter",
+      "specialist_skill_id": null,
+      "stage_fit": [
+        "read_only_reference_metadata_discovery"
+      ],
+      "input_schema_refs": [
+        "contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json#/$defs/request"
+      ],
+      "output_schema_refs": [
+        "contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json#/$defs/result"
+      ],
+      "profile_ref": "contracts/reference-provider-adapters/scientific-metadata.json",
+      "registry_ref": "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+      "adapter_abi": "opl-connect-reference-provider-adapter.v1",
+      "adapter_ids": [
+        "crossref_rest",
+        "openalex_rest",
+        "ncbi_pubmed_esummary",
+        "europe_pmc_core",
+        "semantic_scholar_graph",
+        "crossref_crossmark_signal",
+        "doi_resolver_landing"
+      ],
+      "state_machine_contract": {
+        "operations": [
+          "build_request",
+          "parse_response",
+          "next_step"
+        ],
+        "max_steps": 2,
+        "http_execution_owner": "opl_connect",
+        "strict_match_and_receipt_owner": "opl_connect",
+        "adapter_input_output_policy": "serializable_request_state_response_only"
+      },
+      "authority_boundary": {
+        "can_perform_network_io": false,
+        "can_read_environment": false,
+        "can_write_files": false,
+        "can_spawn_processes": false,
+        "can_claim_domain_ready": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_artifact_authority": false,
+        "can_claim_production_ready": false,
+        "can_claim_runtime_ready": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_owner_acceptance": false,
+        "can_claim_current_package_authority": false,
+        "can_schedule_runtime": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_write_memory_body": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_replace_domain_owner": false,
+        "can_replace_ai_executor_planning": false,
+        "can_claim_reference_truth": false
+      },
+      "allowed_writes": [],
+      "forbidden_writes": [
+        "network or environment access",
+        "filesystem or process mutation",
+        "domain truth",
+        "artifact bodies",
+        "runtime queues/outbox/state",
+        "owner receipts",
+        "typed blockers",
+        "reference acceptance or quality verdicts"
+      ]
     }
   ],
   "standard_handoff_ref_families": {
@@ -4608,12 +4683,21 @@
     "descriptor_sources": [
       ".codex-plugin/plugin.json",
       "skills/mas-scholar-skills/SKILL.md",
-      "contracts/scholar-skills-capability-modules.json"
+      "contracts/scholar-skills-capability-modules.json",
+      "contracts/opl_capability_package_manifest.json",
+      "contracts/reference-provider-adapters/scientific-metadata.json",
+      "contracts/reference-provider-adapters/reference-provider-adapter-registry.json"
     ],
     "descriptor_readback_command": "opl connect skills --domain mas-scholar-skills --json",
     "consumer": "one-person-lab",
     "consumer_role": "validation_install_sync_and_provenance_only",
     "module_execution_projection": false,
+    "module_execution_projection_scope": "professional_skill_modules_only",
+    "runtime_adapter_module_projection": true,
+    "runtime_adapter_module_ids": [
+      "mas-scholar-skills.reference-provider-adapters"
+    ],
+    "runtime_adapter_execution_owner": "opl_connect",
     "candidate_artifact_materialization": false,
     "runtime_bridge_projection": false,
     "can_write_domain_truth": false,

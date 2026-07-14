@@ -1,0 +1,112 @@
+{
+  "surface_kind": "opl_connect_reference_provider_adapter_registry.v1",
+  "schema_ref": "contracts/reference-provider-adapters/reference-provider-adapter-registry.schema.json",
+  "package_id": "mas-scholar-skills",
+  "module_id": "mas-scholar-skills.reference-provider-adapters",
+  "module_kind": "opl_connect_reference_provider_adapter",
+  "adapter_abi": "opl-connect-reference-provider-adapter.v1",
+  "profile_ref": "contracts/reference-provider-adapters/scientific-metadata.json",
+  "step_schema_ref": "contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json",
+  "handler": {
+    "kind": "typescript_export",
+    "file": "runtime/reference-provider-adapters/index.ts",
+    "export": "runReferenceProviderAdapterStep"
+  },
+  "state_machine_exports": [
+    "build_request",
+    "parse_response",
+    "next_step"
+  ],
+  "max_steps": 2,
+  "adapters": [
+    {
+      "adapter_id": "crossref_rest",
+      "initial_step": "metadata",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "openalex_rest",
+      "initial_step": "metadata",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "ncbi_pubmed_esummary",
+      "initial_step": "metadata",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "europe_pmc_core",
+      "initial_step": "metadata",
+      "max_steps": 2,
+      "steps": [
+        "metadata",
+        "full_text_xml"
+      ],
+      "response_kinds": [
+        "json",
+        "text"
+      ]
+    },
+    {
+      "adapter_id": "semantic_scholar_graph",
+      "initial_step": "metadata",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "crossref_crossmark_signal",
+      "initial_step": "metadata",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "doi_resolver_landing",
+      "initial_step": "landing",
+      "max_steps": 1,
+      "response_kinds": [
+        "text"
+      ]
+    }
+  ],
+  "contained_implementation_files": [
+    "runtime/reference-provider-adapters/types.ts",
+    "runtime/reference-provider-adapters/normalization.ts",
+    "runtime/reference-provider-adapters/provider-adapters.ts",
+    "runtime/reference-provider-adapters/index.ts"
+  ],
+  "sandbox": {
+    "network_io": false,
+    "environment_read": false,
+    "filesystem_read": false,
+    "filesystem_write": false,
+    "process_spawn": false,
+    "dynamic_module_load": false,
+    "input_output_policy": "serializable_request_state_response_only"
+  },
+  "no_authority_boundary": {
+    "can_perform_network_io": false,
+    "can_read_environment": false,
+    "can_write_files": false,
+    "can_spawn_processes": false,
+    "can_write_domain_truth": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_reference_truth": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_domain_ready": false,
+    "can_claim_production_ready": false
+  }
+}

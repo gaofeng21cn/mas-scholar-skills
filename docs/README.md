@@ -6,10 +6,11 @@ State: `active_index`
 Machine boundary: Human-readable navigation. Machine truth remains in
 contracts, especially `contracts/opl_capability_package_manifest.json`, `contracts/domain_descriptor.json`,
 `contracts/capability_map.json`, and
-`contracts/scholar-skills-capability-modules.json`. OPL consumes this pack only
-through generic descriptor/provenance readback; skill pack files, source,
-gallery manifests, OPL Framework readback, and repo-native verification remain
-the corresponding owner surfaces.
+`contracts/scholar-skills-capability-modules.json`. OPL consumes professional
+skills through generic descriptor/provenance readback and loads the separately
+declared pure reference-provider runtime binding through OPL Connect; skill pack
+files, source, gallery manifests, OPL Framework readback, and repo-native
+verification remain the corresponding owner surfaces.
 
 `MAS Scholar Skills` is MAS's required `mas-scholar-skills` capability package.
 The external repository separates maintenance and releases; it does not make the

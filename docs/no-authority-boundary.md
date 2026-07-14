@@ -15,9 +15,11 @@ gate.
 It must not write domain truth, runtime state, artifact bodies, ledgers, current
 packages, owner receipts, typed blockers, human gates, quality verdicts, owner
 acceptance, artifact authority, publication readiness, runtime readiness, or
-production readiness. OPL only validates, installs, syncs, and reads the package
-descriptor; it does not run a module, materialize a candidate artifact, or create
-a module receipt for this pack.
+production readiness. OPL validates, installs, syncs, and reads the package. OPL
+Connect may run the package's pure reference-provider state machine, but Connect
+itself performs every HTTP request and materializes any strict match or receipt;
+the package cannot perform I/O, materialize a candidate artifact, or create a
+verdict or receipt.
 
 ## Active Skills
 
@@ -38,6 +40,13 @@ not active module owners. They may emit specialty candidate refs, support maps,
 default medical-paper work. Retired optional ids remain redirect tombstones only,
 not discoverable `SKILL.md` surfaces.
 
+`mas-scholar-skills.reference-provider-adapters` is a ninth machine module, not
+a ninth professional Skill and not a Stage owner. It only maps a serialized
+reference/provider input to a bounded HTTP request description, parses a supplied
+response, and chooses at most one Europe PMC full-text follow-up. Its network,
+environment, filesystem, process, receipt, verdict, blocker, and domain authority
+flags are all false.
+
 ## Owner Route
 
 Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`,
@@ -48,12 +57,10 @@ artifact mutation, or publication decision from its own authority surface.
 
 MAS `agent/stages/` and `agent/prompts/` own stage policy, evidence thresholds,
 route-back, owner gates, and acceptance. A `medical-*` skill owns its AI-first
-playbook and candidate handoff. For biomedical source lookup, MAS
-`research-integrity-reference-verification` owns the PubMed/PMC request and
-normalization, returning `mas_provider_lookup_ref` and `pubmed_source_refs` as
-read-only evidence inputs. OPL Connect may provide explicit Crossref or OpenAlex
-fallback metadata/coverage refs as `fallback_source_refs`; none of these refs is
-citation acceptance. The contract owns only ids, ref vocabulary, false-authority
+playbook and candidate handoff. The package adapter owns provider response
+normalization; OPL Connect owns HTTP execution and generic verification receipts;
+MAS owns citation acceptance. None of those provider outputs is paper truth. The
+contract owns ids, profile/registry bindings, ref vocabulary, false-authority
 flags, and sync policy.
 
 Journal-family quality-pack refs remain foldback routes into existing active

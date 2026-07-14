@@ -61,17 +61,18 @@ For literature work, the provider split is explicit:
 
 ```text
 medical-research-lit strategy
-  -> MAS research-integrity-reference-verification for PubMed/PMC
-  -> mas_provider_lookup_ref + pubmed_source_refs
-  -> optional OPL Connect Crossref/OpenAlex fallback_source_refs
+  -> OPL Connect executes the installed ScholarSkills provider adapter profile
+  -> package adapter builds/parses bounded provider steps
+  -> OPL Connect strict match + read-only provider receipt
   -> source screening and claim-support candidate_refs
   -> MAS citation acceptance and manuscript use
 ```
 
-PubMed/PMC lookup and normalization are MAS domain actions. OPL Connect may
-provide explicit generic fallback metadata, coverage, or citation-graph inputs;
-it does not decide source acceptance. All provider outputs are read-only evidence
-inputs, not a citation verdict, owner receipt, blocker, or publication claim.
+ScholarSkills owns only provider-specific request/response mapping. OPL Connect
+owns HTTP, retry, cache, strict matching, receipts, and connector errors. MAS
+still decides source acceptance and manuscript use. All provider outputs are
+read-only evidence inputs, not a citation verdict, owner receipt, blocker, or
+publication claim.
 
 ## Package Lifecycle And Discovery
 

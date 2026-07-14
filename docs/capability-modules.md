@@ -13,17 +13,20 @@ product boundary. It is not an OPL runtime base, an additional brand module, or 
 domain-truth owner. It supplies professional Codex skills, source packs, quality
 floors, candidate-ref vocabulary, and external-learning references.
 
-OPL consumes this repository only as a generic capability pack. Its public
-surface validates the descriptor, installs or syncs selected skills, and returns
-provenance. It does not execute a medical module, build a module-specific runtime
-context, materialize candidate artifacts, or issue execution receipts. Stage
-policy, domain actions, candidate acceptance, owner receipts, typed blockers, and
-artifact authority remain with MAS or another consuming domain owner.
+OPL consumes this repository as a generic capability pack. Its public surface
+validates the descriptor, installs or syncs selected skills, and returns
+provenance. OPL Connect may also load the package's read-only reference-provider
+adapter module: Connect executes HTTP, retry, cache, strict matching, and receipt
+materialization; the package code only builds bounded request descriptions and
+parses supplied response bytes. It does not execute a medical stage, materialize
+candidate artifacts, or issue verdicts or receipts. Stage policy, domain actions,
+candidate acceptance, owner receipts, typed blockers, and artifact authority
+remain with MAS or another consuming domain owner.
 
 ## Active Catalog
 
-The canonical catalog contains eight active module ids. Each is backed by one or
-more real, syncable professional Codex skills.
+The canonical catalog contains eight professional module ids backed by real,
+syncable Codex skills, plus one read-only runtime adapter module.
 
 | Module | Professional Skill Source | Output Boundary |
 | --- | --- | --- |
@@ -35,24 +38,26 @@ more real, syncable professional Codex skills.
 | `mas-scholar-skills.review` | `medical-manuscript-review` | Candidate review and repair-route refs only |
 | `mas-scholar-skills.submit` | `medical-submission-prep` | Candidate submission-preparation refs only |
 | `mas-scholar-skills.data` | `medical-data-governance` | Candidate data-governance refs only |
+| `mas-scholar-skills.reference-provider-adapters` | No Skill entry; package runtime binding | Pure request/response normalization for OPL Connect; no I/O, verdict, or receipt authority |
 
 Historical `opl.scholarskills.*` module ids are provenance aliases only. The
 historical aggregate name is likewise not a discoverable skill surface.
 
-Every active module uses the same handoff: `source_pack_ref`, `candidate_refs`,
-and `owner_gate_handoff_ref`. The contract can describe ids, mappings, ref
-families, sync policy, and no-authority flags. It cannot replace a professional
-skill, stage prompt, owner gate, or domain action.
+The eight professional modules use the same handoff: `source_pack_ref`,
+`candidate_refs`, and `owner_gate_handoff_ref`. The runtime adapter instead uses
+the `build_request -> parse_response -> next_step` ABI and returns normalized
+metadata evidence to OPL Connect. Neither path can replace a professional skill,
+stage prompt, owner gate, or domain action.
 
 ## Provider Boundary
 
 `medical-research-lit` owns literature strategy, screening, support assessment,
-and route-back recommendations. MAS owns biomedical provider lookup and
-normalization through `research-integrity-reference-verification`; its read-only
-outputs are `mas_provider_lookup_ref` and `pubmed_source_refs`. When a concrete
-fallback is necessary, OPL Connect may supply Crossref/OpenAlex metadata,
-coverage, or citation-graph inputs as `fallback_source_refs`. None of these refs
-is citation acceptance, a literature verdict, or a publication decision.
+and route-back recommendations. This package owns the pure provider-specific
+mapping for Crossref, OpenAlex, PubMed eSummary, Europe PMC, Semantic Scholar,
+Crossmark signals, and DOI landing metadata. OPL Connect owns network execution,
+retry, cache, strict comparison, normalized receipts, and connector errors. MAS
+owns citation acceptance and manuscript use. Provider evidence is never a
+literature verdict or publication decision.
 
 ## OPL Package Readback
 

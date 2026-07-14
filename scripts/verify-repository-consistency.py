@@ -4,6 +4,7 @@ import json
 import pathlib
 import re
 import sys
+from urllib.parse import urlparse
 
 from gallery_policy import verify_gallery_import_policy
 
@@ -41,6 +42,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
+if manifest.get("version") != "0.2.2":
+    fail("plugin version must be 0.2.2")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -59,6 +62,11 @@ contract = read_json("contracts/scholar-skills-capability-modules.json")
 domain_descriptor = read_json("contracts/domain_descriptor.json")
 capability_map = read_json("contracts/capability_map.json")
 package_manifest = read_json("contracts/opl_capability_package_manifest.json")
+reference_provider_profile = read_json("contracts/reference-provider-adapters/scientific-metadata.json")
+reference_provider_registry = read_json("contracts/reference-provider-adapters/reference-provider-adapter-registry.json")
+read_json("contracts/reference-provider-adapters/reference-provider-profile.schema.json")
+read_json("contracts/reference-provider-adapters/reference-provider-adapter-registry.schema.json")
+read_json("contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json")
 classification_policy = contract.get("capability_module_classification_policy") or {}
 contract_text = json.dumps(contract, ensure_ascii=False)
 retired_execution_projection_fields = [
@@ -108,6 +116,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
+if package_manifest.get("version") != "0.2.2":
+    fail("capability package version must be 0.2.2")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -133,6 +143,148 @@ if package_exports.get("all_skill_ids") != expected_all_skill_ids:
 expected_module_ids = [module.get("module_id") for module in contract.get("modules") or []]
 if package_exports.get("core_module_ids") != expected_module_ids:
     fail("capability package core modules must match the canonical module catalog order")
+runtime_module_id = "mas-scholar-skills.reference-provider-adapters"
+runtime_bindings = package_exports.get("runtime_module_bindings") or []
+if len(runtime_bindings) != 1:
+    fail("capability package must export exactly one reference-provider runtime binding")
+runtime_binding = runtime_bindings[0]
+expected_runtime_handler = {
+    "kind": "typescript_export",
+    "file": "runtime/reference-provider-adapters/index.ts",
+    "export": "runReferenceProviderAdapterStep",
+}
+if runtime_binding.get("module_id") != runtime_module_id:
+    fail("runtime binding must use the canonical reference-provider adapter module id")
+if runtime_binding.get("module_kind") != "opl_connect_reference_provider_adapter":
+    fail("runtime binding must declare the OPL Connect reference-provider adapter kind")
+if runtime_binding.get("adapter_abi") != "opl-connect-reference-provider-adapter.v1":
+    fail("runtime binding must use the v1 reference-provider adapter ABI")
+if runtime_binding.get("handler") != expected_runtime_handler:
+    fail("runtime binding must expose the canonical TypeScript handler")
+if runtime_binding.get("max_steps") != 2:
+    fail("runtime binding must cap all provider state machines at two steps")
+if runtime_binding.get("exports") != [
+    "runReferenceProviderAdapterStep",
+    "build_request",
+    "parse_response",
+    "next_step",
+]:
+    fail("runtime binding must expose handler and three state-machine operations")
+expected_runtime_sandbox = {
+    "network_io": False,
+    "environment_read": False,
+    "filesystem_read": False,
+    "filesystem_write": False,
+    "process_spawn": False,
+    "dynamic_module_load": False,
+    "input_output_policy": "serializable_request_state_response_only",
+}
+if runtime_binding.get("sandbox") != expected_runtime_sandbox:
+    fail("reference-provider runtime binding sandbox must forbid direct I/O and process access")
+if any(value is not False for value in (runtime_binding.get("authority_boundary") or {}).values()):
+    fail("reference-provider runtime binding authority flags must all be false")
+plugin_runtime_modules = manifest.get("oplRuntimeModules") or {}
+if plugin_runtime_modules != {
+    "manifestRef": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
+    "moduleIds": [runtime_module_id],
+}:
+    fail("plugin runtime module projection must point to the package runtime binding")
+runtime_contract_paths = [
+    "contracts/reference-provider-adapters/scientific-metadata.json",
+    "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
+    "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+    "contracts/reference-provider-adapters/reference-provider-adapter-registry.schema.json",
+    "contracts/reference-provider-adapters/reference-provider-adapter-step.schema.json",
+]
+runtime_source_paths = runtime_binding.get("contained_implementation_files") or []
+if runtime_source_paths != reference_provider_registry.get("contained_implementation_files"):
+    fail("manifest and adapter registry must lock the same implementation files")
+for relative in [*runtime_contract_paths, *runtime_source_paths]:
+    if not (root / relative).is_file():
+        fail(f"reference-provider runtime source is missing: {relative}")
+content_lock_paths = package_manifest.get("content_lock", {}).get("paths") or []
+if len(content_lock_paths) != len(set(content_lock_paths)):
+    fail("capability package content lock paths must be unique")
+require_all(
+    "capability package reference-provider content lock",
+    content_lock_paths,
+    [*runtime_contract_paths, *runtime_source_paths],
+)
+
+profile_package = reference_provider_profile.get("adapter_package") or {}
+if reference_provider_profile.get("adapter_abi") is not None:
+    fail("reference provider profile must keep adapter ABI inside adapter_package")
+if profile_package.get("package_id") != "mas-scholar-skills":
+    fail("reference provider profile must bind the installed ScholarSkills package")
+if profile_package.get("module_id") != runtime_module_id:
+    fail("reference provider profile must bind the canonical runtime module")
+if profile_package.get("adapter_abi") != runtime_binding.get("adapter_abi"):
+    fail("profile and package runtime binding adapter ABIs must match")
+if profile_package.get("registry_ref") != runtime_binding.get("registry_ref"):
+    fail("profile and package runtime binding registry refs must match")
+if profile_package.get("handler_ref") != "runtime/reference-provider-adapters/index.ts#runReferenceProviderAdapterStep":
+    fail("reference provider profile must select the canonical state-machine handler")
+if profile_package.get("byte_authority") != "installed_capability_package_source_commit_and_content_digest":
+    fail("reference provider profile byte authority must bind source commit and package content digest")
+profile_adapter_ids = profile_package.get("adapter_ids") or []
+registry_adapters = reference_provider_registry.get("adapters") or []
+registry_adapter_ids = [item.get("adapter_id") for item in registry_adapters]
+if profile_adapter_ids != registry_adapter_ids:
+    fail("reference provider profile and registry adapter ids must match in canonical order")
+if reference_provider_registry.get("module_id") != runtime_module_id:
+    fail("reference provider registry must use the canonical runtime module id")
+if reference_provider_registry.get("adapter_abi") != runtime_binding.get("adapter_abi"):
+    fail("reference provider registry and package adapter ABIs must match")
+if reference_provider_registry.get("handler") != expected_runtime_handler:
+    fail("reference provider registry must expose the canonical TypeScript handler")
+if reference_provider_registry.get("state_machine_exports") != [
+    "build_request",
+    "parse_response",
+    "next_step",
+]:
+    fail("reference provider registry must expose the bounded state-machine phases")
+if reference_provider_registry.get("max_steps") != 2:
+    fail("reference provider registry must cap provider state machines at two steps")
+if reference_provider_registry.get("sandbox") != expected_runtime_sandbox:
+    fail("reference provider registry sandbox must match the package runtime binding")
+if any(value is not False for value in (reference_provider_registry.get("no_authority_boundary") or {}).values()):
+    fail("reference provider registry authority flags must all be false")
+if any(value is not False for value in (reference_provider_profile.get("no_authority_boundary") or {}).values()):
+    fail("reference provider profile authority flags must all be false")
+if len(profile_adapter_ids) != 7 or len(set(profile_adapter_ids)) != 7:
+    fail("scientific reference provider package must export exactly seven unique adapters")
+provider_rows = reference_provider_profile.get("providers") or []
+provider_ids = [item.get("provider_id") for item in provider_rows]
+if len(provider_ids) != len(set(provider_ids)):
+    fail("reference provider profile provider ids must be unique")
+if reference_provider_profile.get("default_provider_ids") != provider_ids:
+    fail("reference provider defaults must follow the canonical provider order")
+for provider in provider_rows:
+    if provider.get("adapter_id") not in profile_adapter_ids:
+        fail(f"provider {provider.get('provider_id')} selects an unexported adapter")
+    endpoint = provider.get("endpoint") or {}
+    default_origin = urlparse(endpoint.get("default_base_url") or "").scheme + "://" + urlparse(endpoint.get("default_base_url") or "").netloc
+    if default_origin not in (endpoint.get("allowed_origins") or []):
+        fail(f"provider {provider.get('provider_id')} default origin must be allowlisted")
+
+for relative in runtime_source_paths:
+    source = read_text(relative)
+    if re.search(r"(?:from|import\s*)\s*['\"](?:node:)?(?:fs|http|https|net|tls|child_process|worker_threads)", source):
+        fail(f"{relative} must not import direct I/O or process modules")
+    for token in [
+        "fetch(",
+        "XMLHttpRequest",
+        "process.env",
+        "Deno.",
+        "Bun.",
+        "request_json",
+        "request_text",
+        "writeFile(",
+        "spawn(",
+        "exec(",
+    ]:
+        if token in source:
+            fail(f"{relative} must not expose direct I/O surface {token}")
 if package_exports.get("optional_skills_installed_by_default") is not True:
     fail("all specialty skills must be installed by default")
 if package_exports.get("default_materialization_policy") != "all_exported_skills":
@@ -283,6 +435,12 @@ require_all(
     domain_descriptor.get("capability_pack", {}).get("syncable_real_skills"),
     expected_capability_skills,
 )
+if domain_descriptor.get("capability_pack", {}).get("runtime_module_ids") != [runtime_module_id]:
+    fail("domain descriptor must expose the reference-provider runtime module")
+if domain_descriptor.get("capability_pack", {}).get("runtime_module_bindings_ref") != "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings":
+    fail("domain descriptor must point to the package runtime module bindings")
+if domain_descriptor.get("capability_pack", {}).get("runtime_module_consumption_mode") != "opl_connect_executes_http_package_adapter_builds_and_parses_bounded_steps":
+    fail("domain descriptor must preserve the provider adapter execution split")
 require_all(
     "domain descriptor advanced specialist skills",
     domain_descriptor.get("capability_pack", {}).get("advanced_specialist_skills"),
@@ -1209,8 +1367,8 @@ for relative, tokens in professional_template_requirements.items():
             fail(f"{relative} missing professional quality template token: {token}")
 
 modules = contract.get("modules")
-if not isinstance(modules, list) or len(modules) != 8:
-    fail("contract must contain exactly 8 active ScholarSkills modules")
+if not isinstance(modules, list) or len(modules) != 9:
+    fail("contract must contain eight professional modules and one reference-provider adapter module")
 active_module_ids = {item.get("module_id") for item in modules}
 expected_active_module_order = [
     "mas-scholar-skills.display",
@@ -1221,12 +1379,38 @@ expected_active_module_order = [
     "mas-scholar-skills.review",
     "mas-scholar-skills.submit",
     "mas-scholar-skills.data",
+    "mas-scholar-skills.reference-provider-adapters",
 ]
 expected_active_module_ids = set(expected_active_module_order)
 if active_module_ids != expected_active_module_ids:
     fail("active module ids must use mas-scholar-skills.* canonical ids")
 if [item.get("module_id") for item in modules] != expected_active_module_order:
     fail("active modules must keep the canonical projection order")
+professional_modules = modules[:-1]
+runtime_adapter_module = modules[-1]
+if runtime_adapter_module.get("module_id") != runtime_module_id:
+    fail("reference-provider adapter module must follow the professional module catalog")
+if runtime_adapter_module.get("module_kind") != "opl_connect_reference_provider_adapter":
+    fail("reference-provider adapter module must declare its runtime module kind")
+if runtime_adapter_module.get("profile_ref") != runtime_binding.get("profile_ref"):
+    fail("module catalog and runtime binding profile refs must match")
+if runtime_adapter_module.get("registry_ref") != runtime_binding.get("registry_ref"):
+    fail("module catalog and runtime binding registry refs must match")
+if runtime_adapter_module.get("adapter_abi") != runtime_binding.get("adapter_abi"):
+    fail("module catalog and runtime binding adapter ABIs must match")
+if runtime_adapter_module.get("adapter_ids") != profile_adapter_ids:
+    fail("module catalog and provider profile adapter ids must match")
+state_machine_contract = runtime_adapter_module.get("state_machine_contract") or {}
+if state_machine_contract.get("operations") != ["build_request", "parse_response", "next_step"]:
+    fail("reference-provider adapter module must expose the three bounded state-machine phases")
+if state_machine_contract.get("max_steps") != 2:
+    fail("reference-provider adapter module must cap provider state machines at two steps")
+if state_machine_contract.get("http_execution_owner") != "opl_connect":
+    fail("OPL Connect must remain the HTTP execution owner")
+if any(value is not False for value in (runtime_adapter_module.get("authority_boundary") or {}).values()):
+    fail("reference-provider adapter module authority flags must all be false")
+if runtime_adapter_module.get("allowed_writes") != []:
+    fail("reference-provider adapter module must not declare writes")
 
 if capability_pack_consumption.get("canonical_owner_repo") != "mas-scholar-skills":
     fail("capability-pack descriptor policy must keep mas-scholar-skills as canonical owner")
@@ -1239,6 +1423,9 @@ require_all(
         ".codex-plugin/plugin.json",
         "skills/mas-scholar-skills/SKILL.md",
         "contracts/scholar-skills-capability-modules.json",
+        "contracts/opl_capability_package_manifest.json",
+        "contracts/reference-provider-adapters/scientific-metadata.json",
+        "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
     ],
 )
 for key in [
@@ -1255,6 +1442,14 @@ for key in [
 ]:
     if capability_pack_consumption.get(key) is not False:
         fail(f"capability-pack descriptor policy flag {key} must be false")
+if capability_pack_consumption.get("module_execution_projection_scope") != "professional_skill_modules_only":
+    fail("retired module execution projection flag must be scoped to professional skill modules")
+if capability_pack_consumption.get("runtime_adapter_module_projection") is not True:
+    fail("capability package must expose its pure reference-provider runtime adapter module")
+if capability_pack_consumption.get("runtime_adapter_module_ids") != [runtime_module_id]:
+    fail("capability package runtime adapter module ids must match the package binding")
+if capability_pack_consumption.get("runtime_adapter_execution_owner") != "opl_connect":
+    fail("OPL Connect must execute adapter-declared HTTP requests")
 expected_legacy_module_ids = {
     "mas-scholar-skills.display": "opl.scholarskills.display",
     "mas-scholar-skills.tables": "opl.scholarskills.tables",
@@ -1300,7 +1495,7 @@ for key in [
     if standard_handoff.get(key) is not False:
         fail(f"standard handoff authority flag {key} must be false")
 
-for module in modules:
+for module in professional_modules:
     module_id = module.get("module_id")
     display_name = module.get("display_name")
     if not module_id or module_id not in skill:
@@ -1345,7 +1540,7 @@ expected_descriptor_entry = {
     "mutation": False,
     "descriptor_only": True,
 }
-for module in modules:
+for module in professional_modules:
     entries = module.get("invocation_entries") or []
     if not entries or entries[0] != expected_descriptor_entry:
         fail(f"{module.get('module_id')} must begin with the generic capability-pack descriptor readback")

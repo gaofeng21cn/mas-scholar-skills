@@ -7,6 +7,7 @@ cd "$ROOT"
 lane="${1:-fast}"
 
 run_fast() {
+  node --test tests/reference-provider-adapters.test.mjs
   python3 scripts/run-kernel-self-checks.py
   python3 scripts/verify-capability-package-manifest.py
   python3 scripts/verify-repository-consistency.py

@@ -1,0 +1,169 @@
+{
+  "surface_kind": "opl_connect_reference_provider_profile.v1",
+  "schema_ref": "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
+  "profile_id": "mas-scholar-skills.scientific-reference-metadata.v1",
+  "profile_role": "optional_connector_profile",
+  "registry_owner": "mas-scholar-skills.reference-provider-adapters",
+  "provider_ontology_owner": "profile_not_framework_core",
+  "adapter_package": {
+    "package_id": "mas-scholar-skills",
+    "module_id": "mas-scholar-skills.reference-provider-adapters",
+    "package_role": "capability_package_runtime_module",
+    "adapter_abi": "opl-connect-reference-provider-adapter.v1",
+    "registry_ref": "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
+    "handler_ref": "runtime/reference-provider-adapters/index.ts#runReferenceProviderAdapterStep",
+    "adapter_ids": [
+      "crossref_rest",
+      "openalex_rest",
+      "ncbi_pubmed_esummary",
+      "europe_pmc_core",
+      "semantic_scholar_graph",
+      "crossref_crossmark_signal",
+      "doi_resolver_landing"
+    ],
+    "byte_authority": "installed_capability_package_source_commit_and_content_digest"
+  },
+  "default_provider_ids": [
+    "crossref",
+    "openalex",
+    "pubmed",
+    "pmc",
+    "semantic-scholar",
+    "crossmark",
+    "publisher"
+  ],
+  "providers": [
+    {
+      "provider_id": "crossref",
+      "adapter_id": "crossref_rest",
+      "receipt_provider_name": "crossref",
+      "aliases": [],
+      "endpoint": {
+        "default_base_url": "https://api.crossref.org",
+        "environment_override": "OPL_CONNECT_CROSSREF_API_BASE",
+        "allowed_origins": [
+          "https://api.crossref.org"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "crossref"
+      }
+    },
+    {
+      "provider_id": "openalex",
+      "adapter_id": "openalex_rest",
+      "receipt_provider_name": "openalex",
+      "aliases": [],
+      "endpoint": {
+        "default_base_url": "https://api.openalex.org",
+        "environment_override": "OPL_CONNECT_OPENALEX_API_BASE",
+        "allowed_origins": [
+          "https://api.openalex.org"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "openalex"
+      }
+    },
+    {
+      "provider_id": "pubmed",
+      "adapter_id": "ncbi_pubmed_esummary",
+      "receipt_provider_name": "pubmed",
+      "aliases": [],
+      "endpoint": {
+        "default_base_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
+        "environment_override": "OPL_CONNECT_PUBMED_EUTILS_BASE",
+        "allowed_origins": [
+          "https://eutils.ncbi.nlm.nih.gov"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "ncbi_pubmed_esummary",
+        "full_text_body_verified": false
+      }
+    },
+    {
+      "provider_id": "pmc",
+      "adapter_id": "europe_pmc_core",
+      "receipt_provider_name": "pmc",
+      "aliases": [],
+      "endpoint": {
+        "default_base_url": "https://www.ebi.ac.uk/europepmc/webservices/rest",
+        "environment_override": "OPL_CONNECT_EUROPE_PMC_API_BASE",
+        "allowed_origins": [
+          "https://www.ebi.ac.uk"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "europe_pmc_core_metadata"
+      }
+    },
+    {
+      "provider_id": "semantic-scholar",
+      "adapter_id": "semantic_scholar_graph",
+      "receipt_provider_name": "semantic_scholar",
+      "aliases": [
+        "semantic_scholar"
+      ],
+      "endpoint": {
+        "default_base_url": "https://api.semanticscholar.org/graph/v1",
+        "environment_override": "OPL_CONNECT_SEMANTIC_SCHOLAR_API_BASE",
+        "allowed_origins": [
+          "https://api.semanticscholar.org"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "semantic_scholar"
+      }
+    },
+    {
+      "provider_id": "crossmark",
+      "adapter_id": "crossref_crossmark_signal",
+      "receipt_provider_name": "crossmark",
+      "aliases": [],
+      "endpoint": {
+        "default_base_url": "https://api.crossref.org",
+        "environment_override": "OPL_CONNECT_CROSSREF_API_BASE",
+        "allowed_origins": [
+          "https://api.crossref.org"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "crossref_metadata_signal",
+        "independent_crossmark_api_verified": false
+      }
+    },
+    {
+      "provider_id": "publisher",
+      "adapter_id": "doi_resolver_landing",
+      "receipt_provider_name": "publisher",
+      "aliases": [],
+      "endpoint": {
+        "default_base_url": "https://doi.org",
+        "environment_override": "OPL_CONNECT_PUBLISHER_DOI_BASE",
+        "allowed_origins": [
+          "https://doi.org"
+        ]
+      },
+      "verification_scope": {
+        "evidence_source": "doi_resolver_landing_metadata",
+        "landing_metadata_only": true,
+        "full_text_body_verified": false
+      }
+    }
+  ],
+  "no_authority_boundary": {
+    "can_perform_network_io": false,
+    "can_read_environment": false,
+    "can_write_files": false,
+    "can_spawn_processes": false,
+    "can_define_framework_core_identity": false,
+    "can_write_domain_truth": false,
+    "can_create_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_reference_truth": false,
+    "can_claim_quality_verdict": false,
+    "can_claim_domain_ready": false,
+    "can_claim_production_ready": false
+  }
+}
