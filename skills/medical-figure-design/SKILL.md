@@ -224,6 +224,22 @@ Before writing plotting code, produce or refresh a compact contract:
   constraint that reduced fidelity.
 - `renderer_decision_ref`: chosen renderer family, why it fits, and why
   alternatives were not used.
+- `deterministic_render_ref`: exact `font_file_ref` and `font_file_sha256` for
+  every selected font, renderer family and version, explicit `headless_backend`
+  or export engine, render command/config refs, and a no-silent-fallback policy.
+- `final_size_layout_ref`: target canvas width and height, output units, final
+  text sizes, and the ordered long-label treatment: shorten without changing
+  meaning, wrap, then rotate only when the figure grammar requires it. Do not
+  shrink text below the readability floor to make labels fit.
+- `single_generation_source_ref`: one structured generation source that drives
+  the figure, caption, and catalog/manifest fields in the same build rather than
+  relying on manually synchronized copies.
+- `paired_export_qa_ref`: the required PNG/PDF or paper-local raster/vector
+  pair, payload and geometry parity, PDF font-embedding/subtype inspection,
+  raster dimensions/DPI, and per-output fingerprints.
+- `clean_rebuild_consistency_ref`: receipts from two clean rebuilds using the
+  same `source_fingerprint`, with identical per-format `output_fingerprints`;
+  any mismatch produces `route_back_candidate` before owner handoff.
 - `data_profile_ref`: variable types, usable sample sizes, grouping structure,
   missingness, distribution shape, outliers, and the intended reader question.
 - `plot_selection_ref`: why the chart type fits the variable type,
@@ -471,6 +487,30 @@ figure-contract condition fails.
 If the selected backend cannot run, stop and fix the environment or route a
 blocker. Do not silently fallback to a different renderer family.
 
+### 4a. Deterministic Render Lock
+
+Before the first render, bind `deterministic_render_ref` to resolved font files
+and their SHA-256 values, the selected renderer family and version, and the
+explicit non-interactive `headless_backend` or export engine for each target
+format. Validate required glyph coverage before rendering. A missing or
+hash-mismatched font, unavailable backend, or renderer-family drift is a hard
+figure-contract failure: repair the environment or emit `route_back_candidate`;
+never substitute a system font, interactive backend, or different renderer
+silently.
+
+Lock `final_size_layout_ref` before fitting labels: set the target canvas width
+and height, final output units, and final text sizes first. Resolve long labels
+in this order: use an evidence-faithful short form, wrap at semantic boundaries,
+then rotate only when the selected figure grammar requires it; move definitions
+to the caption when appropriate. Do not reduce the final font size below the
+readability floor merely to suppress overlap.
+
+Bind `single_generation_source_ref` to one structured paper-local source for
+data mappings, labels, annotations, caption payload, and catalog/manifest
+metadata. The same build must derive the figure, caption, and catalog/manifest
+from that source so a manual edit cannot leave those surfaces out of sync. This
+ref records provenance only and does not create artifact or MAS authority.
+
 Record the selected grammar in a figure manifest before polishing:
 
 - figure intent
@@ -515,6 +555,9 @@ when available. Record:
 - source data ref
 - render script or command
 - renderer family
+- deterministic render, final-size layout, and single-generation-source refs
+- `source_fingerprint` over the source data, render code/config, caption and
+  catalog/manifest source, font files, and renderer/backend versions
 - output paths
 - display-pack `render_receipt_ref` when a pack renderer produced the draft
 - sidecar or lock refs
@@ -532,6 +575,15 @@ Treat checked-in `example_render_receipt.json` files marked `example_only=true`
 as non-issued schema fixtures, never as render evidence or permission to fill
 runtime fields before execution.
 
+Generate the paper-local raster/vector pair from the same source and render
+lock whenever both formats are required, commonly PNG plus PDF. Record
+`paired_export_qa_ref`; do not treat a passing PNG as proof that the PDF has the
+same payload, geometry, labels, annotations, crop, or font behavior. For a
+Matplotlib-backed PDF, an explicit setting such as `pdf.fonttype=42` is one
+acceptable embedding policy example; other renderer families must use their
+equivalent explicit font-embedding and subtype checks. Matplotlib is not the
+default or sole backend.
+
 ### 6. Visual QA
 
 Open the rendered output and inspect the actual figure, not only logs or code.
@@ -539,19 +591,38 @@ Open the rendered output and inspect the actual figure, not only logs or code.
 Keep two QA lanes separate:
 
 - `programmatic_figure_audit_ref`: deterministic checks for missing glyphs,
-  CJK/negative-sign rendering, clipped text, overlapping ticks, file format,
-  DPI, font embedding, final dimensions, and source/export traceability.
+  CJK/negative-sign rendering, bound font-file hashes, clipped text,
+  `annotation_headroom`, `boundary_clipping`, `line_text_intersection`,
+  `tick_label_overlap`, file format, DPI, font embedding/subtype, final
+  dimensions, and source/export traceability.
 - `export_lint_ref`: export-contract lint for file format, DPI, font embedding,
   final dimensions, and traceability before any owner handoff.
+- `paired_export_qa_ref`: separate raster/vector checks for payload, dimensions,
+  labels, annotations, crop bounds, font behavior, and output fingerprints.
 - `visual_qa_preview_ref` / `critic_review_ref`: AI or human visual review of
-  the rasterized preview for legend/data overlap, panel alignment, visual
-  hierarchy, grayscale/color-vision separation, and whether the chart answers
-  the intended data question.
+  a rasterized final-size preview for legend/data overlap, annotation headroom,
+  edge clipping, lines crossing text, tick-label overlap, panel alignment,
+  visual hierarchy, grayscale/color-vision separation, and whether the chart
+  answers the intended data question.
 - `final_scale_visual_qa_ref`: the final manuscript-scale readback of the
-  actual exported figure; use it before owner handoff, not as a substitute for
-  owner visual-audit authority.
+  actual raster output and a rasterization of the vector output; use it before
+  owner handoff, not as a substitute for owner visual-audit authority.
 - `ai_visual_review_ref`: the AI visual-review lane only; it cannot replace the
   deterministic audit lane or owner visual-audit authority.
+
+Do not infer visual correctness from the programmatic lane or infer export
+integrity from the visual lane. Both must report independently over the actual
+final-size outputs.
+
+Before owner handoff, remove prior outputs and render caches, then run the same
+pinned build twice. For each run, record `clean_rebuild_consistency_ref` with a
+SHA-256 `source_fingerprint` over source data, render code/config, caption and
+catalog/manifest source, bound font files, and renderer/backend versions, plus
+byte-level `output_fingerprints` for every required export. Fix or omit volatile
+export metadata such as creation timestamps instead of normalizing mismatched
+files after rendering. The two clean runs must have identical source and output
+fingerprints. Any drift routes back to the source/render owner; do not waive it
+as a refs-only caveat.
 
 Check:
 
@@ -573,6 +644,14 @@ Check:
 - color accessibility and grayscale robustness
 - text size after likely manuscript scaling
 - overlap, truncation, clipped legends, duplicate titles, and prose cards
+- annotation headroom above confidence intervals, bars, points, brackets, and
+  significance labels at the fixed target dimensions
+- boundary clipping on every canvas and panel edge, including strokes, error
+  bars, labels, legends, and crop boxes
+- line, curve, gridline, or connector intersections that cross text or
+  annotations and make them ambiguous
+- tick-label overlap, truncation, collision with axis titles, or overlap created
+  by rotation at final manuscript size
 - missing glyphs, CJK tofu boxes, special-symbol loss, or negative-sign boxes
 - whether every visible claim is supported by evidence refs
 - whether schematic icons, arrows, or explanatory simplifications preserve the
@@ -586,6 +665,11 @@ Check:
 - figure legend consistency with visible variables, units, sample sizes, and
   statistical annotations
 - vector/source export availability or documented raster DPI reason
+- raster/vector pair parity and PDF font embedding/subtype evidence when both
+  formats are required
+- figure, caption, and catalog/manifest agreement from the same structured
+  generation source
+- identical source and output fingerprints from two clean rebuilds
 - source-data and code traceability for every evidence panel
 
 For phenotype-atlas heatmaps or service-review maps, figure titles, panel
@@ -630,6 +714,8 @@ Before handoff, produce a compact reviewer packet:
 - figure contract template and panel evidence chain refs
 - panel plan
 - figure contract, style brief, and renderer decision refs
+- deterministic render, final-size layout, single-generation-source,
+  paired-export QA, and clean-rebuild consistency refs
 - claim type, graph warning, and annotation-to-source regeneration refs for any
   figure claim at risk
 - critique-as-repair hints, triggered meta-review refs, and reusable lessons
@@ -648,6 +734,14 @@ package work.
 
 - Do not create a figure before claim and evidence refs are named.
 - Do not switch renderer family because a package or environment fails.
+- Do not silently substitute fonts, font files, headless backends, export
+  engines, or renderer versions after the deterministic render lock is recorded.
+- Do not shrink fixed final-size text below the readability floor to rescue long
+  labels; shorten, wrap, rotate when justified, or move detail to the caption.
+- Do not hand-edit figure, caption, and catalog/manifest copies independently
+  when they are required to share one generation source.
+- Do not pass deterministic closeout after only one clean rebuild or when any
+  required output fingerprint differs between the two clean runs.
 - Do not make Python, SciPilot, Matplotlib, Seaborn, SciencePlots, Plotly, or
   any external plotting runtime the default backend unless the paper-local
   figure contract selected it.

@@ -96,6 +96,17 @@ Minimum fields:
 - `degradation_reason`: `none` or the explicit asset, transform, renderer, or
   export limitation that reduced fidelity.
 - `renderer_decision_ref`: selected renderer family and rejected alternatives.
+- `deterministic_render_ref`: resolved `font_file_ref` values and
+  `font_file_sha256` values, renderer family/version, explicit
+  `headless_backend` or export engine, command/config refs, and confirmation that
+  font/backend/renderer fallback is forbidden.
+- `final_size_layout_ref`: fixed target canvas width and height, units, final
+  text sizes, and long-label treatment. Set size and typography before choosing
+  evidence-faithful shortening, semantic line wrapping, or justified rotation;
+  never pass by shrinking text below the readability floor.
+- `single_generation_source_ref`: one structured generation source for plotted
+  data mappings, labels, annotations, caption payload, and catalog/manifest
+  metadata so the same build drives all four surfaces.
 - `style_brief_ref`: journal class, audience, hierarchy, palette, and allowed
   visual references.
 - `candidate_set_ref`: one to three plans or renders when the design space is
@@ -109,14 +120,30 @@ Minimum fields:
   CJK/symbol/negative-sign glyph risk, clipping, and source/export traceability.
 - `final_size_grayscale_preview_ref`: final-size raster preview and grayscale or
   color-vision separation readback.
+- `paired_export_qa_ref`: required PNG/PDF or paper-local raster/vector pair,
+  common generation-source ref, visible-payload/geometry/crop parity, raster
+  dimensions and DPI, PDF font embedding/subtype evidence, and per-output
+  fingerprints. `pdf.fonttype=42` is a Matplotlib-specific example of an
+  explicit embedding policy, not a requirement to use Matplotlib or Python.
 - `programmatic_figure_audit_ref`: deterministic audit result for missing
-  glyphs, CJK/negative-sign rendering, clipping, overlapping ticks, file
-  format, DPI, font embedding, and dimensions.
+  glyphs, CJK/negative-sign rendering, bound font hashes,
+  `annotation_headroom`, `boundary_clipping`, `line_text_intersection`,
+  `tick_label_overlap`, file format, DPI, font embedding/subtype, dimensions,
+  and source/export traceability.
 - `visual_qa_preview_ref`: AI or human visual review of the rasterized preview
-  for legend/data overlap, panel alignment, visual hierarchy, grayscale or
-  color-vision separation, and whether the chart answers the data question.
+  at final manuscript size for legend/data overlap, annotation headroom,
+  boundary clipping, lines crossing text, tick-label overlap, panel alignment,
+  visual hierarchy, grayscale or color-vision separation, and whether the chart
+  answers the data question.
 - `ai_visual_review_ref`: AI visual-review findings kept separate from
   deterministic export/programmatic audit results.
+- `clean_rebuild_consistency_ref`: two clean rebuild receipts after prior
+  outputs and caches are removed. Each records one SHA-256 `source_fingerprint`
+  over source data, render code/config, caption and catalog/manifest source,
+  bound font files, and renderer/backend versions, plus byte-level
+  `output_fingerprints` for every required export. Volatile export metadata such
+  as creation timestamps must be fixed or omitted at render time. Both runs must
+  match exactly; mismatch produces `route_back_candidate` before owner handoff.
 - `data_fidelity_ref`: row inclusion/exclusion rule, grouping rule, summary
   statistic source, and the single canonical value for each quantitative claim.
 - `excluded_rows_ref`: rows excluded from analysis or plotted as exclusions,
@@ -150,6 +177,16 @@ Minimum fields:
 Stop before plotting if `core_conclusion_ref` or `panel_evidence_chain_ref` is
 missing. A visual reference is a style target, not data truth or template
 authority.
+
+Keep the deterministic closeout lanes distinct. `programmatic_figure_audit_ref`
+checks machine-observable export and geometry properties;
+`final_scale_visual_qa_ref` records a real rasterized final-size review of both
+the raster output and the vector output. A pass in one lane cannot fill or waive
+the other. `paired_export_qa_ref` compares the pair, while
+`clean_rebuild_consistency_ref` proves that two clean builds reproduce the same
+source and output fingerprints. These refs remain candidate evidence and do not
+create artifact authority, a visual audit receipt, owner acceptance, a typed
+blocker, or publication readiness.
 
 Warnings such as small-n mean bars, dual axes, pie or 3D charts, rainbow/jet
 palettes, unexplained error bars, chartjunk, categorical lines, or missing

@@ -475,6 +475,7 @@ medical_method_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in medical_method_specialist_skill_ids
 }
+display_qc_skill = medical_method_specialist_skills["medical-display-qc"]
 redirect_tombstone_skills = {
     skill_id: read_text(f"skills/{skill_id}/TOMBSTONE.md")
     for skill_id in redirect_tombstone_skill_ids
@@ -1478,6 +1479,37 @@ for relative, tokens in professional_template_requirements.items():
     for token in tokens:
         if token not in text:
             fail(f"{relative} missing professional quality template token: {token}")
+
+deterministic_figure_closeout_tokens = [
+    "deterministic_render_ref",
+    "font_file_sha256",
+    "headless_backend",
+    "final_size_layout_ref",
+    "single_generation_source_ref",
+    "paired_export_qa_ref",
+    "clean_rebuild_consistency_ref",
+    "source_fingerprint",
+    "output_fingerprints",
+    "programmatic_figure_audit_ref",
+    "final_scale_visual_qa_ref",
+    "annotation_headroom",
+    "boundary_clipping",
+    "line_text_intersection",
+    "tick_label_overlap",
+    "pdf.fonttype=42",
+    "PNG/PDF",
+    "catalog/manifest",
+    "route_back_candidate",
+]
+deterministic_figure_closeout_texts = {
+    "skills/medical-figure-design/SKILL.md": figure_skill,
+    "skills/medical-display-qc/SKILL.md": display_qc_skill,
+    "references/professional-quality-ref-templates.md": professional_ref_templates,
+}
+for relative, text in deterministic_figure_closeout_texts.items():
+    for token in deterministic_figure_closeout_tokens:
+        if token not in text:
+            fail(f"{relative} missing deterministic figure closeout token: {token}")
 
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 10:
