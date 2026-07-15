@@ -101,9 +101,15 @@ Minimum fields:
   `headless_backend` or export engine, command/config refs, and confirmation that
   font/backend/renderer fallback is forbidden.
 - `final_size_layout_ref`: fixed target canvas width and height, units, final
-  text sizes, and long-label treatment. Set size and typography before choosing
-  evidence-faithful shortening, semantic line wrapping, or justified rotation;
-  never pass by shrinking text below the readability floor.
+  text sizes, and long-label treatment. At the fixed canvas and declared font
+  size, categorical and tick labels that exceed their allocated extent must use
+  `wrap_policy=automatic_semantic_wrap` at semantic boundaries. Evidence-faithful
+  shortening may precede wrapping and justified rotation may follow it; never
+  pass by shrinking text.
+- `text_extent_safe_area_ref`: the renderer-drawn text-extent and composed-page
+  evidence shape defined below, including `final_canvas`, `safe_inset`,
+  `artist_extent_report`, `overflow_count=0`, `annotation_lane`, and
+  `composed_page_check`.
 - `single_generation_source_ref`: one structured generation source for plotted
   data mappings, labels, annotations, caption payload, and catalog/manifest
   metadata so the same build drives all four surfaces.
@@ -200,6 +206,50 @@ For multi-panel main figures, use a light outline -> panel render -> composite
 review loop: first write the figure claim and panel outline, then render only
 the affected panels, then review the composed figure and crops before handoff.
 Do not regenerate clean panels just to make the package look more active.
+
+### Text Extent Safe-Area Ref
+
+Use this compact candidate ref after the final renderer draw:
+
+```yaml
+text_extent_safe_area_ref:
+  final_canvas: {width: null, height: null, unit: null}
+  safe_inset: {left: null, right: null, top: null, bottom: null, unit: null}
+  wrap_policy: automatic_semantic_wrap
+  fixed_font_size: true
+  semantic_break_rule_ref: null
+  artist_scope: all_text_artists
+  renderer_draw_complete: true
+  annotation_lane: {edge: null, width: null, unit: null}
+  artist_extent_report:
+    - artist_id: null
+      artist_kind: axis_inside|axis_outside|tick_label|annotation|legend|sample_size_label
+      bbox_final_canvas: [null, null, null, null]
+      inside_safe_inset: null
+  overflow_count: 0
+  final_export_checks: {png: null, pdf: null}
+  composed_page_check:
+    target: docx|pdf
+    page_ref: null
+    scale_crop_ref: null
+    safe_inset_check: null
+```
+
+Set `wrap_policy=automatic_semantic_wrap` at the fixed `final_canvas` and font
+size; do not reduce typography to make long categorical or tick labels pass.
+After `renderer_draw_complete=true`, calculate a text bounding box for
+`artist_scope=all_text_artists`: all axis-inside and axis-outside text artists,
+annotations, legend containers and entries, and sample-size labels. Compare each
+box with `safe_inset`, reserve `annotation_lane` or an explicit margin for
+axis-external text, and require a complete `artist_extent_report` with
+`overflow_count=0`.
+
+`tight_layout`, `bbox_inches=tight`, and `clip_on` are not safe-area proof.
+Verify the final PNG/PDF pair and repeat the page-boundary check after embedding
+in the rendered DOCX/PDF page; record that evidence in `composed_page_check`.
+This ref remains candidate evidence only and cannot create artifact authority,
+a visual audit receipt, owner acceptance, a typed blocker, or publication
+readiness.
 
 ## Template And Asset Adaptation Ref
 

@@ -1511,6 +1511,30 @@ for relative, text in deterministic_figure_closeout_texts.items():
         if token not in text:
             fail(f"{relative} missing deterministic figure closeout token: {token}")
 
+text_extent_safe_area_tokens = [
+    "text_extent_safe_area_ref",
+    "final_canvas",
+    "safe_inset",
+    "wrap_policy=automatic_semantic_wrap",
+    "artist_scope=all_text_artists",
+    "renderer_draw_complete",
+    "artist_extent_report",
+    "overflow_count=0",
+    "annotation_lane",
+    "composed_page_check",
+    "renderer draw",
+    "text bounding box",
+    "tight_layout",
+    "bbox_inches=tight",
+    "clip_on",
+    "PNG/PDF",
+    "DOCX/PDF",
+]
+for relative, text in deterministic_figure_closeout_texts.items():
+    for token in text_extent_safe_area_tokens:
+        if token not in text:
+            fail(f"{relative} missing text-extent safe-area token: {token}")
+
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 10:
     fail("contract must contain eight professional modules and two package runtime adapter modules")

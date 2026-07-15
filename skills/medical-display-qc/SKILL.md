@@ -51,10 +51,22 @@ reported as an unembedded font.
    renderer fallback. Missing or mismatched lock evidence produces
    `route_back_candidate`; this skill does not create a typed blocker.
 3. Check `final_size_layout_ref` at the fixed target width and height with the
-   declared final text sizes. Long labels must be shortened without semantic
-   drift, wrapped, or rotated when justified; shrinking them below the
-   readability floor is not a passing repair.
-4. Check `paired_export_qa_ref`: both outputs exist and come from the same
+   declared final text sizes. Long categorical and tick labels that exceed their
+   allocated extent must use `wrap_policy=automatic_semantic_wrap` at semantic
+   boundaries on that fixed canvas and font size. Evidence-faithful shortening
+   may precede wrapping and justified rotation may follow it; shrinking text is
+   not a passing repair.
+4. Check `text_extent_safe_area_ref` after a final renderer draw. Require
+   `renderer_draw_complete=true`, an explicit `final_canvas` and `safe_inset`,
+   and a text bounding box for `artist_scope=all_text_artists`, including every
+   axis-inside and axis-outside text artist, categorical/tick label, title,
+   annotation, legend container and entry, and sample-size label. Require a
+   reserved `annotation_lane` or margin for axis-external labels, a complete
+   `artist_extent_report`, and `overflow_count=0`. `tight_layout`,
+   `bbox_inches=tight`, and `clip_on` are not safe-area proof. Repeat the check
+   over the final PNG/PDF exports and the rendered embedded DOCX/PDF page, and
+   record page scale, crop, and safe-inset results in `composed_page_check`.
+5. Check `paired_export_qa_ref`: both outputs exist and come from the same
    `single_generation_source_ref`; dimensions, visible data, labels,
    annotations, crop bounds, and panel order agree. Inspect PDF font embedding
    and subtype as well as raster dimensions/DPI. For Matplotlib, an explicit
@@ -62,31 +74,31 @@ reported as an unembedded font.
    for other renderer families rather than treating Matplotlib as the only
    backend. Preserve the existing rule that unverified embedding, including an
    empty Type 3 font-program extraction, remains unknown rather than passing.
-5. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
+6. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
    the same SHA-256 `source_fingerprint` and identical per-format
    `output_fingerprints`. Any difference routes back to the source/render owner
    before owner review.
-6. Keep `programmatic_figure_audit_ref` separate from
+7. Keep `programmatic_figure_audit_ref` separate from
    `final_scale_visual_qa_ref`. The former checks deterministic properties and
    geometry; the latter reviews the actual raster output and a rasterized
    final-size vector output. Neither lane can be inferred from or replace the
    other.
-7. In both lanes where applicable, check `annotation_headroom`,
+8. In both lanes where applicable, check `annotation_headroom`,
    `boundary_clipping`, `line_text_intersection`, and `tick_label_overlap`,
    including crop edges, error bars, brackets, grid/connector lines, rotated
    labels, legends, and axis-title collisions.
-8. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
+9. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
    figure numbering, duplicated identifiers, and caption payload drift. Confirm
    the figure, caption, and catalog/manifest were driven by the same structured
    generation source.
-9. Check `claim_display_alignment_ref`: displayed denominator, estimates,
+10. Check `claim_display_alignment_ref`: displayed denominator, estimates,
    uncertainty, colors, groups, ordering, and manuscript claim consistency.
-10. Check `accessibility_and_size_ref`: final-size readability, overlap,
+11. Check `accessibility_and_size_ref`: final-size readability, overlap,
     color-vision robustness, grayscale contrast, and journal size constraints.
-11. Check `export_integrity_ref`: distinguish hard artifact failures from
+12. Check `export_integrity_ref`: distinguish hard artifact failures from
     non-blocking review warnings; never promote an inspector result into a
     visual quality verdict.
-12. Produce `route_back_candidate` for artifact owner repair, display redesign,
+13. Produce `route_back_candidate` for artifact owner repair, display redesign,
     source-data mismatch, deterministic rebuild drift, export failure, or owner
     visual-audit decision.
 
@@ -97,6 +109,7 @@ Return:
 - `display_artifact_inventory_ref`
 - `deterministic_render_ref`
 - `final_size_layout_ref`
+- `text_extent_safe_area_ref`
 - `single_generation_source_ref`
 - `paired_export_qa_ref`
 - `clean_rebuild_consistency_ref`
