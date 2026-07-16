@@ -3,6 +3,7 @@ import hashlib
 import json
 import pathlib
 import re
+import subprocess
 import sys
 from urllib.parse import urlparse
 
@@ -42,8 +43,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.5":
-    fail("plugin version must be 0.2.5")
+if manifest.get("version") != "0.2.6":
+    fail("plugin version must be 0.2.6")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -125,8 +126,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.5":
-    fail("capability package version must be 0.2.5")
+if package_manifest.get("version") != "0.2.6":
+    fail("capability package version must be 0.2.6")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -257,6 +258,54 @@ if content_lock.get("canonicalization") != "ordered_path_length_file_length_byte
 content_lock_paths = content_lock.get("paths") or []
 if len(content_lock_paths) != len(set(content_lock_paths)):
     fail("capability package content lock paths must be unique")
+exported_skill_roots = [f"skills/{skill_id}" for skill_id in expected_all_skill_ids]
+tracked_result = subprocess.run(
+    ["git", "-C", str(root), "ls-files", "--stage", "-z", "--", *exported_skill_roots],
+    check=False,
+    capture_output=True,
+)
+tracked_exported_skill_files = []
+if tracked_result.returncode == 0:
+    for raw_entry in tracked_result.stdout.split(b"\0"):
+        if not raw_entry:
+            continue
+        try:
+            raw_metadata, raw_path = raw_entry.split(b"\t", 1)
+            mode, _object_id, stage = raw_metadata.decode("ascii").split(" ")
+            relative = raw_path.decode("utf-8")
+        except (UnicodeDecodeError, ValueError):
+            fail("git returned an invalid tracked exported Skill entry")
+        if mode not in {"100644", "100755"} or stage != "0":
+            fail(f"exported Skill entry must be a tracked regular file: {relative} mode={mode} stage={stage}")
+        source = root / relative
+        if source.is_symlink() or not source.is_file():
+            fail(f"exported Skill entry must resolve to a regular file: {relative}")
+        tracked_exported_skill_files.append(relative)
+elif (root / ".git").exists():
+    fail(
+        "cannot inspect tracked exported Skill files: "
+        + tracked_result.stderr.decode("utf-8", errors="replace").strip()
+    )
+else:
+    for relative_root in exported_skill_roots:
+        skill_root = root / relative_root
+        for source in sorted(skill_root.rglob("*")):
+            if source.is_symlink():
+                fail(f"exported Skill archive entry must not be a symbolic link: {source.relative_to(root)}")
+            if source.is_file() and "__pycache__" not in source.parts and source.suffix != ".pyc":
+                tracked_exported_skill_files.append(source.relative_to(root).as_posix())
+locked_skill_files = [relative for relative in content_lock_paths if relative.startswith("skills/")]
+if set(locked_skill_files) != set(tracked_exported_skill_files):
+    missing = sorted(set(tracked_exported_skill_files) - set(locked_skill_files))
+    unexpected = sorted(set(locked_skill_files) - set(tracked_exported_skill_files))
+    fail(
+        "capability package content lock must exactly cover tracked exported Skill files: "
+        f"missing={missing} unexpected={unexpected}"
+    )
+for relative in content_lock_paths:
+    source = root / relative
+    if source.is_symlink() or not source.is_file():
+        fail(f"capability package content lock entry must be a regular file: {relative}")
 require_all(
     "capability package runtime content lock",
     content_lock_paths,
