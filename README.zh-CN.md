@@ -19,7 +19,7 @@ Machine boundary: 人读公开入口。机器真相以 `.codex-plugin/plugin.jso
 -->
 
 <p align="center">
-  <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills 学术能力流转示意图" width="100%" />
+  <img src="assets/branding/mas-scholar-skills-overview-v2.png" alt="MAS Scholar Skills 覆盖研究全程的专业能力支持" width="100%" />
 </p>
 
 `MAS Scholar Skills` 是这个仓库和产品的正式名称，也是 MAS 医学论文工作的必需能力包。独立仓库只用于隔离开发、版本和发布，不表示产品可选：安装 MAS 时必须由统一 `opl packages` 事务解析并安装本包；核心包缺失或不兼容时，MAS 不具备正常运行条件。历史 `opl-scholarskills` 只保留为 history / tombstone / provenance，不再作为 active Codex skill。本仓是 MAS Scholar Skills 引用、资料包、质量下限、模板、外部学习吸收、模块合同，`medical-manuscript-writing`、`medical-manuscript-review`、`medical-figure-design`、`medical-figure-style`、`medical-figure-composer`、`medical-research-lit`、`medical-statistical-review`、`medical-table-design`、`medical-submission-prep`、`medical-data-governance` 这些可同步专业技能，以及 4 个可选 router/reviewer skill 和 20 个可选 named-specialty skill 的单源。

@@ -19,7 +19,7 @@ Machine boundary: Human-readable public entry. Machine truth remains in `.codex-
 -->
 
 <p align="center">
-  <img src="assets/branding/mas-scholar-skills-overview.png" alt="MAS Scholar Skills academic capability handoff map" width="100%" />
+  <img src="assets/branding/mas-scholar-skills-overview-v2.png" alt="MAS Scholar Skills specialist support across the research journey" width="100%" />
 </p>
 
 `MAS Scholar Skills` is the canonical product and repository name for the required, Codex-compatible capability package used by MAS medical-paper work. The separate repository is a development, versioning, and release boundary, not an optional product boundary: installing MAS must resolve this package in the same `opl packages` transaction, and MAS is not operational when its core package is missing or incompatible. The historical `opl-scholarskills` name remains only as history/tombstone/provenance, not as an active Codex skill. This repository is the single source for MAS Scholar Skills refs, packs, quality floors, templates, external-learning absorption, module contracts, the syncable professional skills `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, and `medical-data-governance`, plus optional router/reviewer skills and 20 optional named-specialty skills for methodology, evidence integrity, publication route-back, advanced biomedical, and medical-method work.
