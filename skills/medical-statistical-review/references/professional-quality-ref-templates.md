@@ -1,0 +1,657 @@
+# Professional Quality Ref Templates
+
+Owner: `mas-scholar-skills`
+State: `refs_only_lightweight_reference`
+Boundary: these templates create candidate refs only. They cannot write domain
+truth, sign an owner receipt, create a typed blocker, claim a quality verdict,
+or claim publication readiness.
+
+Use this reference when a `medical-*` specialist skill needs a compact
+handoff shape instead of inventing a new checklist. Keep the filled result in
+the consuming paper workspace or owner surface; this repository only defines
+the ref vocabulary.
+
+## AI-First Professional Quality Floor
+
+Use `professional_ai_quality_floor_ref` when an existing `medical-*` skill needs
+the shared AI-first quality floor. This is a skill-method rule, not a new
+module, runtime owner, receipt signer, or authority surface.
+
+Minimum refs:
+
+- `critique_as_repair_hint_ref`: convert each critique into a concrete repair
+  hint with affected claim/source/table/figure/data/package refs, the narrowest
+  owning skill route, and the evidence needed to clear the issue.
+- `reusable_lesson_ref`: extract a reusable lesson only when the same issue can
+  improve future writing, review, literature, statistics, table, submission,
+  data, or display work; keep one-off observations as local findings.
+- `triggered_meta_review_ref`: request a second-pass review when evidence
+  conflicts, route-back repeats, a claim crosses discipline boundaries, or the
+  candidate would otherwise approach domain truth, owner receipt, typed blocker,
+  artifact authority, or readiness.
+- `opportunistic_knowledge_prefetch_ref`: prefetch only immediately useful
+  source, guideline, journal instruction, data dictionary, citation graph,
+  figure/table, prior review, or rerun receipt refs. Do not start broad research
+  or provider/runtime setup just because it might help later.
+- `claim_type_ref`: classify manuscript, figure, table, statistic, data,
+  package, or citation claims as descriptive, association, prediction, causal,
+  methods, governance, or submission/package claims before deciding strength.
+- `graph_warnings_ref`: flag unsupported, stale, circular, missing-source,
+  source/body drift, denominator drift, visible-payload drift, or package
+  mismatch risks as refs-only warnings.
+- `annotation_to_source_regeneration_ref`: map a reviewer annotation back to
+  the source/data/evidence/citation/analysis/display/package refs needed for
+  repair instead of treating the annotation as free-text feedback.
+- `project_local_ledger_pointer_ref`: record a local ledger pointer, locator,
+  or hash only as provenance for a candidate package. It is not an owner ledger,
+  MAS truth, or source-readiness verdict.
+- `rerun_receipt_ref`: consume rerun, re-render, re-query, re-export, or
+  re-check receipts as evidence only when input refs, fingerprints, command
+  refs, and limits are visible. A rerun receipt is not runtime readiness,
+  owner acceptance, artifact authority, or publication readiness.
+- `verdict_candidate`, `route_back_candidate`, and
+  `stop_or_continue_recommendation`: AI-consumable candidate judgment and next
+  route, stopping only at real authority or human gates.
+
+Keep the quality floor inside the active professional skill that owns the
+judgment. Module catalogs and contracts should carry only ids, ref families,
+receipt shapes, owner routes, hashes, and no-authority flags.
+
+## Input Scope Signature Handoff
+
+Use the optional `input_scope_signature_ref` when a professional review or
+submission-prep candidate needs to show exactly which input bytes were
+examined. This ref is a deterministic content digest, not a lock, identity
+signature, owner signature, reviewer receipt, quality verdict, artifact
+authority, or readiness/currentness decision.
+
+Compact shape:
+
+```yaml
+input_scope_signature_ref:
+  surface_kind: scholarskills_input_scope_signature_candidate.v1
+  scope_id: manuscript_review|statistical_review|reference_integrity|display_qc|submission_prep
+  scope_contract_version: 1
+  closure_complete: false
+  members:
+    - member_id: null
+      role: null
+      sha256: null
+      size_bytes: null
+      locator_ref: null
+  upstream_scope_bindings:
+    - scope_id: null
+      scope_signature_sha256: null
+      candidate_receipt_ref: null
+  canonicalization: mas_record_validation_canonical_json_bytes_v1
+  scope_signature_sha256: null
+  method_provenance_ref: null
+  provenance_observations: []
+  authority: false
+```
+
+The canonical digest payload contains only `scope_id`,
+`scope_contract_version`, `members`, and `upstream_scope_bindings`. Each member
+contains exactly `member_id`, `role`, `sha256`, and `size_bytes`, sorted by
+`(role, member_id)`. Each upstream binding contains exactly `scope_id` and
+`scope_signature_sha256`, sorted by those two fields; its
+`candidate_receipt_ref` is a locator and does not enter the digest. Reject
+duplicate `(role, member_id)` rows.
+
+`member_id` is an owner-assigned, path-independent stable artifact id. Never
+derive it from `locator_ref`, a relative path, or an absolute path. A rename or
+move changes only the locator/provenance observation and must not change the
+scope digest when the stable member id and content bytes are unchanged.
+
+Serialize the exact canonical payload with the same bytes as MAS
+`_record_validation.canonical_json_bytes`: recursive JSON key sorting,
+`ensure_ascii=true`, separators `(',', ':')`, UTF-8 encoding, and no trailing
+newline. Hash those exact bytes and format the result as
+`sha256:<lowercase-hex>`. Use that same format for member `sha256` values and
+upstream `scope_signature_sha256` values. This ref does not define another
+hashing authority; it defines a compatibility vector for the consuming MAS
+owner implementation.
+
+The exact payload shape is:
+
+```json
+{
+  "scope_id": null,
+  "scope_contract_version": 1,
+  "members": [
+    {"member_id": null, "role": null, "sha256": null, "size_bytes": null}
+  ],
+  "upstream_scope_bindings": [
+    {"scope_id": null, "scope_signature_sha256": null}
+  ]
+}
+```
+
+Set `closure_complete=false` and leave `scope_signature_sha256=null` when a
+required member is unavailable; route the missing evidence to that scope
+without creating a global stop.
+
+Keep `locator_ref`, path moves, mtime, checkout path, checkout HEAD, dirty-tree
+state, untracked files, reviewer/model identity, model version, skill version,
+runtime version, host, and timestamps outside the digest as
+`provenance_observations` or `method_provenance_ref`. They remain useful
+provenance, but they are not evidence that the reviewed content changed.
+
+Use these bounded closures:
+
+- `manuscript_review`: canonical manuscript text, abstract, captions and table
+  notes under review; the claim-evidence map; review fact base; and only the
+  numeric, citation, display, or prior-review refs actually consumed.
+- `statistical_review`: estimand and analysis plan, cohort/denominator and
+  missingness inputs, numeric trace and analysis outputs, and the manuscript,
+  table, or figure claims whose statistical meaning is being reviewed.
+- `reference_integrity`: bibliography or citation ledger, cited sentences,
+  claim-citation support map, identifier metadata, and source-status lookup
+  receipts used by the audit.
+- `display_qc`: exact rendered artifacts, visible captions/catalog metadata,
+  source-data or semantic refs, layout registry, deterministic render inputs,
+  and composed-page evidence actually inspected.
+- `submission_prep`: exact delivery files and manifest, journal-instruction
+  snapshot, declarations/checklists, export or reopen QA, and the upstream
+  scope digests the package consumes. The candidate receipt ref is only a
+  locator outside the digest.
+
+Package/build scripts, checkout state, model state, and unrelated artifacts do
+not belong in manuscript, statistical, reference, or display closures. A build
+script may appear in submission reproducibility provenance, but changing it
+does not invalidate a scientific-scope candidate when that scope's input bytes
+are unchanged.
+
+When the current digest differs from a prior candidate receipt, only that
+receipt for the same `scope_id` becomes non-reusable. Do not invalidate other
+scope receipts, reject a hosted action, relock a checkout, or infer a quality
+failure. A legacy handoff without this optional ref remains valid under its
+existing contract; the consuming MAS/domain owner decides whether targeted
+fresh review evidence is needed.
+
+## Figure Contract Template
+
+Use `figure_contract_template_ref` before drawing a new or repaired manuscript
+figure.
+
+Minimum fields:
+
+- `core_conclusion_ref`: one bounded claim the figure must defend.
+- `panel_evidence_chain_ref`: panel-by-panel data, cohort, statistic, model,
+  table, prior result, or citation refs.
+- `forbidden_claim_drift`: claims the figure must not imply.
+- `data_profile_ref`: variable types, usable n, grouping structure, missingness,
+  distribution shape, outliers, and the intended reader question.
+- `plot_selection_ref`: data-question-first chart choice using variable type,
+  grouping, sample size, distribution, uncertainty, and table-vs-figure fit.
+- `plot_selection_candidate_ref`: refs-only chart recommendation plus warnings
+  such as small-n mean bars, dual axes, pie/3D charts, rainbow/jet palettes,
+  unexplained error bars, chartjunk, categorical lines, and missing colorbars.
+- `figure_archetype`: evidence grid, mechanism schematic, mixed-modality
+  composite, clinical evidence summary, or image-plus-quant panel set.
+- `template_selection_ref`: the selected Display Pack template, paper-local
+  grammar, source asset, or explicit new-render choice and the panel jobs it may
+  support.
+- `template_or_asset_ref`: exact per-panel template or source asset ref, or
+  `not_applicable:new_render` when no reusable asset is consumed.
+- `semantic_match_ref`: variable, comparison, uncertainty, visible-claim, and
+  evidence-role compatibility between the source and the intended panel.
+- `adaptation_mode`: `declared_template`, `schema_adapted_template`,
+  `reference_guided_new_render`, or `original_new_render`. Use
+  `original_new_render` exactly when `template_or_asset_ref` is
+  `not_applicable:new_render`; set both semantic/transform refs to
+  `not_applicable:no_reusable_source` and do not invent provenance.
+- `transform_delta_ref`: data mapping, geometry, crop, label, palette,
+  annotation, and panel-order differences from the selected source.
+- `source_data_ref`: canonical data or analysis-output ref that regenerates the
+  panel.
+- `degradation_reason`: `none` or the explicit asset, transform, renderer, or
+  export limitation that reduced fidelity.
+- `renderer_decision_ref`: selected renderer family and rejected alternatives.
+- `deterministic_render_ref`: resolved `font_file_ref` values and
+  `font_file_sha256` values, renderer family/version, explicit
+  `headless_backend` or export engine, command/config refs, and confirmation that
+  font/backend/renderer fallback is forbidden.
+- `final_size_layout_ref`: fixed target canvas width and height, units, final
+  text sizes, and long-label treatment. Measure each unwrapped categorical or
+  tick label with the final renderer and font, compare that width with its label
+  lane, and apply `wrap_policy=automatic_semantic_wrap` when it does not fit.
+  Keep the source string free of manual line breaks. Evidence-faithful
+  shortening may precede wrapping and justified rotation may follow it; never
+  pass by shrinking text.
+- `text_extent_safe_area_ref`: the renderer-drawn text-extent and composed-page
+  evidence shape defined below. It separates the right `annotation_lane` from
+  the plotting/data lane, registers every panel text artist, checks overlap,
+  overflow, clipping, minimum spacing, and the safe inset, and links the
+  deterministic `layout_qc_receipt_ref`.
+- `single_generation_source_ref`: one structured generation source for plotted
+  data mappings, labels, annotations, caption payload, and catalog/manifest
+  metadata so the same build drives all four surfaces.
+- `style_brief_ref`: journal class, audience, hierarchy, palette, and allowed
+  visual references.
+- `candidate_set_ref`: one to three plans or renders when the design space is
+  open.
+- `critic_review_ref`: evidence fit, readability, accessibility, export, and
+  reviewer-risk findings.
+- `final_size_export_ref`: target dimensions, text size, vector/raster format,
+  DPI if raster is required, final-scale preview readback, and source
+  preservation.
+- `export_lint_ref`: file format, DPI, font embedding, final dimensions,
+  CJK/symbol/negative-sign glyph risk, clipping, and source/export traceability.
+- `final_size_grayscale_preview_ref`: final-size raster preview and grayscale or
+  color-vision separation readback.
+- `paired_export_qa_ref`: required PNG/PDF or paper-local raster/vector pair,
+  common generation-source ref, visible-payload/geometry/crop parity, raster
+  dimensions and DPI, PDF font embedding/subtype evidence, and per-output
+  fingerprints. Check both at the declared final size on one fixed canvas; use
+  `bbox_inches=None` for Matplotlib or the backend-equivalent no-tight-crop
+  policy. `pdf.fonttype=42` is only an embedding-policy example.
+- `programmatic_figure_audit_ref`: deterministic audit result for missing
+  glyphs, CJK/negative-sign rendering, bound font hashes,
+  `annotation_headroom`, `boundary_clipping`, `line_text_intersection`,
+  `tick_label_overlap`, bbox-registry completeness, text overlap, minimum
+  spacing, safe-inset violations, file format, DPI, font embedding/subtype,
+  dimensions, and source/export traceability.
+- `visual_qa_preview_ref`: AI or human visual review of the rasterized preview
+  at final manuscript size for legend/data overlap, annotation headroom,
+  boundary clipping, lines crossing text, tick-label overlap, panel alignment,
+  visual hierarchy, grayscale or color-vision separation, and whether the chart
+  answers the data question.
+- `ai_visual_review_ref`: AI visual-review findings kept separate from
+  deterministic export/programmatic audit results.
+- `clean_rebuild_consistency_ref`: two clean rebuild receipts after prior
+  outputs and caches are removed. Each records one SHA-256 `source_fingerprint`
+  over source data, render code/config, caption and catalog/manifest source,
+  bound font files, and renderer/backend versions, plus byte-level
+  `output_fingerprints` for every required export. Volatile export metadata such
+  as creation timestamps must be fixed or omitted at render time. Both runs must
+  match exactly; mismatch produces `route_back_candidate` before owner handoff.
+- `data_fidelity_ref`: row inclusion/exclusion rule, grouping rule, summary
+  statistic source, and the single canonical value for each quantitative claim.
+- `excluded_rows_ref`: rows excluded from analysis or plotted as exclusions,
+  with proof they did not enter plotted summaries.
+- `comparability_ref`: whether compared arms share cohort, measurement,
+  protocol, denominator, and analysis window, or how non-comparable conditions
+  are visually separated.
+- `replication_and_fixed_context_ref`: displayed `n`, unit of replication, and
+  any variable held fixed for a summary mark or small multiple.
+- `claim_title_truth_ref`: every title, panel title, legend threshold, and
+  label tested against all plotted rows; failed rows force title downgrade or
+  caption qualification.
+- `label_economy_ref`: non-removable labels, removable labels, caption-only
+  context, and the final in-panel label budget.
+- `color_vision_check_ref`: grayscale and color-vision separation readback,
+  especially for binary/opposing categories.
+- `multi_panel_outline_ref`: one figure claim, hook/hero panel, panel jobs,
+  panel order, and layout intent.
+- `panel_render_receipt_ref`: one receipt per rendered panel with
+  `template_or_asset_ref`, `semantic_match_ref`, `adaptation_mode`,
+  `transform_delta_ref`, `source_data_ref`, code/command refs, output path,
+  `degradation_reason`, and panel-level known limits.
+- `composite_review_ref`: post-composition review of panel-letter placement,
+  gutters, resized text, cross-panel consistency, and panel-level violations.
+- `route_back_hard_evidence_ref`: only missing source/data/evidence refs,
+  unsupported claims, unreadable output, or export lint/programmatic/visual
+  review FAIL conditions that cannot be repaired inside the figure contract.
+- `owner_gate_handoff_ref`: MAS/domain owner target for accept, reject, or
+  route-back.
+
+Stop before plotting if `core_conclusion_ref` or `panel_evidence_chain_ref` is
+missing. A visual reference is a style target, not data truth or template
+authority.
+
+Keep the deterministic closeout lanes distinct. `programmatic_figure_audit_ref`
+checks machine-observable export and geometry properties;
+`final_scale_visual_qa_ref` records a real rasterized final-size review of both
+the raster output and the vector output. A pass in one lane cannot fill or waive
+the other. `paired_export_qa_ref` compares the pair, while
+`clean_rebuild_consistency_ref` proves that two clean builds reproduce the same
+source and output fingerprints. These refs remain candidate evidence and do not
+create artifact authority, a visual audit receipt, owner acceptance, a typed
+blocker, or publication readiness.
+
+Warnings such as small-n mean bars, dual axes, pie or 3D charts, rainbow/jet
+palettes, unexplained error bars, chartjunk, categorical lines, or missing
+continuous colorbars remain refs-only reviewer hints unless hard evidence shows
+missing source/data/evidence refs, unsupported claims, unreadable output, or
+export lint/programmatic/visual-review failure. External plotting runtimes and
+scripts may inform the pattern, but they do not become the default backend, MAS
+authority, owner receipt, typed blocker, or publication readiness evidence.
+
+For multi-panel main figures, use a light outline -> panel render -> composite
+review loop: first write the figure claim and panel outline, then render only
+the affected panels, then review the composed figure and crops before handoff.
+Do not regenerate clean panels just to make the package look more active.
+
+### Text Extent Safe-Area Ref
+
+Use this compact candidate ref after the final renderer draw:
+
+```yaml
+text_extent_safe_area_ref:
+  final_canvas: {width: null, height: null, unit: null}
+  safe_inset: {left: null, right: null, top: null, bottom: null, unit: null}
+  export_policy: {canvas_mode: fixed, bbox_inches: null, tight_crop: false}
+  wrap_policy: automatic_semantic_wrap
+  measurement_basis: renderer_drawn_text_width
+  manual_line_breaks: false
+  artist_scope: all_text_artists
+  renderer_draw_complete: true
+  lanes:
+    plotting_data_lane: {bbox_final_canvas: [null, null, null, null]}
+    annotation_lane: {bbox_final_canvas: [null, null, null, null]}
+  panel_bbox_registry:
+    - panel_id: null
+      expected_text_artist_ids: []
+      artist_extent_report:
+        - artist_id: null
+          artist_kind: axis_inside|axis_outside|category_label|tick_label|annotation|legend|sample_size_label
+          lane: null
+          bbox_final_canvas: [null, null, null, null]
+          clip_bbox_final_canvas: [null, null, null, null]
+          measured_unwrapped_width: null
+          available_width: null
+  geometry_checks:
+    overlap_count: 0
+    canvas_overflow_count: 0
+    clipping_count: 0
+    minimum_spacing_violation_count: 0
+    safe_inset_violation_count: 0
+  overflow_count: 0
+  final_export_checks:
+    png: {sha256: null, dimensions: null, final_size: null}
+    pdf: {sha256: null, dimensions: null, final_size: null}
+  layout_qc_receipt_ref: null
+  composed_page_check:
+    target: docx|pdf
+    page_ref: null
+    scale_crop_ref: null
+    safe_inset_check: null
+```
+
+Use the renderer-measured width for long source labels; never encode wrapping by
+hand in the source string. Wrap only after the measured width exceeds the
+available label lane. Keep right-side values and notes in an independent
+`annotation_lane` whose bounds do not overlap the plotting/data lane.
+
+After `renderer_draw_complete=true`, register every panel text bounding box under
+`artist_scope=all_text_artists`. Compare each bbox with its lane, clip bbox,
+`final_canvas`, neighboring artists, the declared minimum spacing, and
+`safe_inset`; require complete expected-id coverage, a complete
+`artist_extent_report`, and `overflow_count=0`.
+
+Export the final PNG/PDF pair at the declared size with `bbox_inches=None` or an
+equivalent fixed-canvas policy. `tight_layout`, `bbox_inches=tight`, `clip_on`,
+and tight-crop output are not safe-area proof. Bind each final file SHA-256,
+dimensions, safe inset, lane bounds, bbox-registry hash, and check counts in a
+deterministic machine-readable `layout_qc_receipt_ref`. Use
+`skills/medical-display-qc/fixtures/layout_qc_regression.json` for long-string,
+extreme-value, and full-width regression coverage. Repeat the page-boundary
+check after embedding in the rendered DOCX/PDF page.
+
+The machine check may report geometry pass/fail, but it remains candidate
+evidence. It cannot create MAS visual or submission authority, artifact
+authority, owner acceptance, a typed blocker, or publication readiness.
+
+## Template And Asset Adaptation Ref
+
+Use the provenance fields above for every reused template or source asset.
+Confirm semantic compatibility before rendering, then select exactly one
+adaptation mode:
+
+- `declared_template`: the input already satisfies the declared template
+  contract without changing scientific meaning.
+- `schema_adapted_template`: the template remains the rendering basis, while
+  schema, mappings, geometry, or annotations are explicitly transformed.
+- `reference_guided_new_render`: the source is only a visual or workflow
+  reference and the current panel is rendered anew from current evidence; keep
+  the actual source ref visible.
+- `original_new_render`: no reusable template or source asset is consumed. Set
+  `template_or_asset_ref` to `not_applicable:new_render`; set both
+  `semantic_match_ref` and `transform_delta_ref` to
+  `not_applicable:no_reusable_source` rather than fabricating a source.
+
+Do not mechanically copy a plotting script and replace only its data path. Do
+not silently stretch an asset, substitute a renderer, or omit transform
+differences. Treat a weak semantic match as a repair hint and choose a better
+template or a new render so progress can continue. Route back only for missing
+required evidence, missing/unreadable/blank output, invalid geometry,
+unsupported visible claims, or another hard contract failure.
+
+## Display Pack Receipt Chain
+
+Use `contracts/display-pack-receipt-templates.json` when a figure handoff needs a
+machine-readable minimum shape for the Display Pack loop:
+
+- `figure_contract_ref`: the claim, evidence, archetype, template-selection,
+  renderer-decision, export, forbidden-drift, and owner-gate handoff refs before
+  drawing.
+- `render_receipt_ref`: the pack id, template id, renderer family, render mode,
+  output refs, layout sidecar ref, per-panel template/asset provenance,
+  adaptation and source-data refs, degradation reason, and known limits after
+  the pack render.
+- `layout_qc_receipt_ref`: deterministic fixed-canvas geometry checks bound to
+  the final PNG/PDF SHA-256 values, dimensions, safe inset, lane bounds, and
+  complete per-panel text bbox registry.
+- `visual_qa_receipt_ref`: final-size export, export lint, grayscale or
+  color-vision readback, label economy, route-back items, and owner-gate target
+  after inspecting the real output.
+
+These receipts are candidate refs only. A passed render, layout QC, or visual QA
+receipt is not MAS visual/submission authority, artifact authority, owner
+acceptance, typed blocker, current-package freshness, quality verdict, or
+publication readiness.
+Do not emit a render receipt before an actual pack render or invent pack,
+template, layout-sidecar, output, or degradation values to complete a draft;
+keep pre-render decisions in `figure_contract_ref`.
+`original_new_render` does not make pack runtime fields optional: if the pack
+does not return real template and layout-sidecar refs, do not emit a Display
+Pack receipt for that paper-local render.
+Checked-in `example_render_receipt.json` files with `example_only=true` and
+`examples/not-rendered` refs are non-issued schema fixtures, not render
+evidence or a lifecycle exception.
+
+## Paper Narrative / Figure Deck Arc
+
+Use `paper_narrative_arc_ref` when a draft or figure deck needs story-level
+judgment before more prose or more plotting.
+
+Minimum fields:
+
+- `handling_editor_brief_ref`: pitch, audience, central contribution, and the
+  most reviewer-salient asset inferred from the current manuscript and captions.
+- `fig1_hook_ref`: whether Figure 1 would make a handling editor keep reading,
+  plus the boldest defensible Figure 1 claim.
+- `deck_arc_ref`: main-figure order such as hook, mechanism, evidence,
+  robustness, and application, with supplement/demotion decisions.
+- `figure_moves_ref`: panels or claims that belong in a different figure.
+- `missing_panels_ref`: concrete analyses, panels, tables, or evidence refs that
+  must be produced before the story can carry the claim.
+- `kill_list_ref`: figures, panels, repeated claims, or decorative material to
+  delete or demote.
+- `figure_claim_handoff_ref`: per-figure claims routed to
+  `medical-figure-design` for the figure contract and render loop.
+
+The narrative arc is a candidate editorial judgment. It can route work to
+writing, review, figure design, statistics, tables, literature, or a human gate;
+it cannot issue a manuscript verdict or publication readiness.
+
+## PDF Evidence Extraction Boundary
+
+Use `pdf_evidence_extraction_ref` when a PDF, supplement, report, or article is
+source material for literature, review, data governance, or claim repair.
+
+Minimum fields:
+
+- `pdf_parse_once_ref`: parser/tool, file path or source ref, parse time, page
+  count, and whether text or image mode was needed.
+- `pdf_outline_ref`: embedded outline or manually sampled section map.
+- `pdf_scan_ref`: lexical scan terms, candidate pages, and relevance decision.
+- `pdf_grep_ref`: exhaustive regex extraction for identifiers such as DOI,
+  PMID, accession, figure/table labels, dates, or registry ids.
+- `pdf_crop_ref`: page image and crop refs used for figures, tables, axis
+  labels, legends, or small values that text extraction cannot preserve.
+- `pdf_claim_extract_ref`: extracted claim/value/source plus page, section,
+  figure/table, and uncertainty.
+
+PDF extraction is evidence acquisition, not source acceptance. Claude Science
+helpers, local parsers, browser/PDF tools, or manual page crops may all produce
+these refs; none is mandatory and none replaces the AI evidence judgment. If
+parsing, outline, scan, grep, or crop tooling is unavailable, keep the attempt
+and reason as a connector/tool gap and continue with the smallest available
+readback. Route back only for missing source/data/evidence, authority, or human
+hard gates.
+
+## Literature Source/Ref Chain
+
+Use `source_ref_chain_template_ref` when a literature task needs traceable
+source routing, not a memory-based citation answer.
+
+Minimum chain:
+
+- `literature_retrieval_contract_ref`: claim, population, endpoint, method,
+  identifier, source route, server filters, local filters, expected fields, and
+  completeness requirement.
+- `query_plan_ref`: PICO/PECO terms, MeSH candidates, synonyms, exclusion
+  logic, and justified limits.
+- `search_command_ref`: command, connector receipt, access date, and source
+  endpoint provenance.
+- `pubmed_source_refs` / `fallback_source_refs`: normalized source refs with
+  why the route was used.
+- `identifier_resolution_ref`: PMID, PMCID, DOI, title, trial id, guideline id,
+  preprint id, and published-version reconciliation.
+- `retrieval_count_reconciliation_ref`: count and pagination notes when
+  completeness matters.
+- `source_acceptance_decision_ref`: retain, reject, or watchlist reason for
+  each promoted source.
+- `claim_support_map_ref`: exact claim, sentence, figure, table, method, or
+  limitation supported by each source.
+- `support_strength_matrix_ref`: direct primary, direct guideline,
+  method precedent, contextual background, contradictory, weak, or not
+  applicable.
+- `citation_integrity_notes`: missing metadata, mismatch, stale source,
+  preprint version gap, review-vs-primary issue, or official-source need.
+
+The chain can recommend confirm/drop and route-back candidates. It cannot turn
+a source into citation authority or a literature verdict.
+
+## EHR Registry Signal Validity Ref
+
+Use `registry_signal_validity_pack` when an EHR, registry, chart-derived, or
+real-world-data paper needs one integrated validity judgment over the recorded
+signal. The pack folds back to `medical-statistical-review` as the professional
+producer and owner route. It has one candidate output ref family,
+`ehr_registry_signal_validity_ref`; do not split chart review, phenotyping,
+availability, observation opportunity, source generation, or claim calibration
+into parallel packs or independent validity verdicts.
+
+Compact shape:
+
+```yaml
+registry_signal_validity_pack:
+  ref_family: ehr_registry_signal_validity_ref
+  producer_skill: medical-statistical-review
+  owner_route: medical-statistical-review
+  consumer_routes:
+    cohort_definition_and_ascertainment: medical-cohort-phenotyping
+    methodology_routing: medical-methodology-planner
+    source_lineage_and_generation: medical-data-governance
+    claim_calibration: medical-manuscript-writing
+    adversarial_pressure_test: medical-manuscript-review
+    optional_registry_story_framing: medical-registry-atlas-story-architect
+  authority_boundary: refs_only_no_authority
+
+ehr_registry_signal_validity_ref:
+  paper_identity_ref: null
+  chart_review_validation_ref: null
+  phenotype_outcome_coupling_ref: null
+  availability_mechanism_ref: null
+  observation_opportunity_bias_ref: null
+  source_generation_quality_ref: null
+  claim_boundary_ref: null
+```
+
+The member refs mean:
+
+- `paper_identity_ref`: paper type, target population, unit of inference,
+  source/time window, intended estimand or descriptive target, and the exact
+  scientific identity the recorded signal is meant to support.
+- `chart_review_validation_ref`: chart-review purpose, sampling frame, review
+  unit, reference standard, abstraction/adjudication procedure, reliability or
+  agreement evidence, and the bounded property actually validated. A sampled
+  chart review does not validate the whole registry or every downstream use.
+- `phenotype_outcome_coupling_ref`: person, episode, time, eligibility,
+  denominator, and source linkage between phenotype assignment and outcome or
+  target signal. Separate component plausibility does not prove the coupled
+  endpoint or analysis row.
+- `availability_mechanism_ref`: distinguish true absence from not applicable,
+  structurally unavailable, not measured, not ordered, not documented, not
+  extracted, and site/time-specific capture. State how each mechanism enters
+  denominators, missingness handling, and sensitivity work.
+- `observation_opportunity_bias_ref`: differential encounter intensity,
+  follow-up, testing, referral, access, survival, site workflow, or care pathway
+  that changes the chance a state can be observed and recorded.
+- `source_generation_quality_ref`: clinical workflow, measurement, coding,
+  documentation, ingestion, deduplication, transformation, release/version,
+  lineage, and source-QA evidence that generated the analyzable signal.
+- `claim_boundary_ref`: the strongest descriptive, association, prediction, or
+  causal wording supported after the other refs are considered, plus forbidden
+  prevalence, incidence, treatment-gap, performance, generalizability, or
+  causal interpretations.
+
+This pack and aggregate ref remain refs-only/no-authority candidate evidence.
+They cannot create cohort or source truth, validate a dataset globally, accept
+an analysis, sign an owner receipt, create a typed blocker, issue a quality or
+statistical verdict, mutate an artifact, or claim submission/publication
+readiness. MAS or the consuming domain owner must decide acceptance and record
+any owner action.
+
+## Claim-Citation-Quality Loop
+
+Use `claim_citation_quality_loop_ref` in writing and review whenever prose,
+citations, and evidence quality must be checked together.
+
+Loop rows should include:
+
+- `claim_id` and affected section, sentence, figure, table, or caption.
+- `claim_text_current` and `claim_text_candidate`.
+- `evidence_refs`: data, analysis, display, table, source, or literature refs.
+- `citation_refs`: PMID, DOI, guideline, trial, registry, or source refs.
+- `support_strength`: direct primary, guideline, method precedent,
+  background, contradictory, weak, or none.
+- `claim_strength_calibration`: show, demonstrate, suggest, indicate, may, or
+  could.
+- `quality_issue`: unsupported, overclaimed, under-cited, mismatched source,
+  stale source, review-used-as-primary, missing official source, figure drift,
+  table drift, or method mismatch.
+
+## MAS Journal-Family Pack Foldback
+
+Use this matrix when a MAS stage packet names journal-family quality packs.
+The pack name is only a route hint. Keep the elastic professional judgment in
+the existing `medical-*` skill, and keep MAS contracts limited to pack refs,
+output refs, owner route, receipt shape, and forbidden-authority flags.
+
+| Pack ref | Owning professional skill | Candidate refs to return |
+| --- | --- | --- |
+| `journal_response_pack` | `medical-submission-prep` with `medical-manuscript-review` for critique | `review_comment_inventory_ref`, `response_route_ref`, `difficult_case_route_ref`, `author_input_needed_ref`, `reviewer_response_candidate_ref`, `route_back_candidate` |
+| `manuscript_argument_pack` | `medical-manuscript-writing` with `medical-manuscript-review` for independent pressure test | `one_sentence_argument_ref`, `section_job_map_ref`, `paragraph_flow_review_ref`, `claim_strength_calibration_ref`, `paper_narrative_arc_ref`, `route_back_candidate` |
+| `statistical_reporting_pack` | `medical-statistical-review` | `statistical_question_ref`, `denominator_and_missingness_ref`, `effect_size_and_uncertainty_ref`, `assumption_diagnostic_ref`, `statistical_action_matrix_ref`, `route_back_candidate` |
+| `registry_signal_validity_pack` | `medical-statistical-review` as sole producer/owner, with bounded inputs from cohort phenotyping, methodology, data governance, writing, review, and optional registry-story framing | one `ehr_registry_signal_validity_ref`, `route_back_candidate`, `owner_gate_handoff_ref` |
+| `data_availability_fair_pack` | `medical-data-governance` with `medical-submission-prep` for journal-facing wording | `data_code_availability_ref`, `fair_metadata_gap_ref`, `restricted_access_route_ref`, `dataset_citation_ref`, `owner_decision_ref`, `route_back_candidate` |
+| `citation_integrity_pack` | `medical-research-lit` with `medical-manuscript-review` for claim critique | `literature_retrieval_contract_ref`, `identifier_resolution_ref`, `claim_support_map_ref`, `support_strength_matrix_ref`, `citation_integrity_notes`, `route_back_candidate` |
+| `figure_evidence_contract_pack` | `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, and `medical-table-design` as needed | `figure_contract_template_ref`, `panel_evidence_chain_ref`, `source_metric_ref`, `text_extent_safe_area_ref`, `layout_qc_receipt_ref`, `export_lint_ref`, `visual_qa_receipt_ref`, `table_qc_ref`, `route_back_candidate` |
+| `paper_reader_grounding_pack` | `medical-manuscript-review` with `medical-manuscript-writing` for repair | `paper_narrative_arc_ref`, `claim_citation_quality_loop_ref`, `pdf_evidence_extraction_ref`, `reader_risk_ref`, `claim_warning_route_back_candidate_ref` |
+| `paper_presentation_pack` | `medical-submission-prep` for package audit and `medical-figure-design` for asset evidence | `presentation_asset_manifest_ref`, `crop_qa_ref`, `pptx_reopen_qa_ref`, `slide_readability_ref`, `speaker_notes_context_ref`, `route_back_candidate` |
+
+These refs are candidate handoffs. They do not create MAS study truth, artifact
+authority, owner receipts, typed blockers, human gates, quality verdicts,
+current-package authority, submission readiness, or publication readiness.
+- `citation_quality_action_matrix_ref`: keep, downgrade, add source, replace
+  source, route to `medical-research-lit`, route to statistics/table/figure,
+  route to review, human gate, or stop.
+- `owner_gate_handoff_ref`: downstream MAS/domain owner surface that must record
+  acceptance, rejection, owner receipt, typed blocker, or route-back.
+
+Writing uses the loop before final prose. Review uses the same loop
+adversarially before clearing a readiness label.

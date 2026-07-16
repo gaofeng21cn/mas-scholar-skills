@@ -302,6 +302,65 @@ if set(locked_skill_files) != set(tracked_exported_skill_files):
         "capability package content lock must exactly cover tracked exported Skill files: "
         f"missing={missing} unexpected={unexpected}"
     )
+
+canonical_skill_shared_files = {
+    "references/professional-quality-ref-templates.md": (
+        root / "references/professional-quality-ref-templates.md"
+    ),
+    "docs/no-authority-boundary.md": root / "docs/no-authority-boundary.md",
+    "docs/mas-scholar-skills-operating-model.md": (
+        root / "docs/mas-scholar-skills-operating-model.md"
+    ),
+    "docs/capability-modules.md": root / "docs/capability-modules.md",
+}
+expected_skill_local_shared_files = set()
+actual_skill_local_shared_files = set()
+for skill_id in expected_all_skill_ids:
+    skill_root = root / "skills" / skill_id
+    skill_text = read_text(f"skills/{skill_id}/SKILL.md")
+    for shared_ref, canonical_path in canonical_skill_shared_files.items():
+        skill_local_path = skill_root / shared_ref
+        skill_local_relative = skill_local_path.relative_to(root).as_posix()
+        if skill_local_path.is_symlink() or skill_local_path.exists():
+            actual_skill_local_shared_files.add(skill_local_relative)
+        if shared_ref not in skill_text:
+            continue
+        expected_skill_local_shared_files.add(skill_local_relative)
+        if skill_local_path.is_symlink() or not skill_local_path.is_file():
+            fail(
+                f"exported Skill shared ref must resolve inside its own directory: "
+                f"{skill_local_relative}"
+            )
+        if skill_local_path.read_bytes() != canonical_path.read_bytes():
+            fail(
+                f"exported Skill shared ref copy must equal canonical package bytes: "
+                f"{skill_local_relative} != {shared_ref}"
+            )
+        if skill_local_relative not in content_lock_paths:
+            fail(f"exported Skill shared ref copy must be content locked: {skill_local_relative}")
+if actual_skill_local_shared_files != expected_skill_local_shared_files:
+    missing = sorted(expected_skill_local_shared_files - actual_skill_local_shared_files)
+    unexpected = sorted(actual_skill_local_shared_files - expected_skill_local_shared_files)
+    fail(
+        "exported Skill shared ref copies must exactly match SKILL.md package-local refs: "
+        f"missing={missing} unexpected={unexpected}"
+    )
+consuming_mas_skill_refs = {
+    "medical-research-portfolio-memory-curator": [
+        "docs/policies/study-workflow/publication_route_memory_policy.md",
+    ],
+}
+for skill_id, refs in consuming_mas_skill_refs.items():
+    skill_text = read_text(f"skills/{skill_id}/SKILL.md")
+    for consuming_ref in refs:
+        if consuming_ref not in skill_text:
+            fail(f"{skill_id} must retain consuming MAS ref: {consuming_ref}")
+        skill_local_path = root / "skills" / skill_id / consuming_ref
+        if skill_local_path.is_symlink() or skill_local_path.exists():
+            fail(
+                f"consuming MAS ref must not be copied into the ScholarSkills package: "
+                f"{skill_local_path.relative_to(root)}"
+            )
 for relative in content_lock_paths:
     source = root / relative
     if source.is_symlink() or not source.is_file():
