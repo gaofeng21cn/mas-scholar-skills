@@ -101,15 +101,17 @@ Minimum fields:
   `headless_backend` or export engine, command/config refs, and confirmation that
   font/backend/renderer fallback is forbidden.
 - `final_size_layout_ref`: fixed target canvas width and height, units, final
-  text sizes, and long-label treatment. At the fixed canvas and declared font
-  size, categorical and tick labels that exceed their allocated extent must use
-  `wrap_policy=automatic_semantic_wrap` at semantic boundaries. Evidence-faithful
+  text sizes, and long-label treatment. Measure each unwrapped categorical or
+  tick label with the final renderer and font, compare that width with its label
+  lane, and apply `wrap_policy=automatic_semantic_wrap` when it does not fit.
+  Keep the source string free of manual line breaks. Evidence-faithful
   shortening may precede wrapping and justified rotation may follow it; never
   pass by shrinking text.
 - `text_extent_safe_area_ref`: the renderer-drawn text-extent and composed-page
-  evidence shape defined below, including `final_canvas`, `safe_inset`,
-  `artist_extent_report`, `overflow_count=0`, `annotation_lane`, and
-  `composed_page_check`.
+  evidence shape defined below. It separates the right `annotation_lane` from
+  the plotting/data lane, registers every panel text artist, checks overlap,
+  overflow, clipping, minimum spacing, and the safe inset, and links the
+  deterministic `layout_qc_receipt_ref`.
 - `single_generation_source_ref`: one structured generation source for plotted
   data mappings, labels, annotations, caption payload, and catalog/manifest
   metadata so the same build drives all four surfaces.
@@ -129,13 +131,15 @@ Minimum fields:
 - `paired_export_qa_ref`: required PNG/PDF or paper-local raster/vector pair,
   common generation-source ref, visible-payload/geometry/crop parity, raster
   dimensions and DPI, PDF font embedding/subtype evidence, and per-output
-  fingerprints. `pdf.fonttype=42` is a Matplotlib-specific example of an
-  explicit embedding policy, not a requirement to use Matplotlib or Python.
+  fingerprints. Check both at the declared final size on one fixed canvas; use
+  `bbox_inches=None` for Matplotlib or the backend-equivalent no-tight-crop
+  policy. `pdf.fonttype=42` is only an embedding-policy example.
 - `programmatic_figure_audit_ref`: deterministic audit result for missing
   glyphs, CJK/negative-sign rendering, bound font hashes,
   `annotation_headroom`, `boundary_clipping`, `line_text_intersection`,
-  `tick_label_overlap`, file format, DPI, font embedding/subtype, dimensions,
-  and source/export traceability.
+  `tick_label_overlap`, bbox-registry completeness, text overlap, minimum
+  spacing, safe-inset violations, file format, DPI, font embedding/subtype,
+  dimensions, and source/export traceability.
 - `visual_qa_preview_ref`: AI or human visual review of the rasterized preview
   at final manuscript size for legend/data overlap, annotation headroom,
   boundary clipping, lines crossing text, tick-label overlap, panel alignment,
@@ -215,19 +219,37 @@ Use this compact candidate ref after the final renderer draw:
 text_extent_safe_area_ref:
   final_canvas: {width: null, height: null, unit: null}
   safe_inset: {left: null, right: null, top: null, bottom: null, unit: null}
+  export_policy: {canvas_mode: fixed, bbox_inches: null, tight_crop: false}
   wrap_policy: automatic_semantic_wrap
-  fixed_font_size: true
-  semantic_break_rule_ref: null
+  measurement_basis: renderer_drawn_text_width
+  manual_line_breaks: false
   artist_scope: all_text_artists
   renderer_draw_complete: true
-  annotation_lane: {edge: null, width: null, unit: null}
-  artist_extent_report:
-    - artist_id: null
-      artist_kind: axis_inside|axis_outside|tick_label|annotation|legend|sample_size_label
-      bbox_final_canvas: [null, null, null, null]
-      inside_safe_inset: null
+  lanes:
+    plotting_data_lane: {bbox_final_canvas: [null, null, null, null]}
+    annotation_lane: {bbox_final_canvas: [null, null, null, null]}
+  panel_bbox_registry:
+    - panel_id: null
+      expected_text_artist_ids: []
+      artist_extent_report:
+        - artist_id: null
+          artist_kind: axis_inside|axis_outside|category_label|tick_label|annotation|legend|sample_size_label
+          lane: null
+          bbox_final_canvas: [null, null, null, null]
+          clip_bbox_final_canvas: [null, null, null, null]
+          measured_unwrapped_width: null
+          available_width: null
+  geometry_checks:
+    overlap_count: 0
+    canvas_overflow_count: 0
+    clipping_count: 0
+    minimum_spacing_violation_count: 0
+    safe_inset_violation_count: 0
   overflow_count: 0
-  final_export_checks: {png: null, pdf: null}
+  final_export_checks:
+    png: {sha256: null, dimensions: null, final_size: null}
+    pdf: {sha256: null, dimensions: null, final_size: null}
+  layout_qc_receipt_ref: null
   composed_page_check:
     target: docx|pdf
     page_ref: null
@@ -235,21 +257,29 @@ text_extent_safe_area_ref:
     safe_inset_check: null
 ```
 
-Set `wrap_policy=automatic_semantic_wrap` at the fixed `final_canvas` and font
-size; do not reduce typography to make long categorical or tick labels pass.
-After `renderer_draw_complete=true`, calculate a text bounding box for
-`artist_scope=all_text_artists`: all axis-inside and axis-outside text artists,
-annotations, legend containers and entries, and sample-size labels. Compare each
-box with `safe_inset`, reserve `annotation_lane` or an explicit margin for
-axis-external text, and require a complete `artist_extent_report` with
-`overflow_count=0`.
+Use the renderer-measured width for long source labels; never encode wrapping by
+hand in the source string. Wrap only after the measured width exceeds the
+available label lane. Keep right-side values and notes in an independent
+`annotation_lane` whose bounds do not overlap the plotting/data lane.
 
-`tight_layout`, `bbox_inches=tight`, and `clip_on` are not safe-area proof.
-Verify the final PNG/PDF pair and repeat the page-boundary check after embedding
-in the rendered DOCX/PDF page; record that evidence in `composed_page_check`.
-This ref remains candidate evidence only and cannot create artifact authority,
-a visual audit receipt, owner acceptance, a typed blocker, or publication
-readiness.
+After `renderer_draw_complete=true`, register every panel text bounding box under
+`artist_scope=all_text_artists`. Compare each bbox with its lane, clip bbox,
+`final_canvas`, neighboring artists, the declared minimum spacing, and
+`safe_inset`; require complete expected-id coverage, a complete
+`artist_extent_report`, and `overflow_count=0`.
+
+Export the final PNG/PDF pair at the declared size with `bbox_inches=None` or an
+equivalent fixed-canvas policy. `tight_layout`, `bbox_inches=tight`, `clip_on`,
+and tight-crop output are not safe-area proof. Bind each final file SHA-256,
+dimensions, safe inset, lane bounds, bbox-registry hash, and check counts in a
+deterministic machine-readable `layout_qc_receipt_ref`. Use
+`skills/medical-display-qc/fixtures/layout_qc_regression.json` for long-string,
+extreme-value, and full-width regression coverage. Repeat the page-boundary
+check after embedding in the rendered DOCX/PDF page.
+
+The machine check may report geometry pass/fail, but it remains candidate
+evidence. It cannot create MAS visual or submission authority, artifact
+authority, owner acceptance, a typed blocker, or publication readiness.
 
 ## Template And Asset Adaptation Ref
 
@@ -288,13 +318,17 @@ machine-readable minimum shape for the Display Pack loop:
   output refs, layout sidecar ref, per-panel template/asset provenance,
   adaptation and source-data refs, degradation reason, and known limits after
   the pack render.
+- `layout_qc_receipt_ref`: deterministic fixed-canvas geometry checks bound to
+  the final PNG/PDF SHA-256 values, dimensions, safe inset, lane bounds, and
+  complete per-panel text bbox registry.
 - `visual_qa_receipt_ref`: final-size export, export lint, grayscale or
   color-vision readback, label economy, route-back items, and owner-gate target
   after inspecting the real output.
 
-These receipts are candidate refs only. A passed render receipt or visual QA
-receipt is not MAS artifact authority, owner acceptance, typed blocker,
-current-package freshness, quality verdict, or publication readiness.
+These receipts are candidate refs only. A passed render, layout QC, or visual QA
+receipt is not MAS visual/submission authority, artifact authority, owner
+acceptance, typed blocker, current-package freshness, quality verdict, or
+publication readiness.
 Do not emit a render receipt before an actual pack render or invent pack,
 template, layout-sidecar, output, or degradation values to complete a draft;
 keep pre-render decisions in `figure_contract_ref`.
@@ -494,7 +528,7 @@ output refs, owner route, receipt shape, and forbidden-authority flags.
 | `registry_signal_validity_pack` | `medical-statistical-review` as sole producer/owner, with bounded inputs from cohort phenotyping, methodology, data governance, writing, review, and optional registry-story framing | one `ehr_registry_signal_validity_ref`, `route_back_candidate`, `owner_gate_handoff_ref` |
 | `data_availability_fair_pack` | `medical-data-governance` with `medical-submission-prep` for journal-facing wording | `data_code_availability_ref`, `fair_metadata_gap_ref`, `restricted_access_route_ref`, `dataset_citation_ref`, `owner_decision_ref`, `route_back_candidate` |
 | `citation_integrity_pack` | `medical-research-lit` with `medical-manuscript-review` for claim critique | `literature_retrieval_contract_ref`, `identifier_resolution_ref`, `claim_support_map_ref`, `support_strength_matrix_ref`, `citation_integrity_notes`, `route_back_candidate` |
-| `figure_evidence_contract_pack` | `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, and `medical-table-design` as needed | `figure_contract_template_ref`, `panel_evidence_chain_ref`, `source_metric_ref`, `text_extent_safe_area_ref`, `export_lint_ref`, `visual_qa_receipt_ref`, `table_qc_ref`, `route_back_candidate` |
+| `figure_evidence_contract_pack` | `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, and `medical-table-design` as needed | `figure_contract_template_ref`, `panel_evidence_chain_ref`, `source_metric_ref`, `text_extent_safe_area_ref`, `layout_qc_receipt_ref`, `export_lint_ref`, `visual_qa_receipt_ref`, `table_qc_ref`, `route_back_candidate` |
 | `paper_reader_grounding_pack` | `medical-manuscript-review` with `medical-manuscript-writing` for repair | `paper_narrative_arc_ref`, `claim_citation_quality_loop_ref`, `pdf_evidence_extraction_ref`, `reader_risk_ref`, `claim_warning_route_back_candidate_ref` |
 | `paper_presentation_pack` | `medical-submission-prep` for package audit and `medical-figure-design` for asset evidence | `presentation_asset_manifest_ref`, `crop_qa_ref`, `pptx_reopen_qa_ref`, `slide_readability_ref`, `speaker_notes_context_ref`, `route_back_candidate` |
 

@@ -5,15 +5,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
+from collections import Counter
+from itertools import combinations
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 
 DISPLAY_QC_REFS = (
     "display_artifact_inventory_ref",
     "programmatic_figure_audit_ref",
+    "layout_qc_receipt_ref",
     "export_integrity_ref",
     "panel_caption_consistency_ref",
     "claim_display_alignment_ref",
@@ -31,6 +35,12 @@ RASTER_FORMAT_SUFFIXES = {
 MIN_RASTER_DIMENSION_PX = 600
 MIN_RASTER_DPI = 150.0
 HIGH_CONTENT_DENSITY = 0.95
+LAYOUT_QC_SURFACE_KIND = "layout_qc_receipt_candidate.v1"
+REQUIRED_LAYOUT_REGRESSION_CASES = {
+    "long_category_label",
+    "extreme_numeric_annotation",
+    "full_width_layout",
+}
 
 QC_ROUTE_RULES = (
     ("artifact_owner_repair", ("blank", "missing", "broken", "export", "link")),
@@ -165,6 +175,638 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _canonical_json_sha256(value: object) -> str:
+    encoded = json.dumps(
+        value, ensure_ascii=True, separators=(",", ":"), sort_keys=True
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _layout_number(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a finite number")
+    try:
+        number = float(value)
+    except OverflowError as exc:
+        raise ValueError(f"{label} must be a finite number") from exc
+    if not math.isfinite(number):
+        raise ValueError(f"{label} must be a finite number")
+    return number
+
+
+def _layout_bbox(value: object, label: str) -> tuple[float, float, float, float]:
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        raise ValueError(f"{label} must contain four coordinates")
+    x0, y0, x1, y1 = (
+        _layout_number(item, f"{label}[{index}]") for index, item in enumerate(value)
+    )
+    if x1 <= x0 or y1 <= y0:
+        raise ValueError(f"{label} must have positive width and height")
+    return (x0, y0, x1, y1)
+
+
+def _bbox_inside(
+    inner: tuple[float, float, float, float],
+    outer: tuple[float, float, float, float],
+) -> bool:
+    return (
+        inner[0] >= outer[0]
+        and inner[1] >= outer[1]
+        and inner[2] <= outer[2]
+        and inner[3] <= outer[3]
+    )
+
+
+def _bbox_overlap_area(
+    first: tuple[float, float, float, float],
+    second: tuple[float, float, float, float],
+) -> float:
+    width = max(0.0, min(first[2], second[2]) - max(first[0], second[0]))
+    height = max(0.0, min(first[3], second[3]) - max(first[1], second[1]))
+    return width * height
+
+
+def _bbox_gap(
+    first: tuple[float, float, float, float],
+    second: tuple[float, float, float, float],
+) -> float:
+    dx = max(first[0] - second[2], second[0] - first[2], 0.0)
+    dy = max(first[1] - second[3], second[1] - first[3], 0.0)
+    return math.hypot(dx, dy)
+
+
+def _layout_violation(code: str, **details: object) -> dict[str, object]:
+    return {"code": code, "writes_authority": False, **details}
+
+
+def _layout_authority_boundary() -> dict[str, bool]:
+    return {
+        "refs_only": True,
+        "can_mutate_artifacts": False,
+        "can_write_mas_truth": False,
+        "can_sign_visual_audit_receipt": False,
+        "can_sign_owner_receipt": False,
+        "can_create_typed_blocker": False,
+        "can_claim_mas_visual_authority": False,
+        "can_claim_submission_authority": False,
+        "can_claim_artifact_authority": False,
+        "can_claim_quality_verdict": False,
+        "can_claim_publication_readiness": False,
+    }
+
+
+def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
+    """Audit a renderer-produced text bbox registry on its fixed final canvas."""
+
+    final_canvas = registry.get("final_canvas")
+    if not isinstance(final_canvas, Mapping):
+        raise ValueError("final_canvas must be an object")
+    width_px = _layout_number(final_canvas.get("width_px"), "final_canvas.width_px")
+    height_px = _layout_number(final_canvas.get("height_px"), "final_canvas.height_px")
+    if width_px <= 0 or height_px <= 0:
+        raise ValueError("final_canvas pixel dimensions must be positive")
+    canvas_bbox = (0.0, 0.0, width_px, height_px)
+
+    safe_inset = registry.get("safe_inset_px")
+    if not isinstance(safe_inset, Mapping):
+        raise ValueError("safe_inset_px must be an object")
+    inset = {
+        edge: _layout_number(safe_inset.get(edge), f"safe_inset_px.{edge}")
+        for edge in ("left", "right", "top", "bottom")
+    }
+    if any(value < 0 for value in inset.values()):
+        raise ValueError("safe_inset_px values must be non-negative")
+    safe_bbox = (
+        inset["left"],
+        inset["top"],
+        width_px - inset["right"],
+        height_px - inset["bottom"],
+    )
+    if safe_bbox[2] <= safe_bbox[0] or safe_bbox[3] <= safe_bbox[1]:
+        raise ValueError("safe_inset_px leaves no usable canvas")
+
+    minimum_spacing = _layout_number(
+        registry.get("minimum_spacing_px"), "minimum_spacing_px"
+    )
+    if minimum_spacing <= 0:
+        raise ValueError("minimum_spacing_px must be positive")
+
+    lanes_value = registry.get("lanes")
+    if not isinstance(lanes_value, Mapping):
+        raise ValueError("lanes must be an object")
+    if not {"plotting_data", "annotation"}.issubset(lanes_value):
+        raise ValueError("lanes must define plotting_data and annotation")
+    lane_boxes: dict[str, tuple[float, float, float, float]] = {}
+    violations: list[dict[str, object]] = []
+    for lane_name in sorted(lanes_value):
+        lane = lanes_value[lane_name]
+        if not isinstance(lane, Mapping):
+            raise ValueError(f"lane {lane_name} must be an object")
+        lane_bbox = _layout_bbox(lane.get("bbox_px"), f"lanes.{lane_name}.bbox_px")
+        lane_boxes[str(lane_name)] = lane_bbox
+        if not _bbox_inside(lane_bbox, canvas_bbox):
+            violations.append(_layout_violation("lane_canvas_overflow", lane=lane_name))
+    if _bbox_overlap_area(lane_boxes["plotting_data"], lane_boxes["annotation"]) > 0:
+        violations.append(_layout_violation("data_annotation_lane_overlap"))
+
+    export_policy = registry.get("export_policy")
+    if not isinstance(export_policy, Mapping):
+        raise ValueError("export_policy must be an object")
+    if export_policy.get("canvas_mode") != "fixed":
+        violations.append(_layout_violation("canvas_mode_not_fixed"))
+    if export_policy.get("bbox_inches") is not None:
+        violations.append(_layout_violation("bbox_inches_not_none"))
+    if export_policy.get("tight_crop") is not False:
+        violations.append(_layout_violation("tight_crop_enabled_or_undeclared"))
+    if registry.get("wrap_policy") != "automatic_semantic_wrap":
+        violations.append(_layout_violation("automatic_wrap_policy_missing"))
+    if registry.get("measurement_basis") != "renderer_drawn_text_width":
+        violations.append(_layout_violation("renderer_width_measurement_missing"))
+
+    panels = registry.get("panels")
+    if not isinstance(panels, list) or not panels:
+        raise ValueError("panels must be a non-empty array")
+    if not all(isinstance(panel, Mapping) for panel in panels):
+        raise ValueError("each panel must be an object")
+    registered_artist_count = 0
+    artist_id_counts: Counter[str] = Counter()
+    for panel in sorted(panels, key=lambda item: str(item.get("panel_id", ""))):
+        panel_id = str(panel.get("panel_id") or "").strip()
+        if not panel_id:
+            raise ValueError("each panel must define panel_id")
+        expected_ids = panel.get("expected_text_artist_ids")
+        artists = panel.get("text_artists")
+        if not isinstance(expected_ids, list) or not all(
+            isinstance(item, str) and item for item in expected_ids
+        ):
+            raise ValueError(f"panel {panel_id} expected_text_artist_ids must be strings")
+        if not isinstance(artists, list):
+            raise ValueError(f"panel {panel_id} text_artists must be an array")
+        if not all(isinstance(artist, Mapping) for artist in artists):
+            raise ValueError(f"panel {panel_id} text artist must be an object")
+
+        artist_records: list[dict[str, object]] = []
+        actual_ids: list[str] = []
+        for artist in sorted(artists, key=lambda item: str(item.get("artist_id", ""))):
+            artist_id = str(artist.get("artist_id") or "").strip()
+            if not artist_id:
+                raise ValueError(f"panel {panel_id} text artist must define artist_id")
+            artist_id_counts[artist_id] += 1
+            actual_ids.append(artist_id)
+            registered_artist_count += 1
+
+            bbox = _layout_bbox(
+                artist.get("bbox_px"), f"panels.{panel_id}.{artist_id}.bbox_px"
+            )
+            clip_bbox = _layout_bbox(
+                artist.get("clip_bbox_px"),
+                f"panels.{panel_id}.{artist_id}.clip_bbox_px",
+            )
+            lane_name = str(artist.get("lane") or "")
+            lane_bbox = lane_boxes.get(lane_name)
+            if (
+                artist.get("artist_kind") == "numeric_annotation"
+                and lane_name != "annotation"
+            ):
+                violations.append(
+                    _layout_violation(
+                        "numeric_annotation_outside_annotation_lane",
+                        panel_id=panel_id,
+                        artist_id=artist_id,
+                    )
+                )
+            if lane_bbox is None:
+                violations.append(
+                    _layout_violation(
+                        "artist_lane_missing", panel_id=panel_id, artist_id=artist_id
+                    )
+                )
+            elif not _bbox_inside(bbox, lane_bbox):
+                violations.append(
+                    _layout_violation(
+                        "artist_outside_declared_lane",
+                        panel_id=panel_id,
+                        artist_id=artist_id,
+                        lane=lane_name,
+                    )
+                )
+            if not _bbox_inside(bbox, canvas_bbox):
+                violations.append(
+                    _layout_violation(
+                        "artist_canvas_overflow", panel_id=panel_id, artist_id=artist_id
+                    )
+                )
+            if not _bbox_inside(bbox, safe_bbox):
+                violations.append(
+                    _layout_violation(
+                        "artist_safe_inset_violation",
+                        panel_id=panel_id,
+                        artist_id=artist_id,
+                    )
+                )
+            if not _bbox_inside(bbox, clip_bbox):
+                violations.append(
+                    _layout_violation(
+                        "artist_clipped", panel_id=panel_id, artist_id=artist_id
+                    )
+                )
+
+            if artist.get("artist_kind") == "category_label":
+                measurement = artist.get("text_measurement")
+                if not isinstance(measurement, Mapping):
+                    violations.append(
+                        _layout_violation(
+                            "category_label_measurement_missing",
+                            panel_id=panel_id,
+                            artist_id=artist_id,
+                        )
+                    )
+                else:
+                    measured_width = _layout_number(
+                        measurement.get("measured_unwrapped_width_px"),
+                        f"{artist_id}.measured_unwrapped_width_px",
+                    )
+                    available_width = _layout_number(
+                        measurement.get("available_width_px"),
+                        f"{artist_id}.available_width_px",
+                    )
+                    line_count = measurement.get("line_count")
+                    source_text = str(artist.get("source_text") or "")
+                    if measurement.get("method") != "renderer_drawn_text_width":
+                        violations.append(
+                            _layout_violation(
+                                "category_label_measurement_method_invalid",
+                                panel_id=panel_id,
+                                artist_id=artist_id,
+                            )
+                        )
+                    if measurement.get("manual_breaks") is not False or "\n" in source_text:
+                        violations.append(
+                            _layout_violation(
+                                "manual_category_label_break",
+                                panel_id=panel_id,
+                                artist_id=artist_id,
+                            )
+                        )
+                    if (
+                        measured_width > available_width
+                        and (
+                            isinstance(line_count, bool)
+                            or not isinstance(line_count, int)
+                            or line_count < 2
+                        )
+                    ):
+                        violations.append(
+                            _layout_violation(
+                                "long_category_label_not_wrapped",
+                                panel_id=panel_id,
+                                artist_id=artist_id,
+                            )
+                        )
+
+            artist_records.append({"artist_id": artist_id, "bbox": bbox})
+
+        missing_ids = sorted(set(expected_ids) - set(actual_ids))
+        unexpected_ids = sorted(set(actual_ids) - set(expected_ids))
+        if missing_ids:
+            violations.append(
+                _layout_violation(
+                    "text_artist_registry_incomplete",
+                    panel_id=panel_id,
+                    missing_artist_ids=missing_ids,
+                )
+            )
+        if unexpected_ids:
+            violations.append(
+                _layout_violation(
+                    "text_artist_registry_expectation_stale",
+                    panel_id=panel_id,
+                    unexpected_artist_ids=unexpected_ids,
+                )
+            )
+
+        for first, second in combinations(artist_records, 2):
+            first_bbox = first["bbox"]
+            second_bbox = second["bbox"]
+            overlap_area = _bbox_overlap_area(first_bbox, second_bbox)
+            pair = [str(first["artist_id"]), str(second["artist_id"])]
+            if overlap_area > 0:
+                violations.append(
+                    _layout_violation(
+                        "text_artist_overlap",
+                        panel_id=panel_id,
+                        artist_ids=pair,
+                        overlap_area_px2=round(overlap_area, 6),
+                    )
+                )
+            else:
+                gap = _bbox_gap(first_bbox, second_bbox)
+                if gap < minimum_spacing:
+                    violations.append(
+                        _layout_violation(
+                            "text_artist_minimum_spacing_violation",
+                            panel_id=panel_id,
+                            artist_ids=pair,
+                            measured_gap_px=round(gap, 6),
+                            minimum_spacing_px=minimum_spacing,
+                        )
+                    )
+
+    for artist_id, count in sorted(artist_id_counts.items()):
+        if count > 1:
+            violations.append(
+                _layout_violation(
+                    "duplicate_text_artist_id", artist_id=artist_id, count=count
+                )
+            )
+
+    regression_cases = set(registry.get("regression_cases") or [])
+    if registry.get("fixture_only") is True:
+        for missing_case in sorted(REQUIRED_LAYOUT_REGRESSION_CASES - regression_cases):
+            violations.append(
+                _layout_violation(
+                    "regression_fixture_case_missing", regression_case=missing_case
+                )
+            )
+
+    violations.sort(
+        key=lambda item: json.dumps(item, ensure_ascii=True, sort_keys=True)
+    )
+    counts = Counter(str(item["code"]) for item in violations)
+    checks = {
+        "registry_complete": not any(
+            counts[code]
+            for code in (
+                "text_artist_registry_incomplete",
+                "text_artist_registry_expectation_stale",
+                "duplicate_text_artist_id",
+            )
+        ),
+        "measured_wrap_valid": not any(
+            counts[code]
+            for code in (
+                "automatic_wrap_policy_missing",
+                "renderer_width_measurement_missing",
+                "category_label_measurement_missing",
+                "category_label_measurement_method_invalid",
+                "manual_category_label_break",
+                "long_category_label_not_wrapped",
+            )
+        ),
+        "annotation_lane_separate": not any(
+            counts[code]
+            for code in (
+                "data_annotation_lane_overlap",
+                "numeric_annotation_outside_annotation_lane",
+            )
+        ),
+        "no_text_overlap": counts["text_artist_overlap"] == 0,
+        "minimum_spacing_met": counts["text_artist_minimum_spacing_violation"] == 0,
+        "no_canvas_overflow": counts["artist_canvas_overflow"] == 0,
+        "no_clipping": counts["artist_clipped"] == 0,
+        "safe_inset_met": counts["artist_safe_inset_violation"] == 0,
+        "fixed_canvas_export": not any(
+            counts[code]
+            for code in (
+                "canvas_mode_not_fixed",
+                "bbox_inches_not_none",
+                "tight_crop_enabled_or_undeclared",
+            )
+        ),
+        "regression_fixture_coverage": counts["regression_fixture_case_missing"] == 0,
+    }
+    return {
+        "surface_kind": "layout_bbox_registry_audit_candidate.v1",
+        "registry_sha256": _canonical_json_sha256(registry),
+        "machine_check_status": (
+            "geometry_checks_passed" if not violations else "geometry_checks_failed"
+        ),
+        "panel_count": len(panels),
+        "registered_text_artist_count": registered_artist_count,
+        "checks": checks,
+        "violation_counts": dict(sorted(counts.items())),
+        "violations": violations,
+        "authority": _layout_authority_boundary(),
+    }
+
+
+def _physical_size_mm(value: float, unit: object) -> float:
+    normalized = str(unit or "").lower()
+    factors = {
+        "mm": 1.0,
+        "cm": 10.0,
+        "in": 25.4,
+        "inch": 25.4,
+        "pt": 25.4 / 72,
+    }
+    if normalized not in factors:
+        raise ValueError(f"unsupported final_canvas unit: {unit}")
+    return value * factors[normalized]
+
+
+def _inspection_binding(
+    candidate: Mapping[str, object],
+) -> tuple[dict[str, object] | None, list[dict[str, object]]]:
+    violations: list[dict[str, object]] = []
+    inventory = candidate.get("display_artifact_inventory_ref")
+    audit = candidate.get("programmatic_figure_audit_ref")
+    if not isinstance(inventory, Mapping) or not isinstance(audit, Mapping):
+        return None, [_layout_violation("artifact_inspection_shape_invalid")]
+    artifact_format = str(inventory.get("format") or "").upper()
+    sha256 = str(inventory.get("sha256") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", sha256):
+        violations.append(
+            _layout_violation("artifact_sha256_invalid", artifact_format=artifact_format)
+        )
+    export_integrity = candidate.get("export_integrity_ref")
+    if isinstance(export_integrity, Mapping) and export_integrity.get("hard_fail") is True:
+        violations.append(
+            _layout_violation(
+                "artifact_inspection_hard_fail", artifact_format=artifact_format
+            )
+        )
+
+    dimensions = inventory.get("dimensions")
+    physical_size: dict[str, float] | None = None
+    if artifact_format == "PNG" and isinstance(dimensions, Mapping):
+        dpi = audit.get("dpi")
+        if isinstance(dpi, Mapping):
+            width_px = _layout_number(dimensions.get("width_px"), "PNG width_px")
+            height_px = _layout_number(dimensions.get("height_px"), "PNG height_px")
+            dpi_x = _layout_number(dpi.get("x"), "PNG dpi.x")
+            dpi_y = _layout_number(dpi.get("y"), "PNG dpi.y")
+            physical_size = {
+                "width_mm": round(width_px / dpi_x * 25.4, 6),
+                "height_mm": round(height_px / dpi_y * 25.4, 6),
+            }
+        else:
+            violations.append(_layout_violation("png_dpi_missing"))
+    elif artifact_format == "PDF" and isinstance(dimensions, Mapping):
+        variants = dimensions.get("variants")
+        if (
+            isinstance(variants, list)
+            and len(variants) == 1
+            and isinstance(variants[0], Mapping)
+        ):
+            width_pt = _layout_number(variants[0].get("width_pt"), "PDF width_pt")
+            height_pt = _layout_number(variants[0].get("height_pt"), "PDF height_pt")
+            physical_size = {
+                "width_mm": round(width_pt / 72 * 25.4, 6),
+                "height_mm": round(height_pt / 72 * 25.4, 6),
+            }
+        else:
+            violations.append(_layout_violation("pdf_page_size_not_single_fixed_canvas"))
+    else:
+        violations.append(
+            _layout_violation(
+                "paired_export_format_unsupported", artifact_format=artifact_format
+            )
+        )
+
+    binding = {
+        "format": artifact_format,
+        "sha256": sha256,
+        "size_bytes": inventory.get("size_bytes"),
+        "dimensions": dimensions,
+        "page_count": inventory.get("page_count"),
+        "dpi": audit.get("dpi"),
+        "physical_size_mm": physical_size,
+    }
+    return binding, violations
+
+
+def build_layout_qc_receipt(
+    registry: Mapping[str, object],
+    artifact_inspections: Sequence[Mapping[str, object]],
+) -> dict[str, Any]:
+    """Bind layout checks to final PNG/PDF bytes without issuing authority."""
+
+    layout_audit = audit_layout_registry(registry)
+    violations = list(layout_audit["violations"])
+    bindings: list[dict[str, object]] = []
+    for candidate in artifact_inspections:
+        binding, artifact_violations = _inspection_binding(candidate)
+        violations.extend(artifact_violations)
+        if binding is not None:
+            bindings.append(binding)
+    bindings.sort(key=lambda item: str(item.get("format")))
+
+    formats = [str(item.get("format")) for item in bindings]
+    format_counts = Counter(formats)
+    for artifact_format in ("PNG", "PDF"):
+        if format_counts[artifact_format] == 0:
+            violations.append(
+                _layout_violation(
+                    "paired_export_format_missing", artifact_format=artifact_format
+                )
+            )
+        elif format_counts[artifact_format] > 1:
+            violations.append(
+                _layout_violation(
+                    "paired_export_format_duplicate", artifact_format=artifact_format
+                )
+            )
+
+    canvas = registry["final_canvas"]
+    target_width_mm = _physical_size_mm(
+        _layout_number(canvas.get("width"), "final_canvas.width"), canvas.get("unit")
+    )
+    target_height_mm = _physical_size_mm(
+        _layout_number(canvas.get("height"), "final_canvas.height"), canvas.get("unit")
+    )
+    tolerance_mm = _layout_number(
+        registry.get("final_size_tolerance_mm", 0.25), "final_size_tolerance_mm"
+    )
+    if tolerance_mm < 0:
+        raise ValueError("final_size_tolerance_mm must be non-negative")
+    for binding in bindings:
+        physical = binding.get("physical_size_mm")
+        if not isinstance(physical, Mapping):
+            violations.append(
+                _layout_violation(
+                    "artifact_physical_size_unavailable",
+                    artifact_format=binding.get("format"),
+                )
+            )
+            continue
+        width_delta = abs(float(physical["width_mm"]) - target_width_mm)
+        height_delta = abs(float(physical["height_mm"]) - target_height_mm)
+        if width_delta > tolerance_mm or height_delta > tolerance_mm:
+            violations.append(
+                _layout_violation(
+                    "artifact_final_size_mismatch",
+                    artifact_format=binding.get("format"),
+                    width_delta_mm=round(width_delta, 6),
+                    height_delta_mm=round(height_delta, 6),
+                    tolerance_mm=tolerance_mm,
+                )
+            )
+
+    generation_source_ref = normalize_evidence_ref(
+        registry.get("generation_source_ref")
+    )
+    if not generation_source_ref:
+        violations.append(_layout_violation("generation_source_ref_missing"))
+    fixture_refs = registry.get("regression_fixture_refs")
+    if not isinstance(fixture_refs, list):
+        fixture_id = registry.get("fixture_id")
+        fixture_refs = [fixture_id] if fixture_id else []
+    fixture_refs = sorted(str(item) for item in fixture_refs if item)
+    if not fixture_refs:
+        violations.append(_layout_violation("regression_fixture_ref_missing"))
+
+    violations.sort(
+        key=lambda item: json.dumps(item, ensure_ascii=True, sort_keys=True)
+    )
+    artifact_failure_codes = {
+        "artifact_inspection_shape_invalid",
+        "artifact_sha256_invalid",
+        "artifact_inspection_hard_fail",
+        "png_dpi_missing",
+        "pdf_page_size_not_single_fixed_canvas",
+        "paired_export_format_unsupported",
+        "paired_export_format_missing",
+        "paired_export_format_duplicate",
+        "artifact_physical_size_unavailable",
+        "artifact_final_size_mismatch",
+    }
+    checks = dict(layout_audit["checks"])
+    checks["png_pdf_final_size_and_sha_bound"] = not any(
+        item["code"] in artifact_failure_codes for item in violations
+    )
+    payload = {
+        "surface_kind": LAYOUT_QC_SURFACE_KIND,
+        "generation_source_ref": generation_source_ref,
+        "registry_sha256": layout_audit["registry_sha256"],
+        "artifact_bindings": bindings,
+        "final_canvas": canvas,
+        "safe_inset_px": registry["safe_inset_px"],
+        "lane_bounds_px": {
+            lane: registry["lanes"][lane]
+            for lane in ("plotting_data", "annotation")
+        },
+        "bbox_registry_summary": {
+            "panel_count": layout_audit["panel_count"],
+            "registered_text_artist_count": layout_audit[
+                "registered_text_artist_count"
+            ],
+        },
+        "checks": checks,
+        "violations": violations,
+        "regression_fixture_refs": fixture_refs,
+        "machine_check_status": (
+            "geometry_checks_passed" if not violations else "geometry_checks_failed"
+        ),
+        "authority": False,
+        "authority_boundary": _layout_authority_boundary(),
+        "publication_ready": False,
+    }
+    return {
+        "receipt_id": f"sha256:{_canonical_json_sha256(payload)}",
+        **payload,
+    }
 
 
 def _normalize_dpi(value: object) -> dict[str, float] | None:
@@ -884,16 +1526,37 @@ def inspect_display_artifact(artifact_path: str | Path) -> dict[str, Any]:
 
 def _main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Inspect a rendered display artifact without mutating it"
+        description="Inspect display artifacts or emit a refs-only layout QC receipt"
     )
-    parser.add_argument("--inspect", metavar="PATH", help="PNG/JPEG/TIFF/PDF path")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--inspect", metavar="PATH", help="PNG/JPEG/TIFF/PDF path")
+    mode.add_argument(
+        "--layout-registry", metavar="JSON", help="renderer-produced bbox registry"
+    )
+    parser.add_argument("--png", metavar="PATH", help="final fixed-canvas PNG")
+    parser.add_argument("--pdf", metavar="PATH", help="final fixed-canvas PDF")
     args = parser.parse_args(argv)
-    if args.inspect is None:
+    if args.inspect is None and args.layout_registry is None:
+        if args.png or args.pdf:
+            parser.error("--png and --pdf require --layout-registry")
         _self_check()
         return 0
-    candidate = inspect_display_artifact(args.inspect)
-    print(json.dumps(candidate, indent=2, sort_keys=True))
-    return 2 if candidate["export_integrity_ref"]["hard_fail"] else 0
+    if args.inspect is not None:
+        if args.png or args.pdf:
+            parser.error("--png and --pdf cannot be combined with --inspect")
+        candidate = inspect_display_artifact(args.inspect)
+        print(json.dumps(candidate, indent=2, sort_keys=True))
+        return 2 if candidate["export_integrity_ref"]["hard_fail"] else 0
+    if not args.png or not args.pdf:
+        parser.error("--layout-registry requires both --png and --pdf")
+    registry_path = Path(args.layout_registry)
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    receipt = build_layout_qc_receipt(
+        registry,
+        [inspect_display_artifact(args.png), inspect_display_artifact(args.pdf)],
+    )
+    print(json.dumps(receipt, indent=2, sort_keys=True))
+    return 0 if receipt["machine_check_status"] == "geometry_checks_passed" else 2
 
 
 def _self_check() -> None:
@@ -911,6 +1574,99 @@ def _self_check() -> None:
     assert _font_embedding_state("Type3", b"") is None
     assert _font_embedding_state("Type1", b"") is False
     assert _font_embedding_state("Type0", b"font-program") is True
+
+    fixture_path = Path(__file__).with_name("fixtures") / "layout_qc_regression.json"
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    layout_audit = audit_layout_registry(fixture)
+    assert layout_audit["machine_check_status"] == "geometry_checks_passed"
+    assert layout_audit["registered_text_artist_count"] == 6
+    assert layout_audit["checks"]["annotation_lane_separate"] is True
+    assert layout_audit["checks"]["measured_wrap_valid"] is True
+
+    fake_png = {
+        "display_artifact_inventory_ref": {
+            "sha256": "1" * 64,
+            "size_bytes": 1000,
+            "format": "PNG",
+            "dimensions": {"width_px": 1800, "height_px": 1000},
+            "page_count": 1,
+        },
+        "programmatic_figure_audit_ref": {"dpi": {"x": 254, "y": 254}},
+        "export_integrity_ref": {"hard_fail": False},
+    }
+    fake_pdf = {
+        "display_artifact_inventory_ref": {
+            "sha256": "2" * 64,
+            "size_bytes": 800,
+            "format": "PDF",
+            "dimensions": {
+                "unit": "pt",
+                "variants": [
+                    {
+                        "width_pt": 510.2362204724,
+                        "height_pt": 283.4645669291,
+                        "page_count": 1,
+                    }
+                ],
+            },
+            "page_count": 1,
+        },
+        "programmatic_figure_audit_ref": {"dpi": None},
+        "export_integrity_ref": {"hard_fail": False},
+    }
+    receipt = build_layout_qc_receipt(fixture, [fake_png, fake_pdf])
+    assert receipt["machine_check_status"] == "geometry_checks_passed"
+    assert receipt["artifact_bindings"][1]["sha256"] == "1" * 64
+    assert receipt["authority"] is False
+    assert receipt["authority_boundary"]["can_claim_quality_verdict"] is False
+    assert receipt == build_layout_qc_receipt(fixture, [fake_pdf, fake_png])
+    wrong_size_pdf = json.loads(json.dumps(fake_pdf))
+    wrong_size_pdf["display_artifact_inventory_ref"]["dimensions"]["variants"][0][
+        "width_pt"
+    ] = 500
+    wrong_size_receipt = build_layout_qc_receipt(
+        fixture, [fake_png, wrong_size_pdf]
+    )
+    assert wrong_size_receipt["machine_check_status"] == "geometry_checks_failed"
+    assert "artifact_final_size_mismatch" in {
+        item["code"] for item in wrong_size_receipt["violations"]
+    }
+
+    manual_wrap = json.loads(json.dumps(fixture))
+    manual_wrap["panels"][0]["text_artists"][1]["text_measurement"][
+        "manual_breaks"
+    ] = True
+    failed_layout = audit_layout_registry(manual_wrap)
+    assert failed_layout["machine_check_status"] == "geometry_checks_failed"
+    assert failed_layout["checks"]["measured_wrap_valid"] is False
+
+    overlap = json.loads(json.dumps(fixture))
+    overlap["panels"][0]["text_artists"][2]["bbox_px"] = [60, 230, 260, 260]
+    clipping = json.loads(json.dumps(fixture))
+    clipping["panels"][0]["text_artists"][1]["clip_bbox_px"] = [80, 180, 320, 250]
+    overflow = json.loads(json.dumps(fixture))
+    overflow["panels"][0]["text_artists"][5]["bbox_px"] = [1750, 900, 1810, 925]
+    minimum_spacing = json.loads(json.dumps(fixture))
+    minimum_spacing["panels"][0]["text_artists"][2]["bbox_px"] = [60, 255, 260, 280]
+    unsafe = json.loads(json.dumps(fixture))
+    unsafe["panels"][0]["text_artists"][1]["bbox_px"] = [20, 180, 340, 250]
+    lane_overlap = json.loads(json.dumps(fixture))
+    lane_overlap["lanes"]["annotation"]["bbox_px"] = [1400, 40, 1760, 960]
+    wrong_lane = json.loads(json.dumps(fixture))
+    wrong_lane["panels"][0]["text_artists"][3]["lane"] = "plotting_data"
+    wrong_lane["panels"][0]["text_artists"][3]["bbox_px"] = [1200, 190, 1440, 220]
+    wrong_lane["panels"][0]["text_artists"][3]["clip_bbox_px"] = [380, 40, 1460, 960]
+    for broken_registry, expected_code in [
+        (overlap, "text_artist_overlap"),
+        (clipping, "artist_clipped"),
+        (overflow, "artist_canvas_overflow"),
+        (minimum_spacing, "text_artist_minimum_spacing_violation"),
+        (unsafe, "artist_safe_inset_violation"),
+        (lane_overlap, "data_annotation_lane_overlap"),
+        (wrong_lane, "numeric_annotation_outside_annotation_lane"),
+    ]:
+        broken_audit = audit_layout_registry(broken_registry)
+        assert expected_code in {item["code"] for item in broken_audit["violations"]}
 
     with TemporaryDirectory() as tmp_dir:
         root = Path(tmp_dir)
@@ -1031,7 +1787,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 34 if fitz_available else 30 if pillow_available else 17
+    checks = 54 if fitz_available else 50 if pillow_available else 37
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

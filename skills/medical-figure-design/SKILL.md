@@ -26,11 +26,11 @@ Keep renderer, source-data, statistics, export, crop, and visual-QA judgment in
 the display skill family; MAS keeps artifact and visual-audit authority.
 
 Receipt loop: design owns the refs-only `figure_contract_ref` handoff, the
-display pack returns `render_receipt_ref`, and style/composer return
-`visual_qa_receipt_ref`, `figure_style_review_ref`, or
-`figure_composition_review_ref` for MAS/domain owner consumption. None of these
-refs is artifact authority, owner receipt, visual-audit authority, typed
-blocker, or publication readiness.
+display pack returns `render_receipt_ref`, display QC returns the deterministic
+`layout_qc_receipt_ref`, and style/composer return `visual_qa_receipt_ref`,
+`figure_style_review_ref`, or `figure_composition_review_ref` for MAS/domain
+owner consumption. None of these refs is artifact authority, owner receipt,
+visual-audit authority, typed blocker, or publication readiness.
 
 Thin display subskill routes:
 
@@ -229,21 +229,28 @@ Before writing plotting code, produce or refresh a compact contract:
   or export engine, render command/config refs, and a no-silent-fallback policy.
 - `final_size_layout_ref`: target canvas width and height, output units, final
   text sizes, and the fixed-font long-label policy. Any categorical or tick
-  label that exceeds its allocated extent must use
+  label whose renderer-measured unwrapped width exceeds its label lane must use
   `wrap_policy=automatic_semantic_wrap` at semantic boundaries on the fixed
-  canvas. Evidence-faithful shortening may precede wrapping, and justified
-  rotation may follow it, but shrinking text is not a passing repair.
+  canvas. Keep source labels free of manual line breaks. Evidence-faithful
+  shortening may precede wrapping, and justified rotation may follow it, but
+  shrinking text is not a passing repair.
 - `text_extent_safe_area_ref`: renderer-drawn text-extent evidence using the
   reusable template in
   `references/professional-quality-ref-templates.md#text-extent-safe-area-ref`,
-  including `final_canvas`, `safe_inset`, `artist_extent_report`,
-  `overflow_count=0`, `annotation_lane`, and `composed_page_check`.
+  including a per-panel bbox registry for all text artists, separate
+  plotting/data and right `annotation_lane` bounds, overlap, clipping, minimum
+  spacing, canvas-overflow and safe-inset checks, and `overflow_count=0`.
+- `layout_qc_receipt_ref`: deterministic machine-readable geometry evidence
+  bound to the final PNG/PDF SHA-256 values, dimensions, safe inset, lane
+  bounds, bbox-registry hash, and regression fixture refs. It is not a MAS
+  visual-audit receipt or submission authority.
 - `single_generation_source_ref`: one structured generation source that drives
   the figure, caption, and catalog/manifest fields in the same build rather than
   relying on manually synchronized copies.
 - `paired_export_qa_ref`: the required PNG/PDF or paper-local raster/vector
   pair, payload and geometry parity, PDF font-embedding/subtype inspection,
-  raster dimensions/DPI, and per-output fingerprints.
+  raster dimensions/DPI, per-output fingerprints, and fixed-canvas export with
+  `bbox_inches=None` or the backend-equivalent no-tight-crop policy.
 - `clean_rebuild_consistency_ref`: receipts from two clean rebuilds using the
   same `source_fingerprint`, with identical per-format `output_fingerprints`;
   any mismatch produces `route_back_candidate` before owner handoff.
@@ -507,29 +514,35 @@ silently.
 
 Lock `final_size_layout_ref` before fitting labels: set the target canvas width
 and height, final output units, and final text sizes first. Resolve long labels
-in this order: use an evidence-faithful short form, automatically wrap
-categorical and tick labels at semantic boundaries, then rotate only when the
-selected figure grammar still requires it; move definitions to the caption when
-appropriate. Apply `wrap_policy=automatic_semantic_wrap` on the fixed final
-canvas and declared font size. Do not reduce the final font size merely to
-suppress overlap or pass QA.
+in this order: use an evidence-faithful short form; measure the unwrapped source
+string with the final renderer/font; automatically wrap at semantic boundaries
+only when that width exceeds the allocated label lane; then rotate only when the
+selected grammar still requires it. Keep source strings free of manual line
+breaks. Apply `wrap_policy=automatic_semantic_wrap` on the fixed final canvas
+and declared font size; do not shrink text to suppress overlap or pass QA.
 
 After each final renderer draw (`fig.canvas.draw()` plus
 `get_window_extent(renderer)` in Matplotlib, or the backend-equivalent final
 layout pass), fill `text_extent_safe_area_ref`. Set
 `renderer_draw_complete=true` and calculate a text bounding box for
 `artist_scope=all_text_artists`: axis-inside and axis-outside text artists,
-categorical and tick labels, titles, annotations, the legend container and all
-legend text, and sample-size labels. Normalize every box to `final_canvas`
-coordinates and compare it with the explicit `safe_inset`. Reserve an
-`annotation_lane` or margin before rendering for every axis-external label. A
-pass requires a complete `artist_extent_report` and `overflow_count=0`.
+categorical and tick labels, titles, annotations, legend text, and sample-size
+labels. For each panel, register the expected artist ids and every measured bbox
+plus its clip bbox. Reserve a right `annotation_lane` that is geometrically
+separate from the plotting/data lane. Normalize boxes to `final_canvas` and
+check registry completeness, pairwise overlap, canvas overflow, clipping,
+minimum spacing, lane containment, and the explicit `safe_inset`. A pass
+requires a complete `artist_extent_report` and `overflow_count=0`.
 
-`tight_layout`, `bbox_inches=tight`, and `clip_on` are layout or export settings,
-not safe-area proof. Recheck the actual final PNG/PDF exports and, whenever the
-figure is embedded for delivery, the rendered DOCX/PDF page. Record page scale,
-crop, and page-safe-inset evidence in `composed_page_check`; a required composed
-page with a missing or failed check cannot pass this gate.
+Export PNG/PDF at the locked final size with `bbox_inches=None` or the
+backend-equivalent fixed canvas. `tight_layout`, `bbox_inches=tight`, `clip_on`,
+and tight-crop output are not safe-area proof. Run the long-string,
+extreme-value, and full-width regression fixture, then bind final file SHA-256,
+dimensions, safe inset, lane bounds, bbox-registry hash, and check counts in the
+deterministic `layout_qc_receipt_ref`. Recheck the rendered DOCX/PDF page when
+embedded and record it in `composed_page_check`; a missing or failed required
+page check cannot pass this machine geometry gate. The receipt does not create
+MAS visual or submission authority.
 
 Bind `single_generation_source_ref` to one structured paper-local source for
 data mappings, labels, annotations, caption payload, and catalog/manifest
@@ -619,9 +632,10 @@ Keep two QA lanes separate:
 - `programmatic_figure_audit_ref`: deterministic checks for missing glyphs,
   CJK/negative-sign rendering, bound font-file hashes, clipped text,
   `annotation_headroom`, `boundary_clipping`, `line_text_intersection`,
-  `tick_label_overlap`, the renderer-drawn `text_extent_safe_area_ref`, file
-  format, DPI, font embedding/subtype, final dimensions, and source/export
-  traceability.
+  `tick_label_overlap`, the renderer-drawn `text_extent_safe_area_ref`, complete
+  bbox registry, lane separation, minimum spacing, fixed-canvas export, and the
+  SHA-bound `layout_qc_receipt_ref`, plus file format, DPI, font
+  embedding/subtype, final dimensions, and source/export traceability.
 - `export_lint_ref`: export-contract lint for file format, DPI, font embedding,
   final dimensions, and traceability before any owner handoff.
 - `paired_export_qa_ref`: separate raster/vector checks for payload, dimensions,
@@ -682,8 +696,12 @@ Check:
 - complete renderer-drawn text extents for all axis-inside and axis-outside text,
   annotations, legends, and sample-size labels, with the declared safe inset and
   zero overflow
-- reserved annotation lanes or margins for axis-external labels, plus successful
-  safe-area checks on final PNG/PDF exports and the embedded DOCX/PDF page
+- automatic measured-width wrapping without source-level manual breaks
+- separate plotting/data and right annotation lanes; complete per-panel bbox
+  registries; zero overlap, canvas overflow, clipping, minimum-spacing, and
+  safe-inset violations
+- fixed-canvas final PNG/PDF checks and deterministic SHA/dimension/safe-area
+  receipt evidence, plus successful checks on the embedded DOCX/PDF page
 - missing glyphs, CJK tofu boxes, special-symbol loss, or negative-sign boxes
 - whether every visible claim is supported by evidence refs
 - whether schematic icons, arrows, or explanatory simplifications preserve the
@@ -746,8 +764,9 @@ Before handoff, produce a compact reviewer packet:
 - figure contract template and panel evidence chain refs
 - panel plan
 - figure contract, style brief, and renderer decision refs
-- deterministic render, final-size layout, text-extent safe-area,
-  single-generation-source, paired-export QA, and clean-rebuild consistency refs
+- deterministic render, final-size layout, text-extent safe-area, layout-QC
+  receipt, single-generation-source, paired-export QA, and clean-rebuild
+  consistency refs
 - claim type, graph warning, and annotation-to-source regeneration refs for any
   figure claim at risk
 - critique-as-repair hints, triggered meta-review refs, and reusable lessons
@@ -770,9 +789,13 @@ package work.
   engines, or renderer versions after the deterministic render lock is recorded.
 - Do not shrink fixed final-size text below the readability floor to rescue long
   categorical or tick labels; apply automatic semantic wrapping at the declared
-  font size, then rotate only when justified, or move detail to the caption.
+  font size after measuring the unwrapped renderer width, then rotate only when
+  justified, or move detail to the caption. Do not encode wrapping as manual
+  source-string line breaks.
 - Do not treat `tight_layout`, `bbox_inches=tight`, `clip_on`, or an unclipped
-  preview as proof that all renderer-drawn text stays inside the safe inset.
+  preview as proof that all renderer-drawn text stays inside the safe inset, and
+  do not use tight crop to replace `bbox_inches=None` or an equivalent fixed
+  canvas.
 - Do not hand-edit figure, caption, and catalog/manifest copies independently
   when they are required to share one generation source.
 - Do not pass deterministic closeout after only one clean rebuild or when any

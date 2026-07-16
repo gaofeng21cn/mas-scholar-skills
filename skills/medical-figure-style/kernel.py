@@ -29,7 +29,7 @@ DEFAULT_STYLE_RCPARAMS = {
     "legend.frameon": False,
     "figure.dpi": 200,
     "savefig.dpi": 300,
-    "savefig.bbox": "tight",
+    "savefig.bbox": None,
     "pdf.fonttype": 42,
     "ps.fonttype": 42,
 }
@@ -231,6 +231,7 @@ def lint_readability(
 
 def _self_check() -> None:
     assert matplotlib_style_rcparams(frame="boxed")["axes.spines.top"] is True
+    assert matplotlib_style_rcparams()["savefig.bbox"] is None
     assert focal_palette(["A", "B"], "A")["A"] == DEFAULT_FOCAL_COLOR
     assert panel_letter_plan(2, case="upper")[1]["letter"] == "B"
     assert crop_box_ref("a", (10, 10, 20, 20), image_size_px=(24, 24))["box_px"] == (6, 6, 24, 24)

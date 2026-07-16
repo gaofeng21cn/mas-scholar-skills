@@ -59,6 +59,10 @@ if plugin_exposure.get("specialtyRoutingPolicy") != "materialized_by_default_sel
     fail("plugin manifest must separate specialty discovery from task routing")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
+display_receipt_templates = read_json("contracts/display-pack-receipt-templates.json")
+layout_qc_fixture = read_json(
+    "skills/medical-display-qc/fixtures/layout_qc_regression.json"
+)
 domain_descriptor = read_json("contracts/domain_descriptor.json")
 capability_map = read_json("contracts/capability_map.json")
 package_manifest = read_json("contracts/opl_capability_package_manifest.json")
@@ -1324,11 +1328,14 @@ display_text_safe_area_surfaces = {
     "display learned pattern refs": (display_module.get("learned_pattern_policy") or {}).get("required_ref_shapes"),
 }
 for label, refs in display_text_safe_area_surfaces.items():
-    require_all(label, refs, ["text_extent_safe_area_ref"])
+    require_all(label, refs, ["text_extent_safe_area_ref", "layout_qc_receipt_ref"])
 require_all(
     "scientific figure learned patterns",
     scientific_figure_quality_floor.get("learned_scientific_figure_patterns"),
-    ["text_extent_safe_area_after_final_renderer_draw"],
+    [
+        "text_extent_safe_area_after_final_renderer_draw",
+        "layout_qc_receipt_after_fixed_canvas_export",
+    ],
 )
 for token in [
     "K-Dense-AI/scientific-agent-skills",
@@ -1357,9 +1364,31 @@ for token in [
     if token not in quality_policy_text:
         fail(f"professional skill quality upgrade policy missing {token}")
 expected_quality_skill_refs = {
-    "medical-figure-design": ["figure_contract_template_ref", "figure_contract_ref", "panel_evidence_chain_ref", "candidate_set_ref", "critic_review_ref", "text_extent_safe_area_ref"],
-    "medical-figure-style": ["data_fidelity_ref", "claim_title_truth_ref", "label_economy_ref", "color_vision_check_ref", "export_lint_ref"],
-    "medical-figure-composer": ["multi_panel_outline_ref", "panel_render_receipt_ref", "composite_review_ref", "final_size_export_ref", "owner_gate_handoff_ref"],
+    "medical-figure-design": [
+        "figure_contract_template_ref",
+        "figure_contract_ref",
+        "panel_evidence_chain_ref",
+        "candidate_set_ref",
+        "critic_review_ref",
+        "text_extent_safe_area_ref",
+        "layout_qc_receipt_ref",
+    ],
+    "medical-figure-style": [
+        "data_fidelity_ref",
+        "claim_title_truth_ref",
+        "label_economy_ref",
+        "color_vision_check_ref",
+        "export_lint_ref",
+        "layout_qc_receipt_ref",
+    ],
+    "medical-figure-composer": [
+        "multi_panel_outline_ref",
+        "panel_render_receipt_ref",
+        "composite_review_ref",
+        "final_size_export_ref",
+        "layout_qc_receipt_ref",
+        "owner_gate_handoff_ref",
+    ],
     "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
     "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
     "medical-research-lit": ["source_ref_chain_template_ref", "fallback_source_refs", "deduplication_ref", "source_acceptance_decision_ref", "support_strength_matrix_ref"],
@@ -1634,8 +1663,9 @@ figure_foldback_row = next(
     (line for line in professional_ref_templates.splitlines() if line.startswith("| `figure_evidence_contract_pack`")),
     "",
 )
-if "text_extent_safe_area_ref" not in figure_foldback_row:
-    fail("figure evidence foldback row missing text_extent_safe_area_ref")
+for ref in ["text_extent_safe_area_ref", "layout_qc_receipt_ref"]:
+    if ref not in figure_foldback_row:
+        fail(f"figure evidence foldback row missing {ref}")
 
 deterministic_figure_closeout_tokens = [
     "deterministic_render_ref",
@@ -1648,6 +1678,7 @@ deterministic_figure_closeout_tokens = [
     "source_fingerprint",
     "output_fingerprints",
     "programmatic_figure_audit_ref",
+    "layout_qc_receipt_ref",
     "final_scale_visual_qa_ref",
     "annotation_headroom",
     "boundary_clipping",
@@ -1691,6 +1722,188 @@ for relative, text in deterministic_figure_closeout_texts.items():
     for token in text_extent_safe_area_tokens:
         if token not in text:
             fail(f"{relative} missing text-extent safe-area token: {token}")
+
+layout_qc_constraint_texts = {
+    "skills/medical-figure-design/SKILL.md": figure_skill,
+    "skills/medical-figure-style/SKILL.md": figure_style_skill,
+    "skills/medical-figure-composer/SKILL.md": figure_composer_skill,
+    "skills/medical-display-qc/SKILL.md": display_qc_skill,
+    "references/professional-quality-ref-templates.md": professional_ref_templates,
+}
+for relative, text in layout_qc_constraint_texts.items():
+    for token in [
+        "layout_qc_receipt_ref",
+        "bbox registry",
+        "annotation",
+        "plotting/data",
+        "minimum",
+        "fixed canvas",
+        "PNG/PDF",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing fixed-canvas layout QC token: {token}")
+
+for relative, text in deterministic_figure_closeout_texts.items():
+    for token in [
+        "renderer-measured",
+        "manual line breaks",
+        "bbox_inches=None",
+        "tight-crop",
+        "long-string",
+        "extreme-value",
+        "full-width",
+        "SHA-256",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing measured-layout regression token: {token}")
+
+if display_receipt_templates.get("schema_version") != "1.3.0":
+    fail("display receipt templates must use schema_version 1.3.0")
+require_all(
+    "display receipt chain",
+    display_receipt_templates.get("receipt_chain"),
+    [
+        "figure_contract_ref",
+        "render_receipt_ref",
+        "layout_qc_receipt_ref",
+        "visual_qa_receipt_ref",
+        "owner_gate_handoff_ref",
+    ],
+)
+layout_qc_receipt_template = (
+    display_receipt_templates.get("layout_qc_receipt_ref") or {}
+)
+if layout_qc_receipt_template.get("surface_kind") != "layout_qc_receipt_candidate.v1":
+    fail("layout QC receipt template must use the candidate v1 surface")
+require_all(
+    "layout QC receipt required fields",
+    layout_qc_receipt_template.get("required_fields"),
+    [
+        "receipt_id",
+        "generation_source_ref",
+        "registry_sha256",
+        "artifact_bindings",
+        "final_canvas",
+        "safe_inset_px",
+        "lane_bounds_px",
+        "bbox_registry_summary",
+        "checks",
+        "violations",
+        "regression_fixture_refs",
+        "machine_check_status",
+        "authority",
+        "authority_boundary",
+        "publication_ready",
+    ],
+)
+require_all(
+    "layout QC receipt geometry checks",
+    layout_qc_receipt_template.get("required_geometry_checks"),
+    [
+        "registry_complete",
+        "measured_wrap_valid",
+        "annotation_lane_separate",
+        "no_text_overlap",
+        "minimum_spacing_met",
+        "no_canvas_overflow",
+        "no_clipping",
+        "safe_inset_met",
+        "fixed_canvas_export",
+        "png_pdf_final_size_and_sha_bound",
+    ],
+)
+if layout_qc_receipt_template.get("required_artifact_formats") != ["PNG", "PDF"]:
+    fail("layout QC receipt must bind final PNG and PDF artifacts")
+for key in ["authority", "publication_ready", "machine_check_is_quality_verdict"]:
+    if layout_qc_receipt_template.get(key) is not False:
+        fail(f"layout QC receipt flag {key} must be false")
+layout_qc_authority = layout_qc_receipt_template.get("authority_boundary") or {}
+if layout_qc_authority.get("refs_only") is not True:
+    fail("layout QC receipt must remain refs-only")
+for key in [
+    "can_mutate_artifacts",
+    "can_write_mas_truth",
+    "can_sign_visual_audit_receipt",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_mas_visual_authority",
+    "can_claim_submission_authority",
+    "can_claim_artifact_authority",
+    "can_claim_quality_verdict",
+    "can_claim_publication_readiness",
+]:
+    if layout_qc_authority.get(key) is not False:
+        fail(f"layout QC receipt authority flag {key} must be false")
+if "layout_qc_receipt_ref" not in (
+    (display_receipt_templates.get("visual_qa_receipt_ref") or {}).get("required_fields")
+    or []
+):
+    fail("visual QA receipt must consume layout_qc_receipt_ref")
+
+if layout_qc_fixture.get("fixture_only") is not True:
+    fail("layout QC regression fixture must remain non-issued")
+require_all(
+    "layout QC regression fixture cases",
+    layout_qc_fixture.get("regression_cases"),
+    ["long_category_label", "extreme_numeric_annotation", "full_width_layout"],
+)
+fixture_export_policy = layout_qc_fixture.get("export_policy") or {}
+if fixture_export_policy != {
+    "canvas_mode": "fixed",
+    "bbox_inches": None,
+    "tight_crop": False,
+}:
+    fail("layout QC regression fixture must use the fixed no-tight-crop canvas")
+fixture_canvas = layout_qc_fixture.get("final_canvas") or {}
+if fixture_canvas.get("unit") != "mm" or fixture_canvas.get("width", 0) < 170:
+    fail("layout QC regression fixture must exercise a full-width manuscript canvas")
+fixture_artists = [
+    artist
+    for panel in layout_qc_fixture.get("panels") or []
+    for artist in panel.get("text_artists") or []
+]
+long_label = next(
+    (item for item in fixture_artists if item.get("artist_id") == "a.category.long"),
+    {},
+)
+long_measurement = long_label.get("text_measurement") or {}
+if not (
+    long_measurement.get("measured_unwrapped_width_px", 0)
+    > long_measurement.get("available_width_px", 0)
+    and long_measurement.get("line_count", 0) > 1
+    and long_measurement.get("manual_breaks") is False
+    and "\n" not in str(long_label.get("source_text") or "")
+):
+    fail("layout QC regression fixture must exercise renderer-measured automatic wrapping")
+extreme_annotation = next(
+    (
+        item
+        for item in fixture_artists
+        if item.get("artist_id") == "a.annotation.extreme"
+    ),
+    {},
+)
+if not (
+    extreme_annotation.get("artist_kind") == "numeric_annotation"
+    and extreme_annotation.get("lane") == "annotation"
+    and "e+308" in str(extreme_annotation.get("source_text") or "")
+):
+    fail("layout QC regression fixture must exercise an extreme right annotation")
+
+figure_style_kernel = read_text("skills/medical-figure-style/kernel.py")
+display_qc_kernel = read_text("skills/medical-display-qc/kernel.py")
+if '"savefig.bbox": None' not in figure_style_kernel:
+    fail("medical-figure-style kernel must default to a fixed savefig canvas")
+if '"savefig.bbox": "tight"' in figure_style_kernel:
+    fail("medical-figure-style kernel must not default to tight-crop export")
+for token in [
+    "audit_layout_registry",
+    "build_layout_qc_receipt",
+    "layout_qc_receipt_candidate.v1",
+    "can_claim_quality_verdict",
+]:
+    if token not in display_qc_kernel:
+        fail(f"medical-display-qc kernel missing layout QC token: {token}")
 
 modules = contract.get("modules")
 if not isinstance(modules, list) or len(modules) != 10:

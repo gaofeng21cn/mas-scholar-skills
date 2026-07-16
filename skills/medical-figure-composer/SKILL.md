@@ -48,6 +48,12 @@ If a composite annotation reveals a panel/source mismatch, emit
   `contain` preserves aspect ratio and centers the panel on white background.
   `crop` must be explicit; it preserves aspect ratio while filling the target
   box and may remove edge content. Never stretch a panel to fit.
+- Preserve each panel's text bbox registry through the selected scale/crop
+  transform, and register composer-added panel letters or text. The transformed
+  registry must still keep right annotations in a lane separate from plotted
+  data (`plotting/data`) and must expose overlap, canvas-overflow, clipping,
+  minimum-spacing, and safe-inset failures. A crop that removes a registered
+  text artist fails.
 - The figure contract and AI-selected outline continue to decide the hook or
   hero panel, panel order, and grid. Do not add a hero-selection or layout
   heuristic in the composer.
@@ -71,17 +77,22 @@ return to figure design, statistics, table, data, writing, or review.
 
 1. Confirm `multi_panel_outline_ref`: one figure claim, hook or hero panel,
    panel jobs, panel order, and layout intent.
-2. Confirm each `panel_render_receipt_ref`: panel input ref, data/evidence refs,
-   output path, visible claim, and known panel-level limits.
+2. Confirm each `panel_render_receipt_ref` and `layout_qc_receipt_ref`: panel
+   input ref, data/evidence refs, output SHA and dimensions, complete text bbox
+   registry, visible claim, and known panel-level limits.
 3. Validate the outline and choose explicit per-panel `fit_mode` only where
    cropping is intended and reviewable. Record physical-layout warnings without
    blocking unaffected panel progress.
 4. Compose from existing panel exports only. If a panel needs scientific
    rerendering, route that panel back to `medical-figure-design`.
 5. Check `composite_review_ref`: panel letters, gutters, resized text,
-   cross-panel consistency, crop-level violations, and export dimensions.
-   Add `final_scale_visual_qa_ref` for final manuscript-size composite
-   inspection.
+   transformed bbox registries, cross-panel consistency, crop-level violations,
+   and export dimensions. Export the final PNG/PDF at one declared size on a
+   fixed canvas (`bbox_inches=None` or backend equivalent), then use
+   `medical-display-qc` to emit a deterministic composite
+   `layout_qc_receipt_ref` bound to both SHA-256 values, dimensions, safe inset,
+   lanes, and registry hash. Add
+   `final_scale_visual_qa_ref` for final manuscript-size inspection.
 6. Rerender only affected panels or the composite when the finding is scoped.
    Do not regenerate clean panels for activity.
 
@@ -95,6 +106,8 @@ Produce a compact `figure_composition_review_ref` with:
   mode, and non-blocking sub-35 mm warnings
 - composite findings and scoped fixes
 - `visual_qa_receipt_ref` when the composite export was inspected
+- panel and composite `layout_qc_receipt_ref` values as machine geometry
+  evidence only, never as MAS visual/submission authority
 - `final_scale_visual_qa_ref` when final-size composite readability was
   inspected
 - `annotation_to_source_regeneration_ref` for panel/source mismatches that need

@@ -24,7 +24,8 @@ economy, color-vision robustness, and render-then-verify.
 Optional helper: use `kernel.py` for deterministic style utilities such as
 matplotlib rcParams, focal palettes, panel-letter placement refs, frame helpers,
 crop-box refs, and lightweight contrast/readability lint. The helper is a
-refs-only style/composition aid; it must not redraw data, mutate artifacts, or
+refs-only style/composition aid; its Matplotlib export default keeps the fixed
+canvas with `savefig.bbox=None`. It must not redraw data, mutate artifacts, or
 decide publication quality.
 
 ## Boundary
@@ -54,12 +55,18 @@ unsupported, stale, circular, missing-source, or visible-payload drift. Consume
 2. Check `data_fidelity_ref`, `excluded_rows_ref`, `comparability_ref`,
    `replication_and_fixed_context_ref`, and `claim_title_truth_ref` before any
    visual polish recommendation.
-3. Check `label_economy_ref`, `color_vision_check_ref`,
+3. Consume the renderer's `text_extent_safe_area_ref` and
+   `layout_qc_receipt_ref`. Confirm measured-width automatic wrapping without
+   manual source breaks, separate plotting/data and right annotation lanes, a
+   complete per-panel text bbox registry, zero overlap/overflow/clipping/minimum
+   spacing/safe-inset violations, and final-size PNG/PDF SHA and dimensions on a
+   fixed canvas. A tight crop cannot repair a failure.
+4. Check `label_economy_ref`, `color_vision_check_ref`,
    `final_size_grayscale_preview_ref`, `export_lint_ref`, and
    `visual_qa_preview_ref` on the actual rendered output. Add
    `final_scale_visual_qa_ref` when the figure was inspected at final
    manuscript dimensions.
-4. Return style findings as candidate refs: what can be fixed inside visual
+5. Return style findings as candidate refs: what can be fixed inside visual
    style, what must route back to evidence/renderer work, and what remains a
    reviewer hint.
 
@@ -71,6 +78,8 @@ Produce a compact `figure_style_review_ref` with:
 - checked claim/evidence refs
 - style-only findings and proposed fixes
 - `visual_qa_receipt_ref` when the actual rendered export was inspected
+- `layout_qc_receipt_ref` as deterministic machine evidence only, never as MAS
+  visual/submission authority
 - `final_scale_visual_qa_ref` when final-size readability was inspected
 - `annotation_to_source_regeneration_ref` for source/claim mismatches that must
   route back to figure design or evidence repair

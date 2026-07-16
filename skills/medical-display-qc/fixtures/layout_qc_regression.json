@@ -1,0 +1,121 @@
+{
+  "fixture_id": "medical_display_layout_qc_long_label_extreme_value_full_width.v1",
+  "fixture_only": true,
+  "generation_source_ref": "examples/not-rendered",
+  "regression_cases": [
+    "long_category_label",
+    "extreme_numeric_annotation",
+    "full_width_layout"
+  ],
+  "final_canvas": {
+    "width": 180,
+    "height": 100,
+    "unit": "mm",
+    "width_px": 1800,
+    "height_px": 1000
+  },
+  "safe_inset_px": {
+    "left": 40,
+    "right": 40,
+    "top": 40,
+    "bottom": 40
+  },
+  "minimum_spacing_px": 12,
+  "wrap_policy": "automatic_semantic_wrap",
+  "measurement_basis": "renderer_drawn_text_width",
+  "export_policy": {
+    "canvas_mode": "fixed",
+    "bbox_inches": null,
+    "tight_crop": false
+  },
+  "lanes": {
+    "label": {
+      "bbox_px": [40, 40, 360, 960]
+    },
+    "plotting_data": {
+      "bbox_px": [380, 40, 1460, 960]
+    },
+    "annotation": {
+      "bbox_px": [1480, 40, 1760, 960]
+    }
+  },
+  "panels": [
+    {
+      "panel_id": "a",
+      "expected_text_artist_ids": [
+        "a.title",
+        "a.category.long",
+        "a.category.short",
+        "a.annotation.extreme",
+        "a.annotation.regular",
+        "a.tick.bottom"
+      ],
+      "text_artists": [
+        {
+          "artist_id": "a.title",
+          "artist_kind": "title",
+          "lane": "plotting_data",
+          "source_text": "Adjusted effect estimates",
+          "bbox_px": [500, 60, 1300, 90],
+          "clip_bbox_px": [380, 40, 1460, 960]
+        },
+        {
+          "artist_id": "a.category.long",
+          "artist_kind": "category_label",
+          "lane": "label",
+          "source_text": "History of cardiovascular disease with chronic kidney disease and persistent albuminuria",
+          "rendered_text": "History of cardiovascular disease with\nchronic kidney disease and persistent\nalbuminuria",
+          "bbox_px": [60, 180, 340, 250],
+          "clip_bbox_px": [40, 40, 360, 960],
+          "text_measurement": {
+            "method": "renderer_drawn_text_width",
+            "measured_unwrapped_width_px": 612,
+            "available_width_px": 280,
+            "line_count": 3,
+            "manual_breaks": false
+          }
+        },
+        {
+          "artist_id": "a.category.short",
+          "artist_kind": "category_label",
+          "lane": "label",
+          "source_text": "Age",
+          "rendered_text": "Age",
+          "bbox_px": [60, 420, 260, 445],
+          "clip_bbox_px": [40, 40, 360, 960],
+          "text_measurement": {
+            "method": "renderer_drawn_text_width",
+            "measured_unwrapped_width_px": 44,
+            "available_width_px": 280,
+            "line_count": 1,
+            "manual_breaks": false
+          }
+        },
+        {
+          "artist_id": "a.annotation.extreme",
+          "artist_kind": "numeric_annotation",
+          "lane": "annotation",
+          "source_text": "-1.7976931348623157e+308",
+          "bbox_px": [1500, 190, 1740, 220],
+          "clip_bbox_px": [1480, 40, 1760, 960]
+        },
+        {
+          "artist_id": "a.annotation.regular",
+          "artist_kind": "numeric_annotation",
+          "lane": "annotation",
+          "source_text": "1.08 (0.96-1.22)",
+          "bbox_px": [1500, 420, 1690, 445],
+          "clip_bbox_px": [1480, 40, 1760, 960]
+        },
+        {
+          "artist_id": "a.tick.bottom",
+          "artist_kind": "tick_label",
+          "lane": "plotting_data",
+          "source_text": "1.0",
+          "bbox_px": [700, 900, 780, 925],
+          "clip_bbox_px": [380, 40, 1460, 960]
+        }
+      ]
+    }
+  ]
+}

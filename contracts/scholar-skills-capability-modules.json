@@ -575,6 +575,7 @@
         "export_lint_ref",
         "final_size_export_ref",
         "text_extent_safe_area_ref",
+        "layout_qc_receipt_ref",
         "final_size_grayscale_preview_ref",
         "programmatic_figure_audit_ref",
         "ai_visual_review_ref",
@@ -596,6 +597,7 @@
         "color_vision_check_ref",
         "final_size_grayscale_preview_ref",
         "export_lint_ref",
+        "layout_qc_receipt_ref",
         "visual_qa_preview_ref",
         "route_back_hard_evidence_ref"
       ],
@@ -605,6 +607,7 @@
         "composite_review_ref",
         "final_size_export_ref",
         "export_lint_ref",
+        "layout_qc_receipt_ref",
         "owner_gate_handoff_ref"
       ],
       "medical-manuscript-writing": [
@@ -1000,6 +1003,12 @@
           "body_policy": "refs_only_safe_area_evidence_not_visual_audit_receipt_artifact_authority_or_publication_readiness"
         },
         {
+          "ref_id": "layout_qc_receipt_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "deterministic_fixed_canvas_bbox_registry_receipt_candidate",
+          "body_policy": "refs_only_machine_geometry_evidence_not_mas_visual_submission_or_artifact_authority"
+        },
+        {
           "ref_id": "export_lint_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "export_format_dpi_font_dimension_traceability_lint",
@@ -1114,6 +1123,7 @@
           "visual_qa_preview_ref",
           "programmatic_figure_audit_ref",
           "text_extent_safe_area_ref",
+          "layout_qc_receipt_ref",
           "export_lint_ref",
           "final_size_grayscale_preview_ref",
           "ai_visual_review_ref",
@@ -1156,6 +1166,7 @@
           "critic_review_ref",
           "final_size_inspection_ref",
           "text_extent_safe_area_ref",
+          "layout_qc_receipt_ref",
           "export_lint_ref",
           "final_size_grayscale_preview_ref",
           "domain_owner_gate_ref"
@@ -1250,6 +1261,7 @@
             "visual_qa_preview_before_owner_gate",
             "programmatic_figure_audit_before_gallery_use",
             "text_extent_safe_area_after_final_renderer_draw",
+            "layout_qc_receipt_after_fixed_canvas_export",
             "programmatic_audit_split_from_ai_visual_review",
             "route_back_only_on_hard_evidence_fail",
             "grayscale_and_color_vision_check",
@@ -1278,6 +1290,7 @@
             "visual_qa_preview_ref",
             "programmatic_figure_audit_ref",
             "text_extent_safe_area_ref",
+            "layout_qc_receipt_ref",
             "export_lint_ref",
             "final_size_grayscale_preview_ref",
             "ai_visual_review_ref",
@@ -1337,6 +1350,7 @@
           "visual_qa_preview_ref",
           "programmatic_figure_audit_ref",
           "text_extent_safe_area_ref",
+          "layout_qc_receipt_ref",
           "data_profile_ref",
           "plot_selection_candidate_ref",
           "export_lint_ref",

@@ -21,15 +21,20 @@ warning finding and is never installed automatically or turned into a blocker.
 
 ```bash
 python3 skills/medical-display-qc/kernel.py --inspect <artifact.png|jpg|tiff|pdf>
+python3 skills/medical-display-qc/kernel.py --layout-registry <registry.json> \
+  --png <final.png> --pdf <final.pdf>
 ```
 
-The helper inspects one artifact at a time. It does not prove renderer or font
-lock fidelity, raster/vector pair parity, source-to-caption synchronization,
-clean-rebuild reproducibility, or final-size visual correctness. Record those as
-separate refs from the real generation source and rasterized outputs.
+The first mode inspects one artifact. The second audits a renderer-produced bbox
+registry and emits a deterministic `layout_qc_receipt_ref` bound to final
+PNG/PDF bytes. Neither mode proves renderer/font-lock fidelity,
+source-to-caption synchronization, clean-rebuild reproducibility, or final-size
+visual correctness; keep those as separate refs and review lanes.
 
-The command prints JSON. It exits `2` only for missing, unreadable, zero-byte,
-confirmed uniformly blank or fully transparent, or clearly damaged artifacts.
+The command prints JSON. Artifact inspection exits `2` only for missing,
+unreadable, zero-byte, confirmed uniformly blank/transparent, or clearly
+damaged artifacts. Layout mode exits `2` when its deterministic geometry checks
+fail; that exit is not a visual quality, MAS, or submission verdict.
 Review warnings such as missing DPI, small dimensions, high content density,
 an unavailable PDF inspector, unverified font embedding, or a suffix that does
 not match the detected artifact format exit `0` so ordinary stage progress
@@ -51,22 +56,28 @@ reported as an unembedded font.
    renderer fallback. Missing or mismatched lock evidence produces
    `route_back_candidate`; this skill does not create a typed blocker.
 3. Check `final_size_layout_ref` at the fixed target width and height with the
-   declared final text sizes. Long categorical and tick labels that exceed their
-   allocated extent must use `wrap_policy=automatic_semantic_wrap` at semantic
-   boundaries on that fixed canvas and font size. Evidence-faithful shortening
-   may precede wrapping and justified rotation may follow it; shrinking text is
-   not a passing repair.
+   declared final text sizes. Use the renderer-measured unwrapped source-label
+   width and compare it with the available label lane. When it does not
+   fit, require `wrap_policy=automatic_semantic_wrap` at semantic boundaries;
+   manual line breaks in source strings and shrinking text are not passing repairs.
 4. Check `text_extent_safe_area_ref` after a final renderer draw. Require
    `renderer_draw_complete=true`, an explicit `final_canvas` and `safe_inset`,
-   and a text bounding box for `artist_scope=all_text_artists`, including every
-   axis-inside and axis-outside text artist, categorical/tick label, title,
-   annotation, legend container and entry, and sample-size label. Require a
-   reserved `annotation_lane` or margin for axis-external labels, a complete
-   `artist_extent_report`, and `overflow_count=0`. `tight_layout`,
-   `bbox_inches=tight`, and `clip_on` are not safe-area proof. Repeat the check
-   over the final PNG/PDF exports and the rendered embedded DOCX/PDF page, and
-   record page scale, crop, and safe-inset results in `composed_page_check`.
-5. Check `paired_export_qa_ref`: both outputs exist and come from the same
+   and one registered text bounding box plus clip bbox for every expected text
+   artist in every panel under `artist_scope=all_text_artists`. Require a right
+   `annotation_lane` geometrically separate from the plotting/data lane, a
+   complete `artist_extent_report`, zero overlap,
+   canvas overflow, clipping, minimum-spacing and safe-inset violations, and
+   `overflow_count=0`.
+5. Produce `layout_qc_receipt_ref` from the complete bbox registry and actual
+   final PNG/PDF pair. Require one fixed canvas at final size,
+   `bbox_inches=None` or the backend-equivalent no-tight-crop policy, both file
+   SHA-256 values and dimensions, safe inset, lane bounds, registry hash, and
+   deterministic check counts. Run the long-string, extreme-value, and
+   full-width fixture at
+   `skills/medical-display-qc/fixtures/layout_qc_regression.json`. Repeat the
+   page check for the embedded DOCX/PDF and record it in `composed_page_check`.
+   `tight_layout`, `bbox_inches=tight`, and `clip_on` are not proof.
+6. Check `paired_export_qa_ref`: both outputs exist and come from the same
    `single_generation_source_ref`; dimensions, visible data, labels,
    annotations, crop bounds, and panel order agree. Inspect PDF font embedding
    and subtype as well as raster dimensions/DPI. For Matplotlib, an explicit
@@ -74,31 +85,31 @@ reported as an unembedded font.
    for other renderer families rather than treating Matplotlib as the only
    backend. Preserve the existing rule that unverified embedding, including an
    empty Type 3 font-program extraction, remains unknown rather than passing.
-6. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
+7. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
    the same SHA-256 `source_fingerprint` and identical per-format
    `output_fingerprints`. Any difference routes back to the source/render owner
    before owner review.
-7. Keep `programmatic_figure_audit_ref` separate from
+8. Keep `programmatic_figure_audit_ref` separate from
    `final_scale_visual_qa_ref`. The former checks deterministic properties and
    geometry; the latter reviews the actual raster output and a rasterized
    final-size vector output. Neither lane can be inferred from or replace the
    other.
-8. In both lanes where applicable, check `annotation_headroom`,
+9. In both lanes where applicable, check `annotation_headroom`,
    `boundary_clipping`, `line_text_intersection`, and `tick_label_overlap`,
    including crop edges, error bars, brackets, grid/connector lines, rotated
    labels, legends, and axis-title collisions.
-9. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
+10. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
    figure numbering, duplicated identifiers, and caption payload drift. Confirm
    the figure, caption, and catalog/manifest were driven by the same structured
    generation source.
-10. Check `claim_display_alignment_ref`: displayed denominator, estimates,
+11. Check `claim_display_alignment_ref`: displayed denominator, estimates,
    uncertainty, colors, groups, ordering, and manuscript claim consistency.
-11. Check `accessibility_and_size_ref`: final-size readability, overlap,
+12. Check `accessibility_and_size_ref`: final-size readability, overlap,
     color-vision robustness, grayscale contrast, and journal size constraints.
-12. Check `export_integrity_ref`: distinguish hard artifact failures from
+13. Check `export_integrity_ref`: distinguish hard artifact failures from
     non-blocking review warnings; never promote an inspector result into a
     visual quality verdict.
-13. Produce `route_back_candidate` for artifact owner repair, display redesign,
+14. Produce `route_back_candidate` for artifact owner repair, display redesign,
     source-data mismatch, deterministic rebuild drift, export failure, or owner
     visual-audit decision.
 
@@ -110,6 +121,7 @@ Return:
 - `deterministic_render_ref`
 - `final_size_layout_ref`
 - `text_extent_safe_area_ref`
+- `layout_qc_receipt_ref`
 - `single_generation_source_ref`
 - `paired_export_qa_ref`
 - `clean_rebuild_consistency_ref`

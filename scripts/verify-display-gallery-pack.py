@@ -114,8 +114,8 @@ def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
         fail("display-pack receipt templates contract has wrong contract_id")
-    if contract.get("schema_version") != "1.2.0":
-        fail("display-pack receipt templates contract must use schema_version 1.2.0")
+    if contract.get("schema_version") != "1.3.0":
+        fail("display-pack receipt templates contract must use schema_version 1.3.0")
     if contract.get("state") != "active_refs_only_template":
         fail("display-pack receipt templates contract must stay refs-only")
     require_false_flags(
@@ -134,10 +134,14 @@ def verify_receipt_templates() -> dict:
     if contract.get("receipt_chain") != [
         "figure_contract_ref",
         "render_receipt_ref",
+        "layout_qc_receipt_ref",
         "visual_qa_receipt_ref",
         "owner_gate_handoff_ref",
     ]:
-        fail("display-pack receipt chain must remain figure->render->visual_qa->owner_gate")
+        fail(
+            "display-pack receipt chain must remain "
+            "figure->render->layout_qc->visual_qa->owner_gate"
+        )
     adaptation_policy = contract.get("template_asset_adaptation_policy") or {}
     if adaptation_policy.get("allowed_adaptation_modes") != ALLOWED_ADAPTATION_MODES:
         fail("template/asset adaptation policy has invalid adaptation modes")
@@ -199,12 +203,69 @@ def verify_receipt_templates() -> dict:
     if render_receipt.get("degradation_reason_required_when_fidelity_reduced") is not True:
         fail("render_receipt_ref must require an explicit fidelity degradation reason")
     require_false_flags(render_receipt, "render_receipt_ref", ["authority", "publication_ready"])
+    layout_qc_receipt = contract.get("layout_qc_receipt_ref") or {}
+    if layout_qc_receipt.get("surface_kind") != "layout_qc_receipt_candidate.v1":
+        fail("layout_qc_receipt_ref must use the candidate v1 surface")
+    require_all_fields(
+        layout_qc_receipt,
+        "layout_qc_receipt_ref",
+        [
+            "receipt_id",
+            "generation_source_ref",
+            "registry_sha256",
+            "artifact_bindings",
+            "final_canvas",
+            "safe_inset_px",
+            "lane_bounds_px",
+            "bbox_registry_summary",
+            "checks",
+            "violations",
+            "regression_fixture_refs",
+            "machine_check_status",
+            "authority",
+            "authority_boundary",
+            "publication_ready",
+        ],
+    )
+    if layout_qc_receipt.get("required_artifact_formats") != ["PNG", "PDF"]:
+        fail("layout_qc_receipt_ref must bind the final PNG/PDF pair")
+    if (layout_qc_receipt.get("export_policy") or {}) != {
+        "canvas_mode": "fixed",
+        "matplotlib_bbox_inches": None,
+        "equivalent_backend_policy": "fixed_canvas_no_tight_crop",
+    }:
+        fail("layout_qc_receipt_ref must require a fixed no-tight-crop canvas")
+    require_false_flags(
+        layout_qc_receipt,
+        "layout_qc_receipt_ref",
+        ["authority", "publication_ready", "machine_check_is_quality_verdict"],
+    )
+    layout_authority = layout_qc_receipt.get("authority_boundary") or {}
+    if layout_authority.get("refs_only") is not True:
+        fail("layout_qc_receipt_ref must remain refs-only")
+    require_false_flags(
+        layout_authority,
+        "layout_qc_receipt_ref authority boundary",
+        [
+            "can_mutate_artifacts",
+            "can_write_mas_truth",
+            "can_sign_visual_audit_receipt",
+            "can_sign_owner_receipt",
+            "can_create_typed_blocker",
+            "can_claim_mas_visual_authority",
+            "can_claim_submission_authority",
+            "can_claim_artifact_authority",
+            "can_claim_quality_verdict",
+            "can_claim_publication_readiness",
+        ],
+    )
     visual_qa_receipt = contract.get("visual_qa_receipt_ref") or {}
     require_all_fields(
         visual_qa_receipt,
         "visual_qa_receipt_ref",
         [
             "render_receipt_ref",
+            "layout_qc_receipt_ref",
             "final_size_export_ref",
             "export_lint_ref",
             "route_back_items",
