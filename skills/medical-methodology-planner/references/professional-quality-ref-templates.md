@@ -57,6 +57,85 @@ Keep the quality floor inside the active professional skill that owns the
 judgment. Module catalogs and contracts should carry only ids, ref families,
 receipt shapes, owner routes, hashes, and no-authority flags.
 
+## Immutable Reviewer Input Snapshot
+
+Fresh manuscript, statistical, reference-integrity, display, and submission
+review invocations consume `review_input_snapshot_binding` from MAS and read
+only the exact OPL-owned immutable snapshot. The binding shape is:
+
+```yaml
+review_input_snapshot_binding:
+  surface_kind: mas_review_input_snapshot_binding
+  schema_version: 1
+  snapshot_manifest_ref:
+    kind: opl_reviewer_input_snapshot_manifest
+    ref: null
+    size_bytes: null
+    sha256: null
+  review_lane: null
+  review_scope_sha256: null
+  members:
+    - member_id: null
+      role: null
+      sha256: null
+      size_bytes: null
+```
+
+The OPL snapshot manifest is `opl_reviewer_input_snapshot_manifest` schema 1.
+Read its generation-owned immutable member locators; never reopen a live
+workspace locator after the snapshot is materialized. The ordered binding
+inventory must equal the complete reviewed-member projection. Path, locator,
+checkout, host, timestamp, reviewer/model identity, model version, skill
+version, and runtime version stay outside scientific scope identity.
+
+Missing or stale snapshot evidence produces a refs-only lane route-back
+candidate. It cannot create a typed blocker or reject hosted-action liveness.
+Malformed exact refs or bytes remain an OPL/MAS validation concern; this pack
+does not repair, persist, sign, or reinterpret them.
+
+## Page Hash Evidence Cache Candidate
+
+`medical-display-qc` may produce this refs-only candidate after rasterizing PDF
+pages with its fixed contract:
+
+```yaml
+page_hash_evidence_candidate_ref:
+  surface_kind: scholarskills_page_hash_evidence_candidate
+  schema_version: 1
+  review_lane: display
+  review_scope_sha256: null
+  rubric_sha256: null
+  raster_contract: null
+  pages:
+    - page_number: 1
+      width: null
+      height: null
+      pixel_format: RGB8
+      pixel_sha256: null
+  cache_key_sha256: null
+  origin_reviewer_invocation_ref: null
+  origin_reviewer_evidence_ref: null
+  cache_reuse_eligible: false
+  cache_authority: false
+  requires_fresh_reviewer_invocation: true
+  requires_fresh_reviewer_receipt: true
+  requires_mas_judgment: true
+```
+
+Hash the canonical payload containing the ordered full page projection
+(`page_number`, `width`, `height`, `pixel_format`, `pixel_sha256`), fixed raster
+contract, `review_scope_sha256`, and rubric content `rubric_sha256`. Exclude
+path, checkout, host, timestamp, PDF metadata, model, skill, runtime, and their
+version strings from this cache key. The containing MAS display scope may still
+change when it binds different raw PDF bytes; a stable pixel hash alone does not
+authorize lane reuse.
+
+Reuse requires valid origin reviewer invocation and evidence refs. A cache hit
+still launches a fresh reviewer invocation and requires a fresh receipt plus
+MAS judgment. The candidate cannot emit a verdict, owner/reviewer receipt,
+typed blocker, current-package authority, or readiness. OPL alone persists the
+cache and may issue `opl_review_evidence_cache_receipt` schema 1.
+
 ## Input Scope Signature Handoff
 
 Use the optional `input_scope_signature_ref` when a professional review or

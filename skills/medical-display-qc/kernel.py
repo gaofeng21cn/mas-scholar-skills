@@ -23,6 +23,7 @@ DISPLAY_QC_REFS = (
     "claim_display_alignment_ref",
     "accessibility_and_size_ref",
     "display_qc_support_map_ref",
+    "page_hash_evidence_candidate_ref",
 )
 
 SUPPORTED_RASTER_FORMATS = {"JPEG", "PNG", "TIFF"}
@@ -36,6 +37,20 @@ MIN_RASTER_DIMENSION_PX = 600
 MIN_RASTER_DPI = 150.0
 HIGH_CONTENT_DENSITY = 0.95
 LAYOUT_QC_SURFACE_KIND = "layout_qc_receipt_candidate.v1"
+PAGE_HASH_EVIDENCE_SURFACE_KIND = "scholarskills_page_hash_evidence_candidate"
+PAGE_HASH_RASTER_CONTRACT = {
+    "contract_id": "scholarskills_pdf_page_pixel_raster",
+    "contract_version": 1,
+    "scale_x": 2.0,
+    "scale_y": 2.0,
+    "nominal_dpi": 144,
+    "colorspace": "sRGB",
+    "pixel_format": "RGB8",
+    "alpha": False,
+    "annotations": True,
+    "hash_algorithm": "sha256",
+    "page_order": "document_order",
+}
 REQUIRED_LAYOUT_REGRESSION_CASES = {
     "long_category_label",
     "extreme_numeric_annotation",
@@ -182,6 +197,124 @@ def _canonical_json_sha256(value: object) -> str:
         value, ensure_ascii=True, separators=(",", ":"), sort_keys=True
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _sha256_digest(value: object, label: str) -> str:
+    text = str(value or "").strip().lower()
+    digest = text.removeprefix("sha256:")
+    if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
+        raise ValueError(f"{label} must be a SHA-256 digest")
+    return f"sha256:{digest}"
+
+
+def _origin_ref(value: object) -> object | None:
+    if not isinstance(value, Mapping) or not value:
+        return None
+    normalized_ref = normalize_evidence_ref(value.get("ref"))
+    if not normalized_ref:
+        return None
+    try:
+        normalized_sha256 = _sha256_digest(value.get("sha256"), "origin ref sha256")
+    except ValueError:
+        return None
+    size_bytes = value.get("size_bytes")
+    if size_bytes is not None and (
+        isinstance(size_bytes, bool)
+        or not isinstance(size_bytes, int)
+        or size_bytes < 0
+    ):
+        return None
+    try:
+        normalized = json.loads(
+            json.dumps(dict(value), ensure_ascii=True, sort_keys=True)
+        )
+    except (TypeError, ValueError):
+        return None
+    normalized["ref"] = normalized_ref
+    normalized["sha256"] = normalized_sha256
+    return normalized
+
+
+def build_page_hash_evidence_candidate(
+    pages: Sequence[Mapping[str, object]],
+    *,
+    review_scope_sha256: object,
+    rubric_sha256: object,
+    origin_reviewer_invocation_ref: object = None,
+    origin_reviewer_evidence_ref: object = None,
+) -> dict[str, Any]:
+    """Build a no-authority cache candidate from ordered fixed-raster page pixels."""
+
+    normalized_pages: list[dict[str, Any]] = []
+    for index, value in enumerate(pages, start=1):
+        page_number = value.get("page_number")
+        width = value.get("width")
+        height = value.get("height")
+        pixel_format = str(value.get("pixel_format") or "").strip()
+        if page_number != index or isinstance(page_number, bool):
+            raise ValueError("pages must use contiguous document-order page_number values")
+        if (
+            isinstance(width, bool)
+            or not isinstance(width, int)
+            or width <= 0
+            or isinstance(height, bool)
+            or not isinstance(height, int)
+            or height <= 0
+        ):
+            raise ValueError("page width and height must be positive integers")
+        if pixel_format != PAGE_HASH_RASTER_CONTRACT["pixel_format"]:
+            raise ValueError("page pixel_format must match the fixed raster contract")
+        normalized_pages.append(
+            {
+                "page_number": page_number,
+                "width": width,
+                "height": height,
+                "pixel_format": pixel_format,
+                "pixel_sha256": _sha256_digest(
+                    value.get("pixel_sha256"), f"pages[{index - 1}].pixel_sha256"
+                ),
+            }
+        )
+    if not normalized_pages:
+        raise ValueError("pages must contain at least one rasterized page")
+
+    scope_digest = _sha256_digest(review_scope_sha256, "review_scope_sha256")
+    rubric_digest = _sha256_digest(rubric_sha256, "rubric_sha256")
+    key_payload = {
+        "ordered_pages": normalized_pages,
+        "raster_contract": dict(PAGE_HASH_RASTER_CONTRACT),
+        "review_scope_sha256": scope_digest,
+        "rubric_sha256": rubric_digest,
+    }
+    invocation_ref = _origin_ref(origin_reviewer_invocation_ref)
+    evidence_ref = _origin_ref(origin_reviewer_evidence_ref)
+    origin_bound = invocation_ref is not None and evidence_ref is not None
+    return {
+        "surface_kind": PAGE_HASH_EVIDENCE_SURFACE_KIND,
+        "schema_version": 1,
+        "review_lane": "display",
+        "review_scope_sha256": scope_digest,
+        "rubric_sha256": rubric_digest,
+        "raster_contract": dict(PAGE_HASH_RASTER_CONTRACT),
+        "pages": normalized_pages,
+        "cache_key_sha256": f"sha256:{_canonical_json_sha256(key_payload)}",
+        "origin_reviewer_invocation_ref": invocation_ref,
+        "origin_reviewer_evidence_ref": evidence_ref,
+        "cache_reuse_eligible": origin_bound,
+        "cache_authority": False,
+        "requires_fresh_reviewer_invocation": True,
+        "requires_fresh_reviewer_receipt": True,
+        "requires_mas_judgment": True,
+        "authority_boundary": {
+            "can_emit_verdict": False,
+            "can_sign_reviewer_receipt": False,
+            "can_sign_owner_receipt": False,
+            "can_create_typed_blocker": False,
+            "can_claim_quality_readiness": False,
+            "can_claim_publication_readiness": False,
+            "can_claim_current_package_authority": False,
+        },
+    }
 
 
 def _layout_number(value: object, label: str) -> float:
@@ -1074,6 +1207,34 @@ def _pdf_page_density(pixmap: object) -> dict[str, Any]:
     }
 
 
+def _pdf_page_pixel_hash(page: object, fitz: object, page_number: int) -> dict[str, Any]:
+    contract = PAGE_HASH_RASTER_CONTRACT
+    pixmap = page.get_pixmap(
+        matrix=fitz.Matrix(contract["scale_x"], contract["scale_y"]),
+        colorspace=fitz.csRGB,
+        alpha=contract["alpha"],
+        annots=contract["annotations"],
+    )
+    width = int(pixmap.width)
+    height = int(pixmap.height)
+    row_bytes = width * 3
+    samples = memoryview(pixmap.samples)
+    if pixmap.stride == row_bytes:
+        pixels = bytes(samples)
+    else:
+        pixels = b"".join(
+            bytes(samples[offset : offset + row_bytes])
+            for offset in range(0, pixmap.stride * height, pixmap.stride)
+        )
+    return {
+        "page_number": page_number,
+        "width": width,
+        "height": height,
+        "pixel_format": contract["pixel_format"],
+        "pixel_sha256": f"sha256:{hashlib.sha256(pixels).hexdigest()}",
+    }
+
+
 def _font_embedding_state(font_type: object, font_program: object) -> bool | None:
     if font_program:
         return True
@@ -1149,6 +1310,7 @@ def _inspect_pdf(
         }
         page_dimensions: list[tuple[float, float]] = []
         page_densities: list[dict[str, Any]] = []
+        page_pixel_hashes: list[dict[str, Any]] = []
         blank_pages: list[int] = []
         fonts: dict[tuple[object, object], dict[str, Any]] = {}
         has_text = False
@@ -1198,6 +1360,9 @@ def _inspect_pdf(
             density = _pdf_page_density(pixmap)
             density["page"] = page_index + 1
             page_densities.append(density)
+            page_pixel_hashes.append(
+                _pdf_page_pixel_hash(page, fitz, page_index + 1)
+            )
             get_bboxlog = getattr(page, "get_bboxlog", None)
             if callable(get_bboxlog) and not get_bboxlog():
                 blank_pages.append(page_index + 1)
@@ -1225,6 +1390,8 @@ def _inspect_pdf(
             "basis": "36_dpi_rendered_non_background_fraction",
             "inspected_page_count": document.page_count,
         }
+        audit["page_pixel_hashes"] = page_pixel_hashes
+        audit["page_pixel_raster_contract"] = dict(PAGE_HASH_RASTER_CONTRACT)
         font_rows = list(fonts.values())
         audit["font_summary"] = {
             "font_count": len(font_rows),
@@ -1419,6 +1586,8 @@ def inspect_display_artifact(artifact_path: str | Path) -> dict[str, Any]:
         "content_density": None,
         "font_summary": None,
         "pdf_metadata": None,
+        "page_pixel_hashes": None,
+        "page_pixel_raster_contract": None,
         "file_readable": False,
         "content_readable": None,
         "blank": None,
@@ -1574,6 +1743,122 @@ def _self_check() -> None:
     assert _font_embedding_state("Type3", b"") is None
     assert _font_embedding_state("Type1", b"") is False
     assert _font_embedding_state("Type0", b"font-program") is True
+
+    page_a = {
+        "page_number": 1,
+        "width": 1224,
+        "height": 1584,
+        "pixel_format": "RGB8",
+        "pixel_sha256": f"sha256:{'1' * 64}",
+    }
+    page_b = {
+        "page_number": 2,
+        "width": 1224,
+        "height": 1584,
+        "pixel_format": "RGB8",
+        "pixel_sha256": f"sha256:{'2' * 64}",
+    }
+    cache_a = build_page_hash_evidence_candidate(
+        [page_a, page_b],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref={
+            "kind": "opl_stage_attempt",
+            "ref": "attempt://display-a",
+            "sha256": f"sha256:{'8' * 64}",
+        },
+        origin_reviewer_evidence_ref={
+            "kind": "scholarskills_display_evidence",
+            "ref": "evidence://display-a",
+            "sha256": f"sha256:{'9' * 64}",
+            "size_bytes": 123,
+        },
+    )
+    cache_same_pixels_other_provenance = build_page_hash_evidence_candidate(
+        [page_a, page_b],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref={
+            "kind": "opl_stage_attempt",
+            "ref": "attempt://different-model-runtime-path",
+            "sha256": f"sha256:{'a' * 64}",
+        },
+        origin_reviewer_evidence_ref={
+            "kind": "scholarskills_display_evidence",
+            "ref": "evidence://different-pdf-metadata",
+            "sha256": f"sha256:{'b' * 64}",
+            "size_bytes": 456,
+        },
+    )
+    assert cache_a["cache_key_sha256"] == (
+        "sha256:f159ceb039e91fcdf43a3402b195592cbce25841837473284b03760a359a012a"
+    )
+    assert cache_a["cache_key_sha256"] == cache_same_pixels_other_provenance[
+        "cache_key_sha256"
+    ]
+    changed_pixel = dict(page_b)
+    changed_pixel["pixel_sha256"] = f"sha256:{'5' * 64}"
+    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+        [page_a, changed_pixel],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
+        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+    )["cache_key_sha256"]
+    changed_geometry = dict(page_b, width=1225)
+    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+        [page_a, changed_geometry],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
+        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+    )["cache_key_sha256"]
+    reordered_a = dict(page_b, page_number=1)
+    reordered_b = dict(page_a, page_number=2)
+    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+        [reordered_a, reordered_b],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
+        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+    )["cache_key_sha256"]
+    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+        [page_a, page_b],
+        review_scope_sha256=f"sha256:{'6' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
+        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+    )["cache_key_sha256"]
+    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+        [page_a, page_b],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'7' * 64}",
+        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
+        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+    )["cache_key_sha256"]
+    unbound_cache = build_page_hash_evidence_candidate(
+        [page_a, page_b],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+    )
+    assert unbound_cache["cache_reuse_eligible"] is False
+    empty_shell_cache = build_page_hash_evidence_candidate(
+        [page_a, page_b],
+        review_scope_sha256=f"sha256:{'3' * 64}",
+        rubric_sha256=f"sha256:{'4' * 64}",
+        origin_reviewer_invocation_ref={"ref": "attempt://empty-shell"},
+        origin_reviewer_evidence_ref={
+            "ref": "evidence://empty-shell",
+            "sha256": "not-a-digest",
+        },
+    )
+    assert empty_shell_cache["cache_reuse_eligible"] is False
+    assert cache_a["cache_reuse_eligible"] is True
+    assert cache_a["cache_authority"] is False
+    assert cache_a["requires_fresh_reviewer_invocation"] is True
+    assert cache_a["requires_fresh_reviewer_receipt"] is True
+    assert cache_a["requires_mas_judgment"] is True
+    assert all(value is False for value in cache_a["authority_boundary"].values())
 
     fixture_path = Path(__file__).with_name("fixtures") / "layout_qc_regression.json"
     fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
@@ -1754,7 +2039,20 @@ def _self_check() -> None:
             else:
                 fitz_available = True
                 assert pdf_audit["page_count"] == 1
+                assert len(pdf_audit["page_pixel_hashes"]) == 1
+                assert pdf_audit["page_pixel_hashes"][0]["pixel_format"] == "RGB8"
                 fitz = _load_pymupdf()
+                metadata_pdf_path = root / "minimal-with-metadata.pdf"
+                metadata_document = fitz.open(pdf_path)
+                metadata = dict(metadata_document.metadata or {})
+                metadata["title"] = "metadata-only change"
+                metadata_document.set_metadata(metadata)
+                metadata_document.save(metadata_pdf_path)
+                metadata_document.close()
+                metadata_pdf = inspect_display_artifact(metadata_pdf_path)
+                assert metadata_pdf["programmatic_figure_audit_ref"][
+                    "page_pixel_hashes"
+                ] == pdf_audit["page_pixel_hashes"]
                 empty_pdf_path = root / "empty.pdf"
                 document = fitz.open()
                 document.new_page(width=612, height=792)
@@ -1787,7 +2085,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 54 if fitz_available else 50 if pillow_available else 37
+    checks = 69 if fitz_available else 62 if pillow_available else 49
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

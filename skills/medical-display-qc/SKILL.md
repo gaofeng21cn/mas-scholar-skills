@@ -14,6 +14,12 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 mutate artifacts, write MAS truth, sign visual audit receipts or owner receipt,
 create typed blockers, accept figures, or claim publication readiness.
 
+For every fresh audit, consume the MAS `review_input_snapshot_binding` and read
+only the exact `opl_reviewer_input_snapshot_manifest` immutable rendered,
+caption, catalog, semantic, and layout members. Never fall through to live
+workspace or checkout locators. Snapshot gaps are lane-specific refs-only
+route-back candidates, not typed blockers or hosted-action liveness stops.
+
 Optional skill-local helper: `kernel.py` provides deterministic ref helpers and
 a non-mutating rendered-artifact inspector. It imports Pillow or PyMuPDF only
 when the selected file type needs them; a missing dependency becomes a typed
@@ -41,6 +47,15 @@ not match the detected artifact format exit `0` so ordinary stage progress
 can continue. Low sampled density alone never proves that an artifact is blank,
 and an empty Type 3 font-program extraction remains unknown rather than being
 reported as an unembedded font.
+
+For PDF review evidence, the kernel also rasterizes every page under one fixed
+contract and emits ordered RGB8 pixel SHA-256 rows. Use
+`build_page_hash_evidence_candidate` with the current display scope digest,
+rubric content digest, and valid origin reviewer invocation/evidence refs. A
+cache hit reuses evidence only: it never skips a fresh reviewer invocation or
+fresh MAS receipt/judgment, and every verdict/readiness/authority flag remains
+false. OPL owns persistent cache storage and
+`opl_review_evidence_cache_receipt`.
 
 ## Workflow
 
@@ -132,6 +147,7 @@ Return:
 - `claim_display_alignment_ref`
 - `accessibility_and_size_ref`
 - `display_qc_support_map_ref`
+- `page_hash_evidence_candidate_ref` when fixed-raster PDF evidence is available
 - `input_scope_signature_ref` when exact-input provenance is available
 - `candidate_refs`
 - `route_back_candidate`

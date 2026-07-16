@@ -13,6 +13,12 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 accept a reference into a manuscript, write MAS truth, sign owner receipts,
 create typed blockers, or claim publication readiness.
 
+For every fresh audit, consume the MAS `review_input_snapshot_binding` and read
+only the exact `opl_reviewer_input_snapshot_manifest` immutable bibliography,
+cited-text, lookup-receipt, and support-map members. Never fall through to live
+workspace or checkout locators. Snapshot gaps are lane-specific refs-only
+route-back candidates, not typed blockers or hosted-action liveness stops.
+
 Optional helper: use `kernel.py` for deterministic DOI/PMID/PMCID
 normalization, duplicate keys, unresolved identifier lint, and inventory
 scaffolds. It is stdlib-only and no-authority.

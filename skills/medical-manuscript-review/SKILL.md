@@ -19,6 +19,11 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+For every fresh review, consume the MAS `review_input_snapshot_binding` and read
+only the exact `opl_reviewer_input_snapshot_manifest` immutable members. Do not
+reopen live manuscript, evidence, citation, display, workspace, or checkout
+locators during judgment. Snapshot gaps produce lane-specific refs-only
+route-back; they do not create a typed blocker or hosted-action liveness stop.
 When MAS supplies journal-family pack refs, use
 `references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`
 to route response, argument, citation, reader-grounding, and presentation

@@ -88,6 +88,52 @@ retired_execution_projection_fields = [
 for field in retired_execution_projection_fields:
     if field in contract:
         fail(f"contract must retire {field} in favor of generic capability-pack consumption")
+
+snapshot_cache_policy = contract.get("reviewer_snapshot_and_page_cache_policy") or {}
+expected_snapshot_reviewer_skills = [
+    "medical-manuscript-review",
+    "medical-statistical-review",
+    "medical-reference-integrity-auditor",
+    "medical-display-qc",
+    "medical-submission-prep",
+]
+if snapshot_cache_policy.get("reviewer_skill_ids") != expected_snapshot_reviewer_skills:
+    fail("reviewer snapshot policy must cover the five canonical reviewer skills")
+if snapshot_cache_policy.get("snapshot_manifest_surface_kind") != "opl_reviewer_input_snapshot_manifest":
+    fail("reviewer snapshot policy must consume the OPL immutable snapshot manifest")
+if snapshot_cache_policy.get("snapshot_read_policy") != "read_only_opl_immutable_snapshot_refs_never_live_workspace_locators":
+    fail("reviewer snapshot policy must forbid live locator reads")
+page_cache_policy = snapshot_cache_policy.get("page_hash_evidence_candidate") or {}
+if page_cache_policy.get("surface_kind") != "scholarskills_page_hash_evidence_candidate":
+    fail("page cache candidate must use the canonical ScholarSkills surface kind")
+if page_cache_policy.get("cache_key_fields") != [
+    "ordered_page_pixel_hashes",
+    "raster_contract",
+    "review_scope_sha256",
+    "rubric_sha256",
+]:
+    fail("page cache key must bind ordered pixels, raster contract, scope, and rubric")
+if page_cache_policy.get("cache_authority") is not False:
+    fail("page cache candidate must have no cache authority")
+snapshot_authority = snapshot_cache_policy.get("authority_boundary") or {}
+for key in [
+    "can_emit_verdict",
+    "can_sign_reviewer_receipt",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_quality_readiness",
+    "can_claim_publication_readiness",
+    "can_claim_current_package_authority",
+]:
+    if snapshot_authority.get(key) is not False:
+        fail(f"reviewer snapshot/page cache authority flag must be false: {key}")
+for key in [
+    "requires_fresh_reviewer_invocation",
+    "requires_fresh_reviewer_receipt",
+    "requires_mas_judgment",
+]:
+    if page_cache_policy.get(key) is not True:
+        fail(f"page cache candidate must preserve fresh review and MAS judgment: {key}")
 if (root / "contracts/scholar-skills-opl-consumption-projection.json").exists():
     fail("generated ScholarSkills OPL execution projection must be absent")
 if (root / "scripts/export-opl-consumption-projection.py").exists():
@@ -594,6 +640,21 @@ display_qc_skill = medical_method_specialist_skills["medical-display-qc"]
 reference_integrity_skill = medical_method_specialist_skills[
     "medical-reference-integrity-auditor"
 ]
+for skill_id, skill_text in {
+    "medical-manuscript-review": review_skill,
+    "medical-statistical-review": stats_skill,
+    "medical-reference-integrity-auditor": reference_integrity_skill,
+    "medical-display-qc": display_qc_skill,
+    "medical-submission-prep": submit_skill,
+}.items():
+    for token in [
+        "review_input_snapshot_binding",
+        "opl_reviewer_input_snapshot_manifest",
+        "live",
+        "typed blocker",
+    ]:
+        if token not in skill_text:
+            fail(f"{skill_id} missing immutable snapshot boundary token: {token}")
 redirect_tombstone_skills = {
     skill_id: read_text(f"skills/{skill_id}/TOMBSTONE.md")
     for skill_id in redirect_tombstone_skill_ids
@@ -2012,6 +2073,10 @@ for token in [
     "build_layout_qc_receipt",
     "layout_qc_receipt_candidate.v1",
     "can_claim_quality_verdict",
+    "build_page_hash_evidence_candidate",
+    "scholarskills_page_hash_evidence_candidate",
+    "requires_fresh_reviewer_invocation",
+    "requires_mas_judgment",
 ]:
     if token not in display_qc_kernel:
         fail(f"medical-display-qc kernel missing layout QC token: {token}")
