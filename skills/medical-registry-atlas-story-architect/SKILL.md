@@ -17,6 +17,15 @@ or claim publication readiness.
 Optional skill-local helper: use `kernel.py` for deterministic registry story
 map skeletons, claim-boundary labels, and forbidden-authority lint.
 
+When MAS supplies `registry_signal_validity_pack` or an
+`ehr_registry_signal_validity_ref`, consume the single canonical rule at
+`references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref`
+for optional framing only. This skill may contribute registry-story and
+narrative-boundary candidates, but it does not produce or own the integrated
+validity ref; route that judgment to `medical-statistical-review`. Its local
+`claim_boundary_ref` remains a story-framing input and cannot substitute for the
+aggregate validity judgment.
+
 ## Workflow
 
 1. Build `registry_story_contract_ref`: one-sentence discovery contract,

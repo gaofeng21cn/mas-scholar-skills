@@ -45,7 +45,10 @@ so each `medical-*` skill can point to the common refs instead of copying a long
 checklist.
 MAS journal-family pack refs fold back through that same reference into the
 existing `medical-*` skills; they are route hints, not new physical skills or
-MAS authority surfaces.
+MAS authority surfaces. `registry_signal_validity_pack` uses the single
+`ehr_registry_signal_validity_ref` family and folds integrated EHR/registry
+validity judgment back to `medical-statistical-review`; the registry-atlas story
+architect may consume it for optional framing only.
 
 Optional named-specialty work starts from four router/reviewer skills:
 `medical-methodology-planner`, `medical-evidence-integrity-reviewer`,

@@ -45,6 +45,9 @@ Display 是其中一个 active 专业模块。MAS Scholar Skills 同时也是 Li
 让每个 `medical-*` skill 指向公共 refs，而不是复制长 checklist。
 MAS journal-family pack refs 也通过同一引用回折到现有 `medical-*` skill；
 它们是路由 hint，不是新增物理 skill，也不是 MAS authority surface。
+`registry_signal_validity_pack` 只使用单一 `ehr_registry_signal_validity_ref`
+family，并把 EHR/registry 综合有效性判断回折给 `medical-statistical-review`；
+registry-atlas story architect 只可将其用于 optional framing。
 
 可选 named-specialty 工作收敛到 4 个 router/reviewer Skill：
 `medical-methodology-planner`、`medical-evidence-integrity-reviewer`、

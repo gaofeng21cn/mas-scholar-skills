@@ -389,6 +389,77 @@ Minimum chain:
 The chain can recommend confirm/drop and route-back candidates. It cannot turn
 a source into citation authority or a literature verdict.
 
+## EHR Registry Signal Validity Ref
+
+Use `registry_signal_validity_pack` when an EHR, registry, chart-derived, or
+real-world-data paper needs one integrated validity judgment over the recorded
+signal. The pack folds back to `medical-statistical-review` as the professional
+producer and owner route. It has one candidate output ref family,
+`ehr_registry_signal_validity_ref`; do not split chart review, phenotyping,
+availability, observation opportunity, source generation, or claim calibration
+into parallel packs or independent validity verdicts.
+
+Compact shape:
+
+```yaml
+registry_signal_validity_pack:
+  ref_family: ehr_registry_signal_validity_ref
+  producer_skill: medical-statistical-review
+  owner_route: medical-statistical-review
+  consumer_routes:
+    cohort_definition_and_ascertainment: medical-cohort-phenotyping
+    methodology_routing: medical-methodology-planner
+    source_lineage_and_generation: medical-data-governance
+    claim_calibration: medical-manuscript-writing
+    adversarial_pressure_test: medical-manuscript-review
+    optional_registry_story_framing: medical-registry-atlas-story-architect
+  authority_boundary: refs_only_no_authority
+
+ehr_registry_signal_validity_ref:
+  paper_identity_ref: null
+  chart_review_validation_ref: null
+  phenotype_outcome_coupling_ref: null
+  availability_mechanism_ref: null
+  observation_opportunity_bias_ref: null
+  source_generation_quality_ref: null
+  claim_boundary_ref: null
+```
+
+The member refs mean:
+
+- `paper_identity_ref`: paper type, target population, unit of inference,
+  source/time window, intended estimand or descriptive target, and the exact
+  scientific identity the recorded signal is meant to support.
+- `chart_review_validation_ref`: chart-review purpose, sampling frame, review
+  unit, reference standard, abstraction/adjudication procedure, reliability or
+  agreement evidence, and the bounded property actually validated. A sampled
+  chart review does not validate the whole registry or every downstream use.
+- `phenotype_outcome_coupling_ref`: person, episode, time, eligibility,
+  denominator, and source linkage between phenotype assignment and outcome or
+  target signal. Separate component plausibility does not prove the coupled
+  endpoint or analysis row.
+- `availability_mechanism_ref`: distinguish true absence from not applicable,
+  structurally unavailable, not measured, not ordered, not documented, not
+  extracted, and site/time-specific capture. State how each mechanism enters
+  denominators, missingness handling, and sensitivity work.
+- `observation_opportunity_bias_ref`: differential encounter intensity,
+  follow-up, testing, referral, access, survival, site workflow, or care pathway
+  that changes the chance a state can be observed and recorded.
+- `source_generation_quality_ref`: clinical workflow, measurement, coding,
+  documentation, ingestion, deduplication, transformation, release/version,
+  lineage, and source-QA evidence that generated the analyzable signal.
+- `claim_boundary_ref`: the strongest descriptive, association, prediction, or
+  causal wording supported after the other refs are considered, plus forbidden
+  prevalence, incidence, treatment-gap, performance, generalizability, or
+  causal interpretations.
+
+This pack and aggregate ref remain refs-only/no-authority candidate evidence.
+They cannot create cohort or source truth, validate a dataset globally, accept
+an analysis, sign an owner receipt, create a typed blocker, issue a quality or
+statistical verdict, mutate an artifact, or claim submission/publication
+readiness. MAS or the consuming domain owner must decide acceptance and record
+any owner action.
+
 ## Claim-Citation-Quality Loop
 
 Use `claim_citation_quality_loop_ref` in writing and review whenever prose,
@@ -420,9 +491,10 @@ output refs, owner route, receipt shape, and forbidden-authority flags.
 | `journal_response_pack` | `medical-submission-prep` with `medical-manuscript-review` for critique | `review_comment_inventory_ref`, `response_route_ref`, `difficult_case_route_ref`, `author_input_needed_ref`, `reviewer_response_candidate_ref`, `route_back_candidate` |
 | `manuscript_argument_pack` | `medical-manuscript-writing` with `medical-manuscript-review` for independent pressure test | `one_sentence_argument_ref`, `section_job_map_ref`, `paragraph_flow_review_ref`, `claim_strength_calibration_ref`, `paper_narrative_arc_ref`, `route_back_candidate` |
 | `statistical_reporting_pack` | `medical-statistical-review` | `statistical_question_ref`, `denominator_and_missingness_ref`, `effect_size_and_uncertainty_ref`, `assumption_diagnostic_ref`, `statistical_action_matrix_ref`, `route_back_candidate` |
+| `registry_signal_validity_pack` | `medical-statistical-review` as sole producer/owner, with bounded inputs from cohort phenotyping, methodology, data governance, writing, review, and optional registry-story framing | one `ehr_registry_signal_validity_ref`, `route_back_candidate`, `owner_gate_handoff_ref` |
 | `data_availability_fair_pack` | `medical-data-governance` with `medical-submission-prep` for journal-facing wording | `data_code_availability_ref`, `fair_metadata_gap_ref`, `restricted_access_route_ref`, `dataset_citation_ref`, `owner_decision_ref`, `route_back_candidate` |
 | `citation_integrity_pack` | `medical-research-lit` with `medical-manuscript-review` for claim critique | `literature_retrieval_contract_ref`, `identifier_resolution_ref`, `claim_support_map_ref`, `support_strength_matrix_ref`, `citation_integrity_notes`, `route_back_candidate` |
-| `figure_evidence_contract_pack` | `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, and `medical-table-design` as needed | `figure_contract_template_ref`, `panel_evidence_chain_ref`, `source_metric_ref`, `export_lint_ref`, `visual_qa_receipt_ref`, `table_qc_ref`, `route_back_candidate` |
+| `figure_evidence_contract_pack` | `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, and `medical-table-design` as needed | `figure_contract_template_ref`, `panel_evidence_chain_ref`, `source_metric_ref`, `text_extent_safe_area_ref`, `export_lint_ref`, `visual_qa_receipt_ref`, `table_qc_ref`, `route_back_candidate` |
 | `paper_reader_grounding_pack` | `medical-manuscript-review` with `medical-manuscript-writing` for repair | `paper_narrative_arc_ref`, `claim_citation_quality_loop_ref`, `pdf_evidence_extraction_ref`, `reader_risk_ref`, `claim_warning_route_back_candidate_ref` |
 | `paper_presentation_pack` | `medical-submission-prep` for package audit and `medical-figure-design` for asset evidence | `presentation_asset_manifest_ref`, `crop_qa_ref`, `pptx_reopen_qa_ref`, `slide_readability_ref`, `speaker_notes_context_ref`, `route_back_candidate` |
 

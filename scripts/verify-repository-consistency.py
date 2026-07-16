@@ -467,6 +467,9 @@ stats_skill = capability_skill_texts["medical-statistical-review"]
 table_skill = capability_skill_texts["medical-table-design"]
 submit_skill = capability_skill_texts["medical-submission-prep"]
 data_governance_skill = capability_skill_texts["medical-data-governance"]
+cohort_phenotyping_skill = read_text("skills/medical-cohort-phenotyping/SKILL.md")
+methodology_planner_skill = read_text("skills/medical-methodology-planner/SKILL.md")
+registry_story_architect_skill = read_text("skills/medical-registry-atlas-story-architect/SKILL.md")
 advanced_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in advanced_specialist_skill_ids
@@ -1248,6 +1251,85 @@ quality_policy = contract.get("professional_skill_quality_upgrade_policy") or {}
 if quality_policy.get("policy_id") != "mas_scholar_skills_professional_quality_upgrade.v1":
     fail("contract missing professional skill quality upgrade policy")
 quality_policy_text = json.dumps(quality_policy, ensure_ascii=False)
+registry_signal_member_refs = [
+    "paper_identity_ref",
+    "chart_review_validation_ref",
+    "phenotype_outcome_coupling_ref",
+    "availability_mechanism_ref",
+    "observation_opportunity_bias_ref",
+    "source_generation_quality_ref",
+    "claim_boundary_ref",
+]
+registry_signal_foldback = quality_policy.get("registry_signal_validity_pack_foldback") or {}
+if registry_signal_foldback.get("pack_ref") != "registry_signal_validity_pack":
+    fail("professional quality policy missing registry signal validity pack ref")
+if registry_signal_foldback.get("ref_family") != "ehr_registry_signal_validity_ref":
+    fail("registry signal validity pack must expose one EHR/registry ref family")
+if registry_signal_foldback.get("producer_skill") != "medical-statistical-review":
+    fail("registry signal validity pack producer must be medical-statistical-review")
+if registry_signal_foldback.get("owner_route") != "medical-statistical-review":
+    fail("registry signal validity pack must route integrated judgment to statistical review")
+if registry_signal_foldback.get("reference_contract") != "references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref":
+    fail("registry signal validity pack must bind the canonical reference contract")
+require_all("registry signal validity member refs", registry_signal_foldback.get("member_refs"), registry_signal_member_refs)
+require_all(
+    "registry signal validity consumer routes",
+    [item.get("skill_id") for item in registry_signal_foldback.get("consumer_routes") or []],
+    [
+        "medical-cohort-phenotyping",
+        "medical-methodology-planner",
+        "medical-data-governance",
+        "medical-manuscript-writing",
+        "medical-manuscript-review",
+        "medical-registry-atlas-story-architect",
+    ],
+)
+if registry_signal_foldback.get("refs_only") is not True:
+    fail("registry signal validity pack must remain refs-only")
+for key in [
+    "can_write_domain_truth",
+    "can_claim_statistical_conclusion",
+    "can_claim_quality_verdict",
+    "can_sign_owner_receipt",
+    "can_create_typed_blocker",
+    "can_claim_publication_readiness",
+]:
+    if registry_signal_foldback.get(key) is not False:
+        fail(f"registry signal validity pack authority flag {key} must be false")
+stats_module = next(
+    (item for item in contract.get("modules") or [] if item.get("module_id") == "mas-scholar-skills.stats"),
+    {},
+)
+require_all(
+    "stats module registry signal validity artifacts",
+    [item.get("ref_id") for item in stats_module.get("artifact_refs") or []],
+    ["ehr_registry_signal_validity_ref"],
+)
+require_all(
+    "stats module registry signal validity quality refs",
+    (stats_module.get("quality_evidence") or {}).get("required_ref_shapes"),
+    ["ehr_registry_signal_validity_ref"],
+)
+display_module = next(
+    (item for item in contract.get("modules") or [] if item.get("module_id") == "mas-scholar-skills.display"),
+    {},
+)
+display_quality_floor = display_module.get("display_quality_floor_policy") or {}
+scientific_figure_quality_floor = display_quality_floor.get("scientific_figure_quality_floor_policy") or {}
+display_text_safe_area_surfaces = {
+    "display artifact refs": [item.get("ref_id") for item in display_module.get("artifact_refs") or []],
+    "display quality evidence": (display_module.get("quality_evidence") or {}).get("required_ref_shapes"),
+    "display minimum candidate refs": display_quality_floor.get("minimum_candidate_refs"),
+    "scientific figure required refs": scientific_figure_quality_floor.get("required_before_gallery_or_paper_use"),
+    "display learned pattern refs": (display_module.get("learned_pattern_policy") or {}).get("required_ref_shapes"),
+}
+for label, refs in display_text_safe_area_surfaces.items():
+    require_all(label, refs, ["text_extent_safe_area_ref"])
+require_all(
+    "scientific figure learned patterns",
+    scientific_figure_quality_floor.get("learned_scientific_figure_patterns"),
+    ["text_extent_safe_area_after_final_renderer_draw"],
+)
 for token in [
     "K-Dense-AI/scientific-agent-skills",
     "Yuan1z0825/nature-skills",
@@ -1275,13 +1357,13 @@ for token in [
     if token not in quality_policy_text:
         fail(f"professional skill quality upgrade policy missing {token}")
 expected_quality_skill_refs = {
-    "medical-figure-design": ["figure_contract_template_ref", "figure_contract_ref", "panel_evidence_chain_ref", "candidate_set_ref", "critic_review_ref"],
+    "medical-figure-design": ["figure_contract_template_ref", "figure_contract_ref", "panel_evidence_chain_ref", "candidate_set_ref", "critic_review_ref", "text_extent_safe_area_ref"],
     "medical-figure-style": ["data_fidelity_ref", "claim_title_truth_ref", "label_economy_ref", "color_vision_check_ref", "export_lint_ref"],
     "medical-figure-composer": ["multi_panel_outline_ref", "panel_render_receipt_ref", "composite_review_ref", "final_size_export_ref", "owner_gate_handoff_ref"],
     "medical-manuscript-writing": ["one_sentence_argument_ref", "terminology_ledger_ref", "paragraph_job_map_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
     "medical-manuscript-review": ["review_fact_base_ref", "technical_reviewer_lane", "cross_review_synthesis_ref", "claim_citation_quality_loop_ref", "citation_quality_action_matrix_ref"],
     "medical-research-lit": ["source_ref_chain_template_ref", "fallback_source_refs", "deduplication_ref", "source_acceptance_decision_ref", "support_strength_matrix_ref"],
-    "medical-statistical-review": ["estimand_or_target_parameter_ref", "effect_size_and_uncertainty_ref", "statistical_action_matrix_ref"],
+    "medical-statistical-review": ["estimand_or_target_parameter_ref", "effect_size_and_uncertainty_ref", "statistical_action_matrix_ref", "ehr_registry_signal_validity_ref"],
     "medical-table-design": ["table_shell_ref", "table_qc_ref", "claim_table_alignment_ref"],
     "medical-submission-prep": ["journal_instruction_ref", "reporting_guideline_ref", "submission_action_matrix_ref"],
     "medical-data-governance": [
@@ -1479,6 +1561,81 @@ for relative, tokens in professional_template_requirements.items():
     for token in tokens:
         if token not in text:
             fail(f"{relative} missing professional quality template token: {token}")
+
+registry_signal_template_tokens = [
+    "registry_signal_validity_pack",
+    "ehr_registry_signal_validity_ref",
+    *registry_signal_member_refs,
+    "producer_skill: medical-statistical-review",
+    "owner_route: medical-statistical-review",
+    "refs-only/no-authority",
+]
+for token in registry_signal_template_tokens:
+    if token not in professional_ref_templates:
+        fail(f"professional quality templates missing registry signal validity token: {token}")
+
+for token in [
+    "registry_signal_validity_pack",
+    "ehr_registry_signal_validity_ref",
+    *registry_signal_member_refs,
+    "EHR And Registry Signal Validity Rule",
+    "sole producer and professional owner route",
+    "refs-only/no-authority",
+]:
+    if token not in stats_skill:
+        fail(f"medical-statistical-review missing registry signal validity rule token: {token}")
+
+registry_signal_consumers = {
+    "skills/medical-cohort-phenotyping/SKILL.md": cohort_phenotyping_skill,
+    "skills/medical-methodology-planner/SKILL.md": methodology_planner_skill,
+    "skills/medical-data-governance/SKILL.md": data_governance_skill,
+    "skills/medical-manuscript-writing/SKILL.md": write_skill,
+    "skills/medical-manuscript-review/SKILL.md": review_skill,
+}
+for relative, text in registry_signal_consumers.items():
+    for token in [
+        "registry_signal_validity_pack",
+        "ehr_registry_signal_validity_ref",
+        "references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref",
+        "medical-statistical-review",
+    ]:
+        if token not in text:
+            fail(f"{relative} missing registry signal validity consumption route token: {token}")
+    duplicated_members = [token for token in registry_signal_member_refs if token in text]
+    if duplicated_members:
+        fail(f"{relative} must consume the canonical registry signal rule without copying member refs: {duplicated_members}")
+
+for token in [
+    "registry_signal_validity_pack",
+    "ehr_registry_signal_validity_ref",
+    "references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref",
+    "optional framing only",
+    "does not produce or own",
+    "medical-statistical-review",
+]:
+    if token not in registry_story_architect_skill:
+        fail(f"medical-registry-atlas-story-architect missing optional framing boundary token: {token}")
+
+for relative, text in [("README.md", readme), ("README.zh-CN.md", readme_zh)]:
+    for token in ["registry_signal_validity_pack", "ehr_registry_signal_validity_ref", "medical-statistical-review"]:
+        if token not in text:
+            fail(f"{relative} missing registry signal validity documentation token: {token}")
+
+registry_foldback_row = next(
+    (line for line in professional_ref_templates.splitlines() if line.startswith("| `registry_signal_validity_pack`")),
+    "",
+)
+require_all(
+    "registry signal validity foldback row",
+    [token for token in ["ehr_registry_signal_validity_ref", "medical-statistical-review", "owner_gate_handoff_ref"] if token in registry_foldback_row],
+    ["ehr_registry_signal_validity_ref", "medical-statistical-review", "owner_gate_handoff_ref"],
+)
+figure_foldback_row = next(
+    (line for line in professional_ref_templates.splitlines() if line.startswith("| `figure_evidence_contract_pack`")),
+    "",
+)
+if "text_extent_safe_area_ref" not in figure_foldback_row:
+    fail("figure evidence foldback row missing text_extent_safe_area_ref")
 
 deterministic_figure_closeout_tokens = [
     "deterministic_render_ref",

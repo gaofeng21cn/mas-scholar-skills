@@ -14,6 +14,14 @@ cannot write MAS truth, approve an analysis, sign an owner receipt, create a
 typed blocker, mutate artifacts or data bodies, or claim source, runtime,
 publication, production, or current-package readiness.
 
+When MAS supplies `registry_signal_validity_pack` or an
+`ehr_registry_signal_validity_ref`, use
+`references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref`
+as the single rule and route the integrated judgment to
+`medical-statistical-review`. This router may select cohort-phenotyping or data-
+governance input routes, but it must not reproduce the pack checklist or create
+a second methodology validity verdict.
+
 ## Routes
 
 - Protocol/SAP: `protocol_question_ref`, `endpoint_definition_ref`,

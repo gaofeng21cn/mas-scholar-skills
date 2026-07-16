@@ -24,6 +24,13 @@ When MAS supplies journal-family pack refs, use
 to route response, argument, citation, reader-grounding, and presentation
 judgment back to the existing professional skills instead of creating a new
 physical skill.
+When MAS supplies `registry_signal_validity_pack` or an
+`ehr_registry_signal_validity_ref`, pressure-test the aggregate ref against the
+manuscript claims using the single rule at
+`references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref`.
+Route gaps to `medical-statistical-review` and its bounded cohort/data input
+owners; do not copy the checklist or promote review findings into an independent
+signal-validity verdict.
 
 Optional skill-local helper: use `kernel.py` for deterministic review fact-base
 schemas, reviewer action matrix skeletons, issue action labels, and

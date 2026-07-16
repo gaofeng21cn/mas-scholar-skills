@@ -18,6 +18,14 @@ Optional helper: use `kernel.py` for deterministic inclusion/exclusion
 criterion normalization, cohort attrition table scaffolds, and phenotype
 handoff skeletons. It is stdlib-only and no-authority.
 
+When MAS supplies `registry_signal_validity_pack` or an
+`ehr_registry_signal_validity_ref`, consume the single canonical rule in
+`references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref`.
+Contribute only cohort-definition, ascertainment, and chart-review inputs, then
+route the integrated validity judgment to `medical-statistical-review`; route
+source-generation questions to `medical-data-governance`. Do not recreate the
+pack checklist or issue a cohort/signal validity verdict here.
+
 ## Workflow
 
 1. Define `phenotype_question_ref`: clinical condition, population, data source,

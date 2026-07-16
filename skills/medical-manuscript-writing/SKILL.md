@@ -24,6 +24,13 @@ foldback matrix in
 `references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
 Keep argument, paragraph, figure/table narrative, and reader-risk judgment here
 as candidate refs; MAS keeps receipt and readiness authority.
+When MAS supplies `registry_signal_validity_pack` or an accepted candidate
+`ehr_registry_signal_validity_ref`, consume the single rule at
+`references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref`
+to calibrate Methods, Results, Discussion, and limitations language. Route any
+missing or internally inconsistent validity evidence to
+`medical-statistical-review` (and its bounded cohort/data input routes) instead
+of rebuilding the checklist or deciding validity inside writing.
 
 Optional skill-local helper: use `kernel.py` for deterministic paper brief
 schemas, section scaffolds, paragraph job maps, figure arc prompts, and

@@ -508,6 +508,56 @@
       }
     ],
     "landing_strategy": "adapt_patterns_into_existing_medical_manuscript_writing_review_figure_design_figure_style_figure_composer_lit_statistical_review_table_design_submission_prep_and_data_governance_skills_first; keep_source_intake_in_OPL_Framework_or_MAS_stage_source_surfaces; add_omics_to_mas_scholar_skills_only_when_a_real_stable_professional_skill_workflow_exists",
+    "registry_signal_validity_pack_foldback": {
+      "pack_ref": "registry_signal_validity_pack",
+      "ref_family": "ehr_registry_signal_validity_ref",
+      "member_refs": [
+        "paper_identity_ref",
+        "chart_review_validation_ref",
+        "phenotype_outcome_coupling_ref",
+        "availability_mechanism_ref",
+        "observation_opportunity_bias_ref",
+        "source_generation_quality_ref",
+        "claim_boundary_ref"
+      ],
+      "producer_skill": "medical-statistical-review",
+      "owner_route": "medical-statistical-review",
+      "consumer_routes": [
+        {
+          "skill_id": "medical-cohort-phenotyping",
+          "role": "cohort_definition_and_ascertainment_inputs_only"
+        },
+        {
+          "skill_id": "medical-methodology-planner",
+          "role": "methodology_routing_only"
+        },
+        {
+          "skill_id": "medical-data-governance",
+          "role": "source_lineage_availability_and_generation_inputs_only"
+        },
+        {
+          "skill_id": "medical-manuscript-writing",
+          "role": "claim_calibration_consumption_only"
+        },
+        {
+          "skill_id": "medical-manuscript-review",
+          "role": "adversarial_pressure_test_and_route_back_only"
+        },
+        {
+          "skill_id": "medical-registry-atlas-story-architect",
+          "role": "optional_registry_story_framing_only"
+        }
+      ],
+      "reference_contract": "references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref",
+      "handoff_policy": "single_refs_only_candidate_ref_family_to_owner_gate",
+      "refs_only": true,
+      "can_write_domain_truth": false,
+      "can_claim_statistical_conclusion": false,
+      "can_claim_quality_verdict": false,
+      "can_sign_owner_receipt": false,
+      "can_create_typed_blocker": false,
+      "can_claim_publication_readiness": false
+    },
     "skill_quality_refs": {
       "medical-figure-design": [
         "figure_contract_template_ref",
@@ -524,6 +574,7 @@
         "critic_review_ref",
         "export_lint_ref",
         "final_size_export_ref",
+        "text_extent_safe_area_ref",
         "final_size_grayscale_preview_ref",
         "programmatic_figure_audit_ref",
         "ai_visual_review_ref",
@@ -618,6 +669,7 @@
         "effect_size_and_uncertainty_ref",
         "multiplicity_and_sensitivity_ref",
         "statistical_action_matrix_ref",
+        "ehr_registry_signal_validity_ref",
         "external_validation_statistical_review_ref",
         "phenotype_treatment_gap_denominator_review_ref",
         "claim_type_ref",
@@ -942,6 +994,12 @@
           "body_policy": "audit_hint_requires_domain_owner_consumption"
         },
         {
+          "ref_id": "text_extent_safe_area_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "renderer_drawn_text_extent_and_composed_page_safe_area_candidate",
+          "body_policy": "refs_only_safe_area_evidence_not_visual_audit_receipt_artifact_authority_or_publication_readiness"
+        },
+        {
           "ref_id": "export_lint_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "export_format_dpi_font_dimension_traceability_lint",
@@ -1055,6 +1113,7 @@
           "final_size_inspection_ref",
           "visual_qa_preview_ref",
           "programmatic_figure_audit_ref",
+          "text_extent_safe_area_ref",
           "export_lint_ref",
           "final_size_grayscale_preview_ref",
           "ai_visual_review_ref",
@@ -1096,6 +1155,7 @@
           "candidate_artifact_ref",
           "critic_review_ref",
           "final_size_inspection_ref",
+          "text_extent_safe_area_ref",
           "export_lint_ref",
           "final_size_grayscale_preview_ref",
           "domain_owner_gate_ref"
@@ -1189,6 +1249,7 @@
             "source_data_statistics_and_claim_refs_preserved",
             "visual_qa_preview_before_owner_gate",
             "programmatic_figure_audit_before_gallery_use",
+            "text_extent_safe_area_after_final_renderer_draw",
             "programmatic_audit_split_from_ai_visual_review",
             "route_back_only_on_hard_evidence_fail",
             "grayscale_and_color_vision_check",
@@ -1216,6 +1277,7 @@
             "domain_owner_gate_ref",
             "visual_qa_preview_ref",
             "programmatic_figure_audit_ref",
+            "text_extent_safe_area_ref",
             "export_lint_ref",
             "final_size_grayscale_preview_ref",
             "ai_visual_review_ref",
@@ -1274,6 +1336,7 @@
         "required_ref_shapes": [
           "visual_qa_preview_ref",
           "programmatic_figure_audit_ref",
+          "text_extent_safe_area_ref",
           "data_profile_ref",
           "plot_selection_candidate_ref",
           "export_lint_ref",
@@ -1526,6 +1589,12 @@
           "body_policy": "review_hint_not_statistical_verdict"
         },
         {
+          "ref_id": "ehr_registry_signal_validity_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "ehr_registry_recorded_signal_validity_candidate",
+          "body_policy": "refs_only_signal_validity_candidate_not_data_truth_statistical_verdict_or_publication_readiness"
+        },
+        {
           "ref_id": "dataset_metric_benchmark_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "dataset_metric_benchmark_candidate",
@@ -1585,6 +1654,7 @@
           "power_or_mde_ref",
           "source_data_ref",
           "statistical_review_ref",
+          "ehr_registry_signal_validity_ref",
           "effect_size_or_metric_extraction_ref",
           "reproducibility_check_ref",
           "dataset_metric_benchmark_ref",

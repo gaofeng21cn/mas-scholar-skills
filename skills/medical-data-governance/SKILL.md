@@ -24,6 +24,12 @@ When MAS supplies `data_availability_fair_pack`, consume the foldback matrix in
 Keep FAIR, restricted-access, dataset citation, metadata, rights, and
 provenance judgment as refs-only candidate governance; MAS or the consuming
 owner decides readiness and source acceptance.
+When MAS supplies `registry_signal_validity_pack` or an
+`ehr_registry_signal_validity_ref`, consume the single canonical rule at
+`references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref`.
+Supply source lineage, capture/availability, workflow, coding, extraction, and
+release evidence to `medical-statistical-review`; do not reconstruct the pack
+checklist or turn data-governance evidence into a signal-validity verdict.
 
 Optional local helper: `kernel.py` provides deterministic stdlib-only data
 dictionary, source-readiness, sensitive-field, missingness, and provenance
