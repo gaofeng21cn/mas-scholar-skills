@@ -3558,6 +3558,113 @@
       "candidate_refs",
       "owner_gate_handoff_ref"
     ],
+    "optional_ref_shapes": [
+      "input_scope_signature_ref"
+    ],
+    "input_scope_signature_policy": {
+      "surface_kind": "scholarskills_input_scope_signature_candidate.v1",
+      "signature_kind": "deterministic_content_digest_not_lock_identity_owner_signature_reviewer_receipt_or_authority",
+      "allowed_scope_ids": [
+        "manuscript_review",
+        "statistical_review",
+        "reference_integrity",
+        "display_qc",
+        "submission_prep"
+      ],
+      "canonical_digest_member_fields": [
+        "member_id",
+        "role",
+        "sha256",
+        "size_bytes"
+      ],
+      "canonical_payload_exact_keys": [
+        "members",
+        "scope_contract_version",
+        "scope_id",
+        "upstream_scope_bindings"
+      ],
+      "canonical_upstream_binding_exact_keys": [
+        "scope_id",
+        "scope_signature_sha256"
+      ],
+      "canonicalization": "mas_record_validation_canonical_json_bytes_v1",
+      "canonical_json_bytes": {
+        "encoding": "utf-8",
+        "ensure_ascii": true,
+        "recursive_sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "trailing_newline": false,
+        "compatibility_ref": "med-autoscience:src/med_autoscience/authority_handlers/_record_validation.py#canonical_json_bytes"
+      },
+      "sha256_field_format": "sha256:<lowercase-hex>",
+      "scope_signature_format": "sha256:<lowercase-hex>",
+      "member_sort_key": [
+        "role",
+        "member_id"
+      ],
+      "upstream_scope_binding_sort_key": [
+        "scope_id",
+        "scope_signature_sha256"
+      ],
+      "member_id_policy": "owner_assigned_path_independent_stable_artifact_id_not_derived_from_locator_relative_or_absolute_path",
+      "member_id_may_be_derived_from_locator_or_path": false,
+      "candidate_receipt_ref_in_digest": false,
+      "path_move_changes_scope_digest": false,
+      "digest_excluded_observations": [
+        "locator_ref",
+        "path_move",
+        "mtime",
+        "checkout_path",
+        "checkout_head",
+        "checkout_dirty_state",
+        "untracked_files",
+        "reviewer_identity",
+        "model_identity",
+        "model_version",
+        "skill_version",
+        "runtime_version",
+        "host",
+        "timestamp"
+      ],
+      "science_scopes_exclude_package_and_build_scripts": true,
+      "digest_mismatch_effect": "same_scope_prior_candidate_receipt_non_reusable_only",
+      "cross_scope_receipt_invalidation": false,
+      "legacy_handoff_without_optional_ref_allowed": true,
+      "can_act_as_lock": false,
+      "can_act_as_signature_authority": false,
+      "can_create_global_blocker": false,
+      "can_claim_quality_verdict": false,
+      "golden_vector": {
+        "scope_id": "display_qc",
+        "scope_contract_version": 1,
+        "members": [
+          {
+            "member_id": "artifact:figure-\u03b1",
+            "role": "rendered_artifact",
+            "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "size_bytes": 123,
+            "locator_ref": "paper/figures/figure-alpha.png"
+          }
+        ],
+        "upstream_scope_bindings": [
+          {
+            "scope_id": "statistical_review",
+            "scope_signature_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "candidate_receipt_ref": "paper/review/statistical-review.json"
+          }
+        ],
+        "rename_locator_variant": {
+          "member_locator_ref": "archive/renamed/figure-alpha.png",
+          "upstream_candidate_receipt_ref": "archive/review/statistical-review.json",
+          "provenance_observation": "path_move"
+        },
+        "canonical_json_utf8": "{\"members\":[{\"member_id\":\"artifact:figure-\\u03b1\",\"role\":\"rendered_artifact\",\"sha256\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"size_bytes\":123}],\"scope_contract_version\":1,\"scope_id\":\"display_qc\",\"upstream_scope_bindings\":[{\"scope_id\":\"statistical_review\",\"scope_signature_sha256\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}]}",
+        "expected_scope_signature_sha256": "sha256:33f939a56fc845a92ef0d0c6843fbbee3ff724d9cd52143d7ed7ee8b10ba76c3"
+      }
+    },
     "no_authority_policy": "source_pack_candidate_refs_and_owner_gate_handoff_only",
     "can_write_domain_truth": false,
     "can_write_runtime_state": false,
@@ -3578,6 +3685,9 @@
       "candidate_refs",
       "route_back_candidate",
       "owner_gate_handoff_ref"
+    ],
+    "optional_handoff_refs": [
+      "input_scope_signature_ref"
     ],
     "optional_specialist_skills": [
       {
@@ -3873,6 +3983,7 @@
           "source_status_ref",
           "claim_citation_support_map_ref",
           "support_gap_ref",
+          "input_scope_signature_ref",
           "owner_gate_handoff_ref"
         ],
         "routing_tokens": [
@@ -3956,6 +4067,7 @@
           "panel_caption_consistency_ref",
           "claim_display_alignment_ref",
           "accessibility_and_size_ref",
+          "input_scope_signature_ref",
           "owner_gate_handoff_ref"
         ],
         "routing_tokens": [

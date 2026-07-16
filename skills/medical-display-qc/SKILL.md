@@ -132,9 +132,19 @@ Return:
 - `claim_display_alignment_ref`
 - `accessibility_and_size_ref`
 - `display_qc_support_map_ref`
+- `input_scope_signature_ref` when exact-input provenance is available
 - `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
+
+For `input_scope_signature_ref`, use `scope_id=display_qc` and bind the exact
+rendered artifacts, visible captions and catalog metadata, source-data or
+semantic refs, layout registry, deterministic render inputs, and composed-page
+evidence actually inspected. Unrelated manuscript sections, bibliography
+metadata, package/build scripts, checkout/model state, mtimes, and locators do
+not enter this digest. A mismatch makes only the prior `display_qc` candidate
+receipt non-reusable; it is not a visual verdict, lock, signature authority, or
+whole-package blocker.
 
 Do not turn a QC candidate into artifact authority, visual audit receipt,
 owner acceptance, typed blocker, current-package authority, or publication

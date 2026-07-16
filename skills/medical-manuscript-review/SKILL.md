@@ -405,6 +405,22 @@ Red flags include:
 Restrained wording can reduce claim risk, but it cannot clear these red flags
 by itself.
 
+## Input Scope Binding
+
+When exact-input provenance is useful, return the optional
+`input_scope_signature_ref` from
+`references/professional-quality-ref-templates.md#input-scope-signature-handoff`
+with `scope_id=manuscript_review`. Bind only the canonical manuscript text,
+abstract, captions and table notes under review, the claim-evidence map, the
+review fact base, and the numeric, citation, display, or prior-review refs
+actually consumed. Package/build scripts, checkout/model state, mtimes,
+locators, and unrelated artifacts stay outside the digest.
+
+This content digest is not a lock, owner signature, reviewer receipt, quality
+verdict, or readiness decision. A mismatch makes only the prior
+`manuscript_review` candidate receipt non-reusable; it cannot invalidate other
+scope receipts or block the whole paper workflow.
+
 ## Revision Delta Audit
 
 When review follows user, mentor, or reviewer feedback, include a
@@ -529,6 +545,8 @@ Before leaving review, write or refresh a closeout packet with:
 - claim-warning refs used, each marked as refs-only review signal
 - critique-as-repair hints and any triggered meta-review refs
 - opportunistic prefetch refs or rerun receipts consumed as evidence
+- optional `input_scope_signature_ref` for the bounded `manuscript_review`
+  inputs, when exact-input provenance is available
 - remaining blockers and blocked readiness label
 - reusable critique lesson, if any
 - route-back recommendation with the narrowest next route

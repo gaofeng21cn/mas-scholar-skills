@@ -232,6 +232,7 @@
     "paths": [
       ".codex-plugin/plugin.json",
       "contracts/scholar-skills-capability-modules.json",
+      "references/professional-quality-ref-templates.md",
       "contracts/reference-provider-adapters/scientific-metadata.json",
       "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
       "contracts/reference-provider-adapters/reference-provider-adapter-registry.json",
@@ -285,7 +286,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/SKILL.md",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:985ba052925d27082f77da0bbcca51f4cb6d7a1606ceab753cb3ed14668cd877"
+    "digest": "sha256:6f6b4a963865f26f1dc06bd1d4530f914123411f84d62bcbbc94a600a67e9ec1"
   },
   "lifecycle": {
     "owner": "one-person-lab",

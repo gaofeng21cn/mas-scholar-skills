@@ -197,8 +197,20 @@ Return refs-only candidate output:
 - `critique_as_repair_hint_ref`
 - `opportunistic_knowledge_prefetch_ref`
 - `rerun_receipt_ref`
+- `input_scope_signature_ref` when exact-input provenance is available
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
+
+For `input_scope_signature_ref`, use `scope_id=submission_prep` and bind the
+exact delivery files and manifest, journal-instruction snapshot,
+declarations/checklists, export or reopen QA, and upstream scope digests
+consumed by the package; each candidate receipt ref remains only a locator
+outside the digest. Build commands, scripts, checkout/model state,
+mtimes, and locators remain method provenance unless the explicit review claim
+is reproducibility; changing them does not invalidate scientific-scope receipts
+when their input bytes are unchanged. A mismatch makes only the prior
+`submission_prep` candidate receipt non-reusable; it is not a lock, signature
+authority, quality verdict, submission-readiness decision, or global blocker.
 
 ## MAS Boundary
 

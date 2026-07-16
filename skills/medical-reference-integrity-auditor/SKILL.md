@@ -40,9 +40,18 @@ Return:
 - `claim_citation_support_map_ref`
 - `duplicate_or_placeholder_ref`
 - `support_gap_ref`
+- `input_scope_signature_ref` when exact-input provenance is available
 - `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
+
+For `input_scope_signature_ref`, use `scope_id=reference_integrity` and bind
+the bibliography or citation ledger, cited sentences, claim-citation support
+map, identifier metadata, and source-status lookup receipts used by the audit.
+Numeric outputs, display assets, package/build scripts, checkout/model state,
+mtimes, and locators do not enter this digest. A mismatch makes only the prior
+`reference_integrity` candidate receipt non-reusable; it is not citation
+acceptance, a lock, signature authority, quality verdict, or global blocker.
 
 Do not treat a clean audit candidate as citation acceptance, source truth,
 owner receipt, typed blocker, reviewer receipt, or publication readiness.

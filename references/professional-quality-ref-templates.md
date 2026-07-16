@@ -57,6 +57,118 @@ Keep the quality floor inside the active professional skill that owns the
 judgment. Module catalogs and contracts should carry only ids, ref families,
 receipt shapes, owner routes, hashes, and no-authority flags.
 
+## Input Scope Signature Handoff
+
+Use the optional `input_scope_signature_ref` when a professional review or
+submission-prep candidate needs to show exactly which input bytes were
+examined. This ref is a deterministic content digest, not a lock, identity
+signature, owner signature, reviewer receipt, quality verdict, artifact
+authority, or readiness/currentness decision.
+
+Compact shape:
+
+```yaml
+input_scope_signature_ref:
+  surface_kind: scholarskills_input_scope_signature_candidate.v1
+  scope_id: manuscript_review|statistical_review|reference_integrity|display_qc|submission_prep
+  scope_contract_version: 1
+  closure_complete: false
+  members:
+    - member_id: null
+      role: null
+      sha256: null
+      size_bytes: null
+      locator_ref: null
+  upstream_scope_bindings:
+    - scope_id: null
+      scope_signature_sha256: null
+      candidate_receipt_ref: null
+  canonicalization: mas_record_validation_canonical_json_bytes_v1
+  scope_signature_sha256: null
+  method_provenance_ref: null
+  provenance_observations: []
+  authority: false
+```
+
+The canonical digest payload contains only `scope_id`,
+`scope_contract_version`, `members`, and `upstream_scope_bindings`. Each member
+contains exactly `member_id`, `role`, `sha256`, and `size_bytes`, sorted by
+`(role, member_id)`. Each upstream binding contains exactly `scope_id` and
+`scope_signature_sha256`, sorted by those two fields; its
+`candidate_receipt_ref` is a locator and does not enter the digest. Reject
+duplicate `(role, member_id)` rows.
+
+`member_id` is an owner-assigned, path-independent stable artifact id. Never
+derive it from `locator_ref`, a relative path, or an absolute path. A rename or
+move changes only the locator/provenance observation and must not change the
+scope digest when the stable member id and content bytes are unchanged.
+
+Serialize the exact canonical payload with the same bytes as MAS
+`_record_validation.canonical_json_bytes`: recursive JSON key sorting,
+`ensure_ascii=true`, separators `(',', ':')`, UTF-8 encoding, and no trailing
+newline. Hash those exact bytes and format the result as
+`sha256:<lowercase-hex>`. Use that same format for member `sha256` values and
+upstream `scope_signature_sha256` values. This ref does not define another
+hashing authority; it defines a compatibility vector for the consuming MAS
+owner implementation.
+
+The exact payload shape is:
+
+```json
+{
+  "scope_id": null,
+  "scope_contract_version": 1,
+  "members": [
+    {"member_id": null, "role": null, "sha256": null, "size_bytes": null}
+  ],
+  "upstream_scope_bindings": [
+    {"scope_id": null, "scope_signature_sha256": null}
+  ]
+}
+```
+
+Set `closure_complete=false` and leave `scope_signature_sha256=null` when a
+required member is unavailable; route the missing evidence to that scope
+without creating a global stop.
+
+Keep `locator_ref`, path moves, mtime, checkout path, checkout HEAD, dirty-tree
+state, untracked files, reviewer/model identity, model version, skill version,
+runtime version, host, and timestamps outside the digest as
+`provenance_observations` or `method_provenance_ref`. They remain useful
+provenance, but they are not evidence that the reviewed content changed.
+
+Use these bounded closures:
+
+- `manuscript_review`: canonical manuscript text, abstract, captions and table
+  notes under review; the claim-evidence map; review fact base; and only the
+  numeric, citation, display, or prior-review refs actually consumed.
+- `statistical_review`: estimand and analysis plan, cohort/denominator and
+  missingness inputs, numeric trace and analysis outputs, and the manuscript,
+  table, or figure claims whose statistical meaning is being reviewed.
+- `reference_integrity`: bibliography or citation ledger, cited sentences,
+  claim-citation support map, identifier metadata, and source-status lookup
+  receipts used by the audit.
+- `display_qc`: exact rendered artifacts, visible captions/catalog metadata,
+  source-data or semantic refs, layout registry, deterministic render inputs,
+  and composed-page evidence actually inspected.
+- `submission_prep`: exact delivery files and manifest, journal-instruction
+  snapshot, declarations/checklists, export or reopen QA, and the upstream
+  scope digests the package consumes. The candidate receipt ref is only a
+  locator outside the digest.
+
+Package/build scripts, checkout state, model state, and unrelated artifacts do
+not belong in manuscript, statistical, reference, or display closures. A build
+script may appear in submission reproducibility provenance, but changing it
+does not invalidate a scientific-scope candidate when that scope's input bytes
+are unchanged.
+
+When the current digest differs from a prior candidate receipt, only that
+receipt for the same `scope_id` becomes non-reusable. Do not invalidate other
+scope receipts, reject a hosted action, relock a checkout, or infer a quality
+failure. A legacy handoff without this optional ref remains valid under its
+existing contract; the consuming MAS/domain owner decides whether targeted
+fresh review evidence is needed.
+
 ## Figure Contract Template
 
 Use `figure_contract_template_ref` before drawing a new or repaired manuscript

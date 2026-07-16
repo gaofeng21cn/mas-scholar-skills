@@ -347,12 +347,22 @@ Return refs-only candidate output:
 - `opportunistic_knowledge_prefetch_ref`
 - `project_local_ledger_pointer_ref`
 - `rerun_receipt_ref`
+- `input_scope_signature_ref` when exact-input provenance is available
 - `skill_pack_governance_policy_ref`
 - `statistical_action_matrix_ref`
 - `ehr_registry_signal_validity_ref` when EHR/registry signal validity is material
 - `claim_strength_calibration_ref`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
+
+For `input_scope_signature_ref`, use `scope_id=statistical_review` and bind the
+estimand and analysis plan, cohort/denominator and missingness inputs, numeric
+trace and analysis outputs, and only the manuscript, table, or figure claims
+whose statistical meaning was reviewed. Bibliography metadata, package/build
+scripts, checkout/model state, mtimes, and locators do not enter this digest.
+A mismatch makes only the prior `statistical_review` candidate receipt
+non-reusable; it is not a lock, signature authority, statistical verdict, or
+whole-package blocker.
 
 ## MAS Boundary
 
