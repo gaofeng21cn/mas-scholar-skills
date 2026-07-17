@@ -33,6 +33,27 @@ REPORTING_ITEMS = (
     "statistical_action_matrix_ref",
 )
 
+REGISTRY_SIGNAL_REF_FAMILY = "ehr_registry_signal_validity_ref"
+REGISTRY_SIGNAL_MEMBER_REFS = (
+    "paper_identity_ref",
+    "chart_review_validation_ref",
+    "phenotype_outcome_coupling_ref",
+    "availability_mechanism_ref",
+    "observation_opportunity_bias_ref",
+    "source_generation_quality_ref",
+    "claim_boundary_ref",
+)
+REGISTRY_SIGNAL_FORBIDDEN_AUTHORITY_FIELDS = (
+    "authority",
+    "statistical_conclusion",
+    "statistical_verdict",
+    "quality_verdict",
+    "owner_receipt",
+    "typed_blocker",
+    "publication_ready",
+    "writes_domain_truth",
+)
+
 P_VALUE_RE = re.compile(r"\bp\s*[<=>]\s*0?\.\d+|\bp-value\b", re.I)
 CI_RE = re.compile(r"\b(?:ci|confidence interval|credible interval)\b", re.I)
 EFFECT_RE = re.compile(r"\b(?:or|hr|rr|risk ratio|mean difference|effect size|estimate)\b", re.I)
@@ -55,6 +76,7 @@ def statistical_review_schema() -> dict[str, Any]:
             "assumption_diagnostic_ref": {"type": "string"},
             "multiplicity_and_sensitivity_ref": {"type": "string"},
             "statistical_action_matrix_ref": {"type": "array", "items": {"type": "object"}},
+            "ehr_registry_signal_validity_ref": {"type": "object"},
             "route_back_candidate": {"type": "string"},
         },
     }
@@ -135,6 +157,146 @@ def lint_statistical_reporting(items: Sequence[str | Mapping[str, object]]) -> l
     return findings
 
 
+def _candidate_ref_identity(value: object) -> str:
+    if isinstance(value, str):
+        return re.sub(r"\s+", " ", value).strip()
+    if isinstance(value, Mapping):
+        for key in ("ref", "uri", "path"):
+            identity = value.get(key)
+            if isinstance(identity, str) and identity.strip():
+                return re.sub(r"\s+", " ", identity).strip()
+    return ""
+
+
+def _registry_signal_violation(
+    code: str, field: str, action: str
+) -> dict[str, str | bool]:
+    return {
+        "code": code,
+        "field": field,
+        "action": action,
+        "writes_authority": False,
+    }
+
+
+def validate_ehr_registry_signal_validity_candidate(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Validate one coupled refs-only EHR/registry signal candidate.
+
+    This checks candidate-reference completeness and the no-authority boundary.
+    It does not decide whether the recorded clinical signal is valid.
+    """
+
+    if not isinstance(candidate, Mapping):
+        raise ValueError("registry signal validity candidate must be an object")
+    violations: list[dict[str, str | bool]] = []
+    ref_family = str(candidate.get("ref_family") or REGISTRY_SIGNAL_REF_FAMILY)
+    if ref_family != REGISTRY_SIGNAL_REF_FAMILY:
+        violations.append(
+            _registry_signal_violation(
+                "REGISTRY_SIGNAL_REF_FAMILY_INVALID",
+                "ref_family",
+                f"use the single {REGISTRY_SIGNAL_REF_FAMILY} family",
+            )
+        )
+    for field in ("producer_skill", "owner_route"):
+        value = candidate.get(field)
+        if value is not None and value != "medical-statistical-review":
+            violations.append(
+                _registry_signal_violation(
+                    "REGISTRY_SIGNAL_OWNER_ROUTE_INVALID",
+                    field,
+                    "route the integrated candidate through medical-statistical-review",
+                )
+            )
+
+    identities: dict[str, str] = {}
+    missing_member_refs: list[str] = []
+    for member_ref in REGISTRY_SIGNAL_MEMBER_REFS:
+        identity = _candidate_ref_identity(candidate.get(member_ref))
+        if not identity:
+            missing_member_refs.append(member_ref)
+            violations.append(
+                _registry_signal_violation(
+                    "REGISTRY_SIGNAL_MEMBER_REF_MISSING",
+                    member_ref,
+                    "supply the bounded candidate ref or route back for evidence",
+                )
+            )
+        else:
+            identities[member_ref] = identity
+
+    for field in REGISTRY_SIGNAL_FORBIDDEN_AUTHORITY_FIELDS:
+        value = candidate.get(field)
+        if value is not None and value is not False:
+            violations.append(
+                _registry_signal_violation(
+                    "REGISTRY_SIGNAL_AUTHORITY_CLAIM_FORBIDDEN",
+                    field,
+                    "remove the claim and route any decision to MAS or the domain owner",
+                )
+            )
+
+    declared_boundary = candidate.get("authority_boundary")
+    if declared_boundary is not None:
+        if not isinstance(declared_boundary, Mapping):
+            violations.append(
+                _registry_signal_violation(
+                    "REGISTRY_SIGNAL_AUTHORITY_BOUNDARY_INVALID",
+                    "authority_boundary",
+                    "declare refs_only=true and keep every authority capability false",
+                )
+            )
+        else:
+            for field, value in declared_boundary.items():
+                allowed = value is True if field == "refs_only" else value is False
+                if not allowed:
+                    violations.append(
+                        _registry_signal_violation(
+                            "REGISTRY_SIGNAL_AUTHORITY_BOUNDARY_INVALID",
+                            f"authority_boundary.{field}",
+                            "declare refs_only=true and keep every authority capability false",
+                        )
+                    )
+
+    violations.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not violations
+    return {
+        "surface_kind": "ehr_registry_signal_validity_kernel_audit_candidate.v1",
+        "ref_family": REGISTRY_SIGNAL_REF_FAMILY,
+        "producer_skill": "medical-statistical-review",
+        "owner_route": "medical-statistical-review",
+        "machine_check_status": (
+            "candidate_ref_shape_complete"
+            if complete
+            else "candidate_ref_shape_incomplete"
+        ),
+        "coupled_member_ref_count": len(identities),
+        "member_ref_identities": identities,
+        "missing_member_refs": missing_member_refs,
+        "violations": violations,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-statistical-review",
+            "reason": "registry_signal_validity_candidate_requires_repair",
+            "missing_member_refs": missing_member_refs,
+            "authority": False,
+        },
+        "authority": False,
+        "authority_boundary": {
+            "refs_only": True,
+            "can_write_domain_truth": False,
+            "can_claim_statistical_conclusion": False,
+            "can_claim_quality_verdict": False,
+            "can_sign_owner_receipt": False,
+            "can_create_typed_blocker": False,
+            "can_claim_publication_readiness": False,
+        },
+    }
+
+
 def _finding(ref: str, code: str, action: str) -> dict[str, str]:
     return {"claim_ref": ref, "code": code, "action": action}
 
@@ -148,7 +310,57 @@ def _self_check() -> None:
         [{"claim_ref": "c1", "claim": "p=0.03 with missingness noted"}]
     )
     assert {item["code"] for item in lint} >= {"P_VALUE_ALONE", "MISSINGNESS_STRATEGY_MISSING"}
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
+    registry_candidate = {
+        "ref_family": REGISTRY_SIGNAL_REF_FAMILY,
+        "producer_skill": "medical-statistical-review",
+        "owner_route": "medical-statistical-review",
+        **{
+            member_ref: {
+                "kind": "candidate_evidence_ref",
+                "ref": f"evidence://registry-signal/{member_ref}",
+            }
+            for member_ref in REGISTRY_SIGNAL_MEMBER_REFS
+        },
+    }
+    registry_audit = validate_ehr_registry_signal_validity_candidate(
+        registry_candidate
+    )
+    assert registry_audit["machine_check_status"] == "candidate_ref_shape_complete"
+    assert registry_audit["coupled_member_ref_count"] == 7
+    assert registry_audit["authority"] is False
+    assert all(
+        value is False
+        for key, value in registry_audit["authority_boundary"].items()
+        if key != "refs_only"
+    )
+
+    missing_claim_boundary = dict(registry_candidate)
+    missing_claim_boundary["claim_boundary_ref"] = None
+    missing_audit = validate_ehr_registry_signal_validity_candidate(
+        missing_claim_boundary
+    )
+    assert missing_audit["machine_check_status"] == "candidate_ref_shape_incomplete"
+    assert missing_audit["missing_member_refs"] == ["claim_boundary_ref"]
+    assert missing_audit["route_back_candidate"]["authority"] is False
+
+    authority_counterexample = dict(registry_candidate, owner_receipt="accepted")
+    authority_audit = validate_ehr_registry_signal_validity_candidate(
+        authority_counterexample
+    )
+    assert "REGISTRY_SIGNAL_AUTHORITY_CLAIM_FORBIDDEN" in {
+        item["code"] for item in authority_audit["violations"]
+    }
+    nested_authority_counterexample = dict(
+        registry_candidate,
+        authority_boundary={"refs_only": True, "can_sign_owner_receipt": True},
+    )
+    nested_authority_audit = validate_ehr_registry_signal_validity_candidate(
+        nested_authority_counterexample
+    )
+    assert "REGISTRY_SIGNAL_AUTHORITY_BOUNDARY_INVALID" in {
+        item["code"] for item in nested_authority_audit["violations"]
+    }
+    print(json.dumps({"ok": True, "checks": 15}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

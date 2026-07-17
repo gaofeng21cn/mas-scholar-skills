@@ -75,6 +75,10 @@ false. OPL owns persistent cache storage and
    width and compare it with the available label lane. When it does not
    fit, require `wrap_policy=automatic_semantic_wrap` at semantic boundaries;
    manual line breaks in source strings and shrinking text are not passing repairs.
+   Record one measured width per source word plus the measured space width in
+   the bbox sidecar. `generate_semantic_wrap` must reproduce the exact rendered
+   text, line widths, line count, and word-boundary indices; declarations such
+   as `line_count >= 2` without matching generated text do not pass.
 4. Check `text_extent_safe_area_ref` after a final renderer draw. Require
    `renderer_draw_complete=true`, an explicit `final_canvas` and `safe_inset`,
    and one registered text bounding box plus clip bbox for every expected text

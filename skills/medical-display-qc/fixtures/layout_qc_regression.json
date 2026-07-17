@@ -72,7 +72,14 @@
             "measured_unwrapped_width_px": 612,
             "available_width_px": 280,
             "line_count": 3,
-            "manual_breaks": false
+            "manual_breaks": false,
+            "semantic_wrap": {
+              "algorithm": "renderer_measured_greedy_word_boundary.v1",
+              "space_width_px": 5,
+              "word_widths_px": [50, 13, 105, 50, 27, 52, 45, 50, 22, 63, 85],
+              "break_after_word_indices": [4, 9],
+              "line_widths_px": [265, 252, 85]
+            }
           }
         },
         {
@@ -88,7 +95,14 @@
             "measured_unwrapped_width_px": 44,
             "available_width_px": 280,
             "line_count": 1,
-            "manual_breaks": false
+            "manual_breaks": false,
+            "semantic_wrap": {
+              "algorithm": "renderer_measured_greedy_word_boundary.v1",
+              "space_width_px": 5,
+              "word_widths_px": [44],
+              "break_after_word_indices": [],
+              "line_widths_px": [44]
+            }
           }
         },
         {

@@ -56,6 +56,7 @@ REQUIRED_LAYOUT_REGRESSION_CASES = {
     "extreme_numeric_annotation",
     "full_width_layout",
 }
+SEMANTIC_WRAP_ALGORITHM = "renderer_measured_greedy_word_boundary.v1"
 
 QC_ROUTE_RULES = (
     ("artifact_owner_repair", ("blank", "missing", "broken", "export", "link")),
@@ -390,6 +391,103 @@ def _layout_authority_boundary() -> dict[str, bool]:
     }
 
 
+def generate_semantic_wrap(
+    source_text: object,
+    *,
+    available_width_px: object,
+    word_widths_px: Sequence[object],
+    space_width_px: object,
+) -> dict[str, Any]:
+    """Wrap renderer-measured text at lexical boundaries without changing words."""
+
+    source = str(source_text or "")
+    if "\n" in source or "\r" in source:
+        raise ValueError("source_text must not contain manual line breaks")
+    normalized_source = re.sub(r"\s+", " ", source).strip()
+    if not normalized_source:
+        raise ValueError("source_text must contain text")
+    words = normalized_source.split(" ")
+    if isinstance(word_widths_px, (str, bytes)) or not isinstance(
+        word_widths_px, Sequence
+    ):
+        raise ValueError("word_widths_px must be a sequence")
+    if len(word_widths_px) != len(words):
+        raise ValueError("word_widths_px must contain one width per source word")
+
+    available_width = _layout_number(available_width_px, "available_width_px")
+    space_width = _layout_number(space_width_px, "space_width_px")
+    if available_width <= 0:
+        raise ValueError("available_width_px must be positive")
+    if space_width < 0:
+        raise ValueError("space_width_px must be non-negative")
+    word_widths = [
+        _layout_number(value, f"word_widths_px[{index}]")
+        for index, value in enumerate(word_widths_px)
+    ]
+    if any(width <= 0 for width in word_widths):
+        raise ValueError("word_widths_px values must be positive")
+    if any(width > available_width for width in word_widths):
+        raise ValueError("a source word exceeds the available width")
+
+    lines: list[list[str]] = []
+    line_widths: list[float] = []
+    current_words: list[str] = []
+    current_width = 0.0
+    for word, word_width in zip(words, word_widths, strict=True):
+        candidate_width = (
+            word_width
+            if not current_words
+            else current_width + space_width + word_width
+        )
+        if current_words and candidate_width > available_width:
+            lines.append(current_words)
+            line_widths.append(current_width)
+            current_words = [word]
+            current_width = word_width
+        else:
+            current_words.append(word)
+            current_width = candidate_width
+    lines.append(current_words)
+    line_widths.append(current_width)
+
+    break_after_word_indices: list[int] = []
+    consumed_words = 0
+    for line in lines[:-1]:
+        consumed_words += len(line)
+        break_after_word_indices.append(consumed_words - 1)
+    measured_unwrapped_width = sum(word_widths) + space_width * (len(words) - 1)
+    return {
+        "algorithm": SEMANTIC_WRAP_ALGORITHM,
+        "break_strategy": "lexical_word_boundary",
+        "source_text": normalized_source,
+        "rendered_text": "\n".join(" ".join(line) for line in lines),
+        "line_count": len(lines),
+        "break_after_word_indices": break_after_word_indices,
+        "line_widths_px": line_widths,
+        "measured_unwrapped_width_px": measured_unwrapped_width,
+    }
+
+
+def _layout_number_sequence_matches(
+    actual: object, expected: Sequence[float], label: str
+) -> bool:
+    if isinstance(actual, (str, bytes)) or not isinstance(actual, Sequence):
+        return False
+    if len(actual) != len(expected):
+        return False
+    try:
+        actual_numbers = [
+            _layout_number(value, f"{label}[{index}]")
+            for index, value in enumerate(actual)
+        ]
+    except ValueError:
+        return False
+    return all(
+        math.isclose(observed, wanted, rel_tol=0.0, abs_tol=1e-6)
+        for observed, wanted in zip(actual_numbers, expected, strict=True)
+    )
+
+
 def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
     """Audit a renderer-produced text bbox registry on its fixed final canvas."""
 
@@ -567,6 +665,7 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
                     )
                     line_count = measurement.get("line_count")
                     source_text = str(artist.get("source_text") or "")
+                    rendered_text = artist.get("rendered_text")
                     if measurement.get("method") != "renderer_drawn_text_width":
                         violations.append(
                             _layout_violation(
@@ -583,13 +682,100 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
                                 artist_id=artist_id,
                             )
                         )
-                    if (
-                        measured_width > available_width
-                        and (
-                            isinstance(line_count, bool)
-                            or not isinstance(line_count, int)
-                            or line_count < 2
+                    semantic_wrap = measurement.get("semantic_wrap")
+                    generated_wrap: dict[str, Any] | None = None
+                    if not isinstance(semantic_wrap, Mapping):
+                        violations.append(
+                            _layout_violation(
+                                "semantic_wrap_provenance_missing",
+                                panel_id=panel_id,
+                                artist_id=artist_id,
+                            )
                         )
+                    elif semantic_wrap.get("algorithm") != SEMANTIC_WRAP_ALGORITHM:
+                        violations.append(
+                            _layout_violation(
+                                "semantic_wrap_algorithm_invalid",
+                                panel_id=panel_id,
+                                artist_id=artist_id,
+                            )
+                        )
+                    else:
+                        try:
+                            generated_wrap = generate_semantic_wrap(
+                                source_text,
+                                available_width_px=available_width,
+                                word_widths_px=semantic_wrap.get("word_widths_px"),
+                                space_width_px=semantic_wrap.get("space_width_px"),
+                            )
+                        except ValueError as exc:
+                            violations.append(
+                                _layout_violation(
+                                    "semantic_wrap_generation_invalid",
+                                    panel_id=panel_id,
+                                    artist_id=artist_id,
+                                    reason=str(exc),
+                                )
+                            )
+                        else:
+                            if rendered_text != generated_wrap["rendered_text"]:
+                                violations.append(
+                                    _layout_violation(
+                                        "semantic_wrap_rendered_text_mismatch",
+                                        panel_id=panel_id,
+                                        artist_id=artist_id,
+                                    )
+                                )
+                            if (
+                                isinstance(line_count, bool)
+                                or not isinstance(line_count, int)
+                                or line_count != generated_wrap["line_count"]
+                            ):
+                                violations.append(
+                                    _layout_violation(
+                                        "semantic_wrap_line_count_mismatch",
+                                        panel_id=panel_id,
+                                        artist_id=artist_id,
+                                    )
+                                )
+                            if semantic_wrap.get(
+                                "break_after_word_indices"
+                            ) != generated_wrap["break_after_word_indices"]:
+                                violations.append(
+                                    _layout_violation(
+                                        "semantic_wrap_break_positions_mismatch",
+                                        panel_id=panel_id,
+                                        artist_id=artist_id,
+                                    )
+                                )
+                            if not _layout_number_sequence_matches(
+                                semantic_wrap.get("line_widths_px"),
+                                generated_wrap["line_widths_px"],
+                                f"{artist_id}.line_widths_px",
+                            ):
+                                violations.append(
+                                    _layout_violation(
+                                        "semantic_wrap_line_widths_mismatch",
+                                        panel_id=panel_id,
+                                        artist_id=artist_id,
+                                    )
+                                )
+                            if not math.isclose(
+                                measured_width,
+                                generated_wrap["measured_unwrapped_width_px"],
+                                rel_tol=0.0,
+                                abs_tol=1e-6,
+                            ):
+                                violations.append(
+                                    _layout_violation(
+                                        "semantic_wrap_unwrapped_width_mismatch",
+                                        panel_id=panel_id,
+                                        artist_id=artist_id,
+                                    )
+                                )
+                    if measured_width > available_width and (
+                        generated_wrap is None
+                        or generated_wrap["line_count"] < 2
                     ):
                         violations.append(
                             _layout_violation(
@@ -686,6 +872,14 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
                 "category_label_measurement_method_invalid",
                 "manual_category_label_break",
                 "long_category_label_not_wrapped",
+                "semantic_wrap_provenance_missing",
+                "semantic_wrap_algorithm_invalid",
+                "semantic_wrap_generation_invalid",
+                "semantic_wrap_rendered_text_mismatch",
+                "semantic_wrap_line_count_mismatch",
+                "semantic_wrap_break_positions_mismatch",
+                "semantic_wrap_line_widths_mismatch",
+                "semantic_wrap_unwrapped_width_mismatch",
             )
         ),
         "annotation_lane_separate": not any(
@@ -1862,6 +2056,18 @@ def _self_check() -> None:
 
     fixture_path = Path(__file__).with_name("fixtures") / "layout_qc_regression.json"
     fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    long_label = fixture["panels"][0]["text_artists"][1]
+    long_label_measurement = long_label["text_measurement"]
+    long_label_wrap = long_label_measurement["semantic_wrap"]
+    generated_wrap = generate_semantic_wrap(
+        long_label["source_text"],
+        available_width_px=long_label_measurement["available_width_px"],
+        word_widths_px=long_label_wrap["word_widths_px"],
+        space_width_px=long_label_wrap["space_width_px"],
+    )
+    assert generated_wrap["rendered_text"] == long_label["rendered_text"]
+    assert generated_wrap["break_after_word_indices"] == [4, 9]
+    assert generated_wrap["line_widths_px"] == [265, 252, 85]
     layout_audit = audit_layout_registry(fixture)
     assert layout_audit["machine_check_status"] == "geometry_checks_passed"
     assert layout_audit["registered_text_artist_count"] == 6
@@ -1924,6 +2130,36 @@ def _self_check() -> None:
     failed_layout = audit_layout_registry(manual_wrap)
     assert failed_layout["machine_check_status"] == "geometry_checks_failed"
     assert failed_layout["checks"]["measured_wrap_valid"] is False
+
+    rendered_text_counterexample = json.loads(json.dumps(fixture))
+    rendered_text_counterexample["panels"][0]["text_artists"][1][
+        "rendered_text"
+    ] = long_label["source_text"]
+    rendered_text_audit = audit_layout_registry(rendered_text_counterexample)
+    assert "semantic_wrap_rendered_text_mismatch" in {
+        item["code"] for item in rendered_text_audit["violations"]
+    }
+    assert rendered_text_audit["checks"]["measured_wrap_valid"] is False
+
+    semantic_break_counterexample = json.loads(json.dumps(fixture))
+    semantic_break_counterexample["panels"][0]["text_artists"][1][
+        "text_measurement"
+    ]["semantic_wrap"]["break_after_word_indices"] = [3, 9]
+    semantic_break_audit = audit_layout_registry(semantic_break_counterexample)
+    assert "semantic_wrap_break_positions_mismatch" in {
+        item["code"] for item in semantic_break_audit["violations"]
+    }
+    assert semantic_break_audit["checks"]["measured_wrap_valid"] is False
+
+    boolean_line_count_counterexample = json.loads(json.dumps(fixture))
+    boolean_line_count_counterexample["panels"][0]["text_artists"][2][
+        "text_measurement"
+    ]["line_count"] = True
+    boolean_line_count_audit = audit_layout_registry(boolean_line_count_counterexample)
+    assert "semantic_wrap_line_count_mismatch" in {
+        item["code"] for item in boolean_line_count_audit["violations"]
+    }
+    assert boolean_line_count_audit["checks"]["measured_wrap_valid"] is False
 
     overlap = json.loads(json.dumps(fixture))
     overlap["panels"][0]["text_artists"][2]["bbox_px"] = [60, 230, 260, 260]
@@ -2085,7 +2321,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 69 if fitz_available else 62 if pillow_available else 49
+    checks = 74 if fitz_available else 67 if pillow_available else 54
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

@@ -36,8 +36,12 @@ ref; sibling skills contribute or consume bounded inputs and do not create
 parallel signal-validity checklists or verdicts.
 
 Optional local helper: `kernel.py` provides deterministic stdlib-only schema,
-checklist, missingness, model-family, and reporting-lint helpers. It is
-refs-only and cannot issue statistical verdicts or MAS authority claims.
+checklist, missingness, model-family, reporting-lint, and
+`validate_ehr_registry_signal_validity_candidate` helpers. The registry helper
+checks all seven coupled member refs, the single professional owner route, and
+the no-authority boundary; its machine result is candidate-shape evidence, not
+a signal-validity or statistical verdict. The kernel remains refs-only and
+cannot issue MAS authority claims.
 
 Sibling skill routes are `medical-table-design` for table shells and formatting,
 `medical-figure-design` for figure design, `medical-manuscript-writing` for
