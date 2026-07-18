@@ -165,6 +165,22 @@ Before judging the analysis, create or refresh:
 
 If these refs are missing, route back before polishing statistical language.
 
+For registry/atlas counts and percentages, create
+`denominator_semantics_matrix_ref` before prose or display review. Every metric
+must name its numerator, `denominator_ref`, `denominator_role`, explicit
+`formula`, unit, and visual semantic. Different percentages may legitimately
+share the same real denominator; do not flag that alone. Route back only when a
+declared denominator role/formula contradicts its refs, or when a percentage
+and an absolute count reuse the same visual semantic or unit. Absolute flagged
+records are counts within a declared scope, not a percentage or measured
+workload.
+
+When center/site dependence or center sensitivity appears in an abstract or
+conclusion, require `center_sensitivity_claim_binding_ref`: the claim-evidence
+map must contain the central claim row, its `analysis_source_ref`, and every
+supporting main/supplement display ref. Missing binding is a refs-only
+statistical route-back candidate, not a statistical verdict or execution stop.
+
 ## EHR And Registry Signal Validity Rule
 
 For EHR, registry, chart-derived, claims-linked, or other real-world-data work,

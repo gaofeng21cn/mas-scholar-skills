@@ -110,6 +110,20 @@ If source metrics or denominators are unclear, route to
 `medical-statistical-review`, `medical-manuscript-review`, `analysis-campaign`,
 or a MAS owner gate before producing final-looking tables.
 
+For eligible percentages, candidate percentages, resolved percentages, and
+absolute flagged counts, consume `denominator_semantics_matrix_ref`. Every
+metric must expose its numerator, denominator ref, denominator role, formula,
+unit, and visual semantic in the shell or footnote contract. Two percentages
+may share one real denominator when those declarations are explicit and
+self-consistent. Do not place a percent and an absolute count under the same
+visual semantic or unit, and do not describe absolute flagged-record volume as
+measured workload.
+
+Before owner handoff, produce `final_embedding_readability_ref` for the actual
+journal-width table or composed PDF page. Check font size, wrapping, hierarchy,
+footnotes, and scanability at final embedding size. Programmatic non-overflow is
+necessary but cannot substitute for human-readable final-size inspection.
+
 ## Workflow
 
 1. Identify the table's job and manuscript location.

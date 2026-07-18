@@ -256,6 +256,24 @@ For important manuscripts, include three reviewer lanes:
 Then write `cross_review_synthesis_ref` that names consensus blockers,
 divergent emphases, and the narrowest next route.
 
+For an initial draft, also produce `first_draft_pre_review_ref` across story,
+medical interpretation, statistics, terminology, claim-evidence binding,
+tables, and figures. Check `terminology_surface_ledger_ref` across manuscript,
+table titles, figure legends, CSV headers, machine-readable endpoints, and
+supplement. Require `center_sensitivity_claim_binding_ref` when center/site
+dependence enters the abstract or conclusion. Consume
+`denominator_semantics_matrix_ref` to distinguish eligible, candidate,
+resolved, and absolute-count meanings; different percentages may share a real
+denominator when their numerator, denominator role, formula, unit, and visual
+semantics remain explicit and self-consistent.
+
+Return unresolved items as `quality_debt_candidate_refs` with the narrowest
+route back. The fail-open candidate state may be
+`completed_with_quality_debt`: ordinary drafting can continue, while a MAS or
+domain owner decides whether the debt prevents quality, export, publication,
+or submission claims. This review cannot turn quality debt into an authority
+verdict, typed blocker, hosted-execution stop, or reviewer receipt.
+
 When the target journal or article type is known, add
 `venue_review_expectation_ref`: the reviewer standards being used, their source,
 and which expectations are formatting-only versus scientific blockers. Venue

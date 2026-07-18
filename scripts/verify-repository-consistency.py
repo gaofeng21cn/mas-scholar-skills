@@ -631,6 +631,17 @@ data_governance_skill = capability_skill_texts["medical-data-governance"]
 cohort_phenotyping_skill = read_text("skills/medical-cohort-phenotyping/SKILL.md")
 methodology_planner_skill = read_text("skills/medical-methodology-planner/SKILL.md")
 registry_story_architect_skill = read_text("skills/medical-registry-atlas-story-architect/SKILL.md")
+first_draft_quality_sources = {
+    "skills/medical-manuscript-writing/kernel.py": read_text(
+        "skills/medical-manuscript-writing/kernel.py"
+    ),
+    "skills/medical-registry-atlas-story-architect/kernel.py": read_text(
+        "skills/medical-registry-atlas-story-architect/kernel.py"
+    ),
+    "skills/medical-statistical-review/kernel.py": read_text(
+        "skills/medical-statistical-review/kernel.py"
+    ),
+}
 advanced_specialist_skills = {
     skill_id: read_text(f"skills/{skill_id}/SKILL.md")
     for skill_id in advanced_specialist_skill_ids
@@ -1819,6 +1830,94 @@ for token in [
 ]:
     if token not in registry_story_architect_skill:
         fail(f"medical-registry-atlas-story-architect missing optional framing boundary token: {token}")
+
+first_draft_quality_tokens = {
+    "skills/medical-manuscript-writing/kernel.py": [
+        "lint_terminology_surface_ledger",
+        "machine_readable_endpoints",
+        "TERMINOLOGY_BOUNDARY_UNJUSTIFIED",
+        "TERMINOLOGY_NOT_APPLICABLE_REASON_MISSING",
+        "writes_authority",
+    ],
+    "skills/medical-registry-atlas-story-architect/kernel.py": [
+        "lint_center_sensitivity_claim_binding",
+        "CENTRAL_SENSITIVITY_CLAIM_ROW_MISSING",
+        "analysis_source_ref",
+        "display_refs",
+        "writes_authority",
+    ],
+    "skills/medical-statistical-review/kernel.py": [
+        "lint_denominator_semantic_separation",
+        "AMBIGUOUS_PERCENT_COUNT_VISUAL_SEMANTIC",
+        "FORMULA_DENOMINATOR_REF_MISMATCH",
+        "shared_denominator_is_valid",
+        "absolute_flagged_count",
+        "writes_authority",
+    ],
+}
+for relative, tokens in first_draft_quality_tokens.items():
+    for token in tokens:
+        if token not in first_draft_quality_sources[relative]:
+            fail(f"{relative} missing first-draft deterministic token: {token}")
+
+for relative, text, tokens in [
+    (
+        "skills/medical-manuscript-writing/SKILL.md",
+        write_skill,
+        [
+            "first_draft_story_contract_ref",
+            "terminology_surface_ledger_ref",
+            "center_sensitivity_claim_binding_ref",
+            "denominator_semantics_matrix_ref",
+            "quality_debt_candidate_refs",
+            "completed_with_quality_debt",
+        ],
+    ),
+    (
+        "skills/medical-registry-atlas-story-architect/SKILL.md",
+        registry_story_architect_skill,
+        [
+            "handling_editor_first_draft_contract_ref",
+            "denominator_state_architecture_ref",
+            "center_sensitivity_claim_binding_ref",
+            "candidate audit signal",
+        ],
+    ),
+    (
+        "skills/medical-statistical-review/SKILL.md",
+        stats_skill,
+        [
+            "denominator_semantics_matrix_ref",
+            "denominator_role",
+            "formula",
+            "center_sensitivity_claim_binding_ref",
+        ],
+    ),
+    (
+        "skills/medical-table-design/SKILL.md",
+        table_skill,
+        [
+            "denominator_semantics_matrix_ref",
+            "final_embedding_readability_ref",
+            "Programmatic non-overflow",
+        ],
+    ),
+    (
+        "skills/medical-manuscript-review/SKILL.md",
+        review_skill,
+        [
+            "first_draft_pre_review_ref",
+            "quality_debt_candidate_refs",
+            "terminology_surface_ledger_ref",
+            "center_sensitivity_claim_binding_ref",
+            "denominator_semantics_matrix_ref",
+            "completed_with_quality_debt",
+        ],
+    ),
+]:
+    for token in tokens:
+        if token not in text:
+            fail(f"{relative} missing first-draft quality rule token: {token}")
 
 for relative, text in [("README.md", readme), ("README.zh-CN.md", readme_zh)]:
     for token in ["registry_signal_validity_pack", "ehr_registry_signal_validity_ref", "medical-statistical-review"]:

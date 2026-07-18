@@ -54,6 +54,13 @@ REGISTRY_SIGNAL_FORBIDDEN_AUTHORITY_FIELDS = (
     "writes_domain_truth",
 )
 
+DENOMINATOR_SEMANTIC_KINDS = (
+    "eligible_percent",
+    "candidate_percent",
+    "resolved_percent",
+    "absolute_flagged_count",
+)
+
 P_VALUE_RE = re.compile(r"\bp\s*[<=>]\s*0?\.\d+|\bp-value\b", re.I)
 CI_RE = re.compile(r"\b(?:ci|confidence interval|credible interval)\b", re.I)
 EFFECT_RE = re.compile(r"\b(?:or|hr|rr|risk ratio|mean difference|effect size|estimate)\b", re.I)
@@ -77,6 +84,7 @@ def statistical_review_schema() -> dict[str, Any]:
             "multiplicity_and_sensitivity_ref": {"type": "string"},
             "statistical_action_matrix_ref": {"type": "array", "items": {"type": "object"}},
             "ehr_registry_signal_validity_ref": {"type": "object"},
+            "denominator_semantics_matrix_ref": {"type": "array", "items": {"type": "object"}},
             "route_back_candidate": {"type": "string"},
         },
     }
@@ -155,6 +163,121 @@ def lint_statistical_reporting(items: Sequence[str | Mapping[str, object]]) -> l
         if MISSING_RE.search(text) and not missingness:
             findings.append(_finding(ref, "MISSINGNESS_STRATEGY_MISSING", "add missingness_strategy_ref"))
     return findings
+
+
+def lint_denominator_semantic_separation(
+    rows: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Flag ambiguous percentage/count denominator or display semantics."""
+
+    findings: list[dict[str, object]] = []
+    normalized: list[dict[str, str]] = []
+    for index, row in enumerate(rows, start=1):
+        metric_ref = str(row.get("metric_ref") or f"metric_{index}").strip()
+        metric_kind = str(row.get("metric_kind") or "").strip()
+        normalized_row = {
+            "metric_ref": metric_ref,
+            "metric_kind": metric_kind,
+            "numerator_ref": str(row.get("numerator_ref") or "").strip(),
+            "denominator_ref": str(row.get("denominator_ref") or "").strip(),
+            "denominator_semantics_ref": str(
+                row.get("denominator_semantics_ref") or ""
+            ).strip(),
+            "denominator_role": str(row.get("denominator_role") or "").strip(),
+            "visual_semantic_ref": str(row.get("visual_semantic_ref") or "").strip(),
+            "unit": str(row.get("unit") or "").strip().lower(),
+        }
+        normalized.append(normalized_row)
+        if metric_kind not in DENOMINATOR_SEMANTIC_KINDS:
+            findings.append(
+                _denominator_finding(
+                    "DENOMINATOR_METRIC_KIND_UNKNOWN", metric_ref
+                )
+            )
+            continue
+        for field in (
+            "numerator_ref",
+            "denominator_ref",
+            "denominator_semantics_ref",
+            "denominator_role",
+            "unit",
+            "visual_semantic_ref",
+        ):
+            if not normalized_row[field]:
+                findings.append(
+                    _denominator_finding(f"{field.upper()}_MISSING", metric_ref)
+                )
+        formula = row.get("formula")
+        if not isinstance(formula, Mapping):
+            findings.append(
+                _denominator_finding("FORMULA_MISSING_OR_INVALID", metric_ref)
+            )
+        else:
+            for field in (
+                "numerator_ref",
+                "denominator_ref",
+                "denominator_role",
+                "unit",
+            ):
+                declared = normalized_row[field]
+                formula_value = str(formula.get(field) or "").strip()
+                if field == "unit":
+                    formula_value = formula_value.lower()
+                if declared and formula_value != declared:
+                    findings.append(
+                        _denominator_finding(
+                            f"FORMULA_{field.upper()}_MISMATCH", metric_ref
+                        )
+                    )
+        if metric_kind.endswith("_percent"):
+            if normalized_row["unit"] not in {"percent", "%"}:
+                findings.append(
+                    _denominator_finding("PERCENT_UNIT_INVALID", metric_ref)
+                )
+        else:
+            if normalized_row["unit"] != "count":
+                findings.append(
+                    _denominator_finding("ABSOLUTE_COUNT_UNIT_INVALID", metric_ref)
+                )
+
+    for left_index, left in enumerate(normalized):
+        for right in normalized[left_index + 1 :]:
+            left_is_percent = left["metric_kind"].endswith("_percent")
+            right_is_percent = right["metric_kind"].endswith("_percent")
+            if left_is_percent == right_is_percent:
+                continue
+            if (
+                left["visual_semantic_ref"]
+                and left["visual_semantic_ref"] == right["visual_semantic_ref"]
+            ):
+                findings.append(
+                    _denominator_finding(
+                        "AMBIGUOUS_PERCENT_COUNT_VISUAL_SEMANTIC",
+                        f"{left['metric_ref']}|{right['metric_ref']}",
+                    )
+                )
+            if (
+                left["unit"]
+                and left["unit"] == right["unit"]
+            ):
+                findings.append(
+                    _denominator_finding(
+                        "AMBIGUOUS_PERCENT_COUNT_UNIT",
+                        f"{left['metric_ref']}|{right['metric_ref']}",
+                    )
+                )
+    return sorted(
+        findings, key=lambda item: (str(item["code"]), str(item["metric_ref"]))
+    )
+
+
+def _denominator_finding(code: str, metric_ref: str) -> dict[str, object]:
+    return {
+        "code": code,
+        "metric_ref": metric_ref,
+        "action": "separate numerator, denominator, unit, and visual semantics",
+        "writes_authority": False,
+    }
 
 
 def _candidate_ref_identity(value: object) -> str:
@@ -360,7 +483,141 @@ def _self_check() -> None:
     assert "REGISTRY_SIGNAL_AUTHORITY_BOUNDARY_INVALID" in {
         item["code"] for item in nested_authority_audit["violations"]
     }
-    print(json.dumps({"ok": True, "checks": 15}, indent=2, sort_keys=True))
+    mixed_semantics = lint_denominator_semantic_separation(
+        [
+            {
+                "metric_ref": "eligible-rate",
+                "metric_kind": "eligible_percent",
+                "numerator_ref": "n:eligible",
+                "denominator_ref": "n:all",
+                "denominator_semantics_ref": "denom:all",
+                "denominator_role": "all_records",
+                "visual_semantic_ref": "bar:rate",
+                "unit": "percent",
+                "formula": {
+                    "numerator_ref": "n:eligible",
+                    "denominator_ref": "n:all",
+                    "denominator_role": "all_records",
+                    "unit": "percent",
+                },
+            },
+            {
+                "metric_ref": "resolved-rate",
+                "metric_kind": "resolved_percent",
+                "numerator_ref": "n:resolved",
+                "denominator_ref": "n:all",
+                "denominator_semantics_ref": "denom:all",
+                "denominator_role": "candidate_records",
+                "visual_semantic_ref": "bar:rate",
+                "unit": "percent",
+                "formula": {
+                    "numerator_ref": "n:resolved",
+                    "denominator_ref": "n:candidate",
+                    "denominator_role": "candidate_records",
+                    "unit": "percent",
+                },
+            },
+            {
+                "metric_ref": "flagged-volume",
+                "metric_kind": "absolute_flagged_count",
+                "numerator_ref": "n:flagged",
+                "denominator_ref": "scope:generation",
+                "denominator_semantics_ref": "scope:all-generation-records",
+                "denominator_role": "generation_scope",
+                "visual_semantic_ref": "bar:rate",
+                "unit": "percent",
+                "formula": {
+                    "numerator_ref": "n:flagged",
+                    "denominator_ref": "scope:generation",
+                    "denominator_role": "generation_scope",
+                    "unit": "count",
+                },
+            },
+        ]
+    )
+    assert {item["code"] for item in mixed_semantics} >= {
+        "AMBIGUOUS_PERCENT_COUNT_VISUAL_SEMANTIC",
+        "AMBIGUOUS_PERCENT_COUNT_UNIT",
+        "ABSOLUTE_COUNT_UNIT_INVALID",
+        "FORMULA_DENOMINATOR_REF_MISMATCH",
+        "FORMULA_UNIT_MISMATCH",
+    }
+    shared_denominator_is_valid = lint_denominator_semantic_separation(
+        [
+            {
+                "metric_ref": "eligible-of-all",
+                "metric_kind": "eligible_percent",
+                "numerator_ref": "n:eligible",
+                "denominator_ref": "n:all",
+                "denominator_semantics_ref": "denom:all-records",
+                "denominator_role": "all_records",
+                "visual_semantic_ref": "rate:eligible-of-all",
+                "unit": "percent",
+                "formula": {
+                    "numerator_ref": "n:eligible",
+                    "denominator_ref": "n:all",
+                    "denominator_role": "all_records",
+                    "unit": "percent",
+                },
+            },
+            {
+                "metric_ref": "candidate-of-all",
+                "metric_kind": "candidate_percent",
+                "numerator_ref": "n:candidate",
+                "denominator_ref": "n:all",
+                "denominator_semantics_ref": "denom:all-records",
+                "denominator_role": "all_records",
+                "visual_semantic_ref": "rate:candidate-of-all",
+                "unit": "percent",
+                "formula": {
+                    "numerator_ref": "n:candidate",
+                    "denominator_ref": "n:all",
+                    "denominator_role": "all_records",
+                    "unit": "percent",
+                },
+            },
+        ]
+    )
+    assert shared_denominator_is_valid == []
+    separated_semantics = lint_denominator_semantic_separation(
+        [
+            {
+                "metric_ref": "resolved-of-candidate",
+                "metric_kind": "resolved_percent",
+                "numerator_ref": "n:resolved",
+                "denominator_ref": "n:candidate",
+                "denominator_semantics_ref": "denom:candidate",
+                "denominator_role": "candidate_records",
+                "visual_semantic_ref": "rate:resolved-of-candidate",
+                "unit": "percent",
+                "formula": {
+                    "numerator_ref": "n:resolved",
+                    "denominator_ref": "n:candidate",
+                    "denominator_role": "candidate_records",
+                    "unit": "percent",
+                },
+            },
+            {
+                "metric_ref": "absolute-flagged-records",
+                "metric_kind": "absolute_flagged_count",
+                "numerator_ref": "n:flagged",
+                "denominator_ref": "scope:generation",
+                "denominator_semantics_ref": "scope:all-generation-records",
+                "denominator_role": "generation_scope",
+                "visual_semantic_ref": "count:absolute-flagged-records",
+                "unit": "count",
+                "formula": {
+                    "numerator_ref": "n:flagged",
+                    "denominator_ref": "scope:generation",
+                    "denominator_role": "generation_scope",
+                    "unit": "count",
+                },
+            },
+        ]
+    )
+    assert separated_semantics == []
+    assert all(item["writes_authority"] is False for item in mixed_semantics)
+    print(json.dumps({"ok": True, "checks": 19}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

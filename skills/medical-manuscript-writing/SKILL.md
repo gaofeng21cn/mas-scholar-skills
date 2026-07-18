@@ -172,6 +172,51 @@ If the core claim, evidence, or boundary is ambiguous, produce an alignment
 block and route back before drafting a full section. If MAS already supplied an
 equivalent stage prompt or section contract, reuse it and continue.
 
+### First-Draft Handling-Editor Contract
+
+Before writing sentences, produce `first_draft_story_contract_ref` with exactly
+one `unique_scientific_claim_ref`, the `clinical_or_operational_value_ref`, a
+`falsifiable_boundary_ref`, a job for every Results paragraph, the complete
+`figure_table_narrative_arc_ref`, and `main_supplement_placement_ref`. Judge the
+story as a handling editor: each Results paragraph and display must advance the
+single bounded claim, and material denominator, missingness, heterogeneity, or
+sensitivity evidence must be assigned to main text or supplement before prose.
+Professional Skill judgment is mandatory; a journal or display template is a
+reference floor only and cannot substitute for this decision.
+
+Create `terminology_surface_ledger_ref` as an inventory of all six surfaces:
+manuscript text, table titles, figure legends, CSV headers, machine-readable
+endpoints, and supplement. Check every surface that exists; for a surface the
+study does not produce, record `not_applicable` and why rather than fabricating
+a placeholder. Machine identifiers are publication-facing semantics too.
+Words such as `gap`, `intensity`, `burden`, `adherence`, `workload`, or
+`quality ranking` require an explicit `term_justification_ref` linked to the
+accepted claim boundary; otherwise replace
+them with bounded wording such as `candidate audit signal`, `recorded-field
+signal`, or `absolute flagged-record count`. A clean manuscript does not waive
+terminology drift in CSV or machine-readable outputs.
+
+If center/site dependence or center sensitivity enters the abstract or
+conclusion, require `center_sensitivity_claim_binding_ref`: one explicit
+claim-evidence-map row with `claim_ref`, `analysis_source_ref`, and every main
+or supplementary display ref that supports it. Do not rely on prose or a table
+existing somewhere in the package.
+
+For eligible percentages, candidate percentages, resolved percentages, and
+absolute flagged counts, consume `denominator_semantics_matrix_ref`. Keep the
+numerator, denominator population, unit, and visual semantic distinct; an
+absolute count cannot inherit a percent legend or axis meaning. Before draft
+handoff, check the final embedded table/figure size and human readability;
+programmatic non-overflow alone is not evidence of readable journal output.
+
+Run a cross-domain `first_draft_pre_review_ref` before treating the initial
+draft as stable. Missing story, terminology, claim-binding, denominator,
+statistics, table, or display refs become `quality_debt_candidate_refs` with
+the narrowest route back. This is fail-open for ordinary drafting: it may yield
+`completed_with_quality_debt` as a candidate state, but it cannot create a
+typed blocker, stop hosted execution, issue an authority verdict, or authorize
+quality, export, publication, or submission readiness.
+
 ## Preconditions
 
 Before serious drafting, confirm or create durable refs for:
