@@ -66,7 +66,11 @@ unsupported, stale, circular, missing-source, or visible-payload drift. Consume
    manual source breaks, separate plotting/data and right annotation lanes, a
    complete per-panel text bbox registry, zero overlap/overflow/clipping/minimum
    spacing/safe-inset violations, and final-size PNG/PDF SHA and dimensions on a
-   fixed canvas. A tight crop cannot repair a failure.
+   fixed canvas. Consume `final_scale_projection_ref` for every main and
+   supplementary figure and verify its font and safe-inset projection at the
+   narrowest permitted manuscript embedding width, even when the source export
+   is full width or the figure does not look dense. A tight crop cannot repair a
+   failure.
 4. Check `label_economy_ref`, `color_vision_check_ref`,
    `final_size_grayscale_preview_ref`, `export_lint_ref`, and
    `visual_qa_preview_ref` on the actual rendered output. Add

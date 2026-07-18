@@ -498,6 +498,66 @@ The machine check may report geometry pass/fail, but it remains candidate
 evidence. It cannot create MAS visual or submission authority, artifact
 authority, owner acceptance, a typed blocker, or publication readiness.
 
+### Narrowest Final Embedding Projection Ref
+
+Use this for every main and supplementary figure. The narrowest permitted
+embedding width is the inspection target; source-canvas readability alone is
+insufficient.
+
+```yaml
+final_scale_projection_ref:
+  source_width_inches: null
+  minimum_final_embed_width_inches: null
+  embed_scale: null
+  minimum_source_font_points: null
+  minimum_projected_font_points: null
+  required_minimum_font_points: null
+  target_minimum_font_points: null
+  minimum_source_safe_inset_points: null
+  minimum_projected_safe_inset_points: null
+  required_minimum_safe_inset_points: null
+  all_text_extents_passed: true
+  overflow_count: 0
+  collision_count: 0
+  spacing_violation_count: 0
+```
+
+Require `embed_scale = minimum_final_embed_width_inches /
+source_width_inches`; project both the observed minimum font and safe inset with
+that same scale. The projected font must meet both the required and target
+floors, and the projected safe inset must meet its required floor. Bind the
+check to the final PNG/PDF bytes through the enclosing professional workflow.
+Do not limit this check to figures that merely look dense.
+
+### Connected Accounting Flow Ref
+
+Use one of these shapes for every figure:
+
+```yaml
+flow_accounting_integrity_ref:
+  applicable: false
+  decision_reason: not a quantitative accounting flow
+```
+
+```yaml
+flow_accounting_integrity_ref:
+  applicable: true
+  unit_levels: [episodes, patients]
+  quantitative_state_count: null
+  connected_quantitative_state_count: null
+  unconnected_satellite_state_count: 0
+  all_quantitative_states_connected: true
+  denominator_identities_passed: true
+  unit_transitions_declared: true
+  accounting_receipt_ref: null
+```
+
+For an accounting flow, every count-bearing state must connect to the parent
+denominator it partitions or transforms. Unit changes must be explicit, and
+the corresponding denominator identities must be checked. An unconnected
+exclusion, residual state, or alternative-set count fails the figure even when
+the numbers are individually correct.
+
 ## Template And Asset Adaptation Ref
 
 Use the provenance fields above for every reused template or source asset.

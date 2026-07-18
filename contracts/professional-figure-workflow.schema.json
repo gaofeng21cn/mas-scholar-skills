@@ -277,6 +277,152 @@
         }
       }
     },
+    "finalScaleProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_width_inches",
+        "minimum_final_embed_width_inches",
+        "embed_scale",
+        "minimum_source_font_points",
+        "minimum_projected_font_points",
+        "required_minimum_font_points",
+        "target_minimum_font_points",
+        "minimum_source_safe_inset_points",
+        "minimum_projected_safe_inset_points",
+        "required_minimum_safe_inset_points",
+        "all_text_extents_passed",
+        "overflow_count",
+        "collision_count",
+        "spacing_violation_count"
+      ],
+      "properties": {
+        "source_width_inches": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minimum_final_embed_width_inches": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "embed_scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "minimum_source_font_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minimum_projected_font_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "required_minimum_font_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "target_minimum_font_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minimum_source_safe_inset_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minimum_projected_safe_inset_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "required_minimum_safe_inset_points": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "all_text_extents_passed": {
+          "const": true
+        },
+        "overflow_count": {
+          "const": 0
+        },
+        "collision_count": {
+          "const": 0
+        },
+        "spacing_violation_count": {
+          "const": 0
+        }
+      }
+    },
+    "flowAccountingIntegrity": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "applicable",
+            "decision_reason"
+          ],
+          "properties": {
+            "applicable": {
+              "const": false
+            },
+            "decision_reason": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "applicable",
+            "unit_levels",
+            "quantitative_state_count",
+            "connected_quantitative_state_count",
+            "unconnected_satellite_state_count",
+            "all_quantitative_states_connected",
+            "denominator_identities_passed",
+            "unit_transitions_declared",
+            "accounting_receipt_ref"
+          ],
+          "properties": {
+            "applicable": {
+              "const": true
+            },
+            "unit_levels": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            },
+            "quantitative_state_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "connected_quantitative_state_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "unconnected_satellite_state_count": {
+              "const": 0
+            },
+            "all_quantitative_states_connected": {
+              "const": true
+            },
+            "denominator_identities_passed": {
+              "const": true
+            },
+            "unit_transitions_declared": {
+              "const": true
+            },
+            "accounting_receipt_ref": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        }
+      ]
+    },
     "generationReceipt": {
       "type": "object",
       "additionalProperties": false,
@@ -331,6 +477,8 @@
         "figure_contract_ref",
         "template_usage",
         "text_policy",
+        "final_scale_projection",
+        "flow_accounting_integrity",
         "design_invocation",
         "generation_receipt",
         "style_invocation",
@@ -360,6 +508,12 @@
         },
         "text_policy": {
           "$ref": "#/$defs/textPolicy"
+        },
+        "final_scale_projection": {
+          "$ref": "#/$defs/finalScaleProjection"
+        },
+        "flow_accounting_integrity": {
+          "$ref": "#/$defs/flowAccountingIntegrity"
         },
         "design_invocation": {
           "$ref": "#/$defs/skillInvocation"

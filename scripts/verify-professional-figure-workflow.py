@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import pathlib
 import re
 import sys
@@ -56,6 +57,15 @@ def _sha256(value: Any, label: str) -> str:
     return text
 
 
+def _number(value: Any, label: str, *, minimum_exclusive: float = 0.0) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        _fail(f"{label} must be a number")
+    number = float(value)
+    if not math.isfinite(number) or number <= minimum_exclusive:
+        _fail(f"{label} must be greater than {minimum_exclusive}")
+    return number
+
+
 def _artifact(value: Any, label: str) -> tuple[str, str, int, str]:
     artifact = _mapping(value, label)
     if set(artifact) != {"artifact_id", "format", "path_ref", "size_bytes", "sha256"}:
@@ -93,7 +103,7 @@ def _invocation(
     label: str,
     expected_skill_id: str,
     expected_outputs: dict[str, tuple[str, int, str]],
-) -> None:
+) -> set[str]:
     invocation = _mapping(value, label)
     required = {
         "receipt_id",
@@ -139,6 +149,7 @@ def _invocation(
     for field in ("authority", "publication_ready"):
         if invocation.get(field) is not False:
             _fail(f"{label}.{field} must be false")
+    return set(rules)
 
 
 def _template_usage(value: Any, label: str) -> None:
@@ -190,6 +201,133 @@ def _text_policy(value: Any, label: str, figure_kind: str) -> None:
             _fail(f"{label}.allowed_text_roles violates the evidence-figure text policy")
     elif figure_kind != "graphical_abstract":
         _fail(f"{label} has unsupported figure_kind {figure_kind}")
+
+
+def _final_scale_projection(value: Any, label: str) -> None:
+    projection = _mapping(value, label)
+    required = {
+        "source_width_inches",
+        "minimum_final_embed_width_inches",
+        "embed_scale",
+        "minimum_source_font_points",
+        "minimum_projected_font_points",
+        "required_minimum_font_points",
+        "target_minimum_font_points",
+        "minimum_source_safe_inset_points",
+        "minimum_projected_safe_inset_points",
+        "required_minimum_safe_inset_points",
+        "all_text_extents_passed",
+        "overflow_count",
+        "collision_count",
+        "spacing_violation_count",
+    }
+    if set(projection) != required:
+        _fail(f"{label} has invalid fields")
+
+    source_width = _number(projection.get("source_width_inches"), f"{label}.source_width_inches")
+    embed_width = _number(
+        projection.get("minimum_final_embed_width_inches"),
+        f"{label}.minimum_final_embed_width_inches",
+    )
+    scale = _number(projection.get("embed_scale"), f"{label}.embed_scale")
+    if embed_width > source_width + 1e-9 or scale > 1.0 + 1e-9:
+        _fail(f"{label} must project from the source width to an equal or narrower width")
+    if not math.isclose(scale, embed_width / source_width, rel_tol=0.0, abs_tol=1e-6):
+        _fail(f"{label}.embed_scale must equal minimum_final_embed_width_inches/source_width_inches")
+
+    source_font = _number(
+        projection.get("minimum_source_font_points"),
+        f"{label}.minimum_source_font_points",
+    )
+    projected_font = _number(
+        projection.get("minimum_projected_font_points"),
+        f"{label}.minimum_projected_font_points",
+    )
+    required_font = _number(
+        projection.get("required_minimum_font_points"),
+        f"{label}.required_minimum_font_points",
+    )
+    target_font = _number(
+        projection.get("target_minimum_font_points"),
+        f"{label}.target_minimum_font_points",
+    )
+    if not math.isclose(projected_font, source_font * scale, rel_tol=0.0, abs_tol=0.01):
+        _fail(f"{label}.minimum_projected_font_points does not match the declared scale")
+    if target_font + 1e-9 < required_font or projected_font + 1e-9 < target_font:
+        _fail(f"{label} misses the required or target projected font floor")
+
+    source_inset = _number(
+        projection.get("minimum_source_safe_inset_points"),
+        f"{label}.minimum_source_safe_inset_points",
+    )
+    projected_inset = _number(
+        projection.get("minimum_projected_safe_inset_points"),
+        f"{label}.minimum_projected_safe_inset_points",
+    )
+    required_inset = _number(
+        projection.get("required_minimum_safe_inset_points"),
+        f"{label}.required_minimum_safe_inset_points",
+    )
+    if not math.isclose(projected_inset, source_inset * scale, rel_tol=0.0, abs_tol=0.01):
+        _fail(f"{label}.minimum_projected_safe_inset_points does not match the declared scale")
+    if projected_inset + 1e-9 < required_inset:
+        _fail(f"{label} misses the required projected safe inset")
+
+    if projection.get("all_text_extents_passed") is not True:
+        _fail(f"{label}.all_text_extents_passed must be true")
+    for field in ("overflow_count", "collision_count", "spacing_violation_count"):
+        count = projection.get(field)
+        if isinstance(count, bool) or not isinstance(count, int) or count != 0:
+            _fail(f"{label}.{field} must be integer zero")
+
+
+def _flow_accounting_integrity(value: Any, label: str) -> bool:
+    integrity = _mapping(value, label)
+    if integrity.get("applicable") is False:
+        if set(integrity) != {"applicable", "decision_reason"}:
+            _fail(f"{label} must omit accounting proof when not applicable")
+        _text(integrity.get("decision_reason"), f"{label}.decision_reason")
+        return False
+    if integrity.get("applicable") is not True:
+        _fail(f"{label}.applicable must be boolean")
+    required = {
+        "applicable",
+        "unit_levels",
+        "quantitative_state_count",
+        "connected_quantitative_state_count",
+        "unconnected_satellite_state_count",
+        "all_quantitative_states_connected",
+        "denominator_identities_passed",
+        "unit_transitions_declared",
+        "accounting_receipt_ref",
+    }
+    if set(integrity) != required:
+        _fail(f"{label} must carry complete accounting proof when applicable")
+    units = _sequence(integrity.get("unit_levels"), f"{label}.unit_levels")
+    if any(not isinstance(item, str) or not item.strip() for item in units):
+        _fail(f"{label}.unit_levels must contain non-empty strings")
+    if len(units) != len(set(units)):
+        _fail(f"{label}.unit_levels must be unique")
+    counts: dict[str, int] = {}
+    for field in ("quantitative_state_count", "connected_quantitative_state_count"):
+        count = integrity.get(field)
+        if isinstance(count, bool) or not isinstance(count, int) or count < 1:
+            _fail(f"{label}.{field} must be a positive integer")
+        counts[field] = count
+    if counts["quantitative_state_count"] != counts["connected_quantitative_state_count"]:
+        _fail(f"{label} leaves a quantitative state disconnected from its parent denominator")
+    satellite_count = integrity.get("unconnected_satellite_state_count")
+    if isinstance(satellite_count, bool) or not isinstance(satellite_count, int) or satellite_count != 0:
+        _fail(f"{label}.unconnected_satellite_state_count must be integer zero")
+    for field in (
+        "all_quantitative_states_connected",
+        "denominator_identities_passed",
+        "unit_transitions_declared",
+    ):
+        if integrity.get(field) is not True:
+            _fail(f"{label}.{field} must be true")
+    _text(integrity.get("accounting_receipt_ref"), f"{label}.accounting_receipt_ref")
+    return True
 
 
 def _generation_receipt(
@@ -267,6 +405,8 @@ def validate_workflow(value: Any) -> dict[str, Any]:
             "figure_contract_ref",
             "template_usage",
             "text_policy",
+            "final_scale_projection",
+            "flow_accounting_integrity",
             "design_invocation",
             "generation_receipt",
             "composer_invocation",
@@ -287,8 +427,15 @@ def validate_workflow(value: Any) -> dict[str, Any]:
         _text(figure.get("figure_contract_ref"), f"{label}.figure_contract_ref")
         _template_usage(figure.get("template_usage"), f"{label}.template_usage")
         _text_policy(figure.get("text_policy"), f"{label}.text_policy", figure_kind)
+        _final_scale_projection(
+            figure.get("final_scale_projection"), f"{label}.final_scale_projection"
+        )
+        accounting_flow = _flow_accounting_integrity(
+            figure.get("flow_accounting_integrity"),
+            f"{label}.flow_accounting_integrity",
+        )
         outputs = _artifact_inventory(figure.get("outputs"), f"{label}.outputs")
-        _invocation(
+        design_rules = _invocation(
             figure.get("design_invocation"),
             f"{label}.design_invocation",
             "medical-figure-design",
@@ -308,12 +455,18 @@ def validate_workflow(value: Any) -> dict[str, Any]:
             )
         elif "composer_invocation" in figure:
             _fail(f"{label}.composer_invocation is only valid for assembled panels")
-        _invocation(
+        style_rules = _invocation(
             figure.get("style_invocation"),
             f"{label}.style_invocation",
             "medical-figure-style",
             outputs,
         )
+        if "medical-figure-design#narrowest-final-embedding-projection" not in design_rules:
+            _fail(f"{label}.design_invocation must consume the final-scale projection rule")
+        if "medical-figure-style#narrowest-final-embedding-projection" not in style_rules:
+            _fail(f"{label}.style_invocation must consume the final-scale projection rule")
+        if accounting_flow and "medical-figure-design#connected-accounting-flow" not in design_rules:
+            _fail(f"{label}.design_invocation must consume the connected accounting-flow rule")
 
     boundary = _mapping(workflow.get("authority_boundary"), "workflow.authority_boundary")
     if set(boundary) != {
@@ -367,6 +520,24 @@ def _self_test() -> None:
     missing_composer = copy.deepcopy(fixture)
     missing_composer["figures"][0]["composition_mode"] = "assembled_panels"
     cases.append(("assembled panels without composer", missing_composer, "composer_invocation is required"))
+
+    narrow_projection = copy.deepcopy(fixture)
+    narrow_projection["figures"][0]["final_scale_projection"][
+        "minimum_final_embed_width_inches"
+    ] = 4.0
+    cases.append(("stale final-scale projection", narrow_projection, "embed_scale must equal"))
+
+    disconnected_flow = copy.deepcopy(fixture)
+    disconnected_flow["figures"][0]["flow_accounting_integrity"][
+        "connected_quantitative_state_count"
+    ] -= 1
+    cases.append(("disconnected accounting state", disconnected_flow, "disconnected from its parent"))
+
+    missing_projection_rule = copy.deepcopy(fixture)
+    missing_projection_rule["figures"][0]["style_invocation"]["consumed_rule_refs"].remove(
+        "medical-figure-style#narrowest-final-embedding-projection"
+    )
+    cases.append(("missing style projection rule", missing_projection_rule, "consume the final-scale projection rule"))
 
     for name, candidate, expected in cases:
         try:

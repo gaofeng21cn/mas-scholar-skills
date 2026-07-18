@@ -1874,6 +1874,24 @@ for relative, text in deterministic_figure_closeout_texts.items():
         if token not in text:
             fail(f"{relative} missing deterministic figure closeout token: {token}")
 
+professional_projection_and_flow_tokens = [
+    "final_scale_projection_ref",
+    "minimum_final_embed_width_inches",
+    "minimum_projected_safe_inset_points",
+    "flow_accounting_integrity_ref",
+    "all_quantitative_states_connected",
+    "unconnected_satellite_state_count",
+    "denominator_identities_passed",
+    "unit_transitions_declared",
+]
+for relative, text in {
+    "skills/medical-figure-design/SKILL.md": figure_skill,
+    "references/professional-quality-ref-templates.md": professional_ref_templates,
+}.items():
+    for token in professional_projection_and_flow_tokens:
+        if token not in text:
+            fail(f"{relative} missing final-scale or accounting-flow token: {token}")
+
 text_extent_safe_area_tokens = [
     "text_extent_safe_area_ref",
     "final_canvas",

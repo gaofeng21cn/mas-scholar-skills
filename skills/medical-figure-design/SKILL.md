@@ -323,6 +323,47 @@ before drawing. If MAS or the user has not fixed a backend, recommend one from
 the paper-local contract and record the reason; once recorded, keep it exclusive
 for rendering, preview, export, and visual QA.
 
+### Narrowest Final Embedding Projection
+
+Apply final-scale readability to every paper-facing figure, not only figures
+that look dense during authoring. Before rendering, declare the narrowest width
+at which the figure can appear in the manuscript or supplement. Project every
+text size and every safe inset from the source canvas to that width, then require
+the projected values to meet the paper or journal floor. A full-width source
+export is not evidence that a later scaled-down embedding remains readable.
+
+Emit `final_scale_projection_ref` with source width, narrowest embedding width,
+scale factor, observed source and projected minimum font sizes, required and
+target font floors, observed source and projected safe insets, and zero
+overflow/collision/spacing violations from the actual final PNG/PDF pair. Run
+the same check for all main and supplementary figures. Do not waive it because
+a figure uses few panels, and do not pass by shrinking labels, relying on a
+tight crop, or checking only a visually dense subset.
+The machine shape records `minimum_final_embed_width_inches` and
+`minimum_projected_safe_inset_points` explicitly so a consuming workflow can
+recompute the projection instead of trusting prose.
+
+### Connected Accounting Flow
+
+When a flow or schematic contains quantitative cohort, record, episode,
+participant, specimen, or event states, every count must be connected to the
+parent denominator it partitions or transforms. Declare each unit transition,
+such as episodes to patients, and test the corresponding denominator identity.
+An exclusion box, residual state, or alternative analysis set drawn as an
+unconnected satellite is a hard route-back even when the arithmetic itself is
+correct.
+
+Emit `flow_accounting_integrity_ref` for every figure. Use
+`applicable=false` with a reason for non-accounting figures. For an accounting
+flow, record the unit levels, total and connected quantitative-state counts,
+unconnected satellite count, denominator-identity result, unit-transition
+result, and the machine receipt that proves the drawn edges and arithmetic.
+Require all quantitative states connected, zero satellites, all denominator
+identities passed, and all unit transitions declared before visual handoff.
+The machine fields are `all_quantitative_states_connected`,
+`unconnected_satellite_state_count`, `denominator_identities_passed`, and
+`unit_transitions_declared`.
+
 For prediction-model external-validation figures, keep the figure grammar tied
 to the validation question:
 

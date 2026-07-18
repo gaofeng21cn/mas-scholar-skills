@@ -32,6 +32,36 @@
           "necessary_statistical_annotation"
         ]
       },
+      "final_scale_projection": {
+        "source_width_inches": 7.09,
+        "minimum_final_embed_width_inches": 5.833333,
+        "embed_scale": 0.822755,
+        "minimum_source_font_points": 8.0,
+        "minimum_projected_font_points": 6.582,
+        "required_minimum_font_points": 6.0,
+        "target_minimum_font_points": 6.5,
+        "minimum_source_safe_inset_points": 7.293,
+        "minimum_projected_safe_inset_points": 6.0,
+        "required_minimum_safe_inset_points": 6.0,
+        "all_text_extents_passed": true,
+        "overflow_count": 0,
+        "collision_count": 0,
+        "spacing_violation_count": 0
+      },
+      "flow_accounting_integrity": {
+        "applicable": true,
+        "unit_levels": [
+          "episodes",
+          "patients"
+        ],
+        "quantitative_state_count": 7,
+        "connected_quantitative_state_count": 7,
+        "unconnected_satellite_state_count": 0,
+        "all_quantitative_states_connected": true,
+        "denominator_identities_passed": true,
+        "unit_transitions_declared": true,
+        "accounting_receipt_ref": "fixture:flow-accounting/F1"
+      },
       "design_invocation": {
         "receipt_id": "fixture:design/F1",
         "skill_id": "medical-figure-design",
@@ -43,7 +73,9 @@
         "input_sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
         "consumed_rule_refs": [
           "medical-figure-design#figure-contract",
-          "medical-figure-design#final-scale-visual-qa"
+          "medical-figure-design#final-scale-visual-qa",
+          "medical-figure-design#narrowest-final-embedding-projection",
+          "medical-figure-design#connected-accounting-flow"
         ],
         "output_artifacts": [
           {
@@ -102,7 +134,8 @@
         "input_sha256": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
         "consumed_rule_refs": [
           "medical-figure-style#workflow",
-          "medical-figure-style#output"
+          "medical-figure-style#output",
+          "medical-figure-style#narrowest-final-embedding-projection"
         ],
         "output_artifacts": [
           {
