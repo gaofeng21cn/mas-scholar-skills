@@ -30,6 +30,14 @@ Start from the MAS overlay or stage operating prompt when one exists. It owns
 stage validity, evidence thresholds, route-back, and acceptance. Use the routed
 specialist for professional judgment and candidate handoff preparation.
 
+For a new or materially repaired paper-facing figure, routing is not complete
+until `medical-figure-design` has been consumed and the final export has a
+`medical-figure-style` receipt. Use `medical-figure-composer` only for assembly
+from separately rendered panels. Figure templates are optional references and
+quality floors; they are never mandatory layouts. If hosted discovery is
+unavailable, use the currently materialized canonical Skill and record its
+identity instead of bypassing the professional workflow.
+
 ## Optional Routing
 
 All exported specialty skills are already discoverable in an active MAS

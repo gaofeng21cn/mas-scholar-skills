@@ -114,8 +114,8 @@ def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
         fail("display-pack receipt templates contract has wrong contract_id")
-    if contract.get("schema_version") != "1.3.0":
-        fail("display-pack receipt templates contract must use schema_version 1.3.0")
+    if contract.get("schema_version") != "1.4.0":
+        fail("display-pack receipt templates contract must use schema_version 1.4.0")
     if contract.get("state") != "active_refs_only_template":
         fail("display-pack receipt templates contract must stay refs-only")
     require_false_flags(
@@ -132,16 +132,69 @@ def verify_receipt_templates() -> dict:
         ],
     )
     if contract.get("receipt_chain") != [
+        "professional_figure_workflow_ref",
         "figure_contract_ref",
-        "render_receipt_ref",
+        "render_or_generation_receipt_ref",
         "layout_qc_receipt_ref",
         "visual_qa_receipt_ref",
         "owner_gate_handoff_ref",
     ]:
         fail(
             "display-pack receipt chain must remain "
-            "figure->render->layout_qc->visual_qa->owner_gate"
+            "professional_skill->figure->render_or_generation->layout_qc->"
+            "visual_qa->owner_gate"
         )
+    workflow = contract.get("professional_figure_workflow_ref") or {}
+    if workflow.get("schema_ref") != "contracts/professional-figure-workflow.schema.json":
+        fail("professional figure workflow must bind the canonical schema")
+    if workflow.get("surface_kind") != "mas_scholar_skills_professional_figure_workflow_candidate.v1":
+        fail("professional figure workflow has the wrong surface kind")
+    if workflow.get("new_or_materially_repaired_figure_requires") != [
+        "medical-figure-design"
+    ]:
+        fail("new or materially repaired figures must consume medical-figure-design")
+    if workflow.get("final_visual_qa_requires") != ["medical-figure-style"]:
+        fail("final visual QA must consume medical-figure-style")
+    conditional_skills = workflow.get("conditional_skill_rules") or {}
+    if conditional_skills.get("assembled_panels_requires") != "medical-figure-composer":
+        fail("assembled panels must consume medical-figure-composer")
+    if conditional_skills.get("single_canvas_direct_forbids_invented_composer_receipt") is not True:
+        fail("single-canvas figures must not invent composer receipts")
+    template_policy = workflow.get("template_policy") or {}
+    for field in (
+        "template_use_is_optional",
+        "template_is_reference_quality_floor_not_mandatory_layout",
+        "record_provenance_only_when_template_used",
+        "no_template_use_requires_only_decision_reason",
+    ):
+        if template_policy.get(field) is not True:
+            fail(f"professional figure template policy must keep {field}=true")
+    text_policy = workflow.get("evidence_figure_text_policy") or {}
+    for field in ("embedded_title", "embedded_subtitle", "embedded_prose_footer"):
+        if text_policy.get(field) is not False:
+            fail(f"evidence figure text policy must keep {field}=false")
+    if text_policy.get("allowed_text_roles") != [
+        "panel_label",
+        "axis_label",
+        "tick_label",
+        "legend",
+        "necessary_statistical_annotation",
+    ]:
+        fail("evidence figure text policy has invalid allowed text roles")
+    if text_policy.get("graphical_abstract_exempt") is not True:
+        fail("graphical abstracts must remain explicitly exempt")
+    missing_receipt = workflow.get("missing_or_stale_receipt_behavior") or {}
+    if missing_receipt.get("blocks_stage_liveness") is not False:
+        fail("missing professional Figure Skill receipt must not block stage liveness")
+    for field in (
+        "creates_quality_debt",
+        "blocks_quality_readiness",
+        "blocks_export_readiness",
+        "blocks_publication_readiness",
+    ):
+        if missing_receipt.get(field) is not True:
+            fail(f"missing professional Figure Skill receipt must keep {field}=true")
+    require_false_flags(workflow, "professional_figure_workflow_ref", ["authority", "publication_ready"])
     adaptation_policy = contract.get("template_asset_adaptation_policy") or {}
     if adaptation_policy.get("allowed_adaptation_modes") != ALLOWED_ADAPTATION_MODES:
         fail("template/asset adaptation policy has invalid adaptation modes")
@@ -169,12 +222,29 @@ def verify_receipt_templates() -> dict:
         [
             "core_conclusion_ref",
             "panel_evidence_chain_ref",
-            "template_selection_ref",
+            "professional_figure_workflow_ref",
+            "figure_text_policy_ref",
             "renderer_decision_ref",
             "owner_gate_handoff_ref",
         ],
     )
+    template_selection = (contract.get("figure_contract_ref") or {}).get(
+        "template_selection_policy"
+    ) or {}
+    if template_selection != {
+        "required": False,
+        "record_only_when_template_or_asset_is_used": True,
+        "must_not_invent_template_provenance_for_original_render": True,
+    }:
+        fail("figure_contract_ref must keep template selection conditional")
+    if (contract.get("render_or_generation_receipt_ref") or {}) != {
+        "one_of": ["render_receipt_ref", "generation_receipt_ref"],
+        "exactly_one_required_per_figure": True,
+    }:
+        fail("figure workflow must require exactly one render or generation receipt")
     render_receipt = contract.get("render_receipt_ref") or {}
+    if render_receipt.get("scope") != "actual_display_pack_render_only":
+        fail("render_receipt_ref must be limited to actual Display Pack renders")
     require_all_fields(
         render_receipt,
         "render_receipt_ref",
@@ -203,6 +273,34 @@ def verify_receipt_templates() -> dict:
     if render_receipt.get("degradation_reason_required_when_fidelity_reduced") is not True:
         fail("render_receipt_ref must require an explicit fidelity degradation reason")
     require_false_flags(render_receipt, "render_receipt_ref", ["authority", "publication_ready"])
+    generation_receipt = contract.get("generation_receipt_ref") or {}
+    if generation_receipt.get("scope") != "paper_local_or_non_pack_render":
+        fail("generation_receipt_ref must cover paper-local or non-pack renders")
+    require_all_fields(
+        generation_receipt,
+        "generation_receipt_ref",
+        [
+            "receipt_id",
+            "renderer_family",
+            "renderer_version",
+            "source_code_ref",
+            "source_code_sha256",
+            "input_manifest_ref",
+            "input_manifest_sha256",
+            "outputs",
+        ],
+    )
+    if generation_receipt.get("required_artifact_formats") != ["PNG", "PDF"]:
+        fail("generation_receipt_ref must bind the final PNG/PDF pair")
+    if generation_receipt.get("template_fields_required") is not False:
+        fail("paper-local generation receipts must not require template fields")
+    if generation_receipt.get("must_bind_exact_final_output_sha256") is not True:
+        fail("generation_receipt_ref must bind exact final output hashes")
+    require_false_flags(
+        generation_receipt,
+        "generation_receipt_ref",
+        ["authority", "publication_ready"],
+    )
     layout_qc_receipt = contract.get("layout_qc_receipt_ref") or {}
     if layout_qc_receipt.get("surface_kind") != "layout_qc_receipt_candidate.v1":
         fail("layout_qc_receipt_ref must use the candidate v1 surface")
@@ -268,6 +366,8 @@ def verify_receipt_templates() -> dict:
             "layout_qc_receipt_ref",
             "final_size_export_ref",
             "export_lint_ref",
+            "professional_figure_style_invocation_ref",
+            "final_output_artifact_bindings",
             "route_back_items",
             "owner_gate_handoff_ref",
             "authority",

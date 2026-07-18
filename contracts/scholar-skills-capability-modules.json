@@ -616,6 +616,8 @@
     },
     "skill_quality_refs": {
       "medical-figure-design": [
+        "professional_figure_workflow_ref",
+        "professional_figure_design_invocation_ref",
         "figure_contract_template_ref",
         "figure_contract_ref",
         "core_conclusion_ref",
@@ -644,6 +646,7 @@
         "skill_pack_governance_policy_ref"
       ],
       "medical-figure-style": [
+        "professional_figure_style_invocation_ref",
         "data_fidelity_ref",
         "excluded_rows_ref",
         "comparability_ref",
@@ -658,6 +661,7 @@
         "route_back_hard_evidence_ref"
       ],
       "medical-figure-composer": [
+        "professional_figure_composer_invocation_ref",
         "multi_panel_outline_ref",
         "panel_render_receipt_ref",
         "composite_review_ref",

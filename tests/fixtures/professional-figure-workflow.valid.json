@@ -1,0 +1,155 @@
+{
+  "surface_kind": "mas_scholar_skills_professional_figure_workflow_candidate.v1",
+  "schema_ref": "contracts/professional-figure-workflow.schema.json",
+  "schema_version": 1,
+  "workflow_id": "fixture-professional-figure-workflow",
+  "generation_id": "fixture-generation",
+  "package_identity": {
+    "package_id": "mas-scholar-skills",
+    "version": "0.2.7",
+    "source_ref": "git:mas-scholar-skills@fixture",
+    "source_sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "figures": [
+    {
+      "figure_id": "F1",
+      "figure_kind": "evidence_figure",
+      "composition_mode": "single_canvas_direct",
+      "figure_contract_ref": "fixture:figure-contract/F1",
+      "template_usage": {
+        "used": false,
+        "decision_reason": "No reusable template matched the evidence hierarchy; the template library was used only as a quality floor."
+      },
+      "text_policy": {
+        "embedded_title": false,
+        "embedded_subtitle": false,
+        "embedded_prose_footer": false,
+        "allowed_text_roles": [
+          "panel_label",
+          "axis_label",
+          "tick_label",
+          "legend",
+          "necessary_statistical_annotation"
+        ]
+      },
+      "design_invocation": {
+        "receipt_id": "fixture:design/F1",
+        "skill_id": "medical-figure-design",
+        "skill_source_ref": "skills/medical-figure-design/SKILL.md",
+        "skill_version": "0.2.7",
+        "skill_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "invocation_id": "fixture-design-invocation-F1",
+        "input_contract_ref": "fixture:figure-contract/F1",
+        "input_sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "consumed_rule_refs": [
+          "medical-figure-design#figure-contract",
+          "medical-figure-design#final-scale-visual-qa"
+        ],
+        "output_artifacts": [
+          {
+            "artifact_id": "F1.png",
+            "format": "PNG",
+            "path_ref": "fixture:figures/F1.png",
+            "size_bytes": 100,
+            "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+          },
+          {
+            "artifact_id": "F1.pdf",
+            "format": "PDF",
+            "path_ref": "fixture:figures/F1.pdf",
+            "size_bytes": 200,
+            "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+          }
+        ],
+        "status": "completed",
+        "refs_only": true,
+        "authority": false,
+        "publication_ready": false
+      },
+      "generation_receipt": {
+        "receipt_id": "fixture:generation/F1",
+        "renderer_family": "matplotlib",
+        "renderer_version": "3.10.0",
+        "source_code_ref": "fixture:build_figures.py",
+        "source_code_sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "input_manifest_ref": "fixture:inputs.json",
+        "input_manifest_sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+        "outputs": [
+          {
+            "artifact_id": "F1.png",
+            "format": "PNG",
+            "path_ref": "fixture:figures/F1.png",
+            "size_bytes": 100,
+            "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+          },
+          {
+            "artifact_id": "F1.pdf",
+            "format": "PDF",
+            "path_ref": "fixture:figures/F1.pdf",
+            "size_bytes": 200,
+            "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+          }
+        ]
+      },
+      "style_invocation": {
+        "receipt_id": "fixture:style/F1",
+        "skill_id": "medical-figure-style",
+        "skill_source_ref": "skills/medical-figure-style/SKILL.md",
+        "skill_version": "0.2.7",
+        "skill_sha256": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+        "invocation_id": "fixture-style-invocation-F1",
+        "input_contract_ref": "fixture:figure-contract/F1",
+        "input_sha256": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "consumed_rule_refs": [
+          "medical-figure-style#workflow",
+          "medical-figure-style#output"
+        ],
+        "output_artifacts": [
+          {
+            "artifact_id": "F1.png",
+            "format": "PNG",
+            "path_ref": "fixture:figures/F1.png",
+            "size_bytes": 100,
+            "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+          },
+          {
+            "artifact_id": "F1.pdf",
+            "format": "PDF",
+            "path_ref": "fixture:figures/F1.pdf",
+            "size_bytes": 200,
+            "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+          }
+        ],
+        "status": "completed",
+        "refs_only": true,
+        "authority": false,
+        "publication_ready": false
+      },
+      "outputs": [
+        {
+          "artifact_id": "F1.png",
+          "format": "PNG",
+          "path_ref": "fixture:figures/F1.png",
+          "size_bytes": 100,
+          "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        {
+          "artifact_id": "F1.pdf",
+          "format": "PDF",
+          "path_ref": "fixture:figures/F1.pdf",
+          "size_bytes": 200,
+          "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        }
+      ]
+    }
+  ],
+  "authority_boundary": {
+    "refs_only": true,
+    "can_mutate_artifacts": false,
+    "can_sign_owner_receipt": false,
+    "can_create_typed_blocker": false,
+    "can_claim_quality_readiness": false,
+    "can_claim_export_readiness": false,
+    "can_claim_publication_readiness": false
+  }
+}

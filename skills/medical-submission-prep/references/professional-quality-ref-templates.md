@@ -248,6 +248,30 @@ failure. A legacy handoff without this optional ref remains valid under its
 existing contract; the consuming MAS/domain owner decides whether targeted
 fresh review evidence is needed.
 
+## Professional Figure Workflow Receipt
+
+For every new or materially repaired paper-facing figure, create one
+`professional_figure_workflow_ref` using
+`contracts/professional-figure-workflow.schema.json`.
+
+- `medical-figure-design` is mandatory for design and material repair.
+- `medical-figure-style` is mandatory for final visual QA.
+- `medical-figure-composer` is conditional: use it only when separately
+  rendered panels are assembled into a composite.
+- Template use is optional. Record template id, source, semantic match, and
+  adaptation delta only when a template or source asset was actually consumed.
+- Every invocation receipt binds the exact Skill source/version/SHA, input
+  contract SHA, consumed rule refs, and final PNG/PDF size and SHA-256 values.
+- For evidence figures, the image contains no figure title, subtitle, or prose
+  footer. Move narrative context, caveats, source notes, and workflow prose to
+  the manuscript caption. Purpose-built graphical abstracts are exempt.
+
+If OPL catalog or hosted discovery is unavailable, consume the currently
+materialized canonical Skill and record its identity. Do not treat platform
+unavailability as permission to bypass the professional workflow. Missing or
+stale receipt evidence does not block ordinary stage liveness, but remains
+quality debt and prevents quality, export, and publication-readiness claims.
+
 ## Figure Contract Template
 
 Use `figure_contract_template_ref` before drawing a new or repaired manuscript
@@ -268,9 +292,11 @@ Minimum fields:
   unexplained error bars, chartjunk, categorical lines, and missing colorbars.
 - `figure_archetype`: evidence grid, mechanism schematic, mixed-modality
   composite, clinical evidence summary, or image-plus-quant panel set.
-- `template_selection_ref`: the selected Display Pack template, paper-local
-  grammar, source asset, or explicit new-render choice and the panel jobs it may
-  support.
+- `template_selection_ref` (optional): the Display Pack template, paper-local
+  grammar, or source asset actually consumed and the panel jobs it supports.
+  Templates are reference quality floors, not mandatory layouts. When no
+  template is used, omit template provenance and record only
+  `template_usage.used=false` with a short `decision_reason`.
 - `template_or_asset_ref`: exact per-panel template or source asset ref, or
   `not_applicable:new_render` when no reusable asset is consumed.
 - `semantic_match_ref`: variable, comparison, uncertainty, visible-claim, and
@@ -502,13 +528,18 @@ unsupported visible claims, or another hard contract failure.
 Use `contracts/display-pack-receipt-templates.json` when a figure handoff needs a
 machine-readable minimum shape for the Display Pack loop:
 
-- `figure_contract_ref`: the claim, evidence, archetype, template-selection,
-  renderer-decision, export, forbidden-drift, and owner-gate handoff refs before
-  drawing.
+- `professional_figure_workflow_ref`: exact professional Skill consumption and
+  final-byte bindings for design, conditional composition, and style QA.
+- `figure_contract_ref`: the claim, evidence, archetype, optional template
+  decision, renderer decision, export, forbidden-drift, and owner-gate handoff
+  refs before drawing.
 - `render_receipt_ref`: the pack id, template id, renderer family, render mode,
   output refs, layout sidecar ref, per-panel template/asset provenance,
   adaptation and source-data refs, degradation reason, and known limits after
   the pack render.
+- `generation_receipt_ref`: paper-local or non-pack renderer identity, source
+  code/input-manifest hashes, and exact PNG/PDF output bindings. This receipt
+  does not require or invent template provenance.
 - `layout_qc_receipt_ref`: deterministic fixed-canvas geometry checks bound to
   the final PNG/PDF SHA-256 values, dimensions, safe inset, lane bounds, and
   complete per-panel text bbox registry.

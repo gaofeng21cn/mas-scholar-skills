@@ -9,6 +9,11 @@ Use this thin display subskill when the task is compose-only: assemble existing
 rendered panels into a multi-panel figure, inspect the composite, and prepare
 layout/export QA findings.
 
+Invoke this Skill, and emit its exact-byte invocation receipt, only when the
+final figure is assembled from separately rendered panels. A multi-panel figure
+drawn directly on one fixed canvas does not require this Skill and must not
+invent a composer receipt merely to satisfy provenance.
+
 Use `medical-figure-design` instead when claims, evidence refs, renderer
 selection, or panel creation are still open. Use `medical-figure-style` when the
 task is only visual grammar or style QA for an existing figure or panel.
@@ -106,6 +111,8 @@ Produce a compact `figure_composition_review_ref` with:
   mode, and non-blocking sub-35 mm warnings
 - composite findings and scoped fixes
 - `visual_qa_receipt_ref` when the composite export was inspected
+- `professional_figure_composer_invocation_ref` bound to the exact final
+  composite PNG/PDF SHA-256 values
 - panel and composite `layout_qc_receipt_ref` values as machine geometry
   evidence only, never as MAS visual/submission authority
 - `final_scale_visual_qa_ref` when final-size composite readability was

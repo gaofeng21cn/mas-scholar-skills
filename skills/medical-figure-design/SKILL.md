@@ -1,6 +1,6 @@
 ---
 name: medical-figure-design
-description: "Use when a MAS figure stage operating prompt needs professional medical figure design for a new or materially repaired manuscript figure, or when routing figure work between style-only and compose-only display subskills. Full figure work runs figure intent through evidence refs, panel plan, renderer/template selection, draft render, visual QA, composition, polish, and reviewer handoff. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, visual-audit authority, owner receipts, typed blockers, and publication readiness."
+description: "Use when a MAS figure stage operating prompt needs professional medical figure design for a new or materially repaired manuscript figure, or when routing figure work between style-only and compose-only display subskills. Full figure work runs figure intent through evidence refs, panel plan, renderer choice, optional template reference, draft render, visual QA, composition, polish, and reviewer handoff. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, visual-audit authority, owner receipts, typed blockers, and publication readiness."
 ---
 
 # Medical Figure Design
@@ -31,6 +31,16 @@ display pack returns `render_receipt_ref`, display QC returns the deterministic
 `figure_style_review_ref`, or `figure_composition_review_ref` for MAS/domain
 owner consumption. None of these refs is artifact authority, owner receipt,
 visual-audit authority, typed blocker, or publication readiness.
+
+For every new or materially repaired paper-facing figure, emit a
+`professional_figure_workflow_ref` conforming to
+`contracts/professional-figure-workflow.schema.json`. Bind this Skill's exact
+source ref/version/SHA, the figure-contract input SHA, consumed rule refs, and
+the final PNG/PDF byte hashes. OPL catalog or hosted-interface unavailability
+may fall open to the currently materialized canonical Skill source; it must not
+fall open to ungoverned free drawing. Missing or stale consumption evidence is
+non-blocking for stage liveness, but remains quality debt and prevents quality,
+export, or publication-readiness claims until repaired.
 
 Thin display subskill routes:
 
@@ -94,7 +104,7 @@ This skill absorbs the useful parts of Nature-style figure skills and broad
 scientific-agent figure skills without importing their runtime or authority:
 
 - start from a figure contract before plotting;
-- classify the figure archetype before choosing a template;
+- classify the figure archetype before deciding whether a template is useful;
 - prefer a strong hero panel plus supporting panels over equal-size grids when
   the science needs hierarchy;
 - keep the selected renderer family stable after it is recorded;
@@ -199,9 +209,12 @@ Before writing plotting code, produce or refresh a compact contract:
 - `figure_archetype`: `quantitative_grid`, `schematic_led_composite`,
   `image_plate_plus_quant`, `asymmetric_mixed_modality`, or
   `clinical_evidence_summary`.
-- `template_selection_ref`: the selected pack template, paper-local grammar,
-  source asset, or explicit new-render decision plus the panel jobs it may
-  support.
+- `template_selection_ref` (optional): record only the pack template,
+  paper-local grammar, or source asset actually consumed and the panel jobs it
+  supports. A template is a reference quality floor, not a mandatory layout.
+  When no template is used, record only `template_usage.used=false` and a short
+  `decision_reason`; do not invent template provenance or an artificial
+  `template_id`.
 - `template_or_asset_ref`: the exact template or source asset used for each
   panel, or an explicit `not_applicable:new_render` value when no reusable
   asset is consumed.
@@ -288,6 +301,12 @@ Before writing plotting code, produce or refresh a compact contract:
   moves the claim to caption.
 - `label_economy_ref`: non-removable identity labels, removable annotations,
   caption-only context, and the final panel label budget.
+- `figure_text_policy_ref`: evidence figures must not embed a figure title,
+  subtitle, or prose footer. Keep only panel labels, axes/ticks, legends, and
+  necessary statistical annotations in the image; move narrative context,
+  caveats, sources, and maintenance-sensitive notes to the manuscript caption.
+  A purpose-built graphical abstract is explicitly outside this evidence-figure
+  text rule.
 - `color_vision_check_ref`: grayscale and color-vision separation result for
   categorical and opposing encodings.
 - `multi_panel_outline_ref`: one figure claim, hook/hero panel, panel jobs,
@@ -373,6 +392,11 @@ surfaces from this skill.
 
 ## Workflow
 
+Before the numbered workflow, record the `medical-figure-design` invocation and
+its exact Skill identity. Finalize that refs-only receipt only after it binds the
+exact final PNG/PDF bytes. Selecting a template is optional; consuming this
+professional Skill is not.
+
 ### 1. Figure Intent And Claim
 
 Start by writing the figure intent in plain scientific terms:
@@ -423,8 +447,11 @@ Plan panels as scientific units. For every panel, name:
 - expected visible text
 - what belongs in caption, manifest, or review ledger instead of the figure
 
-Keep in-figure text limited to panel labels, axis labels, legend labels,
-necessary statistical annotations, and minimal cohort/group notes.
+For evidence figures, keep in-figure text limited to panel labels, axis and tick
+labels, legend labels, and necessary statistical annotations. Do not embed a
+figure title, subtitle, prose footer, source paragraph, caveat paragraph, or
+workflow narration. Put those items in the manuscript caption. Purpose-built
+graphical abstracts are exempt from this evidence-figure rule.
 
 For each panel, add a `panel_job`: discovery, mechanism, validation,
 comparison, robustness, clinical relevance, source flow, or limitation. Drop

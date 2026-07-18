@@ -9,6 +9,12 @@ Use this thin display subskill when the task is style-only: visual grammar,
 readability, label economy, palette, final-size inspection, or style QA for an
 existing figure, panel, or draft export.
 
+Every final visual QA pass for a new or materially repaired paper-facing figure
+must emit a `medical-figure-style` invocation receipt through
+`contracts/professional-figure-workflow.schema.json`. The receipt binds this
+Skill's exact source identity, the reviewed input contract, consumed rule refs,
+and the exact final PNG/PDF bytes. It remains refs-only and no-authority.
+
 Use `medical-figure-design` instead when the figure claim, evidence chain,
 panel plan, renderer choice, or full figure workflow is still being created or
 repaired. Use `medical-figure-composer` when the task is only assembling
@@ -66,6 +72,9 @@ unsupported, stale, circular, missing-source, or visible-payload drift. Consume
    `visual_qa_preview_ref` on the actual rendered output. Add
    `final_scale_visual_qa_ref` when the figure was inspected at final
    manuscript dimensions.
+   For evidence figures, reject embedded figure titles, subtitles, and prose
+   footers; those belong in the manuscript caption. This restriction does not
+   apply to a purpose-built graphical abstract.
 5. Return style findings as candidate refs: what can be fixed inside visual
    style, what must route back to evidence/renderer work, and what remains a
    reviewer hint.
@@ -78,6 +87,8 @@ Produce a compact `figure_style_review_ref` with:
 - checked claim/evidence refs
 - style-only findings and proposed fixes
 - `visual_qa_receipt_ref` when the actual rendered export was inspected
+- `professional_figure_style_invocation_ref` bound to the exact final PNG/PDF
+  SHA-256 values
 - `layout_qc_receipt_ref` as deterministic machine evidence only, never as MAS
   visual/submission authority
 - `final_scale_visual_qa_ref` when final-size readability was inspected

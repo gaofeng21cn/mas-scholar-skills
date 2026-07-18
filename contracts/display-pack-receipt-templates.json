@@ -1,9 +1,9 @@
 {
   "contract_id": "mas_scholar_skills_display_pack_receipt_templates",
-  "schema_version": "1.3.0",
+  "schema_version": "1.4.0",
   "owner": "MAS Scholar Skills Display",
   "state": "active_refs_only_template",
-  "purpose": "Minimal refs-only handoff shapes for the medical figure contract, display-pack render receipt, fixed-canvas layout QC receipt, and visual QA receipt loop.",
+  "purpose": "Minimal refs-only handoff shapes for mandatory professional Figure Skill consumption, the medical figure contract, display-pack or paper-local generation receipt, fixed-canvas layout QC receipt, and visual QA receipt loop.",
   "machine_boundary": "These templates define candidate receipt vocabulary only. They do not authorize MAS domain truth, artifact mutation, owner receipts, typed blockers, current-package authority, publication readiness, or quality verdicts.",
   "authority_boundary": {
     "outputs_are_refs_only_candidates": true,
@@ -16,12 +16,55 @@
     "can_claim_current_package_authority": false
   },
   "receipt_chain": [
+    "professional_figure_workflow_ref",
     "figure_contract_ref",
-    "render_receipt_ref",
+    "render_or_generation_receipt_ref",
     "layout_qc_receipt_ref",
     "visual_qa_receipt_ref",
     "owner_gate_handoff_ref"
   ],
+  "professional_figure_workflow_ref": {
+    "schema_ref": "contracts/professional-figure-workflow.schema.json",
+    "surface_kind": "mas_scholar_skills_professional_figure_workflow_candidate.v1",
+    "new_or_materially_repaired_figure_requires": [
+      "medical-figure-design"
+    ],
+    "final_visual_qa_requires": [
+      "medical-figure-style"
+    ],
+    "conditional_skill_rules": {
+      "assembled_panels_requires": "medical-figure-composer",
+      "single_canvas_direct_forbids_invented_composer_receipt": true
+    },
+    "template_policy": {
+      "template_use_is_optional": true,
+      "template_is_reference_quality_floor_not_mandatory_layout": true,
+      "record_provenance_only_when_template_used": true,
+      "no_template_use_requires_only_decision_reason": true
+    },
+    "evidence_figure_text_policy": {
+      "embedded_title": false,
+      "embedded_subtitle": false,
+      "embedded_prose_footer": false,
+      "allowed_text_roles": [
+        "panel_label",
+        "axis_label",
+        "tick_label",
+        "legend",
+        "necessary_statistical_annotation"
+      ],
+      "graphical_abstract_exempt": true
+    },
+    "missing_or_stale_receipt_behavior": {
+      "blocks_stage_liveness": false,
+      "creates_quality_debt": true,
+      "blocks_quality_readiness": true,
+      "blocks_export_readiness": true,
+      "blocks_publication_readiness": true
+    },
+    "authority": false,
+    "publication_ready": false
+  },
   "template_asset_adaptation_policy": {
     "allowed_adaptation_modes": [
       "declared_template",
@@ -55,15 +98,29 @@
       "core_conclusion_ref",
       "panel_evidence_chain_ref",
       "figure_archetype",
-      "template_selection_ref",
+      "professional_figure_workflow_ref",
+      "figure_text_policy_ref",
       "renderer_decision_ref",
       "journal_export_contract_ref",
       "forbidden_claim_drift",
       "owner_gate_handoff_ref"
     ],
+    "template_selection_policy": {
+      "required": false,
+      "record_only_when_template_or_asset_is_used": true,
+      "must_not_invent_template_provenance_for_original_render": true
+    },
     "authority": false
   },
+  "render_or_generation_receipt_ref": {
+    "one_of": [
+      "render_receipt_ref",
+      "generation_receipt_ref"
+    ],
+    "exactly_one_required_per_figure": true
+  },
   "render_receipt_ref": {
+    "scope": "actual_display_pack_render_only",
     "required_fields": [
       "receipt_id",
       "figure_contract_ref",
@@ -95,6 +152,27 @@
       "original_new_render"
     ],
     "degradation_reason_required_when_fidelity_reduced": true,
+    "authority": false,
+    "publication_ready": false
+  },
+  "generation_receipt_ref": {
+    "scope": "paper_local_or_non_pack_render",
+    "required_fields": [
+      "receipt_id",
+      "renderer_family",
+      "renderer_version",
+      "source_code_ref",
+      "source_code_sha256",
+      "input_manifest_ref",
+      "input_manifest_sha256",
+      "outputs"
+    ],
+    "required_artifact_formats": [
+      "PNG",
+      "PDF"
+    ],
+    "template_fields_required": false,
+    "must_bind_exact_final_output_sha256": true,
     "authority": false,
     "publication_ready": false
   },
@@ -169,6 +247,8 @@
       "final_size_grayscale_preview_ref",
       "color_vision_check_ref",
       "label_economy_ref",
+      "professional_figure_style_invocation_ref",
+      "final_output_artifact_bindings",
       "route_back_items",
       "owner_gate_handoff_ref",
       "authority",

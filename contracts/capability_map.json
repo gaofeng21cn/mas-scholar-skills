@@ -56,6 +56,8 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/display",
         "scripts/verify.sh#medical-figure-design-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "contracts/professional-figure-workflow.schema.json",
+        "references/professional-quality-ref-templates.md#professional-figure-workflow-receipt",
         "references/professional-quality-ref-templates.md#figure-contract-template",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
@@ -123,6 +125,8 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/style_only",
         "scripts/verify.sh#medical-figure-style-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "contracts/professional-figure-workflow.schema.json",
+        "references/professional-quality-ref-templates.md#professional-figure-workflow-receipt",
         "references/professional-quality-ref-templates.md#figure-contract-template",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
@@ -192,6 +196,8 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/display_subskill_routes/compose_only",
         "scripts/verify.sh#medical-figure-composer-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
+        "contracts/professional-figure-workflow.schema.json",
+        "references/professional-quality-ref-templates.md#professional-figure-workflow-receipt",
         "references/professional-quality-ref-templates.md#figure-contract-template",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"

@@ -25,6 +25,7 @@ or create a duplicate figure skill.
 | Preserve panel aspect ratio, expose physical size, and reject invalid overlap | `adapt` | `medical-figure-composer` |
 | Run fixed-input renderer regression against ephemeral outputs | `adapt` | `medical-display-core` |
 | Record per-panel template/asset provenance and degradation reason | `adapt` | Display receipt vocabulary and `medical-figure-design` |
+| Require professional Figure Skill consumption and exact-byte receipts while keeping templates optional | `adapt` | `professional-figure-workflow.schema.json`, `medical-figure-design`, and `medical-figure-style` |
 | Reuse recurring reviewer cases only after owner-backed local evidence | `watch_only` | MAS/domain visual-audit learning surface |
 | Fixed scientific signal thresholds | `reject` | Conflicts with evidence-sensitive medical judgment |
 | Copy a plotting script and replace only its data path | `reject` | Fails semantic-fit and provenance requirements |
@@ -45,6 +46,14 @@ blank artifacts, invalid geometry, unsupported visible claims, or another hard
 contract failure may stop the candidate path. Negative or equivocal scientific
 results are valid evidence and must not fail a figure merely for lacking a
 preferred signal.
+
+Templates remain a reusable reference floor, not a mandatory plotting grammar.
+The durable requirement is consumption of the professional design and style
+Skills with receipts bound to the exact final PNG/PDF bytes. A paper-local
+renderer is valid when its figure contract, Skill identity, source/input hashes,
+and output hashes are explicit. Evidence figures keep titles, subtitles, prose
+footers, caveats, and narrative notes in the manuscript caption rather than in
+the image.
 
 ## Verification Boundary
 

@@ -61,6 +61,9 @@ if plugin_exposure.get("specialtyRoutingPolicy") != "materialized_by_default_sel
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 display_receipt_templates = read_json("contracts/display-pack-receipt-templates.json")
+professional_figure_workflow_schema = read_json(
+    "contracts/professional-figure-workflow.schema.json"
+)
 layout_qc_fixture = read_json(
     "skills/medical-display-qc/fixtures/layout_qc_regression.json"
 )
@@ -1929,19 +1932,71 @@ for relative, text in deterministic_figure_closeout_texts.items():
         if token not in text:
             fail(f"{relative} missing measured-layout regression token: {token}")
 
-if display_receipt_templates.get("schema_version") != "1.3.0":
-    fail("display receipt templates must use schema_version 1.3.0")
+if display_receipt_templates.get("schema_version") != "1.4.0":
+    fail("display receipt templates must use schema_version 1.4.0")
 require_all(
     "display receipt chain",
     display_receipt_templates.get("receipt_chain"),
     [
+        "professional_figure_workflow_ref",
         "figure_contract_ref",
-        "render_receipt_ref",
+        "render_or_generation_receipt_ref",
         "layout_qc_receipt_ref",
         "visual_qa_receipt_ref",
         "owner_gate_handoff_ref",
     ],
 )
+if professional_figure_workflow_schema.get("$schema") != (
+    "https://json-schema.org/draft/2020-12/schema"
+):
+    fail("professional figure workflow must use JSON Schema draft 2020-12")
+workflow_surface = (
+    professional_figure_workflow_schema.get("properties", {})
+    .get("surface_kind", {})
+    .get("const")
+)
+if workflow_surface != "mas_scholar_skills_professional_figure_workflow_candidate.v1":
+    fail("professional figure workflow schema has wrong surface kind")
+workflow_template = display_receipt_templates.get("professional_figure_workflow_ref") or {}
+if workflow_template.get("schema_ref") != "contracts/professional-figure-workflow.schema.json":
+    fail("display receipt contract must bind the professional figure workflow schema")
+if workflow_template.get("new_or_materially_repaired_figure_requires") != [
+    "medical-figure-design"
+]:
+    fail("professional figure workflow must require medical-figure-design")
+if workflow_template.get("final_visual_qa_requires") != ["medical-figure-style"]:
+    fail("professional figure workflow must require medical-figure-style")
+if (workflow_template.get("conditional_skill_rules") or {}).get(
+    "assembled_panels_requires"
+) != "medical-figure-composer":
+    fail("assembled professional figures must require medical-figure-composer")
+template_policy = workflow_template.get("template_policy") or {}
+if template_policy.get("template_use_is_optional") is not True:
+    fail("professional figure templates must remain optional")
+if template_policy.get("record_provenance_only_when_template_used") is not True:
+    fail("template provenance must be conditional on actual template use")
+missing_receipt_policy = workflow_template.get("missing_or_stale_receipt_behavior") or {}
+if missing_receipt_policy.get("blocks_stage_liveness") is not False:
+    fail("missing professional Figure Skill evidence must remain progress-first")
+for key in [
+    "creates_quality_debt",
+    "blocks_quality_readiness",
+    "blocks_export_readiness",
+    "blocks_publication_readiness",
+]:
+    if missing_receipt_policy.get(key) is not True:
+        fail(f"missing professional Figure Skill evidence must keep {key}=true")
+figure_contract_template = display_receipt_templates.get("figure_contract_ref") or {}
+if "template_selection_ref" in (figure_contract_template.get("required_fields") or []):
+    fail("figure contracts must not require a template selection")
+template_selection_policy = figure_contract_template.get("template_selection_policy") or {}
+if template_selection_policy.get("required") is not False:
+    fail("figure template selection must be optional")
+generation_receipt_template = display_receipt_templates.get("generation_receipt_ref") or {}
+if generation_receipt_template.get("template_fields_required") is not False:
+    fail("paper-local generation receipts must not require template fields")
+if generation_receipt_template.get("must_bind_exact_final_output_sha256") is not True:
+    fail("paper-local generation receipts must bind exact final output hashes")
 layout_qc_receipt_template = (
     display_receipt_templates.get("layout_qc_receipt_ref") or {}
 )
