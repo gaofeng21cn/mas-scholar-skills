@@ -275,6 +275,13 @@ runtime labels, and workflow-status language. Put unresolved author,
 affiliation, ethics, consent, funding, conflict, or data-availability gaps in
 submission checklists or handoff notes, not in article-body prose.
 
+Run `lint_reader_facing_workflow_language()` across manuscript text, table
+titles and notes, figure legends, and supplement text before first-draft
+handoff and again before export. Authoring instructions, review-companion
+language, row-trace metadata, generation/authority labels, or human-gate
+bookkeeping on a reader-facing surface are repairable quality debt. Removing
+them does not itself establish scientific or publication quality.
+
 ## Workflow
 
 ### 1. Evidence Assembly

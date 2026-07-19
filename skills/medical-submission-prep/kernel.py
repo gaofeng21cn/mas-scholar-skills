@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Mapping
+from collections import defaultdict
+from typing import Any, Mapping, Sequence
 
 
 BASE_REQUIRED_DOCS = (
@@ -32,6 +33,32 @@ GUIDELINE_BY_ARTICLE = {
     "prediction": "TRIPOD",
     "case_report": "CARE",
 }
+
+INTERNAL_ARTIFACT_ROLES = frozenset(
+    {
+        "audit",
+        "internal_audit",
+        "internal_review",
+        "quality_control",
+        "review_companion",
+    }
+)
+
+SUPPLEMENTARY_ARTIFACT_ROLES = frozenset(
+    {
+        "supplement",
+        "supplementary_document",
+        "supplementary_figure",
+        "supplementary_material",
+        "supplementary_table",
+    }
+)
+
+INTERNAL_VISIBLE_MARKER_RE = re.compile(
+    r"(?:review companion|bounded review display|deterministic(?:ly)? sampled rows?|"
+    r"CSV row(?:s| numbers?)?|exact electronic source|internal audit)",
+    re.IGNORECASE,
+)
 
 
 def submission_manifest_schema() -> dict[str, Any]:
@@ -129,6 +156,108 @@ def lint_required_documents(manifest: Mapping[str, object]) -> list[dict[str, st
     return findings
 
 
+def lint_submission_artifact_roles(
+    artifacts: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Flag internal-review leakage and main/supplement role conflicts.
+
+    Callers provide structured inventory rows; this helper does not open files
+    or infer publication readiness from names alone.
+    """
+
+    findings: list[dict[str, object]] = []
+    digest_roles: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for index, artifact in enumerate(artifacts, start=1):
+        path = str(artifact.get("path") or artifact.get("name") or f"artifact_{index}").strip()
+        kind = normalize_file_label(artifact.get("kind") or artifact.get("label"))
+        package_role = normalize_file_label(
+            artifact.get("package_role") or artifact.get("role") or kind
+        )
+        source_role = normalize_file_label(artifact.get("source_role"))
+        audience = normalize_file_label(artifact.get("audience"))
+        document_role = normalize_file_label(
+            artifact.get("document_role") or artifact.get("placement")
+        )
+        included = artifact.get("included_in_submission") is not False
+        visible_text = " ".join(
+            str(artifact.get(field) or "")
+            for field in ("visible_title", "content_markers", "description")
+        )
+        internal_role = bool(
+            {kind, package_role, source_role, audience} & INTERNAL_ARTIFACT_ROLES
+        )
+        if included and internal_role:
+            findings.append(
+                _package_role_finding(
+                    "INTERNAL_REVIEW_ARTIFACT_EXPOSED_TO_JOURNAL",
+                    path,
+                    "remove the internal artifact from the journal allowlist and export a reader-facing counterpart",
+                )
+            )
+        if included and INTERNAL_VISIBLE_MARKER_RE.search(visible_text):
+            findings.append(
+                _package_role_finding(
+                    "INTERNAL_REVIEW_LANGUAGE_ON_SUBMISSION_ARTIFACT",
+                    path,
+                    "replace review-companion content with a curated reader-facing artifact",
+                )
+            )
+
+        supplementary_role = bool(
+            {kind, package_role} & SUPPLEMENTARY_ARTIFACT_ROLES
+            or kind.startswith("supplementary_")
+            or package_role.startswith("supplementary_")
+        )
+        if included and supplementary_role and internal_role:
+            findings.append(
+                _package_role_finding(
+                    "SUPPLEMENT_ARTIFACT_ROLE_MISMATCH",
+                    path,
+                    "bind the supplement path to a reader-facing supplementary source, not an internal review source",
+                )
+            )
+        if included and supplementary_role and document_role in {
+            "main",
+            "main_document",
+            "main_manuscript",
+        }:
+            findings.append(
+                _package_role_finding(
+                    "SUPPLEMENTARY_MEMBER_IN_MAIN_DOCUMENT",
+                    path,
+                    "move the supplementary member out of the main manuscript export",
+                )
+            )
+
+        digest = str(artifact.get("sha256") or "").strip().lower().removeprefix("sha256:")
+        if included and re.fullmatch(r"[0-9a-f]{64}", digest):
+            digest_roles[digest].append((path, package_role or kind))
+
+    for digest, members in digest_roles.items():
+        roles = {role for _, role in members if role}
+        if roles & INTERNAL_ARTIFACT_ROLES and roles - INTERNAL_ARTIFACT_ROLES:
+            findings.append(
+                {
+                    "code": "CONFLICTING_PACKAGE_ROLES_FOR_SAME_BYTES",
+                    "sha256": f"sha256:{digest}",
+                    "members": [path for path, _ in members],
+                    "roles": sorted(roles),
+                    "action": "publish one reader-facing role and keep internal aliases outside the submission allowlist",
+                    "writes_authority": False,
+                }
+            )
+    return findings
+
+
+def _package_role_finding(code: str, path: str, action: str) -> dict[str, object]:
+    return {
+        "code": code,
+        "file": path,
+        "action": action,
+        "writes_authority": False,
+    }
+
+
 def _file_kind(item: object) -> str:
     if isinstance(item, Mapping):
         return normalize_file_label(item.get("kind") or item.get("label") or item.get("name"))
@@ -143,7 +272,37 @@ def _self_check() -> None:
     assert manifest["reporting_guideline_ref"] == "TRIPOD"
     lint = lint_required_documents({"files": [{"kind": "manuscript", "name": "main file.docx"}]})
     assert {item["code"] for item in lint} >= {"MISSING_REQUIRED_DOCUMENT", "FILE_NAME_HAS_SPACES"}
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
+    digest = "1" * 64
+    role_findings = lint_submission_artifact_roles(
+        [
+            {
+                "path": "internal/supplement-review.pdf",
+                "kind": "review_companion",
+                "package_role": "internal_review",
+                "included_in_submission": True,
+                "sha256": digest,
+            },
+            {
+                "path": "submission/supplement.pdf",
+                "kind": "supplementary_document",
+                "package_role": "supplementary_material",
+                "source_role": "review_companion",
+                "document_role": "main_document",
+                "visible_title": "Supplementary Table Review Companion",
+                "included_in_submission": True,
+                "sha256": digest,
+            },
+        ]
+    )
+    assert {item["code"] for item in role_findings} == {
+        "INTERNAL_REVIEW_ARTIFACT_EXPOSED_TO_JOURNAL",
+        "INTERNAL_REVIEW_LANGUAGE_ON_SUBMISSION_ARTIFACT",
+        "SUPPLEMENT_ARTIFACT_ROLE_MISMATCH",
+        "SUPPLEMENTARY_MEMBER_IN_MAIN_DOCUMENT",
+        "CONFLICTING_PACKAGE_ROLES_FOR_SAME_BYTES",
+    }
+    assert all(item["writes_authority"] is False for item in role_findings)
+    print(json.dumps({"ok": True, "checks": 7}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

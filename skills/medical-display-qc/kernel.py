@@ -22,6 +22,7 @@ DISPLAY_QC_REFS = (
     "panel_caption_consistency_ref",
     "claim_display_alignment_ref",
     "accessibility_and_size_ref",
+    "editorial_page_composition_ref",
     "display_qc_support_map_ref",
     "page_hash_evidence_candidate_ref",
 )
@@ -183,6 +184,117 @@ def _finding(
     }
     finding.update({key: value for key, value in details.items() if value is not None})
     return finding
+
+
+def lint_document_layout_inventory(
+    blocks: Sequence[Mapping[str, object]],
+) -> list[dict[str, Any]]:
+    """Flag editorial page-composition defects from a structured block map."""
+
+    findings: list[dict[str, Any]] = []
+    normalized: list[dict[str, Any]] = []
+    for index, block in enumerate(blocks, start=1):
+        block_id = str(block.get("block_id") or f"block_{index}").strip()
+        block_kind = str(block.get("block_kind") or "").strip().lower()
+        document_role = str(block.get("document_role") or "").strip().lower()
+        artifact_role = str(block.get("artifact_role") or "").strip().lower()
+        page_start = block.get("page_start")
+        page_end = block.get("page_end")
+        if (
+            isinstance(page_start, bool)
+            or not isinstance(page_start, int)
+            or page_start <= 0
+            or isinstance(page_end, bool)
+            or not isinstance(page_end, int)
+            or page_end < page_start
+        ):
+            findings.append(
+                _finding(
+                    "DOCUMENT_LAYOUT_PAGE_RANGE_INVALID",
+                    "quality_debt",
+                    "Document block has an invalid page range",
+                    "display_redesign",
+                    block_id=block_id,
+                )
+            )
+            continue
+        normalized.append(
+            {
+                "block_id": block_id,
+                "block_kind": block_kind,
+                "document_role": document_role,
+                "artifact_role": artifact_role,
+                "page_start": page_start,
+                "page_end": page_end,
+            }
+        )
+        supplementary = artifact_role.startswith("supplementary_") or block_kind.startswith(
+            "supplementary_"
+        )
+        if supplementary and document_role in {"main", "main_document", "main_manuscript"}:
+            findings.append(
+                _finding(
+                    "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
+                    "quality_debt",
+                    "A supplementary display is embedded in the main manuscript",
+                    "display_redesign",
+                    block_id=block_id,
+                )
+            )
+        if block_kind in {"figure_caption", "figure_legend"} and page_start != page_end:
+            findings.append(
+                _finding(
+                    "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
+                    "quality_debt",
+                    "A figure legend crosses a page boundary",
+                    "display_redesign",
+                    block_id=block_id,
+                    page_start=page_start,
+                    page_end=page_end,
+                )
+            )
+        if block_kind == "table_notes" and page_start != page_end:
+            findings.append(
+                _finding(
+                    "TABLE_NOTES_SPLIT_ACROSS_PAGES",
+                    "quality_debt",
+                    "Table notes cross a page boundary",
+                    "display_redesign",
+                    block_id=block_id,
+                    page_start=page_start,
+                    page_end=page_end,
+                )
+            )
+
+    reference_pages = {
+        page
+        for block in normalized
+        if block["block_kind"] in {"references", "reference_list"}
+        for page in range(block["page_start"], block["page_end"] + 1)
+    }
+    for block in normalized:
+        if block["block_kind"] not in {
+            "figure",
+            "main_figure",
+            "supplementary_figure",
+        }:
+            continue
+        shared_pages = sorted(
+            reference_pages
+            & set(range(block["page_start"], block["page_end"] + 1))
+        )
+        if shared_pages:
+            findings.append(
+                _finding(
+                    "DISPLAY_AND_REFERENCES_SHARE_PAGE",
+                    "quality_debt",
+                    "A figure and the reference list share a page",
+                    "display_redesign",
+                    block_id=block["block_id"],
+                    pages=shared_pages,
+                )
+            )
+    return findings
 
 
 def _sha256(path: Path) -> str:
@@ -1934,6 +2046,40 @@ def _self_check() -> None:
     support = display_qc_support_map([{"artifact_ref": "fig:1", "issue": "caption drift"}])
     assert support[0]["route_back_candidate"] == "caption_numbering_repair"
     assert lint_forbidden_display_qc_claims("publication-ready with owner receipt")
+    layout_findings = lint_document_layout_inventory(
+        [
+            {
+                "block_id": "F2-legend",
+                "block_kind": "figure_legend",
+                "document_role": "main_document",
+                "artifact_role": "main_figure",
+                "page_start": 22,
+                "page_end": 23,
+            },
+            {
+                "block_id": "S1",
+                "block_kind": "supplementary_figure",
+                "document_role": "main_document",
+                "artifact_role": "supplementary_figure",
+                "page_start": 25,
+                "page_end": 25,
+            },
+            {
+                "block_id": "references",
+                "block_kind": "references",
+                "document_role": "main_document",
+                "artifact_role": "references",
+                "page_start": 25,
+                "page_end": 26,
+            },
+        ]
+    )
+    assert {item["code"] for item in layout_findings} == {
+        "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
+        "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
+        "DISPLAY_AND_REFERENCES_SHARE_PAGE",
+    }
+    assert all(item["writes_authority"] is False for item in layout_findings)
     assert _font_embedding_state("Type3", b"") is None
     assert _font_embedding_state("Type1", b"") is False
     assert _font_embedding_state("Type0", b"font-program") is True
@@ -2321,7 +2467,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 74 if fitz_available else 67 if pillow_available else 54
+    checks = 78 if fitz_available else 71 if pillow_available else 58
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

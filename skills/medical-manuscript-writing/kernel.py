@@ -65,6 +65,48 @@ REGISTRY_BOUNDARY_TERMS = (
     "quality ranking",
 )
 
+READER_FACING_SURFACES = frozenset(
+    {
+        "manuscript_text",
+        "table_titles",
+        "table_notes",
+        "figure_legends",
+        "supplement",
+    }
+)
+
+READER_SURFACE_PROHIBITIONS = (
+    (
+        "INTERNAL_WORKFLOW_LANGUAGE_IN_READER_SURFACE",
+        re.compile(
+            r"(?:analytical authoring process|human study owner|explicit human gate|"
+            r"formal_submission_authority|runtime_authority|owner receipt|quality debt|"
+            r"generation[_ -]?id|source hash)",
+            re.IGNORECASE,
+        ),
+        "move workflow, authority, and generation metadata to a checklist or receipt",
+    ),
+    (
+        "AUTHORING_INSTRUCTION_IN_READER_SURFACE",
+        re.compile(
+            r"(?:\bshould be reported\b|(?:^|[.!?]\s+)report\s+cross[- ]fitted\b|"
+            r"\[insert\s+(?:table|figure|supplement)|\bTODO\b|\breplace with\b)",
+            re.IGNORECASE,
+        ),
+        "replace author instructions with final reader-facing prose or remove them",
+    ),
+    (
+        "INTERNAL_REVIEW_LANGUAGE_IN_READER_SURFACE",
+        re.compile(
+            r"(?:supplementary table review companion|bounded review display|"
+            r"deterministic(?:ly)? sampled rows?|CSV row(?:s| numbers?)?|"
+            r"exact electronic source)",
+            re.IGNORECASE,
+        ),
+        "keep review-companion and row-trace language on the internal audit surface",
+    ),
+)
+
 
 def paper_brief_schema() -> dict[str, Any]:
     """Return the compact paper brief schema expected from AI judgment."""
@@ -302,6 +344,35 @@ def lint_terminology_surface_ledger(
     )
 
 
+def lint_reader_facing_workflow_language(
+    surfaces: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Flag authoring, workflow, or review-companion prose on reader surfaces."""
+
+    findings: list[dict[str, object]] = []
+    for index, surface in enumerate(surfaces, start=1):
+        surface_kind = str(surface.get("surface_kind") or "").strip()
+        if surface_kind not in READER_FACING_SURFACES:
+            continue
+        surface_ref = str(surface.get("surface_ref") or f"surface_{index}").strip()
+        text = str(surface.get("text") or "")
+        for code, pattern, action in READER_SURFACE_PROHIBITIONS:
+            match = pattern.search(text)
+            if not match:
+                continue
+            findings.append(
+                {
+                    "code": code,
+                    "surface_kind": surface_kind,
+                    "surface_ref": surface_ref,
+                    "matched_text": match.group(0),
+                    "action": action,
+                    "writes_authority": False,
+                }
+            )
+    return findings
+
+
 def _terminology_finding(
     code: str, surface_kind: str, action: str, *, term: str = ""
 ) -> dict[str, object]:
@@ -384,7 +455,37 @@ def _self_check() -> None:
         "TERMINOLOGY_NOT_APPLICABLE_REASON_MISSING"
     }
     assert all(item["writes_authority"] is False for item in machine_drift)
-    print(json.dumps({"ok": True, "checks": 11}, indent=2, sort_keys=True))
+    reader_findings = lint_reader_facing_workflow_language(
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md#declarations",
+                "text": "The human study owner must close this explicit human gate.",
+            },
+            {
+                "surface_kind": "table_notes",
+                "surface_ref": "T3.md",
+                "text": "Report cross-fitted discrimination and calibration.",
+            },
+            {
+                "surface_kind": "supplement",
+                "surface_ref": "supplement.pdf",
+                "text": "Bounded review display with deterministic sampled rows.",
+            },
+            {
+                "surface_kind": "audit_receipt",
+                "surface_ref": "audit.json",
+                "text": "runtime_authority=false",
+            },
+        ]
+    )
+    assert {item["code"] for item in reader_findings} == {
+        "INTERNAL_WORKFLOW_LANGUAGE_IN_READER_SURFACE",
+        "AUTHORING_INSTRUCTION_IN_READER_SURFACE",
+        "INTERNAL_REVIEW_LANGUAGE_IN_READER_SURFACE",
+    }
+    assert all(item["writes_authority"] is False for item in reader_findings)
+    print(json.dumps({"ok": True, "checks": 13}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

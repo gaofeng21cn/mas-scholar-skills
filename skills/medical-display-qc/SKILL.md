@@ -121,14 +121,19 @@ false. OPL owns persistent cache storage and
    figure numbering, duplicated identifiers, and caption payload drift. Confirm
    the figure, caption, and catalog/manifest were driven by the same structured
    generation source.
-11. Check `claim_display_alignment_ref`: displayed denominator, estimates,
+11. Check `editorial_page_composition_ref` from a structured final-document
+    block map. Run `lint_document_layout_inventory()` to catch figure legends
+    or table notes split across pages, supplementary displays embedded in the
+    main manuscript, and display/reference collisions. Nonblank pages and zero
+    clipping are necessary but do not establish publication-quality pagination.
+12. Check `claim_display_alignment_ref`: displayed denominator, estimates,
    uncertainty, colors, groups, ordering, and manuscript claim consistency.
-12. Check `accessibility_and_size_ref`: final-size readability, overlap,
+13. Check `accessibility_and_size_ref`: final-size readability, overlap,
     color-vision robustness, grayscale contrast, and journal size constraints.
-13. Check `export_integrity_ref`: distinguish hard artifact failures from
+14. Check `export_integrity_ref`: distinguish hard artifact failures from
     non-blocking review warnings; never promote an inspector result into a
     visual quality verdict.
-14. Produce `route_back_candidate` for artifact owner repair, display redesign,
+15. Produce `route_back_candidate` for artifact owner repair, display redesign,
     source-data mismatch, deterministic rebuild drift, export failure, or owner
     visual-audit decision.
 
@@ -150,6 +155,7 @@ Return:
 - `panel_caption_consistency_ref`
 - `claim_display_alignment_ref`
 - `accessibility_and_size_ref`
+- `editorial_page_composition_ref`
 - `display_qc_support_map_ref`
 - `page_hash_evidence_candidate_ref` when fixed-raster PDF evidence is available
 - `input_scope_signature_ref` when exact-input provenance is available

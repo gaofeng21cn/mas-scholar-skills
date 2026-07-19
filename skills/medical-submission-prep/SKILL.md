@@ -134,6 +134,13 @@ produce route-back rather than inventing content.
    target venue is named.
 3. Build a package inventory and classify each item as ready, needs repair,
    needs author input, not applicable, or owner decision needed.
+   Record `package_role`, `source_role`, `audience`, `document_role`, and
+   `included_in_submission` for every artifact. Run
+   `lint_submission_artifact_roles()` before export. An internal audit,
+   quality-control PDF, sampled-row review companion, or machine trace may be
+   useful for review, but it must remain outside the journal allowlist and
+   cannot be renamed or copied into a supplementary-material path. A
+   supplementary figure or table must not be embedded in the main manuscript.
 4. Map reporting guideline items to manuscript locations and missing fields.
 5. Audit data/code availability, source data, supplementary files, and dataset
    citations. Do not invent DOIs, accession numbers, committees, embargo dates,
@@ -161,6 +168,10 @@ produce route-back rather than inventing content.
 9. Draft candidate cover-letter or response-letter material only when source
    instructions and manuscript changes support it.
 10. Produce a submission action matrix and owner-gate handoff.
+
+Package-role findings are candidate quality debt, not a publication verdict.
+The repair target is the canonical source/export mapping: do not hide an
+internal artifact by changing only its filename or PDF metadata.
 
 If journal-facing background, reporting-standard, data-sharing, guideline, or
 reviewer-response text needs biomedical literature support, route it to MAS

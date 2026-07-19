@@ -43,8 +43,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.9":
-    fail("plugin version must be 0.2.9")
+if manifest.get("version") != "0.2.10":
+    fail("plugin version must be 0.2.10")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -175,8 +175,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.9":
-    fail("capability package version must be 0.2.9")
+if package_manifest.get("version") != "0.2.10":
+    fail("capability package version must be 0.2.10")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -643,6 +643,8 @@ for token in [
     if token not in table_kernel:
         fail(f"medical-table-design kernel missing table-note lint token: {token}")
 submit_skill = capability_skill_texts["medical-submission-prep"]
+submit_kernel = read_text("skills/medical-submission-prep/kernel.py")
+write_kernel = read_text("skills/medical-manuscript-writing/kernel.py")
 data_governance_skill = capability_skill_texts["medical-data-governance"]
 cohort_phenotyping_skill = read_text("skills/medical-cohort-phenotyping/SKILL.md")
 methodology_planner_skill = read_text("skills/medical-methodology-planner/SKILL.md")
@@ -667,6 +669,7 @@ medical_method_specialist_skills = {
     for skill_id in medical_method_specialist_skill_ids
 }
 display_qc_skill = medical_method_specialist_skills["medical-display-qc"]
+display_qc_kernel = read_text("skills/medical-display-qc/kernel.py")
 reference_integrity_skill = medical_method_specialist_skills[
     "medical-reference-integrity-auditor"
 ]
@@ -685,6 +688,53 @@ for skill_id, skill_text in {
     ]:
         if token not in skill_text:
             fail(f"{skill_id} missing immutable snapshot boundary token: {token}")
+for source_label, source_text, tokens in [
+    (
+        "medical-manuscript-writing skill",
+        write_skill,
+        ["lint_reader_facing_workflow_language()", "review-companion"],
+    ),
+    (
+        "medical-manuscript-writing kernel",
+        write_kernel,
+        [
+            "INTERNAL_WORKFLOW_LANGUAGE_IN_READER_SURFACE",
+            "AUTHORING_INSTRUCTION_IN_READER_SURFACE",
+            "INTERNAL_REVIEW_LANGUAGE_IN_READER_SURFACE",
+        ],
+    ),
+    (
+        "medical-submission-prep skill",
+        submit_skill,
+        ["lint_submission_artifact_roles()", "journal allowlist"],
+    ),
+    (
+        "medical-submission-prep kernel",
+        submit_kernel,
+        [
+            "INTERNAL_REVIEW_ARTIFACT_EXPOSED_TO_JOURNAL",
+            "SUPPLEMENT_ARTIFACT_ROLE_MISMATCH",
+            "SUPPLEMENTARY_MEMBER_IN_MAIN_DOCUMENT",
+        ],
+    ),
+    (
+        "medical-display-qc skill",
+        display_qc_skill,
+        ["editorial_page_composition_ref", "lint_document_layout_inventory()"],
+    ),
+    (
+        "medical-display-qc kernel",
+        display_qc_kernel,
+        [
+            "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
+            "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
+            "DISPLAY_AND_REFERENCES_SHARE_PAGE",
+        ],
+    ),
+]:
+    for token in tokens:
+        if token not in source_text:
+            fail(f"{source_label} missing publication-surface quality token: {token}")
 redirect_tombstone_skills = {
     skill_id: read_text(f"skills/{skill_id}/TOMBSTONE.md")
     for skill_id in redirect_tombstone_skill_ids
