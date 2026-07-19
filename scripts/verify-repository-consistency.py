@@ -49,6 +49,9 @@ if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
     fail("plugin displayName must be MAS Scholar Skills")
+default_prompts = manifest.get("interface", {}).get("defaultPrompt") or []
+if not default_prompts or any(not isinstance(prompt, str) or len(prompt) > 128 for prompt in default_prompts):
+    fail("plugin defaultPrompt entries must be non-empty strings of at most 128 characters")
 plugin_exposure = manifest.get("masScholarSkillsExposure") or {}
 if plugin_exposure.get("policyRef") != "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy":
     fail("plugin manifest must point to codex skill exposure policy")

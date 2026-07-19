@@ -140,10 +140,10 @@
     ],
     "defaultPrompt": [
       "Use MAS Scholar Skills to inspect active medical-paper professional skills.",
-      "Use medical-manuscript-writing, medical-manuscript-review, medical-figure-design, medical-statistical-review, medical-table-design, medical-submission-prep, or medical-data-governance for MAS medical-paper specialist workflows.",
+      "Use the writing, review, figure, statistics, table, submission, or governance skill that matches the MAS paper task.",
       "Use medical-research-lit to plan PubMed-backed literature discovery.",
-      "Materialize all 35 exported skills into each active MAS workspace or quest so Codex can discover every maintained specialty before execution starts.",
-      "Use specialty router, reviewer, and playbook skills only when the task semantics match; their default discovery does not make them part of the 11-skill hard readiness floor.",
+      "Materialize all exported skills in each active MAS workspace or quest for native Codex discovery.",
+      "Use specialty routers, reviewers, and playbooks only when task semantics match; they remain outside the hard readiness floor.",
       "Check MAS Scholar Skills authority boundaries before a MAS handoff."
     ],
     "brandColor": "#2563EB"
