@@ -63,6 +63,9 @@ if plugin_exposure.get("specialtyRoutingPolicy") != "materialized_by_default_sel
     fail("plugin manifest must separate specialty discovery from task routing")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
+page_hash_evidence_schema = read_json(
+    "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json"
+)
 display_receipt_templates = read_json("contracts/display-pack-receipt-templates.json")
 professional_figure_workflow_schema = read_json(
     "contracts/professional-figure-workflow.schema.json"
@@ -112,6 +115,20 @@ if snapshot_cache_policy.get("snapshot_read_policy") != "read_only_opl_immutable
 page_cache_policy = snapshot_cache_policy.get("page_hash_evidence_candidate") or {}
 if page_cache_policy.get("surface_kind") != "scholarskills_page_hash_evidence_candidate":
     fail("page cache candidate must use the canonical ScholarSkills surface kind")
+if page_cache_policy.get("schema_version") != 2:
+    fail("page cache candidate must use the owner-published schema 2")
+if page_cache_policy.get("schema_owner") != "mas-scholar-skills":
+    fail("page cache candidate schema owner must be mas-scholar-skills")
+if page_cache_policy.get("schema_ref") != "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json":
+    fail("page cache candidate must reference the ScholarSkills-owned schema")
+if page_cache_policy.get("producer_package_identity_fields") != [
+    "package_id",
+    "package_version",
+    "package_content_digest",
+]:
+    fail("page cache candidate must bind the producing package identity")
+if page_cache_policy.get("evidence_payload_fields") != ["raster_contract", "pages"]:
+    fail("page cache candidate owner payload must contain raster contract and pages")
 if page_cache_policy.get("cache_key_fields") != [
     "ordered_page_pixel_hashes",
     "raster_contract",
@@ -136,10 +153,44 @@ for key in [
 for key in [
     "requires_fresh_reviewer_invocation",
     "requires_fresh_reviewer_receipt",
-    "requires_mas_judgment",
+    "requires_domain_owner_judgment",
 ]:
     if page_cache_policy.get(key) is not True:
-        fail(f"page cache candidate must preserve fresh review and MAS judgment: {key}")
+        fail(f"page cache candidate must preserve fresh review and domain-owner judgment: {key}")
+if page_cache_policy.get("domain_owner_field") != "domain_owner_id":
+    fail("page cache candidate must use the generic domain owner field")
+expected_page_hash_fields = {
+    "surface_kind",
+    "schema_version",
+    "producer_package",
+    "review_lane",
+    "review_scope_sha256",
+    "rubric_sha256",
+    "evidence_payload",
+    "cache_key_sha256",
+    "origin_reviewer_invocation_ref",
+    "origin_reviewer_evidence_ref",
+    "cache_reuse_eligible",
+    "cache_authority",
+    "requires_fresh_reviewer_invocation",
+    "requires_fresh_reviewer_receipt",
+    "domain_owner_id",
+    "requires_domain_owner_judgment",
+    "authority_boundary",
+}
+if page_hash_evidence_schema.get("additionalProperties") is not False:
+    fail("page cache candidate owner schema must reject unknown top-level fields")
+if set(page_hash_evidence_schema.get("required") or []) != expected_page_hash_fields:
+    fail("page cache candidate owner schema required fields do not match schema 2 ABI")
+if set((page_hash_evidence_schema.get("properties") or {}).keys()) != expected_page_hash_fields:
+    fail("page cache candidate owner schema properties do not match schema 2 ABI")
+if (
+    (page_hash_evidence_schema.get("properties") or {})
+    .get("schema_version", {})
+    .get("const")
+    != 2
+):
+    fail("page cache candidate owner schema must freeze schema_version 2")
 if (root / "contracts/scholar-skills-opl-consumption-projection.json").exists():
     fail("generated ScholarSkills OPL execution projection must be absent")
 if (root / "scripts/export-opl-consumption-projection.py").exists():
@@ -2317,7 +2368,9 @@ for token in [
     "build_page_hash_evidence_candidate",
     "scholarskills_page_hash_evidence_candidate",
     "requires_fresh_reviewer_invocation",
-    "requires_mas_judgment",
+    "producer_package",
+    "evidence_payload",
+    "requires_domain_owner_judgment",
 ]:
     if token not in display_qc_kernel:
         fail(f"medical-display-qc kernel missing layout QC token: {token}")

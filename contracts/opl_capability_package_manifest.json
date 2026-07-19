@@ -232,6 +232,7 @@
     "paths": [
       ".codex-plugin/plugin.json",
       "contracts/scholar-skills-capability-modules.json",
+      "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json",
       "contracts/display-pack-receipt-templates.json",
       "contracts/professional-figure-workflow.schema.json",
       "references/professional-quality-ref-templates.md",
@@ -346,7 +347,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:4dedef5333bba907c7e2eb011a7a465c9b097f3c22f06f7b0f74bfdb177c19b7"
+    "digest": "sha256:f858bc1ec82f253f865c1fbe2b38a6cf7031d3dbf495f54d061aa0ad5221fda9"
   },
   "lifecycle": {
     "owner": "one-person-lab",

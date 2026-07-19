@@ -320,11 +320,46 @@ def _sha256_digest(value: object, label: str) -> str:
     return f"sha256:{digest}"
 
 
+def _producer_package(value: object) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        raise ValueError("producer_package must be a mapping")
+    expected_fields = {
+        "package_id",
+        "package_version",
+        "package_content_digest",
+    }
+    if set(value) != expected_fields:
+        raise ValueError(
+            "producer_package must contain exactly package_id, package_version, "
+            "and package_content_digest"
+        )
+    package_id = str(value.get("package_id") or "").strip()
+    package_version = str(value.get("package_version") or "").strip()
+    if package_id != "mas-scholar-skills":
+        raise ValueError("producer_package.package_id must be mas-scholar-skills")
+    if not re.fullmatch(
+        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+        r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+        r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
+        package_version,
+    ):
+        raise ValueError("producer_package.package_version must be semantic version")
+    return {
+        "package_id": package_id,
+        "package_version": package_version,
+        "package_content_digest": _sha256_digest(
+            value.get("package_content_digest"),
+            "producer_package.package_content_digest",
+        ),
+    }
+
+
 def _origin_ref(value: object) -> object | None:
     if not isinstance(value, Mapping) or not value:
         return None
+    normalized_kind = normalize_evidence_ref(value.get("kind"))
     normalized_ref = normalize_evidence_ref(value.get("ref"))
-    if not normalized_ref:
+    if not normalized_kind or not normalized_ref:
         return None
     try:
         normalized_sha256 = _sha256_digest(value.get("sha256"), "origin ref sha256")
@@ -337,20 +372,18 @@ def _origin_ref(value: object) -> object | None:
         or size_bytes < 0
     ):
         return None
-    try:
-        normalized = json.loads(
-            json.dumps(dict(value), ensure_ascii=True, sort_keys=True)
-        )
-    except (TypeError, ValueError):
-        return None
-    normalized["ref"] = normalized_ref
-    normalized["sha256"] = normalized_sha256
-    return normalized
+    return {
+        "kind": normalized_kind,
+        "ref": normalized_ref,
+        "sha256": normalized_sha256,
+        **({} if size_bytes is None else {"size_bytes": size_bytes}),
+    }
 
 
 def build_page_hash_evidence_candidate(
     pages: Sequence[Mapping[str, object]],
     *,
+    producer_package: Mapping[str, object],
     review_scope_sha256: object,
     rubric_sha256: object,
     origin_reviewer_invocation_ref: object = None,
@@ -393,6 +426,7 @@ def build_page_hash_evidence_candidate(
 
     scope_digest = _sha256_digest(review_scope_sha256, "review_scope_sha256")
     rubric_digest = _sha256_digest(rubric_sha256, "rubric_sha256")
+    package_identity = _producer_package(producer_package)
     key_payload = {
         "ordered_pages": normalized_pages,
         "raster_contract": dict(PAGE_HASH_RASTER_CONTRACT),
@@ -402,14 +436,20 @@ def build_page_hash_evidence_candidate(
     invocation_ref = _origin_ref(origin_reviewer_invocation_ref)
     evidence_ref = _origin_ref(origin_reviewer_evidence_ref)
     origin_bound = invocation_ref is not None and evidence_ref is not None
+    if not origin_bound:
+        invocation_ref = None
+        evidence_ref = None
     return {
         "surface_kind": PAGE_HASH_EVIDENCE_SURFACE_KIND,
-        "schema_version": 1,
+        "schema_version": 2,
+        "producer_package": package_identity,
         "review_lane": "display",
         "review_scope_sha256": scope_digest,
         "rubric_sha256": rubric_digest,
-        "raster_contract": dict(PAGE_HASH_RASTER_CONTRACT),
-        "pages": normalized_pages,
+        "evidence_payload": {
+            "raster_contract": dict(PAGE_HASH_RASTER_CONTRACT),
+            "pages": normalized_pages,
+        },
         "cache_key_sha256": f"sha256:{_canonical_json_sha256(key_payload)}",
         "origin_reviewer_invocation_ref": invocation_ref,
         "origin_reviewer_evidence_ref": evidence_ref,
@@ -417,7 +457,8 @@ def build_page_hash_evidence_candidate(
         "cache_authority": False,
         "requires_fresh_reviewer_invocation": True,
         "requires_fresh_reviewer_receipt": True,
-        "requires_mas_judgment": True,
+        "domain_owner_id": "mas",
+        "requires_domain_owner_judgment": True,
         "authority_boundary": {
             "can_emit_verdict": False,
             "can_sign_reviewer_receipt": False,
@@ -2098,8 +2139,14 @@ def _self_check() -> None:
         "pixel_format": "RGB8",
         "pixel_sha256": f"sha256:{'2' * 64}",
     }
+    producer_package = {
+        "package_id": "mas-scholar-skills",
+        "package_version": "0.2.10",
+        "package_content_digest": f"sha256:{'c' * 64}",
+    }
     cache_a = build_page_hash_evidence_candidate(
         [page_a, page_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref={
@@ -2116,6 +2163,7 @@ def _self_check() -> None:
     )
     cache_same_pixels_other_provenance = build_page_hash_evidence_candidate(
         [page_a, page_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref={
@@ -2140,6 +2188,7 @@ def _self_check() -> None:
     changed_pixel["pixel_sha256"] = f"sha256:{'5' * 64}"
     assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, changed_pixel],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
@@ -2148,6 +2197,7 @@ def _self_check() -> None:
     changed_geometry = dict(page_b, width=1225)
     assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, changed_geometry],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
@@ -2157,6 +2207,7 @@ def _self_check() -> None:
     reordered_b = dict(page_a, page_number=2)
     assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [reordered_a, reordered_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
@@ -2164,6 +2215,7 @@ def _self_check() -> None:
     )["cache_key_sha256"]
     assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, page_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'6' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
@@ -2171,6 +2223,7 @@ def _self_check() -> None:
     )["cache_key_sha256"]
     assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, page_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'7' * 64}",
         origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
@@ -2178,12 +2231,14 @@ def _self_check() -> None:
     )["cache_key_sha256"]
     unbound_cache = build_page_hash_evidence_candidate(
         [page_a, page_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
     )
     assert unbound_cache["cache_reuse_eligible"] is False
     empty_shell_cache = build_page_hash_evidence_candidate(
         [page_a, page_b],
+        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
         origin_reviewer_invocation_ref={"ref": "attempt://empty-shell"},
@@ -2193,11 +2248,16 @@ def _self_check() -> None:
         },
     )
     assert empty_shell_cache["cache_reuse_eligible"] is False
+    assert empty_shell_cache["origin_reviewer_invocation_ref"] is None
+    assert empty_shell_cache["origin_reviewer_evidence_ref"] is None
     assert cache_a["cache_reuse_eligible"] is True
     assert cache_a["cache_authority"] is False
     assert cache_a["requires_fresh_reviewer_invocation"] is True
     assert cache_a["requires_fresh_reviewer_receipt"] is True
-    assert cache_a["requires_mas_judgment"] is True
+    assert cache_a["producer_package"] == producer_package
+    assert set(cache_a["evidence_payload"]) == {"raster_contract", "pages"}
+    assert cache_a["domain_owner_id"] == "mas"
+    assert cache_a["requires_domain_owner_judgment"] is True
     assert all(value is False for value in cache_a["authority_boundary"].values())
 
     fixture_path = Path(__file__).with_name("fixtures") / "layout_qc_regression.json"

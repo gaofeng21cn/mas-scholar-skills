@@ -51,10 +51,11 @@ reported as an unembedded font.
 For PDF review evidence, the kernel also rasterizes every page under one fixed
 contract and emits ordered RGB8 pixel SHA-256 rows. Use
 `build_page_hash_evidence_candidate` with the current display scope digest,
-rubric content digest, and valid origin reviewer invocation/evidence refs. A
+rubric content digest, exact producing package id/version/content digest from
+the OPL Attempt context, and valid origin reviewer invocation/evidence refs. A
 cache hit reuses evidence only: it never skips a fresh reviewer invocation or
-fresh MAS receipt/judgment, and every verdict/readiness/authority flag remains
-false. OPL owns persistent cache storage and
+fresh domain-owner receipt/judgment, and every verdict/readiness/authority flag
+remains false. OPL owns persistent cache storage and
 `opl_review_evidence_cache_receipt`.
 
 ## Workflow

@@ -101,17 +101,22 @@ pages with its fixed contract:
 ```yaml
 page_hash_evidence_candidate_ref:
   surface_kind: scholarskills_page_hash_evidence_candidate
-  schema_version: 1
+  schema_version: 2
+  producer_package:
+    package_id: mas-scholar-skills
+    package_version: null
+    package_content_digest: null
   review_lane: display
   review_scope_sha256: null
   rubric_sha256: null
-  raster_contract: null
-  pages:
-    - page_number: 1
-      width: null
-      height: null
-      pixel_format: RGB8
-      pixel_sha256: null
+  evidence_payload:
+    raster_contract: null
+    pages:
+      - page_number: 1
+        width: null
+        height: null
+        pixel_format: RGB8
+        pixel_sha256: null
   cache_key_sha256: null
   origin_reviewer_invocation_ref: null
   origin_reviewer_evidence_ref: null
@@ -119,10 +124,14 @@ page_hash_evidence_candidate_ref:
   cache_authority: false
   requires_fresh_reviewer_invocation: true
   requires_fresh_reviewer_receipt: true
-  requires_mas_judgment: true
+  domain_owner_id: mas
+  requires_domain_owner_judgment: true
 ```
 
-Hash the canonical payload containing the ordered full page projection
+The candidate shape is owned by
+`contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json`. Bind the
+actual producing package id, version, and content digest supplied by the OPL
+Attempt context. Hash the canonical payload containing the ordered full page projection
 (`page_number`, `width`, `height`, `pixel_format`, `pixel_sha256`), fixed raster
 contract, `review_scope_sha256`, and rubric content `rubric_sha256`. Exclude
 path, checkout, host, timestamp, PDF metadata, model, skill, runtime, and their
@@ -132,7 +141,7 @@ authorize lane reuse.
 
 Reuse requires valid origin reviewer invocation and evidence refs. A cache hit
 still launches a fresh reviewer invocation and requires a fresh receipt plus
-MAS judgment. The candidate cannot emit a verdict, owner/reviewer receipt,
+domain-owner judgment. The candidate cannot emit a verdict, owner/reviewer receipt,
 typed blocker, current-package authority, or readiness. OPL alone persists the
 cache and may issue `opl_review_evidence_cache_receipt` schema 1.
 

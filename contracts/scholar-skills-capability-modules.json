@@ -81,8 +81,19 @@
     ],
     "page_hash_evidence_candidate": {
       "surface_kind": "scholarskills_page_hash_evidence_candidate",
-      "schema_version": 1,
+      "schema_version": 2,
+      "schema_owner": "mas-scholar-skills",
+      "schema_ref": "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json",
       "review_lane": "display",
+      "producer_package_identity_fields": [
+        "package_id",
+        "package_version",
+        "package_content_digest"
+      ],
+      "evidence_payload_fields": [
+        "raster_contract",
+        "pages"
+      ],
       "cache_key_fields": [
         "ordered_page_pixel_hashes",
         "raster_contract",
@@ -93,7 +104,8 @@
       "cache_authority": false,
       "requires_fresh_reviewer_invocation": true,
       "requires_fresh_reviewer_receipt": true,
-      "requires_mas_judgment": true,
+      "domain_owner_field": "domain_owner_id",
+      "requires_domain_owner_judgment": true,
       "persistent_cache_owner": "one-person-lab",
       "persistent_cache_receipt_surface_kind": "opl_review_evidence_cache_receipt"
     },
