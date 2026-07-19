@@ -23,6 +23,13 @@ TABLE_JOBS = (
 )
 
 ABBREVIATION_RE = re.compile(r"\b[A-Z][A-Z0-9]{1,}\b")
+INTERNAL_AUDIT_NOTE_RE = re.compile(
+    r"(?:source generation|generation[_ -]?id|formal_submission_authority|"
+    r"runtime_authority|submit_ready|candidate display only|owner receipt)",
+    re.IGNORECASE,
+)
+REPEATED_LONG_NOTE_MIN_CHARS = 80
+TABLE_NOTE_BUDGETS = {"main": 2, "supplementary": 3}
 
 
 def table_shell_schema() -> dict[str, Any]:
@@ -140,6 +147,72 @@ def abbreviations_without_footnote(labels: Sequence[str], footnotes: Sequence[st
     return [term for term in abbreviations if term not in note_text]
 
 
+def lint_table_note_inventory(
+    tables: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Flag overloaded, repeated, or internal reader-visible table notes.
+
+    The result is refs-only quality debt. It does not decide whether a table is
+    accepted, authoritative, or publication ready.
+    """
+
+    findings: list[dict[str, object]] = []
+    note_locations: dict[str, list[str]] = {}
+    note_originals: dict[str, str] = {}
+    for index, table in enumerate(tables, start=1):
+        table_id = str(table.get("table_id") or f"table_{index}").strip()
+        role = str(table.get("role") or "main").strip().lower()
+        raw_notes = table.get("notes") or []
+        if not isinstance(raw_notes, Sequence) or isinstance(raw_notes, (str, bytes)):
+            findings.append(
+                {
+                    "code": "TABLE_NOTES_NOT_LIST",
+                    "table_id": table_id,
+                    "action": "represent reader-visible notes as a string list",
+                }
+            )
+            continue
+        notes = [str(note).strip() for note in raw_notes if str(note).strip()]
+        budget = TABLE_NOTE_BUDGETS.get(role)
+        if budget is not None and len(notes) > budget:
+            findings.append(
+                {
+                    "code": "TABLE_NOTE_BUDGET_EXCEEDED",
+                    "table_id": table_id,
+                    "role": role,
+                    "note_count": len(notes),
+                    "budget": budget,
+                    "action": "retain only table-specific reading aids and move methods or global caveats out",
+                }
+            )
+        for note in notes:
+            if INTERNAL_AUDIT_NOTE_RE.search(note):
+                findings.append(
+                    {
+                        "code": "INTERNAL_AUDIT_METADATA_IN_READER_NOTE",
+                        "table_id": table_id,
+                        "action": "move generation, runtime, authority, or readiness metadata to a manifest or receipt",
+                    }
+                )
+            normalized = re.sub(r"\s+", " ", note).strip().casefold()
+            note_locations.setdefault(normalized, []).append(table_id)
+            note_originals.setdefault(normalized, note)
+
+    for normalized, table_ids in note_locations.items():
+        unique_table_ids = sorted(set(table_ids))
+        if len(unique_table_ids) < 2 or len(normalized) < REPEATED_LONG_NOTE_MIN_CHARS:
+            continue
+        findings.append(
+            {
+                "code": "REPEATED_GLOBAL_TABLE_NOTE",
+                "table_ids": unique_table_ids,
+                "note": note_originals[normalized],
+                "action": "state the global interpretation boundary once in Methods or Limitations",
+            }
+        )
+    return findings
+
+
 def _self_check() -> None:
     assert "columns" in table_shell_schema()["required"]
     assert normalize_column_name("HbA1c (%)") == "hba1c_percent"
@@ -148,7 +221,39 @@ def _self_check() -> None:
     findings = lint_table_shell(shell)
     assert {item["code"] for item in findings} >= {"MISSING_TITLE", "MISSING_PERCENT_DENOMINATOR"}
     assert abbreviations_without_footnote(["BMI"], ["BMI, body mass index"]) == []
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
+    global_note = (
+        "These recorded candidate states do not establish actual medication use, "
+        "guideline nonadherence, care quality, or facility performance."
+    )
+    note_findings = lint_table_note_inventory(
+        [
+            {
+                "table_id": "T1",
+                "role": "main",
+                "notes": [global_note, "Data are median [Q1, Q3].", "Abbreviation: BMI."],
+            },
+            {
+                "table_id": "T2",
+                "role": "main",
+                "notes": [global_note, "Source generation: internal."],
+            },
+        ]
+    )
+    assert {item["code"] for item in note_findings} == {
+        "TABLE_NOTE_BUDGET_EXCEEDED",
+        "INTERNAL_AUDIT_METADATA_IN_READER_NOTE",
+        "REPEATED_GLOBAL_TABLE_NOTE",
+    }
+    assert lint_table_note_inventory(
+        [
+            {
+                "table_id": "T1",
+                "role": "main",
+                "notes": ["Data are n/N (%).", "Abbreviation: BMI, body mass index."],
+            }
+        ]
+    ) == []
+    print(json.dumps({"ok": True, "checks": 7}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

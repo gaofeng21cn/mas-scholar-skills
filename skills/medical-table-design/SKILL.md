@@ -163,6 +163,35 @@ Check:
 - table body avoids internal workflow labels and runtime names;
 - main tables are not overloaded with supplementary-only detail.
 
+## Journal Footnote Discipline
+
+Reader-visible table notes should explain the table, not reproduce the paper's
+Methods, Limitations, generation ledger, or authority boundary.
+
+- Keep main-table notes to zero to two concise items by default. More than two
+  requires a table-specific or journal-specific reason and should be returned as
+  a quality-debt finding until justified.
+- Use notes only for denominators, statistical display format, abbreviations,
+  missingness or `NA` semantics, and one essential anti-misinterpretation guard
+  that is necessary to read that table correctly.
+- State global estimand definitions, study-wide caveats, ascertainment limits,
+  and non-causal interpretation once in Methods or Limitations. Do not copy the
+  same long disclaimer below multiple tables.
+- Keep generation IDs, source hashes, runtime state, owner/authority flags, and
+  submission-readiness metadata in manifests or receipts, never in
+  reader-facing table Markdown, DOCX, PDF, or XLSX notes.
+- Prefer one unnumbered general note plus a compact abbreviation line when no
+  table cell uses a specific footnote marker. Numbered lists are not a substitute
+  for real cell-level footnote markers.
+- Supplementary tables may retain table-specific operational detail, but notes
+  should still be concise; move full algorithms, model specifications, and
+  sensitivity inventories to Methods or dedicated supplementary prose.
+
+Run `lint_table_note_inventory()` before handoff. Treat overloaded notes,
+repeated long notes, and internal audit metadata as repairable candidate quality
+debt. This deterministic lint does not decide table acceptance or publication
+readiness.
+
 For prediction-model external-validation manuscripts, require table shells to
 separate three jobs instead of compressing them into prose:
 

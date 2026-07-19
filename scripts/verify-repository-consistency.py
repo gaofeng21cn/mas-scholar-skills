@@ -43,8 +43,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.8":
-    fail("plugin version must be 0.2.8")
+if manifest.get("version") != "0.2.9":
+    fail("plugin version must be 0.2.9")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -175,8 +175,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.8":
-    fail("capability package version must be 0.2.8")
+if package_manifest.get("version") != "0.2.9":
+    fail("capability package version must be 0.2.9")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -626,6 +626,22 @@ figure_composer_skill = capability_skill_texts["medical-figure-composer"]
 lit_skill = capability_skill_texts["medical-research-lit"]
 stats_skill = capability_skill_texts["medical-statistical-review"]
 table_skill = capability_skill_texts["medical-table-design"]
+table_kernel = read_text("skills/medical-table-design/kernel.py")
+for token in [
+    "Journal Footnote Discipline",
+    "lint_table_note_inventory()",
+    "reader-facing table Markdown",
+    "same long disclaimer below multiple tables",
+]:
+    if token not in table_skill:
+        fail(f"medical-table-design missing journal footnote discipline token: {token}")
+for token in [
+    "TABLE_NOTE_BUDGET_EXCEEDED",
+    "INTERNAL_AUDIT_METADATA_IN_READER_NOTE",
+    "REPEATED_GLOBAL_TABLE_NOTE",
+]:
+    if token not in table_kernel:
+        fail(f"medical-table-design kernel missing table-note lint token: {token}")
 submit_skill = capability_skill_texts["medical-submission-prep"]
 data_governance_skill = capability_skill_texts["medical-data-governance"]
 cohort_phenotyping_skill = read_text("skills/medical-cohort-phenotyping/SKILL.md")

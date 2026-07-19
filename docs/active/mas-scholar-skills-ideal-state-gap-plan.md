@@ -30,7 +30,7 @@ The audited source snapshot has the following structural shape:
 
 | Theme | Current source evidence | Boundary |
 | --- | --- | --- |
-| Package | `contracts/opl_capability_package_manifest.json` declares `mas-scholar-skills` version `0.2.8` | Installed resolution and lifecycle currentness require fresh `opl packages` readback |
+| Package | `contracts/opl_capability_package_manifest.json` declares `mas-scholar-skills` version `0.2.9` | Installed resolution and lifecycle currentness require fresh `opl packages` readback |
 | Skill exposure | 35 discoverable `SKILL.md` entries: 11 aggregate/core and 24 router or named-specialty skills | Presence does not select a specialty or grant authority |
 | Module catalog | `contracts/scholar-skills-capability-modules.json` declares eight professional modules and two machine adapter modules | The adapters describe or parse bounded requests; OPL Connect owns I/O and receipts |
 | Authority | Contract authority flags are false for domain truth, owner receipts, typed blockers, artifact mutation, current-package authority, and publication readiness | MAS or the consuming domain owner remains authoritative |
