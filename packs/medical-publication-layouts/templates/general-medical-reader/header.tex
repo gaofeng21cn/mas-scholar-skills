@@ -1,0 +1,101 @@
+% MAS Scholar Skills general-medical-reader.v1
+% Neutral publication-grade electronic reading layout for an unspecified journal.
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage{newtxtext,newtxmath}
+\else
+  \usepackage{fontspec}
+  \IfFontExistsTF{TeX Gyre Termes}
+    {\setmainfont{TeX Gyre Termes}}
+    {\setmainfont{Times New Roman}}
+\fi
+\usepackage[a4paper,top=22mm,bottom=23mm,left=24mm,right=24mm,headheight=14pt]{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{placeins}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{etoolbox}
+
+\definecolor{MedicalInk}{HTML}{182126}
+\definecolor{MedicalTeal}{HTML}{176B68}
+\definecolor{MedicalRule}{HTML}{B8C4C3}
+\definecolor{MedicalLink}{HTML}{0B5F8A}
+
+\AtBeginDocument{\fontsize{10.5}{14.2}\selectfont}
+\setlength{\parindent}{1.25em}
+\setlength{\parskip}{0.2em}
+\setlength{\emergencystretch}{2.5em}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\setlist{nosep,leftmargin=1.6em}
+\raggedbottom
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+
+\titleformat{\section}
+  {\Large\bfseries\color{MedicalInk}}
+  {\thesection}{0.55em}{}
+  [\vspace{0.22em}\color{MedicalRule}\titlerule]
+\titleformat{\subsection}
+  {\large\bfseries\color{MedicalInk}}
+  {\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{MedicalInk}}
+  {\thesubsubsection}{0.45em}{}
+\titlespacing*{\section}{0pt}{1.5em}{0.65em}
+\titlespacing*{\subsection}{0pt}{1.15em}{0.4em}
+\titlespacing*{\subsubsection}{0pt}{0.9em}{0.3em}
+
+\pretitle{%
+  \begin{flushleft}
+  \color{MedicalTeal}\rule{14mm}{2.2pt}\par\vspace{0.8em}%
+  \LARGE\bfseries\color{MedicalInk}\raggedright
+}
+\posttitle{%
+  \par\vspace{0.65em}\color{MedicalRule}\rule{\textwidth}{0.7pt}
+  \end{flushleft}\vspace{0.4em}
+}
+\preauthor{\begin{flushleft}\normalsize\color{MedicalInk}}
+\postauthor{\par\end{flushleft}}
+\predate{\begin{flushleft}\small\color{MedicalInk}}
+\postdate{\par\end{flushleft}\vspace{0.9em}}
+
+\captionsetup{
+  font=small,
+  labelfont={bf,color=MedicalInk},
+  textfont={color=MedicalInk},
+  justification=raggedright,
+  singlelinecheck=false,
+  skip=6pt
+}
+\AtBeginEnvironment{longtable}{\small\setlength{\tabcolsep}{4pt}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{MedicalInk}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{MedicalTeal}Medical manuscript}
+\fancyfoot[C]{\small\color{MedicalInk}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{MedicalRule}\leaders\hrule height \headrulewidth\hfill}}
+
+\AtBeginDocument{
+  \hypersetup{
+    colorlinks=true,
+    linkcolor=MedicalLink,
+    citecolor=MedicalLink,
+    urlcolor=MedicalLink,
+    pdfborder={0 0 0}
+  }
+}

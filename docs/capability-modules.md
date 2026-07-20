@@ -38,7 +38,7 @@ syncable Codex skills, plus two read-only runtime adapter modules.
 | `mas-scholar-skills.lit` | `medical-research-lit` | Candidate source-screening and claim-support refs only |
 | `mas-scholar-skills.write` | `medical-manuscript-writing` | Candidate writing and claim-evidence refs only |
 | `mas-scholar-skills.review` | `medical-manuscript-review` | Candidate review and repair-route refs only |
-| `mas-scholar-skills.submit` | `medical-submission-prep` | Candidate submission-preparation refs only |
+| `mas-scholar-skills.submit` | `medical-submission-prep` | Candidate submission-preparation and offline publication-layout selection refs only |
 | `mas-scholar-skills.data` | `medical-data-governance` | Candidate data-governance refs only |
 | `mas-scholar-skills.reference-provider-adapters` | No Skill entry; package runtime binding | Pure request/response normalization for OPL Connect; no I/O, verdict, or receipt authority |
 | `mas-scholar-skills.scientific-search-adapters` | No Skill entry; package runtime binding | One-step Crossref/OpenAlex candidate search normalization; no I/O, acceptance, verdict, or receipt authority |
@@ -53,6 +53,22 @@ evidence. Scientific search uses the independent
 `build_search_request -> parse_search_response` ABI and returns `candidates[]`.
 Neither companion path can replace a professional skill, stage prompt, owner gate,
 or domain action.
+
+## Publication Layout Profiles
+
+Scholar Submit owns one local publication-layout catalog. With a named journal it
+selects a matching adaptation profile; without one it selects
+`general-medical-reader.v1`. The initial journal set covers JAMA Network, NEJM,
+The Lancet, The BMJ, Nature Medicine, Diabetes Care, Cardiovascular Diabetology,
+and BMC Medicine. The profiles keep stable authoring and package conventions
+available offline, while formal submission still refreshes changing requirements
+from each profile's official source.
+
+The catalog always returns `paper.pdf` and
+`paper_with_supplementary.pdf`. The latter is a combined reading copy; separately
+addressable supplementary members remain available for journal packaging. These
+assets and refs are quality guidance, not publisher-owned templates, journal
+compliance, submission readiness, or authority.
 
 ## Provider Boundary
 

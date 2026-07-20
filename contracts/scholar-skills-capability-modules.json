@@ -2823,13 +2823,15 @@
       "stage_fit": [
         "submission_checklist",
         "package_export_refs",
-        "journal_rule_projection"
+        "journal_rule_projection",
+        "publication_layout_profile_selection"
       ],
       "input_schema_refs": [
         "scholarskills_submit_input.v1"
       ],
       "output_schema_refs": [
         "scholarskills_submit_output_refs.v1",
+        "scholarskills_publication_layout_selection_candidate.v1",
         "scholarskills_submit_external_learning_refs.v1#checklist_disclosure_export"
       ],
       "dependency_profile_refs": [
@@ -2865,6 +2867,12 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "journal_rule_candidate",
           "body_policy": "refs_only_submission_hint_not_publication_readiness"
+        },
+        {
+          "ref_id": "publication_layout_selection_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "offline_layout_profile_selection_candidate",
+          "body_policy": "refs_only_layout_selection_not_journal_compliance_or_submission_readiness"
         },
         {
           "ref_id": "format_sanity_ref",
@@ -2910,6 +2918,7 @@
         "required_ref_shapes": [
           "submission_checklist_ref",
           "journal_instruction_source_ref",
+          "publication_layout_selection_ref",
           "export_package_ref",
           "journal_rule_ref",
           "format_sanity_ref",
@@ -2959,6 +2968,8 @@
         "adapted_patterns": [
           "submission_checklist_before_export",
           "journal_rule_projection_before_format_sanity",
+          "offline_journal_profile_or_default_reader_selection_before_export",
+          "exactly_two_core_reader_pdfs_with_separate_supplementary_members",
           "latex_and_format_sanity_before_owner_gate",
           "ai_disclosure_candidate_for_human_approval",
           "rebuttal_audit_before_resubmission_package"
@@ -2971,6 +2982,7 @@
         "required_ref_shapes": [
           "submission_checklist_ref",
           "journal_rule_ref",
+          "publication_layout_selection_ref",
           "format_sanity_ref",
           "ai_disclosure_ref",
           "rebuttal_audit_ref",

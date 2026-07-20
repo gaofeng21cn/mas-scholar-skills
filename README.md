@@ -42,7 +42,7 @@ skill.
 | Literature | Search strategy, source screening, citation verification, and claim-support mapping |
 | Writing | Evidence-traced manuscript sections and revision candidates |
 | Review | Independent review packets, defect routing, and revision priorities |
-| Submission | Journal requirements, file inventory, declarations, and response preparation |
+| Submission | Offline journal-layout profiles, default reader layout, file inventory, declarations, and response preparation |
 | Data Governance | Data manifests, dictionaries, lineage, lifecycle, access, and reproducibility candidates |
 
 The current source exports 35 discoverable Codex skills: 11 aggregate/core
@@ -92,6 +92,13 @@ The aggregate `mas-scholar-skills` skill is a discovery and routing entry. The
 selected `medical-*` skill carries the detailed professional workflow; MAS stage
 prompts remain the owner of stage validity, evidence thresholds, and acceptance.
 
+`medical-submission-prep` includes an offline-first publication-layout catalog.
+Named journals use a matching local adaptation profile; an unspecified journal
+uses the publication-grade `general-medical-reader.v1` template. The core reader
+outputs are always `paper.pdf` and `paper_with_supplementary.pdf`. Formal
+submission refreshes the linked official instructions before any compliance
+claim.
+
 ## Authority Boundary
 
 This package prepares candidate material. It does not write study truth or
@@ -120,6 +127,7 @@ skills/                         aggregate, core, router, and specialty skills
 contracts/                      package identity, module catalog, and boundaries
 references/                     shared quality and handoff references
 packs/medical-display-core/     Display source pack and renderer verification
+packs/medical-publication-layouts/  reader template, journal profiles, and citation assets
 gallery/medical-display/        compact human-review package
 docs/                           operating, catalog, boundary, and active-truth docs
 scripts/verify.sh               repository verification entry

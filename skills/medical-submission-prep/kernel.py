@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 import re
 from collections import defaultdict
+from datetime import date
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
@@ -58,6 +60,13 @@ INTERNAL_VISIBLE_MARKER_RE = re.compile(
     r"(?:review companion|bounded review display|deterministic(?:ly)? sampled rows?|"
     r"CSV row(?:s| numbers?)?|exact electronic source|internal audit)",
     re.IGNORECASE,
+)
+
+PUBLICATION_LAYOUT_CATALOG_REF = (
+    "packs/medical-publication-layouts/publication_layout_catalog.json"
+)
+PUBLICATION_LAYOUT_CATALOG_PATH = (
+    Path(__file__).resolve().parents[2] / PUBLICATION_LAYOUT_CATALOG_REF
 )
 
 
@@ -130,6 +139,145 @@ def package_manifest_skeleton(
         "author_input_needed_ref": [],
         "route_back_candidate": "",
     }
+
+
+def select_publication_layout(
+    target_journal: str = "",
+    *,
+    formal_submission: bool = False,
+    as_of_date: str | date | None = None,
+    catalog_path: str | Path | None = None,
+) -> dict[str, object]:
+    """Select an offline publication layout profile without claiming compliance.
+
+    A named known journal resolves to its local adaptation profile. An omitted or
+    unknown journal keeps ordinary authoring moving with the publication-grade
+    default reader profile. Formal submission always requires a fresh official
+    instruction check outside this refs-only helper.
+    """
+
+    catalog = _load_publication_layout_catalog(catalog_path)
+    profiles = {
+        str(profile["profile_id"]): profile for profile in catalog["profiles"]
+    }
+    profile_positions = {
+        str(profile["profile_id"]): index
+        for index, profile in enumerate(catalog["profiles"])
+    }
+    default_profile_id = str(catalog["default_profile_id"])
+    default_profile = profiles[default_profile_id]
+    requested = str(target_journal or "").strip()
+    normalized = _normalize_journal_alias(requested)
+
+    alias_index: dict[str, str] = {}
+    for profile_id, profile in profiles.items():
+        candidates = [profile_id, profile.get("display_name"), *(profile.get("aliases") or [])]
+        for candidate in candidates:
+            alias = _normalize_journal_alias(candidate)
+            if alias:
+                alias_index[alias] = profile_id
+
+    matched_profile_id = alias_index.get(normalized) if normalized else None
+    if not requested:
+        profile = default_profile
+        resolution_status = "default_reader_profile_selected"
+        journal_export_status = "not_requested"
+    elif matched_profile_id:
+        profile = profiles[matched_profile_id]
+        resolution_status = "matched_local_journal_profile"
+        journal_export_status = "local_profile_selected"
+    else:
+        profile = default_profile
+        resolution_status = "journal_profile_pending_official_mapping"
+        journal_export_status = "official_mapping_pending"
+
+    today = _coerce_date(as_of_date)
+    freshness = _publication_profile_freshness(profile, today)
+    known_journal = bool(requested and matched_profile_id)
+    official_refresh_required = bool(
+        requested
+        and (
+            not known_journal
+            or formal_submission
+            or freshness == "stale"
+        )
+    )
+    if known_journal and official_refresh_required:
+        journal_export_status = "local_profile_selected_refresh_pending"
+
+    assets = dict(profile.get("template_assets") or {})
+    output_names = [
+        str(output["file_name"]) for output in catalog["core_pdf_outputs"]
+    ]
+    return {
+        "surface_kind": "scholarskills_publication_layout_selection_candidate.v1",
+        "catalog_ref": PUBLICATION_LAYOUT_CATALOG_REF,
+        "requested_journal": requested,
+        "formal_submission_requested": bool(formal_submission),
+        "resolution_status": resolution_status,
+        "selected_profile_id": str(profile["profile_id"]),
+        "journal_profile_ref": (
+            f"{PUBLICATION_LAYOUT_CATALOG_REF}#/profiles/{profile_positions[matched_profile_id]}"
+            if known_journal
+            else ""
+        ),
+        "rendering_profile_ref": str(profile["base_template_ref"]),
+        "template_refs": assets,
+        "authoring_rules": dict(profile.get("authoring_rules") or {}),
+        "official_instruction_sources": list(profile.get("official_sources") or []),
+        "profile_freshness": freshness if known_journal else (
+            "not_applicable" if not requested else "not_available"
+        ),
+        "journal_specific_export_status": journal_export_status,
+        "official_refresh_required": official_refresh_required,
+        "authoring_may_continue": True,
+        "core_pdf_outputs": output_names,
+        "combined_reader_pdf_is_submission_upload": False,
+        "can_claim_journal_compliance": False,
+        "can_claim_submission_readiness": False,
+        "can_submit": False,
+        "owner_gate_required": True,
+    }
+
+
+def _load_publication_layout_catalog(
+    catalog_path: str | Path | None,
+) -> dict[str, Any]:
+    path = Path(catalog_path) if catalog_path is not None else PUBLICATION_LAYOUT_CATALOG_PATH
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if value.get("surface_kind") != "mas_scholar_publication_layout_catalog.v1":
+        raise ValueError("unsupported publication layout catalog")
+    if [item.get("file_name") for item in value.get("core_pdf_outputs") or []] != [
+        "paper.pdf",
+        "paper_with_supplementary.pdf",
+    ]:
+        raise ValueError("publication layout catalog must expose exactly two core PDFs")
+    return value
+
+
+def _normalize_journal_alias(value: object) -> str:
+    text = str(value or "").strip().lower()
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def _coerce_date(value: str | date | None) -> date:
+    if value is None:
+        return date.today()
+    if isinstance(value, date):
+        return value
+    return date.fromisoformat(value)
+
+
+def _publication_profile_freshness(profile: Mapping[str, object], today: date) -> str:
+    policy = profile.get("freshness_policy")
+    if not isinstance(policy, Mapping):
+        return "not_available"
+    reviewed_on = policy.get("reviewed_on")
+    max_age_days = policy.get("max_age_days")
+    if not reviewed_on or not isinstance(max_age_days, int):
+        return "not_applicable"
+    age_days = (today - date.fromisoformat(str(reviewed_on))).days
+    return "current" if age_days <= max_age_days else "stale"
 
 
 def lint_required_documents(manifest: Mapping[str, object]) -> list[dict[str, str]]:
@@ -302,7 +450,27 @@ def _self_check() -> None:
         "CONFLICTING_PACKAGE_ROLES_FOR_SAME_BYTES",
     }
     assert all(item["writes_authority"] is False for item in role_findings)
-    print(json.dumps({"ok": True, "checks": 7}, indent=2, sort_keys=True))
+    default_layout = select_publication_layout(as_of_date="2026-07-20")
+    assert default_layout["selected_profile_id"] == "general-medical-reader.v1"
+    assert default_layout["core_pdf_outputs"] == [
+        "paper.pdf",
+        "paper_with_supplementary.pdf",
+    ]
+    journal_layout = select_publication_layout(
+        "JAMA Network Open", as_of_date="2026-07-20"
+    )
+    assert journal_layout["selected_profile_id"] == "jama-network-research.v1"
+    unknown_layout = select_publication_layout(
+        "Unknown Journal", as_of_date="2026-07-20"
+    )
+    assert unknown_layout["authoring_may_continue"] is True
+    assert unknown_layout["official_refresh_required"] is True
+    formal_layout = select_publication_layout(
+        "NEJM", formal_submission=True, as_of_date="2026-07-20"
+    )
+    assert formal_layout["official_refresh_required"] is True
+    assert formal_layout["can_claim_journal_compliance"] is False
+    print(json.dumps({"ok": True, "checks": 13}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

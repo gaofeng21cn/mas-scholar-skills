@@ -3,7 +3,7 @@
   "package_id": "mas-scholar-skills",
   "display_name": "MAS Scholar Skills",
   "publisher": "one-person-lab",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "source": "first_party_repo_local",
   "package_role": "required_agent_capability_package",
   "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
@@ -232,6 +232,7 @@
     "paths": [
       ".codex-plugin/plugin.json",
       "contracts/scholar-skills-capability-modules.json",
+      "contracts/publication-layout-profile.schema.json",
       "contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json",
       "contracts/display-pack-receipt-templates.json",
       "contracts/professional-figure-workflow.schema.json",
@@ -253,6 +254,10 @@
       "runtime/scientific-search-adapters/types.ts",
       "runtime/scientific-search-adapters/search-adapters.ts",
       "runtime/scientific-search-adapters/index.ts",
+      "packs/medical-publication-layouts/publication_layout_catalog.json",
+      "packs/medical-publication-layouts/templates/general-medical-reader/header.tex",
+      "packs/medical-publication-layouts/templates/general-medical-reader/layout.lua",
+      "packs/medical-publication-layouts/styles/american-medical-association-11th-edition.csl",
       "skills/mas-scholar-skills/SKILL.md",
       "skills/mas-scholar-skills/agents/openai.yaml",
       "skills/mas-scholar-skills/docs/capability-modules.md",
@@ -347,7 +352,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:3ca8e326b2bfccc7d7a04ae29c07da0567fadd522389f2b3954229b0fa615cce"
+    "digest": "sha256:49ab8878631bff0742d768f9dba939d8797c0bcc7542e37d59840d509fb62805"
   },
   "lifecycle": {
     "owner": "one-person-lab",

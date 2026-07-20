@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-person-lab.dev/contracts/mas-scholar-publication-layout-profile.schema.json",
+  "title": "MAS Scholar Skills publication layout catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "surface_kind",
+    "schema_ref",
+    "schema_version",
+    "catalog_id",
+    "catalog_reviewed_on",
+    "default_profile_id",
+    "core_pdf_outputs",
+    "selection_policy",
+    "profiles",
+    "authority_boundary"
+  ],
+  "properties": {
+    "surface_kind": {
+      "const": "mas_scholar_publication_layout_catalog.v1"
+    },
+    "schema_ref": {
+      "const": "contracts/publication-layout-profile.schema.json"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "catalog_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "catalog_reviewed_on": {
+      "type": "string",
+      "format": "date"
+    },
+    "default_profile_id": {
+      "$ref": "#/$defs/profileId"
+    },
+    "core_pdf_outputs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/mainPdfOutput"
+        },
+        {
+          "$ref": "#/$defs/combinedPdfOutput"
+        }
+      ],
+      "items": false
+    },
+    "selection_policy": {
+      "$ref": "#/$defs/selectionPolicy"
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/profile"
+      }
+    },
+    "authority_boundary": {
+      "$ref": "#/$defs/authorityBoundary"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profileId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]+\\.v[0-9]+$"
+    },
+    "repoPath": {
+      "type": "string",
+      "pattern": "^(contracts|packs|skills)/[^/].+$"
+    },
+    "mainPdfOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_name", "artifact_role", "includes_supplementary"],
+      "properties": {
+        "file_name": {
+          "const": "paper.pdf"
+        },
+        "artifact_role": {
+          "const": "selected_layout_main_manuscript"
+        },
+        "includes_supplementary": {
+          "const": false
+        }
+      }
+    },
+    "combinedPdfOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_name", "artifact_role", "includes_supplementary"],
+      "properties": {
+        "file_name": {
+          "const": "paper_with_supplementary.pdf"
+        },
+        "artifact_role": {
+          "const": "reader_combined_main_and_supplementary"
+        },
+        "includes_supplementary": {
+          "const": true
+        }
+      }
+    },
+    "selectionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "named_journal",
+        "unnamed_journal",
+        "unknown_journal",
+        "stale_profile",
+        "formal_submission",
+        "network_policy",
+        "output_policy"
+      ],
+      "properties": {
+        "named_journal": {
+          "const": "select_matching_local_profile"
+        },
+        "unnamed_journal": {
+          "const": "select_default_reader_profile"
+        },
+        "unknown_journal": {
+          "const": "continue_with_default_reader_profile_and_mark_journal_export_pending"
+        },
+        "stale_profile": {
+          "const": "continue_authoring_with_local_profile_and_require_refresh_before_formal_submission"
+        },
+        "formal_submission": {
+          "const": "refresh_official_instructions_before_claiming_journal_compliance"
+        },
+        "network_policy": {
+          "const": "offline_first_no_network_for_ordinary_authoring"
+        },
+        "output_policy": {
+          "const": "exactly_two_core_pdfs_no_third_reader_edition"
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "mode",
+        "display_name",
+        "aliases",
+        "base_template_ref",
+        "template_assets",
+        "authoring_rules",
+        "official_sources",
+        "freshness_policy"
+      ],
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/profileId"
+        },
+        "mode": {
+          "enum": ["default_reader", "journal_adaptation"]
+        },
+        "display_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "aliases": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "base_template_ref": {
+          "$ref": "#/$defs/repoPath"
+        },
+        "template_assets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["header_tex_ref", "lua_filter_ref"],
+          "properties": {
+            "header_tex_ref": {
+              "$ref": "#/$defs/repoPath"
+            },
+            "lua_filter_ref": {
+              "$ref": "#/$defs/repoPath"
+            },
+            "citation_style_ref": {
+              "$ref": "#/$defs/repoPath"
+            }
+          }
+        },
+        "authoring_rules": {
+          "$ref": "#/$defs/authoringRules"
+        },
+        "official_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/officialSource"
+          }
+        },
+        "freshness_policy": {
+          "$ref": "#/$defs/freshnessPolicy"
+        }
+      }
+    },
+    "authoringRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_scope",
+        "presentation",
+        "manuscript_format",
+        "citation_style_family",
+        "line_spacing",
+        "line_numbering",
+        "figure_delivery",
+        "table_delivery",
+        "supplement_delivery",
+        "dynamic_fields_requiring_official_refresh"
+      ],
+      "properties": {
+        "rule_scope": {
+          "enum": [
+            "publication_grade_reader_default",
+            "stable_authoring_defaults_not_live_submission_compliance"
+          ]
+        },
+        "presentation": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "manuscript_format": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "citation_style_family": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "line_spacing": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "line_numbering": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "figure_delivery": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "table_delivery": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "supplement_delivery": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "dynamic_fields_requiring_official_refresh": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "officialSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        }
+      }
+    },
+    "freshnessPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewed_on",
+        "max_age_days",
+        "formal_submission_refresh_required"
+      ],
+      "properties": {
+        "reviewed_on": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "max_age_days": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "formal_submission_refresh_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_is_candidate_ref_only",
+        "can_claim_journal_compliance",
+        "can_claim_submission_readiness",
+        "can_submit",
+        "owner_gate_required"
+      ],
+      "properties": {
+        "selection_is_candidate_ref_only": {
+          "const": true
+        },
+        "can_claim_journal_compliance": {
+          "const": false
+        },
+        "can_claim_submission_readiness": {
+          "const": false
+        },
+        "can_submit": {
+          "const": false
+        },
+        "owner_gate_required": {
+          "const": true
+        }
+      }
+    }
+  }
+}

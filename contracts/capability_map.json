@@ -579,7 +579,8 @@
         "submission",
         "submission_quality",
         "submission_package",
-        "journal_package"
+        "journal_package",
+        "publication_layout"
       ],
       "canonical_path": "skills/medical-submission-prep/SKILL.md",
       "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-submission-prep/SKILL.md",
@@ -588,13 +589,17 @@
         "mas-scholar-skills.submit",
         "submission",
         "submission_quality",
-        "journal_package"
+        "journal_package",
+        "publication_layout_profile"
       ],
       "verification_refs": [
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/submit",
         "scripts/verify.sh#medical-submission-prep-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
         "references/professional-quality-ref-templates.md#epistemic-provenance-context",
+        "contracts/publication-layout-profile.schema.json",
+        "packs/medical-publication-layouts/publication_layout_catalog.json",
+        "scripts/verify-publication-layout-profiles.py",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -604,20 +609,25 @@
         "submission",
         "submission_quality",
         "submission_package",
-        "journal_package"
+        "journal_package",
+        "publication_layout_profile"
       ],
       "failure_tokens": [
         "medical_failure:submission",
         "submission",
         "submission_quality",
         "submission_package",
-        "journal_package"
+        "journal_package",
+        "publication_layout_profile"
       ],
       "failure_token_refs": [
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json#/medical_failure_types/submission"
       ],
       "canonical_paths": [
         "skills/medical-submission-prep/SKILL.md",
+        "skills/medical-submission-prep/kernel.py",
+        "contracts/publication-layout-profile.schema.json",
+        "packs/medical-publication-layouts/publication_layout_catalog.json",
         "contracts/capability_map.json#/capabilities/medical-submission-prep",
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/submit"
       ],

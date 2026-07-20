@@ -32,8 +32,9 @@ to keep response, declaration, package, presentation, and author-input judgment
 inside existing professional skills while MAS keeps owner-gate authority.
 
 Optional local helper: `kernel.py` provides deterministic stdlib-only package
-manifest, required-document checklist, file-label normalization, and required
-document lint helpers. It is refs-only and cannot submit or claim readiness.
+manifest, required-document checklist, file-label normalization, required
+document lint, and offline publication-layout selection helpers. It is refs-only
+and cannot submit or claim readiness.
 
 Sibling skill routes are `medical-manuscript-writing` for manuscript text,
 `medical-manuscript-review` for adversarial critique,
@@ -54,6 +55,41 @@ relevant, and route-back actions.
 Do not say a paper is ready because a checklist is filled. Use the checklist to
 find missing owner decisions, missing files, unsupported claims, and mismatched
 package parts.
+
+## Publication Layout Selection
+
+There are exactly two user modes:
+
+1. When a target journal is named, call `select_publication_layout()` and use
+   the matching local journal profile as the authoring and export baseline.
+2. When no journal is named, use `general-medical-reader.v1`, the neutral
+   publication-grade electronic reading profile.
+
+Read the selected profile from
+`packs/medical-publication-layouts/publication_layout_catalog.json`. The built-in
+catalog covers JAMA Network, NEJM, The Lancet, The BMJ, Nature Medicine,
+Diabetes Care, Cardiovascular Diabetology, and BMC Medicine. These are locally
+maintained adaptation profiles, not copied publisher templates. Their stable
+authoring rules are usable offline; changing limits, article types, declarations,
+and portal file rules must be refreshed from the listed official source before
+formal submission.
+
+An unknown or stale journal profile never blocks ordinary writing. Continue with
+the general reader template and record `journal_profile_pending_official_mapping`
+or `local_profile_selected_refresh_pending`. Do not claim that the journal format
+is current until the official instruction refresh is consumed.
+
+Every layout selection exposes exactly two core reader PDFs:
+
+- `paper.pdf`: the selected-layout main manuscript.
+- `paper_with_supplementary.pdf`: the main manuscript followed by readable
+  supplementary material for the user.
+
+The combined PDF is a reading convenience, not automatically a journal upload
+artifact. Keep separately addressable supplementary files in the package and do
+not create a third reader-edition PDF. Layout profiles are quality floors and
+format adapters; they do not replace manuscript, figure, table, statistical, or
+reference Skills.
 
 ## AI-First Submission Judgment
 
@@ -199,6 +235,7 @@ Return refs-only candidate output:
 
 - `journal_instruction_ref`
 - `journal_instruction_source_ref`
+- `publication_layout_selection_ref`
 - `submission_inventory_ref`
 - `reporting_guideline_ref`
 - `data_code_availability_ref`
