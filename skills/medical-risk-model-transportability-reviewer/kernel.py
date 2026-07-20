@@ -14,6 +14,8 @@ REQUIRED_REFS = (
     "source_model_ref",
     "target_population_ref",
     "predictor_mapping_ref",
+    "fixed_horizon_risk_semantics_ref",
+    "construct_comparability_ref",
     "transportability_assessment_ref",
     "calibration_and_performance_ref",
     "clinical_utility_boundary_ref",

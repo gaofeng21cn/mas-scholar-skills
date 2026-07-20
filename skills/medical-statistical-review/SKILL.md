@@ -347,6 +347,22 @@ For prediction-model external validation, also route back when:
   range, net-benefit calculation, calibration basis, and clinical action
   scenario.
 
+Before first-draft handoff, create `fixed_horizon_risk_semantics_ref` for
+each fixed-horizon endpoint. Separate the recorded event count and count
+fraction from the observed-risk estimand. If any participant is censored before
+the horizon, or horizon completeness is unknown, the count fraction is
+descriptive only and cannot serve as the primary observed risk without a
+documented design justification. Bind the censoring-aware risk, prediction-error
+or Brier, O:E, and grouped-calibration estimands to their exact source refs and
+state the independent-censoring and survey-weighting boundaries.
+
+For cross-cohort endpoints, cause categories, phenotypes, or secondary
+attribution layers, create `construct_comparability_ref` with source and target
+constructs, accepted codebook mapping, identity-preserving linkage, estimability,
+and allowed/forbidden claims. When mapping or linkage is absent, report the
+comparison as not estimable. Do not substitute a convenient proxy or infer that
+the cohort constructs are similar or different.
+
 ## Handoff Shape
 
 Return refs-only candidate output:
@@ -375,6 +391,8 @@ Return refs-only candidate output:
 - optional owner-provided `epistemic_review_scope_ref` locator
 - `skill_pack_governance_policy_ref`
 - `statistical_action_matrix_ref`
+- `fixed_horizon_risk_semantics_ref` when a fixed horizon is used
+- `construct_comparability_ref` when sources or cohorts are compared
 - `ehr_registry_signal_validity_ref` when EHR/registry signal validity is material
 - `claim_strength_calibration_ref`
 - `route_back_candidate`

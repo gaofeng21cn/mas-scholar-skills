@@ -46,6 +46,17 @@ FIRST_DRAFT_STORY_REFS = (
     "terminology_surface_ledger_ref",
 )
 
+EXTERNAL_VALIDATION_FIRST_DRAFT_REFS = (
+    "source_model_provenance_ref",
+    "target_population_and_followup_ref",
+    "fixed_horizon_risk_semantics_ref",
+    "construct_comparability_ref",
+    "calibration_and_performance_ref",
+    "structured_display_source_map_ref",
+    "claim_guardrail_ref",
+    "negative_or_non_estimable_result_ref",
+)
+
 TERMINOLOGY_SURFACES = (
     "manuscript_text",
     "table_titles",
@@ -144,6 +155,23 @@ def first_draft_story_contract_schema() -> dict[str, Any]:
         "required": list(FIRST_DRAFT_STORY_REFS),
         "properties": {
             ref: {"type": "string"} for ref in FIRST_DRAFT_STORY_REFS
+        }
+        | {
+            "external_validation_contract_ref": {"type": "string"},
+            "route_back_candidate": {"type": "object"},
+            "authority": {"const": False},
+        },
+    }
+
+
+def external_validation_first_draft_contract_schema() -> dict[str, Any]:
+    """Return the specialist inputs required before external-validation prose."""
+
+    return {
+        "type": "object",
+        "required": list(EXTERNAL_VALIDATION_FIRST_DRAFT_REFS),
+        "properties": {
+            ref: {"type": "string"} for ref in EXTERNAL_VALIDATION_FIRST_DRAFT_REFS
         }
         | {
             "route_back_candidate": {"type": "object"},
@@ -393,6 +421,9 @@ def _self_check() -> None:
     assert "one_sentence_argument_ref" in paper_brief_schema()["required"]
     assert set(first_draft_story_contract_schema()["required"]) == set(
         FIRST_DRAFT_STORY_REFS
+    )
+    assert set(external_validation_first_draft_contract_schema()["required"]) == set(
+        EXTERNAL_VALIDATION_FIRST_DRAFT_REFS
     )
     assert terminology_surface_ledger_schema()["properties"]["authority"] == {
         "const": False

@@ -310,6 +310,8 @@ findings include:
 - validation cohort described without source years, eligibility, diabetes or
   disease definition, endpoint ascertainment, follow-up completeness, censoring
   policy, missingness, or survey-weighting policy when relevant;
+- a recorded event percentage labeled as observed fixed-horizon risk despite
+  early censoring or unresolved follow-up completeness;
 - discrimination reported as if it proves calibrated absolute risk;
 - calibration slope, O:E, Brier score, grouped calibration, or recalibration
   claims lacking uncertainty or denominator support;
@@ -331,6 +333,12 @@ findings include:
 - decision-curve or threshold-utility figures shown while Methods/Results say
   clinical utility was not estimated, or while severe miscalibration makes the
   threshold basis unverified;
+- cross-cohort cause, endpoint, phenotype, or attribution constructs treated as
+  equivalent without an accepted codebook map and identity-preserving linkage;
+- a non-estimable secondary comparison silently dropped or rewritten as evidence
+  of similarity, difference, or mechanism;
+- a table or figure regenerated from a stale render request with embedded old
+  values instead of the current structured source and catalog generation;
 - discussion that stops at "transportability failed" without explaining the
   bounded interpretation, case-mix/support possibilities, baseline-risk
   mismatch, and why clinical deployment or absolute-risk communication is not

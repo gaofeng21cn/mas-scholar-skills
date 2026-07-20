@@ -260,6 +260,10 @@ Before writing plotting code, produce or refresh a compact contract:
 - `single_generation_source_ref`: one structured generation source that drives
   the figure, caption, and catalog/manifest fields in the same build rather than
   relying on manually synchronized copies.
+  After any numeric, denominator, estimand, or construct change, invalidate
+  render requests whose payload embeds superseded values and rebuild the
+  affected figure from this current structured source; visual similarity or a
+  successful renderer exit does not prove source currentness.
 - `paired_export_qa_ref`: the required PNG/PDF or paper-local raster/vector
   pair, payload and geometry parity, PDF font-embedding/subtype inspection,
   raster dimensions/DPI, per-output fingerprints, and fixed-canvas export with

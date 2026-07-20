@@ -367,6 +367,10 @@ For prediction-model external-validation manuscripts, the first complete draft
 must read as an external-validation paper rather than a brief metric note. It
 should include:
 
+- an `external_validation_first_draft_contract_ref` that consumes source-model
+  provenance, target-population/follow-up, fixed-horizon risk semantics,
+  construct comparability, calibration/performance, structured display-source,
+  claim-guardrail, and negative-or-non-estimable-result refs before prose;
 - source-model provenance, full equation or coefficient table, predictor coding,
   unit conversions, and baseline survival or absolute-risk extraction;
 - when the source model survives mainly as an archived fixed equation, state
@@ -377,6 +381,10 @@ should include:
   story;
 - validation-cohort source years, eligibility, endpoint ascertainment, follow-up
   completeness or censoring policy, missing-data strategy, and weighting policy;
+- event counts and recorded event fractions labeled as descriptive quantities,
+  distinct from Kaplan-Meier, cumulative-incidence, or other censoring-aware
+  observed-risk estimates; never call the event fraction a fixed-horizon risk
+  when early censoring exists or follow-up completeness is unresolved;
 - visible Table 1 cohort comparison, Table 2 validation metrics, and a grouped
   calibration table when grouped calibration drives the claim;
 - discrimination and calibration reported separately, with uncertainty for
@@ -409,7 +417,15 @@ should include:
 - recalibration or model-updating policy stated as future/required work unless
   verified recalibration evidence is already accepted;
 - decision-curve or threshold-utility displays omitted unless threshold range,
-  net-benefit calculation, and calibration basis are verified.
+  net-benefit calculation, and calibration basis are verified;
+- a `construct_comparability_ref` for every cross-cohort endpoint or secondary
+  explanatory construct. Missing accepted codebook mapping or identity-preserving
+  linkage makes that comparison not estimable; state the negative result and do
+  not imply similarity, difference, or mechanism;
+- one `structured_display_source_map_ref` binding every paper-facing table,
+  figure, caption, and catalog entry to the current structured numeric source.
+  After a numeric or semantic change, regenerate affected displays; do not reuse
+  a render request whose payload embeds superseded values.
 
 For near-submission external-validation revisions, prefer a discrete
 `Limitations` paragraph when the draft already has stable Methods, Results, and

@@ -22,16 +22,23 @@ review skeletons, predictor mapping normalization, and forbidden-authority lint.
 1. Build `source_model_ref`: model source, endpoint, time horizon, predictors,
    development population, intended use, and unavailable implementation details.
 2. Build `target_population_ref`: target cohort, inclusion/exclusion, outcome
-   ascertainment, follow-up, censoring, missingness, and case-mix differences.
+   ascertainment, follow-up completeness, censoring before the prediction
+   horizon, missingness, weighting boundary, and case-mix differences.
 3. Check `predictor_mapping_ref`: predictor availability, coding, units,
    timing windows, imputation, transformations, and proxy variables.
-4. Review `transportability_assessment_ref`: population shift, endpoint shift,
+4. Build `fixed_horizon_risk_semantics_ref`: distinguish recorded event
+   fraction from censoring-aware observed risk and bind O:E, Brier/prediction
+   error, grouped calibration, and assumptions to exact source refs.
+5. Build `construct_comparability_ref`: compare endpoint and secondary-construct
+   definitions, codebooks, and identity linkage; return not estimable instead of
+   substituting a non-isomorphic construct.
+6. Review `transportability_assessment_ref`: population shift, endpoint shift,
    setting shift, measurement drift, recalibration need, and applicability.
-5. Review `calibration_and_performance_ref`: discrimination, calibration,
+7. Review `calibration_and_performance_ref`: discrimination, calibration,
    grouped risk, risk-scale compression, uncertainty, and sensitivity analyses.
-6. Review `clinical_utility_boundary_ref`: threshold rationale, DCA/support,
+8. Review `clinical_utility_boundary_ref`: threshold rationale, DCA/support,
    intended action, and whether the paper overclaims decision usefulness.
-7. Produce `route_back_candidate` for model provenance, mapping, calibration,
+9. Produce `route_back_candidate` for model provenance, mapping, calibration,
    reporting, or owner analysis decisions.
 
 ## Handoff Shape
@@ -41,6 +48,8 @@ Return:
 - `source_model_ref`
 - `target_population_ref`
 - `predictor_mapping_ref`
+- `fixed_horizon_risk_semantics_ref`
+- `construct_comparability_ref`
 - `transportability_assessment_ref`
 - `calibration_and_performance_ref`
 - `clinical_utility_boundary_ref`

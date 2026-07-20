@@ -79,6 +79,7 @@ def survival_handoff_skeleton() -> dict[str, object]:
         "survival_question_ref": "",
         "time_origin_and_risk_set_ref": "",
         "endpoint_and_censoring_ref": "",
+        "fixed_horizon_risk_semantics_ref": "",
         "competing_risk_ref": "",
         "model_plan_ref": "",
         "diagnostic_plan_ref": "",
@@ -96,7 +97,8 @@ def _self_check() -> None:
     assert reporting_lint("time zero, censoring, risk set, KM, Cox") == []
     assert reporting_lint("KM only")[0]["code"] == "MISSING_TIME_ZERO"
     assert "model_plan_ref" in survival_handoff_skeleton()
-    print(json.dumps({"ok": True, "checks": 6}, indent=2, sort_keys=True))
+    assert "fixed_horizon_risk_semantics_ref" in survival_handoff_skeleton()
+    print(json.dumps({"ok": True, "checks": 7}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

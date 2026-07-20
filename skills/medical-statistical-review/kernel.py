@@ -33,6 +33,21 @@ REPORTING_ITEMS = (
     "statistical_action_matrix_ref",
 )
 
+FIXED_HORIZON_OBSERVED_RISK_ESTIMATORS = (
+    "binary_proportion",
+    "kaplan_meier",
+    "cumulative_incidence",
+    "ipcw",
+    "other_censoring_aware",
+)
+
+CONSTRUCT_COMPARABILITY_STATUSES = (
+    "comparable",
+    "not_comparable",
+    "not_estimable",
+    "not_applicable",
+)
+
 REGISTRY_SIGNAL_REF_FAMILY = "ehr_registry_signal_validity_ref"
 REGISTRY_SIGNAL_MEMBER_REFS = (
     "paper_identity_ref",
@@ -88,6 +103,129 @@ def statistical_review_schema() -> dict[str, Any]:
             "route_back_candidate": {"type": "string"},
         },
     }
+
+
+def fixed_horizon_risk_semantics_schema() -> dict[str, Any]:
+    """Return the refs-only contract for fixed-horizon outcome semantics."""
+
+    required = (
+        "time_origin_ref",
+        "horizon_ref",
+        "event_count_ref",
+        "recorded_event_proportion_ref",
+        "recorded_event_proportion_role",
+        "censored_before_horizon_count",
+        "follow_up_completeness_ref",
+        "observed_risk_estimator",
+        "observed_risk_ref",
+        "prediction_error_ref",
+        "independent_censoring_assumption_ref",
+        "weighting_policy_ref",
+        "claim_boundary_ref",
+    )
+    return {
+        "type": "object",
+        "required": list(required),
+        "properties": {
+            "time_origin_ref": {"type": "string"},
+            "horizon_ref": {"type": "string"},
+            "event_count_ref": {"type": "string"},
+            "recorded_event_proportion_ref": {"type": "string"},
+            "recorded_event_proportion_role": {
+                "const": "descriptive_count_fraction_not_risk_estimate"
+            },
+            "censored_before_horizon_count": {"type": "integer", "minimum": 0},
+            "follow_up_completeness_ref": {"type": "string"},
+            "observed_risk_estimator": {
+                "enum": list(FIXED_HORIZON_OBSERVED_RISK_ESTIMATORS)
+            },
+            "observed_risk_ref": {"type": "string"},
+            "prediction_error_ref": {"type": "string"},
+            "independent_censoring_assumption_ref": {"type": "string"},
+            "weighting_policy_ref": {"type": "string"},
+            "claim_boundary_ref": {"type": "string"},
+            "authority": {"const": False},
+        },
+    }
+
+
+def construct_comparability_schema() -> dict[str, Any]:
+    """Return the cross-source construct and identity-linkage contract."""
+
+    required = (
+        "source_construct_ref",
+        "target_construct_ref",
+        "codebook_mapping_ref",
+        "identity_linkage_ref",
+        "comparability_status",
+        "estimability_ref",
+        "allowed_claim_ref",
+        "forbidden_claim_ref",
+    )
+    return {
+        "type": "object",
+        "required": list(required),
+        "properties": {
+            "source_construct_ref": {"type": "string"},
+            "target_construct_ref": {"type": "string"},
+            "codebook_mapping_ref": {"type": "string"},
+            "identity_linkage_ref": {"type": "string"},
+            "comparability_status": {
+                "enum": list(CONSTRUCT_COMPARABILITY_STATUSES)
+            },
+            "estimability_ref": {"type": "string"},
+            "allowed_claim_ref": {"type": "string"},
+            "forbidden_claim_ref": {"type": "string"},
+            "authority": {"const": False},
+        },
+    }
+
+
+def validate_fixed_horizon_risk_semantics(
+    candidate: Mapping[str, object],
+) -> list[dict[str, str]]:
+    """Flag semantic contradictions without accepting the analysis."""
+
+    findings: list[dict[str, str]] = []
+    schema = fixed_horizon_risk_semantics_schema()
+    for field in schema["required"]:
+        if candidate.get(field) in (None, ""):
+            findings.append(
+                _finding(
+                    str(candidate.get("claim_ref") or "fixed_horizon_risk"),
+                    "FIXED_HORIZON_SEMANTICS_REF_MISSING",
+                    f"add {field}",
+                )
+            )
+    if candidate.get("recorded_event_proportion_role") != (
+        "descriptive_count_fraction_not_risk_estimate"
+    ):
+        findings.append(
+            _finding(
+                "recorded_event_proportion_ref",
+                "RECORDED_EVENT_PROPORTION_MISLABELED_AS_RISK",
+                "label the count fraction as descriptive and report observed risk separately",
+            )
+        )
+    censored = candidate.get("censored_before_horizon_count")
+    estimator = candidate.get("observed_risk_estimator")
+    if isinstance(censored, int) and censored > 0 and estimator == "binary_proportion":
+        findings.append(
+            _finding(
+                "observed_risk_ref",
+                "BINARY_RISK_WITH_EARLY_CENSORING",
+                "use a censoring-aware observed-risk estimator or route back",
+            )
+        )
+    if estimator not in FIXED_HORIZON_OBSERVED_RISK_ESTIMATORS:
+        findings.append(
+            _finding(
+                "observed_risk_ref",
+                "OBSERVED_RISK_ESTIMATOR_UNDECLARED",
+                "declare the fixed-horizon observed-risk estimator",
+            )
+        )
+    return findings
 
 
 def normalize_model_family(value: object) -> str:
@@ -429,6 +567,31 @@ def _self_check() -> None:
     assert normalize_model_family("Cox proportional hazards") == "survival"
     assert reporting_checklist_skeleton(["c1"])[0]["claim_ref"] == "c1"
     assert missingness_plan_skeleton(["age"])[0]["variable"] == "age"
+    assert fixed_horizon_risk_semantics_schema()["properties"][
+        "recorded_event_proportion_role"
+    ] == {"const": "descriptive_count_fraction_not_risk_estimate"}
+    assert "identity_linkage_ref" in construct_comparability_schema()["required"]
+    horizon_findings = validate_fixed_horizon_risk_semantics(
+        {
+            "time_origin_ref": "time:exam",
+            "horizon_ref": "horizon:5y",
+            "event_count_ref": "count:events",
+            "recorded_event_proportion_ref": "fraction:events",
+            "recorded_event_proportion_role": "risk_estimate",
+            "censored_before_horizon_count": 4,
+            "follow_up_completeness_ref": "followup:summary",
+            "observed_risk_estimator": "binary_proportion",
+            "observed_risk_ref": "risk:binary",
+            "prediction_error_ref": "error:ipcw",
+            "independent_censoring_assumption_ref": "assumption:independent",
+            "weighting_policy_ref": "weighting:unweighted",
+            "claim_boundary_ref": "claim:analysis-sample",
+        }
+    )
+    assert {item["code"] for item in horizon_findings} >= {
+        "RECORDED_EVENT_PROPORTION_MISLABELED_AS_RISK",
+        "BINARY_RISK_WITH_EARLY_CENSORING",
+    }
     lint = lint_statistical_reporting(
         [{"claim_ref": "c1", "claim": "p=0.03 with missingness noted"}]
     )
@@ -617,7 +780,7 @@ def _self_check() -> None:
     )
     assert separated_semantics == []
     assert all(item["writes_authority"] is False for item in mixed_semantics)
-    print(json.dumps({"ok": True, "checks": 19}, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "checks": 23}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
