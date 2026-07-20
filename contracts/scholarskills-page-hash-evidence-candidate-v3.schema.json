@@ -1,40 +1,24 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://one-person-lab.dev/contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json",
-  "title": "ScholarSkills Page Hash Evidence Candidate v2",
+  "$id": "https://one-person-lab.dev/contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json",
+  "title": "ScholarSkills Page Hash Evidence Candidate v3",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "surface_kind",
     "schema_version",
-    "producer_package",
-    "review_lane",
     "review_scope_sha256",
     "rubric_sha256",
     "evidence_payload",
     "cache_key_sha256",
-    "origin_reviewer_invocation_ref",
-    "origin_reviewer_evidence_ref",
-    "cache_reuse_eligible",
-    "cache_authority",
-    "requires_fresh_reviewer_invocation",
-    "requires_fresh_reviewer_receipt",
-    "domain_owner_id",
-    "requires_domain_owner_judgment",
-    "authority_boundary"
+    "origin_reviewer_evidence_ref"
   ],
   "properties": {
     "surface_kind": {
       "const": "scholarskills_page_hash_evidence_candidate"
     },
     "schema_version": {
-      "const": 2
-    },
-    "producer_package": {
-      "$ref": "#/$defs/producer_package"
-    },
-    "review_lane": {
-      "const": "display"
+      "const": 3
     },
     "review_scope_sha256": {
       "$ref": "#/$defs/sha256"
@@ -48,16 +32,6 @@
     "cache_key_sha256": {
       "$ref": "#/$defs/sha256"
     },
-    "origin_reviewer_invocation_ref": {
-      "oneOf": [
-        {
-          "$ref": "#/$defs/origin_ref"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
     "origin_reviewer_evidence_ref": {
       "oneOf": [
         {
@@ -67,83 +41,12 @@
           "type": "null"
         }
       ]
-    },
-    "cache_reuse_eligible": {
-      "type": "boolean"
-    },
-    "cache_authority": {
-      "const": false
-    },
-    "requires_fresh_reviewer_invocation": {
-      "const": true
-    },
-    "requires_fresh_reviewer_receipt": {
-      "const": true
-    },
-    "domain_owner_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "requires_domain_owner_judgment": {
-      "const": true
-    },
-    "authority_boundary": {
-      "$ref": "#/$defs/authority_boundary"
     }
   },
-  "oneOf": [
-    {
-      "properties": {
-        "origin_reviewer_invocation_ref": {
-          "$ref": "#/$defs/origin_ref"
-        },
-        "origin_reviewer_evidence_ref": {
-          "$ref": "#/$defs/origin_ref"
-        },
-        "cache_reuse_eligible": {
-          "const": true
-        }
-      }
-    },
-    {
-      "properties": {
-        "origin_reviewer_invocation_ref": {
-          "type": "null"
-        },
-        "origin_reviewer_evidence_ref": {
-          "type": "null"
-        },
-        "cache_reuse_eligible": {
-          "const": false
-        }
-      }
-    }
-  ],
   "$defs": {
     "sha256": {
       "type": "string",
       "pattern": "^sha256:[a-f0-9]{64}$"
-    },
-    "producer_package": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "package_id",
-        "package_version",
-        "package_content_digest"
-      ],
-      "properties": {
-        "package_id": {
-          "const": "mas-scholar-skills"
-        },
-        "package_version": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
-        },
-        "package_content_digest": {
-          "$ref": "#/$defs/sha256"
-        }
-      }
     },
     "origin_ref": {
       "type": "object",
@@ -151,6 +54,7 @@
       "required": [
         "kind",
         "ref",
+        "size_bytes",
         "sha256"
       ],
       "properties": {
@@ -271,42 +175,6 @@
         },
         "page_order": {
           "const": "document_order"
-        }
-      }
-    },
-    "authority_boundary": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "can_emit_verdict",
-        "can_sign_reviewer_receipt",
-        "can_sign_owner_receipt",
-        "can_create_typed_blocker",
-        "can_claim_quality_readiness",
-        "can_claim_publication_readiness",
-        "can_claim_current_package_authority"
-      ],
-      "properties": {
-        "can_emit_verdict": {
-          "const": false
-        },
-        "can_sign_reviewer_receipt": {
-          "const": false
-        },
-        "can_sign_owner_receipt": {
-          "const": false
-        },
-        "can_create_typed_blocker": {
-          "const": false
-        },
-        "can_claim_quality_readiness": {
-          "const": false
-        },
-        "can_claim_publication_readiness": {
-          "const": false
-        },
-        "can_claim_current_package_authority": {
-          "const": false
         }
       }
     }

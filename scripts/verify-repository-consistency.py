@@ -43,8 +43,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.10":
-    fail("plugin version must be 0.2.10")
+if manifest.get("version") != "0.2.11":
+    fail("plugin version must be 0.2.11")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -64,7 +64,7 @@ if plugin_exposure.get("specialtyRoutingPolicy") != "materialized_by_default_sel
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 page_hash_evidence_schema = read_json(
-    "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json"
+    "contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json"
 )
 display_receipt_templates = read_json("contracts/display-pack-receipt-templates.json")
 professional_figure_workflow_schema = read_json(
@@ -98,7 +98,7 @@ for field in retired_execution_projection_fields:
     if field in contract:
         fail(f"contract must retire {field} in favor of generic capability-pack consumption")
 
-snapshot_cache_policy = contract.get("reviewer_snapshot_and_page_cache_policy") or {}
+snapshot_evidence_policy = contract.get("reviewer_snapshot_and_page_evidence_policy") or {}
 expected_snapshot_reviewer_skills = [
     "medical-manuscript-review",
     "medical-statistical-review",
@@ -106,91 +106,70 @@ expected_snapshot_reviewer_skills = [
     "medical-display-qc",
     "medical-submission-prep",
 ]
-if snapshot_cache_policy.get("reviewer_skill_ids") != expected_snapshot_reviewer_skills:
+if snapshot_evidence_policy.get("reviewer_skill_ids") != expected_snapshot_reviewer_skills:
     fail("reviewer snapshot policy must cover the five canonical reviewer skills")
-if snapshot_cache_policy.get("snapshot_manifest_surface_kind") != "opl_reviewer_input_snapshot_manifest":
+if snapshot_evidence_policy.get("snapshot_manifest_surface_kind") != "opl_reviewer_input_snapshot_manifest":
     fail("reviewer snapshot policy must consume the OPL immutable snapshot manifest")
-if snapshot_cache_policy.get("snapshot_read_policy") != "read_only_opl_immutable_snapshot_refs_never_live_workspace_locators":
+if snapshot_evidence_policy.get("snapshot_read_policy") != "read_only_opl_immutable_snapshot_refs_never_live_workspace_locators":
     fail("reviewer snapshot policy must forbid live locator reads")
-page_cache_policy = snapshot_cache_policy.get("page_hash_evidence_candidate") or {}
-if page_cache_policy.get("surface_kind") != "scholarskills_page_hash_evidence_candidate":
-    fail("page cache candidate must use the canonical ScholarSkills surface kind")
-if page_cache_policy.get("schema_version") != 2:
-    fail("page cache candidate must use the owner-published schema 2")
-if page_cache_policy.get("schema_owner") != "mas-scholar-skills":
-    fail("page cache candidate schema owner must be mas-scholar-skills")
-if page_cache_policy.get("schema_ref") != "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json":
-    fail("page cache candidate must reference the ScholarSkills-owned schema")
-if page_cache_policy.get("producer_package_identity_fields") != [
-    "package_id",
-    "package_version",
-    "package_content_digest",
-]:
-    fail("page cache candidate must bind the producing package identity")
-if page_cache_policy.get("evidence_payload_fields") != ["raster_contract", "pages"]:
-    fail("page cache candidate owner payload must contain raster contract and pages")
-if page_cache_policy.get("cache_key_fields") != [
+page_evidence_policy = snapshot_evidence_policy.get("page_hash_evidence_candidate") or {}
+if page_evidence_policy.get("surface_kind") != "scholarskills_page_hash_evidence_candidate":
+    fail("page evidence candidate must use the canonical ScholarSkills surface kind")
+if page_evidence_policy.get("schema_version") != 3:
+    fail("page evidence candidate must use the owner-published schema 3")
+if page_evidence_policy.get("schema_owner") != "mas-scholar-skills":
+    fail("page evidence candidate schema owner must be mas-scholar-skills")
+if page_evidence_policy.get("schema_ref") != "contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json":
+    fail("page evidence candidate must reference the ScholarSkills-owned schema")
+expected_page_hash_fields = {
+    "surface_kind",
+    "schema_version",
+    "review_scope_sha256",
+    "rubric_sha256",
+    "evidence_payload",
+    "cache_key_sha256",
+    "origin_reviewer_evidence_ref",
+}
+if set(page_evidence_policy.get("candidate_fields") or []) != expected_page_hash_fields:
+    fail("page evidence policy fields must match schema 3 ABI")
+if page_evidence_policy.get("evidence_payload_fields") != ["raster_contract", "pages"]:
+    fail("page evidence candidate payload must contain raster contract and pages")
+if page_evidence_policy.get("cache_key_fields") != [
     "ordered_page_pixel_hashes",
     "raster_contract",
     "review_scope_sha256",
     "rubric_sha256",
 ]:
-    fail("page cache key must bind ordered pixels, raster contract, scope, and rubric")
-if page_cache_policy.get("cache_authority") is not False:
-    fail("page cache candidate must have no cache authority")
-snapshot_authority = snapshot_cache_policy.get("authority_boundary") or {}
-for key in [
-    "can_emit_verdict",
-    "can_sign_reviewer_receipt",
-    "can_sign_owner_receipt",
-    "can_create_typed_blocker",
-    "can_claim_quality_readiness",
-    "can_claim_publication_readiness",
-    "can_claim_current_package_authority",
-]:
-    if snapshot_authority.get(key) is not False:
-        fail(f"reviewer snapshot/page cache authority flag must be false: {key}")
-for key in [
-    "requires_fresh_reviewer_invocation",
-    "requires_fresh_reviewer_receipt",
-    "requires_domain_owner_judgment",
-]:
-    if page_cache_policy.get(key) is not True:
-        fail(f"page cache candidate must preserve fresh review and domain-owner judgment: {key}")
-if page_cache_policy.get("domain_owner_field") != "domain_owner_id":
-    fail("page cache candidate must use the generic domain owner field")
-expected_page_hash_fields = {
-    "surface_kind",
-    "schema_version",
-    "producer_package",
-    "review_lane",
-    "review_scope_sha256",
-    "rubric_sha256",
-    "evidence_payload",
-    "cache_key_sha256",
-    "origin_reviewer_invocation_ref",
-    "origin_reviewer_evidence_ref",
-    "cache_reuse_eligible",
-    "cache_authority",
-    "requires_fresh_reviewer_invocation",
-    "requires_fresh_reviewer_receipt",
-    "domain_owner_id",
-    "requires_domain_owner_judgment",
-    "authority_boundary",
-}
+    fail("page evidence key must bind ordered pixels, raster contract, scope, and rubric")
+if page_evidence_policy.get("origin_reviewer_evidence_ref_policy") != "nullable_provenance_only":
+    fail("page evidence origin ref must remain nullable provenance only")
+if page_evidence_policy.get("currentness_policy") != "content_identity_and_origin_provenance_do_not_establish_review_currentness":
+    fail("page evidence policy must keep currentness outside content identity")
 if page_hash_evidence_schema.get("additionalProperties") is not False:
-    fail("page cache candidate owner schema must reject unknown top-level fields")
+    fail("page evidence candidate owner schema must reject unknown top-level fields")
 if set(page_hash_evidence_schema.get("required") or []) != expected_page_hash_fields:
-    fail("page cache candidate owner schema required fields do not match schema 2 ABI")
+    fail("page evidence candidate owner schema required fields do not match schema 3 ABI")
 if set((page_hash_evidence_schema.get("properties") or {}).keys()) != expected_page_hash_fields:
-    fail("page cache candidate owner schema properties do not match schema 2 ABI")
+    fail("page evidence candidate owner schema properties do not match schema 3 ABI")
 if (
     (page_hash_evidence_schema.get("properties") or {})
     .get("schema_version", {})
     .get("const")
-    != 2
+    != 3
 ):
-    fail("page cache candidate owner schema must freeze schema_version 2")
+    fail("page evidence candidate owner schema must freeze schema_version 3")
+origin_ref_schema = (page_hash_evidence_schema.get("$defs") or {}).get("origin_ref") or {}
+if origin_ref_schema.get("additionalProperties") is not False:
+    fail("page evidence origin exact ref must reject unknown fields")
+if set(origin_ref_schema.get("required") or []) != {
+    "kind",
+    "ref",
+    "size_bytes",
+    "sha256",
+}:
+    fail("page evidence origin exact ref must bind kind, ref, size, and digest")
+if (root / "contracts/scholarskills-page-hash-evidence-candidate-v2.schema.json").exists():
+    fail("retired page evidence candidate schema 2 must be absent")
 if (root / "contracts/scholar-skills-opl-consumption-projection.json").exists():
     fail("generated ScholarSkills OPL execution projection must be absent")
 if (root / "scripts/export-opl-consumption-projection.py").exists():
@@ -229,8 +208,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.10":
-    fail("capability package version must be 0.2.10")
+if package_manifest.get("version") != "0.2.11":
+    fail("capability package version must be 0.2.11")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -2367,10 +2346,9 @@ for token in [
     "can_claim_quality_verdict",
     "build_page_hash_evidence_candidate",
     "scholarskills_page_hash_evidence_candidate",
-    "requires_fresh_reviewer_invocation",
-    "producer_package",
     "evidence_payload",
-    "requires_domain_owner_judgment",
+    "origin_reviewer_evidence_ref",
+    '"schema_version": 3',
 ]:
     if token not in display_qc_kernel:
         fail(f"medical-display-qc kernel missing layout QC token: {token}")

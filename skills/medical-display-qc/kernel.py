@@ -320,76 +320,45 @@ def _sha256_digest(value: object, label: str) -> str:
     return f"sha256:{digest}"
 
 
-def _producer_package(value: object) -> dict[str, str]:
+def _origin_ref(value: object) -> object | None:
+    if value is None:
+        return None
     if not isinstance(value, Mapping):
-        raise ValueError("producer_package must be a mapping")
-    expected_fields = {
-        "package_id",
-        "package_version",
-        "package_content_digest",
-    }
+        raise ValueError("origin_reviewer_evidence_ref must be an exact-ref mapping or null")
+    expected_fields = {"kind", "ref", "size_bytes", "sha256"}
     if set(value) != expected_fields:
         raise ValueError(
-            "producer_package must contain exactly package_id, package_version, "
-            "and package_content_digest"
+            "origin_reviewer_evidence_ref must contain exactly kind, ref, "
+            "size_bytes, and sha256"
         )
-    package_id = str(value.get("package_id") or "").strip()
-    package_version = str(value.get("package_version") or "").strip()
-    if package_id != "mas-scholar-skills":
-        raise ValueError("producer_package.package_id must be mas-scholar-skills")
-    if not re.fullmatch(
-        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
-        r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
-        r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
-        package_version,
-    ):
-        raise ValueError("producer_package.package_version must be semantic version")
-    return {
-        "package_id": package_id,
-        "package_version": package_version,
-        "package_content_digest": _sha256_digest(
-            value.get("package_content_digest"),
-            "producer_package.package_content_digest",
-        ),
-    }
-
-
-def _origin_ref(value: object) -> object | None:
-    if not isinstance(value, Mapping) or not value:
-        return None
     normalized_kind = normalize_evidence_ref(value.get("kind"))
     normalized_ref = normalize_evidence_ref(value.get("ref"))
     if not normalized_kind or not normalized_ref:
-        return None
-    try:
-        normalized_sha256 = _sha256_digest(value.get("sha256"), "origin ref sha256")
-    except ValueError:
-        return None
+        raise ValueError("origin_reviewer_evidence_ref kind and ref must be non-empty")
+    normalized_sha256 = _sha256_digest(
+        value.get("sha256"), "origin_reviewer_evidence_ref.sha256"
+    )
     size_bytes = value.get("size_bytes")
-    if size_bytes is not None and (
-        isinstance(size_bytes, bool)
-        or not isinstance(size_bytes, int)
-        or size_bytes < 0
-    ):
-        return None
+    if isinstance(size_bytes, bool) or not isinstance(size_bytes, int) or size_bytes < 0:
+        raise ValueError(
+            "origin_reviewer_evidence_ref.size_bytes must be a non-negative integer"
+        )
     return {
         "kind": normalized_kind,
         "ref": normalized_ref,
+        "size_bytes": size_bytes,
         "sha256": normalized_sha256,
-        **({} if size_bytes is None else {"size_bytes": size_bytes}),
     }
 
 
 def build_page_hash_evidence_candidate(
     pages: Sequence[Mapping[str, object]],
     *,
-    producer_package: Mapping[str, object],
     review_scope_sha256: object,
     rubric_sha256: object,
-    origin_reviewer_invocation_ref: object = None,
     origin_reviewer_evidence_ref: object = None,
 ) -> dict[str, Any]:
-    """Build a no-authority cache candidate from ordered fixed-raster page pixels."""
+    """Build a refs-only domain evidence identity from fixed-raster page pixels."""
 
     normalized_pages: list[dict[str, Any]] = []
     for index, value in enumerate(pages, start=1):
@@ -426,24 +395,16 @@ def build_page_hash_evidence_candidate(
 
     scope_digest = _sha256_digest(review_scope_sha256, "review_scope_sha256")
     rubric_digest = _sha256_digest(rubric_sha256, "rubric_sha256")
-    package_identity = _producer_package(producer_package)
     key_payload = {
         "ordered_pages": normalized_pages,
         "raster_contract": dict(PAGE_HASH_RASTER_CONTRACT),
         "review_scope_sha256": scope_digest,
         "rubric_sha256": rubric_digest,
     }
-    invocation_ref = _origin_ref(origin_reviewer_invocation_ref)
     evidence_ref = _origin_ref(origin_reviewer_evidence_ref)
-    origin_bound = invocation_ref is not None and evidence_ref is not None
-    if not origin_bound:
-        invocation_ref = None
-        evidence_ref = None
     return {
         "surface_kind": PAGE_HASH_EVIDENCE_SURFACE_KIND,
-        "schema_version": 2,
-        "producer_package": package_identity,
-        "review_lane": "display",
+        "schema_version": 3,
         "review_scope_sha256": scope_digest,
         "rubric_sha256": rubric_digest,
         "evidence_payload": {
@@ -451,23 +412,7 @@ def build_page_hash_evidence_candidate(
             "pages": normalized_pages,
         },
         "cache_key_sha256": f"sha256:{_canonical_json_sha256(key_payload)}",
-        "origin_reviewer_invocation_ref": invocation_ref,
         "origin_reviewer_evidence_ref": evidence_ref,
-        "cache_reuse_eligible": origin_bound,
-        "cache_authority": False,
-        "requires_fresh_reviewer_invocation": True,
-        "requires_fresh_reviewer_receipt": True,
-        "domain_owner_id": "mas",
-        "requires_domain_owner_judgment": True,
-        "authority_boundary": {
-            "can_emit_verdict": False,
-            "can_sign_reviewer_receipt": False,
-            "can_sign_owner_receipt": False,
-            "can_create_typed_blocker": False,
-            "can_claim_quality_readiness": False,
-            "can_claim_publication_readiness": False,
-            "can_claim_current_package_authority": False,
-        },
     }
 
 
@@ -2139,126 +2084,101 @@ def _self_check() -> None:
         "pixel_format": "RGB8",
         "pixel_sha256": f"sha256:{'2' * 64}",
     }
-    producer_package = {
-        "package_id": "mas-scholar-skills",
-        "package_version": "0.2.10",
-        "package_content_digest": f"sha256:{'c' * 64}",
+    evidence_ref = {
+        "kind": "scholarskills_display_evidence",
+        "ref": "evidence://display-a",
+        "size_bytes": 123,
+        "sha256": f"sha256:{'9' * 64}",
     }
-    cache_a = build_page_hash_evidence_candidate(
+    candidate_a = build_page_hash_evidence_candidate(
         [page_a, page_b],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref={
-            "kind": "opl_stage_attempt",
-            "ref": "attempt://display-a",
-            "sha256": f"sha256:{'8' * 64}",
-        },
-        origin_reviewer_evidence_ref={
-            "kind": "scholarskills_display_evidence",
-            "ref": "evidence://display-a",
-            "sha256": f"sha256:{'9' * 64}",
-            "size_bytes": 123,
-        },
+        origin_reviewer_evidence_ref=evidence_ref,
     )
-    cache_same_pixels_other_provenance = build_page_hash_evidence_candidate(
+    same_pixels_other_provenance = build_page_hash_evidence_candidate(
         [page_a, page_b],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref={
-            "kind": "opl_stage_attempt",
-            "ref": "attempt://different-model-runtime-path",
-            "sha256": f"sha256:{'a' * 64}",
-        },
         origin_reviewer_evidence_ref={
             "kind": "scholarskills_display_evidence",
             "ref": "evidence://different-pdf-metadata",
-            "sha256": f"sha256:{'b' * 64}",
             "size_bytes": 456,
+            "sha256": f"sha256:{'b' * 64}",
         },
     )
-    assert cache_a["cache_key_sha256"] == (
+    assert candidate_a["cache_key_sha256"] == (
         "sha256:f159ceb039e91fcdf43a3402b195592cbce25841837473284b03760a359a012a"
     )
-    assert cache_a["cache_key_sha256"] == cache_same_pixels_other_provenance[
+    assert candidate_a["cache_key_sha256"] == same_pixels_other_provenance[
         "cache_key_sha256"
     ]
+    assert set(candidate_a) == {
+        "surface_kind",
+        "schema_version",
+        "review_scope_sha256",
+        "rubric_sha256",
+        "evidence_payload",
+        "cache_key_sha256",
+        "origin_reviewer_evidence_ref",
+    }
+    assert candidate_a["schema_version"] == 3
+    assert candidate_a["origin_reviewer_evidence_ref"] == evidence_ref
     changed_pixel = dict(page_b)
     changed_pixel["pixel_sha256"] = f"sha256:{'5' * 64}"
-    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, changed_pixel],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
-        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+        origin_reviewer_evidence_ref=evidence_ref,
     )["cache_key_sha256"]
     changed_geometry = dict(page_b, width=1225)
-    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, changed_geometry],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
-        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+        origin_reviewer_evidence_ref=evidence_ref,
     )["cache_key_sha256"]
     reordered_a = dict(page_b, page_number=1)
     reordered_b = dict(page_a, page_number=2)
-    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [reordered_a, reordered_b],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
-        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+        origin_reviewer_evidence_ref=evidence_ref,
     )["cache_key_sha256"]
-    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, page_b],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'6' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
-        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+        origin_reviewer_evidence_ref=evidence_ref,
     )["cache_key_sha256"]
-    assert cache_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
+    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
         [page_a, page_b],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'7' * 64}",
-        origin_reviewer_invocation_ref=cache_a["origin_reviewer_invocation_ref"],
-        origin_reviewer_evidence_ref=cache_a["origin_reviewer_evidence_ref"],
+        origin_reviewer_evidence_ref=evidence_ref,
     )["cache_key_sha256"]
-    unbound_cache = build_page_hash_evidence_candidate(
+    unbound_candidate = build_page_hash_evidence_candidate(
         [page_a, page_b],
-        producer_package=producer_package,
         review_scope_sha256=f"sha256:{'3' * 64}",
         rubric_sha256=f"sha256:{'4' * 64}",
     )
-    assert unbound_cache["cache_reuse_eligible"] is False
-    empty_shell_cache = build_page_hash_evidence_candidate(
-        [page_a, page_b],
-        producer_package=producer_package,
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_invocation_ref={"ref": "attempt://empty-shell"},
-        origin_reviewer_evidence_ref={
-            "ref": "evidence://empty-shell",
-            "sha256": "not-a-digest",
-        },
-    )
-    assert empty_shell_cache["cache_reuse_eligible"] is False
-    assert empty_shell_cache["origin_reviewer_invocation_ref"] is None
-    assert empty_shell_cache["origin_reviewer_evidence_ref"] is None
-    assert cache_a["cache_reuse_eligible"] is True
-    assert cache_a["cache_authority"] is False
-    assert cache_a["requires_fresh_reviewer_invocation"] is True
-    assert cache_a["requires_fresh_reviewer_receipt"] is True
-    assert cache_a["producer_package"] == producer_package
-    assert set(cache_a["evidence_payload"]) == {"raster_contract", "pages"}
-    assert cache_a["domain_owner_id"] == "mas"
-    assert cache_a["requires_domain_owner_judgment"] is True
-    assert all(value is False for value in cache_a["authority_boundary"].values())
+    assert unbound_candidate["origin_reviewer_evidence_ref"] is None
+    try:
+        build_page_hash_evidence_candidate(
+            [page_a, page_b],
+            review_scope_sha256=f"sha256:{'3' * 64}",
+            rubric_sha256=f"sha256:{'4' * 64}",
+            origin_reviewer_evidence_ref={
+                "kind": "scholarskills_display_evidence",
+                "ref": "evidence://missing-size",
+                "sha256": f"sha256:{'9' * 64}",
+            },
+        )
+        raise AssertionError("incomplete origin exact ref must fail closed")
+    except ValueError:
+        pass
 
     fixture_path = Path(__file__).with_name("fixtures") / "layout_qc_regression.json"
     fixture = json.loads(fixture_path.read_text(encoding="utf-8"))

@@ -6,7 +6,7 @@
   "generation_id": "fixture-generation",
   "package_identity": {
     "package_id": "mas-scholar-skills",
-    "version": "0.2.10",
+    "version": "0.2.11",
     "source_ref": "git:mas-scholar-skills@fixture",
     "source_sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
   },
@@ -66,7 +66,7 @@
         "receipt_id": "fixture:design/F1",
         "skill_id": "medical-figure-design",
         "skill_source_ref": "skills/medical-figure-design/SKILL.md",
-        "skill_version": "0.2.10",
+        "skill_version": "0.2.11",
         "skill_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
         "invocation_id": "fixture-design-invocation-F1",
         "input_contract_ref": "fixture:figure-contract/F1",
@@ -127,7 +127,7 @@
         "receipt_id": "fixture:style/F1",
         "skill_id": "medical-figure-style",
         "skill_source_ref": "skills/medical-figure-style/SKILL.md",
-        "skill_version": "0.2.10",
+        "skill_version": "0.2.11",
         "skill_sha256": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
         "invocation_id": "fixture-style-invocation-F1",
         "input_contract_ref": "fixture:figure-contract/F1",
