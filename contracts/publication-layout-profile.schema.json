@@ -177,6 +177,14 @@
             "$ref": "#/$defs/nonEmptyString"
           }
         },
+        "alias_prefixes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
         "base_template_ref": {
           "$ref": "#/$defs/repoPath"
         },

@@ -97,7 +97,9 @@ Named journals use a matching local adaptation profile; an unspecified journal
 uses the publication-grade `general-medical-reader.v1` template. The core reader
 outputs are always `paper.pdf` and `paper_with_supplementary.pdf`. Formal
 submission refreshes the linked official instructions before any compliance
-claim.
+claim. Frontiers is represented once as a publisher-family profile, so any
+`Frontiers in ...` journal can use the same maintained baseline without a
+network lookup during ordinary authoring.
 
 ## Authority Boundary
 

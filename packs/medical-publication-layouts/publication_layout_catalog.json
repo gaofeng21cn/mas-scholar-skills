@@ -278,6 +278,35 @@
         {"label": "BMC Medicine submission guidelines", "url": "https://bmcmedicine.biomedcentral.com/submission-guidelines"}
       ],
       "freshness_policy": {"reviewed_on": "2026-07-20", "max_age_days": 90, "formal_submission_refresh_required": true}
+    },
+    {
+      "profile_id": "frontiers-research-article.v1",
+      "mode": "journal_adaptation",
+      "display_name": "Frontiers Research Article",
+      "aliases": ["frontiers", "frontiers journals"],
+      "alias_prefixes": ["frontiers in"],
+      "base_template_ref": "packs/medical-publication-layouts/templates/general-medical-reader",
+      "template_assets": {
+        "header_tex_ref": "packs/medical-publication-layouts/templates/general-medical-reader/header.tex",
+        "lua_filter_ref": "packs/medical-publication-layouts/templates/general-medical-reader/layout.lua",
+        "citation_style_ref": "packs/medical-publication-layouts/styles/frontiers.csl"
+      },
+      "authoring_rules": {
+        "rule_scope": "stable_authoring_defaults_not_live_submission_compliance",
+        "presentation": "plain_frontiers_research_article_working_copy_with_author_date_references",
+        "manuscript_format": "editable_manuscript_source_and_separate_display_assets",
+        "citation_style_family": "Frontiers_Harvard_author_date",
+        "line_spacing": "reader_optimized_working_copy",
+        "line_numbering": "apply_when_official_instructions_require",
+        "figure_delivery": "separate_high_resolution_files_with_panel_labels_and_legends",
+        "table_delivery": "editable_tables_with_concise_standard_footnotes",
+        "supplement_delivery": "separate_supplement_plus_combined_reader_pdf",
+        "dynamic_fields_requiring_official_refresh": ["journal_section", "article_type", "word_limit", "abstract_structure", "display_limit", "file_formats", "declarations", "portal_requirements"]
+      },
+      "official_sources": [
+        {"label": "Frontiers author guidelines", "url": "https://www.frontiersin.org/guidelines/author-guidelines"}
+      ],
+      "freshness_policy": {"reviewed_on": "2026-07-20", "max_age_days": 90, "formal_submission_refresh_required": true}
     }
   ],
   "authority_boundary": {

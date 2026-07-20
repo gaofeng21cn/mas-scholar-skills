@@ -87,7 +87,8 @@ aggregate `mas-scholar-skills` Skill 只负责发现和路由；被选中的 `me
 `medical-submission-prep` 内置 offline-first 出版版式目录。指定期刊时选择对应的本地
 适配 profile；未指定期刊时使用出版级 `general-medical-reader.v1`。核心阅读输出固定为
 `paper.pdf` 和 `paper_with_supplementary.pdf`。正式投稿前必须刷新 profile 链接的官方
-要求，才能声称期刊格式符合当前规则。
+要求，才能声称期刊格式符合当前规则。Frontiers 以内置出版社家族 profile 表达，
+任意 `Frontiers in ...` 期刊在普通写作时都可离线复用同一维护基线。
 
 ## Authority 边界
 

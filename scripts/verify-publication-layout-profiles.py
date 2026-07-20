@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import xml.etree.ElementTree as ET
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,7 @@ EXPECTED_JOURNAL_PROFILES = {
     "diabetes-care-original-article.v1",
     "cardiovascular-diabetology-research.v1",
     "bmc-medicine-research.v1",
+    "frontiers-research-article.v1",
 }
 
 
@@ -104,6 +106,7 @@ def main() -> int:
         fail("built-in journal profile set differs from the supported baseline")
 
     aliases: dict[str, str] = {}
+    prefixes: dict[str, str] = {}
     for profile in profiles:
         profile_id = profile.get("profile_id")
         if not re.fullmatch(r"[a-z0-9][a-z0-9.-]+\.v[0-9]+", str(profile_id or "")):
@@ -120,6 +123,13 @@ def main() -> int:
             if alias in aliases and aliases[alias] != profile_id:
                 fail(f"alias collision: {alias}")
             aliases[alias] = profile_id
+        for raw_prefix in profile.get("alias_prefixes") or []:
+            prefix = normalize_alias(raw_prefix)
+            if len(prefix.split()) < 2:
+                fail(f"journal-family prefix must contain at least two tokens: {profile_id}")
+            if prefix in prefixes and prefixes[prefix] != profile_id:
+                fail(f"alias prefix collision: {prefix}")
+            prefixes[prefix] = profile_id
         freshness = profile.get("freshness_policy") or {}
         if profile.get("mode") == "journal_adaptation":
             reviewed_on = freshness.get("reviewed_on")
@@ -149,6 +159,27 @@ def main() -> int:
     forbidden_study_tokens = ["DM003", "Table 1", "F1.png", "Supplementary Figure S1"]
     if any(token in lua_filter for token in forbidden_study_tokens):
         fail("generic Lua filter contains study-specific layout rules")
+    frontiers_csl = contained_file(
+        "packs/medical-publication-layouts/styles/frontiers.csl"
+    )
+    try:
+        frontiers_style = ET.parse(frontiers_csl).getroot()
+    except ET.ParseError as exc:
+        fail(f"Frontiers CSL is not valid XML: {exc}")
+    csl_namespace = {"csl": "http://purl.org/net/xbiblio/csl"}
+    frontiers_rights = frontiers_style.find("csl:info/csl:rights", csl_namespace)
+    frontiers_category = frontiers_style.find("csl:info/csl:category", csl_namespace)
+    if (
+        frontiers_rights is None
+        or frontiers_rights.get("license")
+        != "http://creativecommons.org/licenses/by-sa/3.0/"
+    ):
+        fail("Frontiers CSL must retain its CC BY-SA 3.0 attribution")
+    if (
+        frontiers_category is None
+        or frontiers_category.get("citation-format") != "author-date"
+    ):
+        fail("Frontiers CSL must retain the author-date citation family")
 
     kernel = load_kernel()
     default = kernel.select_publication_layout(as_of_date="2026-07-20")
@@ -159,6 +190,22 @@ def main() -> int:
     jama = kernel.select_publication_layout("JAMA Network Open", as_of_date="2026-07-20")
     if jama["selected_profile_id"] != "jama-network-research.v1":
         fail("known journal alias did not resolve locally")
+    frontiers_cardiology = kernel.select_publication_layout(
+        "Frontiers in Cardiology", as_of_date="2026-07-20"
+    )
+    frontiers_endocrinology = kernel.select_publication_layout(
+        "Frontiers in Endocrinology", as_of_date="2026-07-20"
+    )
+    if {
+        frontiers_cardiology["selected_profile_id"],
+        frontiers_endocrinology["selected_profile_id"],
+    } != {"frontiers-research-article.v1"}:
+        fail("Frontiers journal family prefix did not resolve to one shared profile")
+    frontier_false_positive = kernel.select_publication_layout(
+        "Frontier Medicine", as_of_date="2026-07-20"
+    )
+    if frontier_false_positive["resolution_status"] != "journal_profile_pending_official_mapping":
+        fail("singular Frontier journal name must not match the Frontiers family prefix")
     unknown = kernel.select_publication_layout("Example Future Journal", as_of_date="2026-07-20")
     if unknown["resolution_status"] != "journal_profile_pending_official_mapping":
         fail("unknown journal must remain pending without blocking ordinary authoring")

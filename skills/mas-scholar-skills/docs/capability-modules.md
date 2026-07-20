@@ -60,9 +60,11 @@ Scholar Submit owns one local publication-layout catalog. With a named journal i
 selects a matching adaptation profile; without one it selects
 `general-medical-reader.v1`. The initial journal set covers JAMA Network, NEJM,
 The Lancet, The BMJ, Nature Medicine, Diabetes Care, Cardiovascular Diabetology,
-and BMC Medicine. The profiles keep stable authoring and package conventions
-available offline, while formal submission still refreshes changing requirements
-from each profile's official source.
+BMC Medicine, and the shared Frontiers journal family. Any `Frontiers in ...`
+journal resolves to one family profile instead of requiring per-journal copies.
+The profiles keep stable authoring and package conventions available offline,
+while formal submission still refreshes changing requirements from each
+profile's official source.
 
 The catalog always returns `paper.pdf` and
 `paper_with_supplementary.pdf`. The latter is a combined reading copy; separately

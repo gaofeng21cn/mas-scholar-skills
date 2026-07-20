@@ -68,11 +68,14 @@ There are exactly two user modes:
 Read the selected profile from
 `packs/medical-publication-layouts/publication_layout_catalog.json`. The built-in
 catalog covers JAMA Network, NEJM, The Lancet, The BMJ, Nature Medicine,
-Diabetes Care, Cardiovascular Diabetology, and BMC Medicine. These are locally
+Diabetes Care, Cardiovascular Diabetology, BMC Medicine, and the shared
+Frontiers journal family. Any normalized journal name beginning with
+`Frontiers in ...` selects `frontiers-research-article.v1`; similarly named
+singular journals such as `Frontier Medicine` do not. These are locally
 maintained adaptation profiles, not copied publisher templates. Their stable
-authoring rules are usable offline; changing limits, article types, declarations,
-and portal file rules must be refreshed from the listed official source before
-formal submission.
+authoring rules are usable offline; changing limits, article types, journal
+sections, declarations, and portal file rules must be refreshed from the listed
+official source before formal submission.
 
 An unknown or stale journal profile never blocks ordinary writing. Continue with
 the general reader template and record `journal_profile_pending_official_mapping`

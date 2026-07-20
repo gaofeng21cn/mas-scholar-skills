@@ -3,7 +3,7 @@
   "package_id": "mas-scholar-skills",
   "display_name": "MAS Scholar Skills",
   "publisher": "one-person-lab",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "source": "first_party_repo_local",
   "package_role": "required_agent_capability_package",
   "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
@@ -258,6 +258,7 @@
       "packs/medical-publication-layouts/templates/general-medical-reader/header.tex",
       "packs/medical-publication-layouts/templates/general-medical-reader/layout.lua",
       "packs/medical-publication-layouts/styles/american-medical-association-11th-edition.csl",
+      "packs/medical-publication-layouts/styles/frontiers.csl",
       "skills/mas-scholar-skills/SKILL.md",
       "skills/mas-scholar-skills/agents/openai.yaml",
       "skills/mas-scholar-skills/docs/capability-modules.md",
@@ -352,7 +353,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:97dd2884cc2c8f5797ba5e0214766b203f269c8c1c299931c98c2e2174a24d03"
+    "digest": "sha256:4bde2d2b5aebabdf4c3637b6abf0e69fa52bb469a064a2e09a8240c960258ef2"
   },
   "lifecycle": {
     "owner": "one-person-lab",

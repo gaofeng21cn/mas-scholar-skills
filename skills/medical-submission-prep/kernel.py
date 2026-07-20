@@ -170,14 +170,27 @@ def select_publication_layout(
     normalized = _normalize_journal_alias(requested)
 
     alias_index: dict[str, str] = {}
+    prefix_index: list[tuple[str, str]] = []
     for profile_id, profile in profiles.items():
         candidates = [profile_id, profile.get("display_name"), *(profile.get("aliases") or [])]
         for candidate in candidates:
             alias = _normalize_journal_alias(candidate)
             if alias:
                 alias_index[alias] = profile_id
+        for candidate in profile.get("alias_prefixes") or []:
+            prefix = _normalize_journal_alias(candidate)
+            if prefix:
+                prefix_index.append((prefix, profile_id))
 
     matched_profile_id = alias_index.get(normalized) if normalized else None
+    if normalized and matched_profile_id is None:
+        prefix_matches = [
+            (prefix, profile_id)
+            for prefix, profile_id in prefix_index
+            if normalized.startswith(f"{prefix} ")
+        ]
+        if prefix_matches:
+            matched_profile_id = max(prefix_matches, key=lambda item: len(item[0]))[1]
     if not requested:
         profile = default_profile
         resolution_status = "default_reader_profile_selected"
@@ -460,6 +473,14 @@ def _self_check() -> None:
         "JAMA Network Open", as_of_date="2026-07-20"
     )
     assert journal_layout["selected_profile_id"] == "jama-network-research.v1"
+    frontiers_layout = select_publication_layout(
+        "Frontiers in Cardiology", as_of_date="2026-07-20"
+    )
+    assert frontiers_layout["selected_profile_id"] == "frontiers-research-article.v1"
+    frontier_false_positive = select_publication_layout(
+        "Frontier Medicine", as_of_date="2026-07-20"
+    )
+    assert frontier_false_positive["selected_profile_id"] == "general-medical-reader.v1"
     unknown_layout = select_publication_layout(
         "Unknown Journal", as_of_date="2026-07-20"
     )
@@ -470,7 +491,7 @@ def _self_check() -> None:
     )
     assert formal_layout["official_refresh_required"] is True
     assert formal_layout["can_claim_journal_compliance"] is False
-    print(json.dumps({"ok": True, "checks": 13}, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "checks": 15}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
