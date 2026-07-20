@@ -127,14 +127,32 @@ currentness, package identity, a receipt, a verdict, or authority.
     or table notes split across pages, supplementary displays embedded in the
     main manuscript, and display/reference collisions. Nonblank pages and zero
     clipping are necessary but do not establish publication-quality pagination.
-12. Check `claim_display_alignment_ref`: displayed denominator, estimates,
-   uncertainty, colors, groups, ordering, and manuscript claim consistency.
-13. Check `accessibility_and_size_ref`: final-size readability, overlap,
+12. When a reader PDF is required, build
+    `document_display_scope_coverage_ref` with `requires_reader_pdf=true` and
+    exact refs for the canonical manuscript, table catalog, figure catalog,
+    caption/legend manifest, render environment, font inventory, composed
+    `paper.pdf`, and either page-render or fixed-raster page-hash evidence. The
+    validator handles applicable reader-PDF candidates only; use the upper
+    preflight disposition for a genuinely inapplicable reader PDF. An audit
+    inventory cannot substitute for page-render/page-hash evidence.
+13. Represent expected main displays as an inventory of `member_id` plus
+    `role`, not as a set of roles. Require every Figure 1-N and Table 1-N member
+    in both the immutable snapshot and the audit inventory with member id, role,
+    ref, byte size, and SHA-256. A present `main_figure` role cannot hide a
+    missing second figure. Require the exact pair `paper.pdf` +
+    `selected_layout_main_manuscript` in both inventories and bind its bytes to
+    `composed_paper_pdf_exact_ref`. When a supplement applies, require the exact
+    pair `paper_with_supplementary.pdf` +
+    `reader_combined_main_and_supplementary` with the same member bytes in both
+    inventories.
+14. Check `claim_display_alignment_ref`: displayed denominator, estimates,
+    uncertainty, colors, groups, ordering, and manuscript claim consistency.
+15. Check `accessibility_and_size_ref`: final-size readability, overlap,
     color-vision robustness, grayscale contrast, and journal size constraints.
-14. Check `export_integrity_ref`: distinguish hard artifact failures from
+16. Check `export_integrity_ref`: distinguish hard artifact failures from
     non-blocking review warnings; never promote an inspector result into a
     visual quality verdict.
-15. Produce `route_back_candidate` for artifact owner repair, display redesign,
+17. Produce `route_back_candidate` for artifact owner repair, display redesign,
     source-data mismatch, deterministic rebuild drift, export failure, or owner
     visual-audit decision.
 
@@ -157,6 +175,7 @@ Return:
 - `claim_display_alignment_ref`
 - `accessibility_and_size_ref`
 - `editorial_page_composition_ref`
+- `document_display_scope_coverage_ref` when a reader PDF is required
 - `display_qc_support_map_ref`
 - `page_hash_evidence_candidate_ref` when fixed-raster PDF evidence is available
 - optional owner-provided `epistemic_review_scope_ref` locator

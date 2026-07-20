@@ -34,10 +34,19 @@ review skeletons, lineage rows, and forbidden-authority lint.
 5. Check `missingness_and_exclusion_ref`: missingness profile, exclusion
    reasons, adult/child or known-age sensitivity, and site/year/threshold
    sensitivity needs.
-6. Build `analysis_readiness_gap_ref`: missing owner decision, unstable body,
+6. Build `clinical_analysis_input_identity_ref` with an explicit
+   `study_context`: whether the study has longitudinal follow-up, is
+   multicenter, and requires separate endpoint adjudication. Cohort/enrollment,
+   extract date, disease definition, endpoint ascertainment, dictionary,
+   lineage, ethics/governance, and analysis-set boundary must be present and
+   cannot be waived as not applicable. Follow-up closure/completeness, center
+   inventory, and endpoint-adjudication evidence are required only when their
+   context trigger is true; otherwise record a reasoned not-applicable
+   disposition. An all-N/A inventory never satisfies identity closure.
+7. Build `analysis_readiness_gap_ref`: missing owner decision, unstable body,
    unresolved lineage, variable ambiguity, privacy/access concern, or analysis
    contract gap.
-7. Produce `route_back_candidate` for data owner, analysis owner, or study owner
+8. Produce `route_back_candidate` for data owner, analysis owner, or study owner
    decisions.
 
 ## Handoff Shape
@@ -50,6 +59,7 @@ Return:
 - `dictionary_and_lineage_ref`
 - `missingness_and_exclusion_ref`
 - `analysis_readiness_gap_ref`
+- `clinical_analysis_input_identity_ref`
 - `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`

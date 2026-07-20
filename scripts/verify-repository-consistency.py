@@ -66,6 +66,9 @@ contract = read_json("contracts/scholar-skills-capability-modules.json")
 page_hash_evidence_schema = read_json(
     "contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json"
 )
+initial_draft_preflight_schema = read_json(
+    "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json"
+)
 display_receipt_templates = read_json("contracts/display-pack-receipt-templates.json")
 professional_figure_workflow_schema = read_json(
     "contracts/professional-figure-workflow.schema.json"
@@ -145,6 +148,227 @@ if page_evidence_policy.get("origin_reviewer_evidence_ref_policy") != "nullable_
     fail("page evidence origin ref must remain nullable provenance only")
 if page_evidence_policy.get("currentness_policy") != "content_identity_and_origin_provenance_do_not_establish_review_currentness":
     fail("page evidence policy must keep currentness outside content identity")
+expected_composed_pdf_pairs = [
+    {
+        "filename": "paper.pdf",
+        "role": "selected_layout_main_manuscript",
+        "required_when": "requires_reader_pdf",
+    },
+    {
+        "filename": "paper_with_supplementary.pdf",
+        "role": "reader_combined_main_and_supplementary",
+        "required_when": "supplement_applicable",
+    },
+]
+if snapshot_evidence_policy.get("composed_pdf_exact_pairs") != expected_composed_pdf_pairs:
+    fail("reviewer snapshot policy must bind the two canonical composed PDF filename/role pairs")
+if snapshot_evidence_policy.get("expected_display_member_identity_fields") != [
+    "member_id",
+    "role",
+]:
+    fail("reviewer snapshot policy must identify expected displays by member_id and role")
+if snapshot_evidence_policy.get("expected_main_display_member_roles") != [
+    "main_figure",
+    "main_table",
+]:
+    fail("reviewer snapshot policy must cover expected main figure and table members")
+if snapshot_evidence_policy.get("expected_members_must_close_in") != [
+    "snapshot_inventory",
+    "audit_inventory",
+]:
+    fail("reviewer snapshot policy must close every display member in snapshot and audit")
+if snapshot_evidence_policy.get("role_membership_can_replace_member_identity") is not False:
+    fail("reviewer snapshot policy must not let a role replace display member identity")
+expected_display_scope_exact_refs = [
+    "canonical_manuscript_ref",
+    "table_catalog_ref",
+    "figure_catalog_ref",
+    "caption_legend_manifest_ref",
+    "render_environment_ref",
+    "font_inventory_ref",
+    "composed_paper_pdf_exact_ref",
+]
+if snapshot_evidence_policy.get("display_scope_required_exact_ref_fields") != expected_display_scope_exact_refs:
+    fail("reviewer snapshot policy must bind the complete document display exact-ref scope")
+if snapshot_evidence_policy.get("display_scope_page_evidence_any_of") != [
+    "page_render_evidence_ref",
+    "page_hash_evidence_candidate_ref",
+]:
+    fail("reviewer snapshot policy must require page-render or page-hash evidence")
+if snapshot_evidence_policy.get("audit_inventory_can_replace_page_render_or_hash_evidence") is not False:
+    fail("reviewer snapshot audit inventory must not replace page-render/page-hash evidence")
+
+expected_preflight_statuses = [
+    "satisfied",
+    "route_back_required",
+    "not_applicable_with_reason",
+]
+expected_preflight_gates = [
+    "study_identity",
+    "data_freeze",
+    "statistical_integrity",
+    "citation_integrity",
+    "table_traceability",
+    "display_scope",
+    "story_contract",
+]
+expected_preflight_dependency_order = [
+    {
+        "tier": "baseline_data_citation",
+        "rank": 10,
+        "owner": "baseline_and_evidence_setup",
+    },
+    {
+        "tier": "analysis",
+        "rank": 20,
+        "owner": "bounded_analysis_campaign",
+    },
+    {
+        "tier": "authoring_display",
+        "rank": 30,
+        "owner": "manuscript_authoring",
+    },
+    {
+        "tier": "review",
+        "rank": 40,
+        "owner": "review_and_quality_gate",
+    },
+]
+preflight_policy = contract.get("medical_initial_draft_preflight_policy") or {}
+if capability_map.get("medical_initial_draft_preflight_policy") != preflight_policy:
+    fail("capability map and canonical module contract must expose one identical initial-draft preflight policy")
+if preflight_policy.get("policy_id") != "scholarskills_medical_initial_draft_preflight.v1":
+    fail("initial-draft preflight policy id is missing")
+if preflight_policy.get("schema_ref") != "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json":
+    fail("initial-draft preflight policy must point to the owner schema")
+if preflight_policy.get("schema_version") != 1:
+    fail("initial-draft preflight policy must freeze schema version 1")
+if preflight_policy.get("surface_kind") != "medical_initial_draft_preflight_candidate_ref":
+    fail("initial-draft preflight policy surface kind is wrong")
+if preflight_policy.get("statuses") != expected_preflight_statuses:
+    fail("initial-draft preflight policy statuses are wrong")
+if preflight_policy.get("gates") != expected_preflight_gates:
+    fail("initial-draft preflight policy gates are wrong")
+if preflight_policy.get("canonical_dependency_order") != expected_preflight_dependency_order:
+    fail("initial-draft preflight policy dependency owner order is wrong")
+if preflight_policy.get("gate_ref_families") != {
+    "study_identity": ["study_charter_ref", "paper_identity_ref"],
+    "data_freeze": ["clinical_analysis_input_identity_ref"],
+    "statistical_integrity": [
+        "validation_partition_integrity_ref",
+        "endpoint_analysis_set_reconciliation_ref",
+        "model_complexity_sparse_event_ref",
+        "decision_curve_validity_ref",
+    ],
+    "citation_integrity": ["citation_source_coverage_ref"],
+    "table_traceability": ["baseline_table_traceability_ref"],
+    "display_scope": ["document_display_scope_coverage_ref"],
+    "story_contract": ["first_draft_story_contract_ref"],
+}:
+    fail("initial-draft preflight policy gate ref families are wrong")
+if preflight_policy.get("producer_skill_id") != "medical-manuscript-writing":
+    fail("initial-draft preflight producer must be medical-manuscript-writing")
+if preflight_policy.get("independent_review_consumer_skill_id") != "medical-manuscript-review":
+    fail("initial-draft preflight independent consumer must be medical-manuscript-review")
+if preflight_policy.get("provider_or_render_completion_can_satisfy_preflight") is not False:
+    fail("provider or render completion must not satisfy initial-draft preflight")
+if preflight_policy.get("route_back_full_draft_policy") != "route_back_required_limits_output_to_story_plan_section_contracts_and_bounded_candidate_prose":
+    fail("route-back preflight must limit output rather than authorize a full draft")
+preflight_authority = preflight_policy.get("authority_boundary") or {}
+if preflight_authority != {
+    "refs_only": True,
+    "can_write_domain_truth": False,
+    "can_sign_owner_receipt": False,
+    "can_create_typed_blocker": False,
+    "can_claim_quality_verdict": False,
+    "can_claim_publication_readiness": False,
+    "can_authorize_full_draft": False,
+}:
+    fail("initial-draft preflight policy must remain refs-only and no-authority")
+
+preflight_defs = initial_draft_preflight_schema.get("$defs") or {}
+if (
+    (initial_draft_preflight_schema.get("properties") or {})
+    .get("surface_kind", {})
+    .get("const")
+    != "medical_initial_draft_preflight_candidate_ref"
+):
+    fail("initial-draft preflight schema must freeze the candidate surface kind")
+if initial_draft_preflight_schema.get("additionalProperties") is not False:
+    fail("initial-draft preflight schema must reject unknown top-level fields")
+if set((preflight_defs.get("status") or {}).get("enum") or []) != set(expected_preflight_statuses):
+    fail("initial-draft preflight schema statuses must match policy")
+gate_items_schema = (
+    (initial_draft_preflight_schema.get("properties") or {}).get("gate_items") or {}
+)
+if set((gate_items_schema.get("properties") or {}).keys()) != set(expected_preflight_gates):
+    fail("initial-draft preflight schema gate properties must match policy")
+if set(gate_items_schema.get("required") or []) != set(expected_preflight_gates):
+    fail("initial-draft preflight schema must require every policy gate")
+gate_item_schema = preflight_defs.get("gate_item") or {}
+gate_disposition_rules = {}
+for rule in gate_item_schema.get("allOf") or []:
+    status = (
+        (rule.get("if") or {})
+        .get("properties", {})
+        .get("status", {})
+        .get("const")
+    )
+    if status:
+        gate_disposition_rules[status] = (rule.get("then") or {}).get("properties") or {}
+if set(gate_disposition_rules) != set(expected_preflight_statuses):
+    fail("initial-draft preflight gate schema must encode all three dispositions")
+satisfied_gate_rule = gate_disposition_rules["satisfied"]
+if (satisfied_gate_rule.get("refs") or {}).get("minItems") != 1:
+    fail("satisfied initial-draft gate must require at least one exact ref")
+if (satisfied_gate_rule.get("unresolved_item_ids") or {}).get("maxItems") != 0:
+    fail("satisfied initial-draft gate must forbid unresolved ids")
+if (satisfied_gate_rule.get("not_applicable_reason") or {}).get("type") != "null":
+    fail("satisfied initial-draft gate must forbid an N/A reason")
+route_back_gate_rule = gate_disposition_rules["route_back_required"]
+if (route_back_gate_rule.get("unresolved_item_ids") or {}).get("minItems") != 1:
+    fail("route-back initial-draft gate must require unresolved ids")
+if (route_back_gate_rule.get("not_applicable_reason") or {}).get("type") != "null":
+    fail("route-back initial-draft gate must forbid an N/A reason")
+not_applicable_gate_rule = gate_disposition_rules["not_applicable_with_reason"]
+if (not_applicable_gate_rule.get("unresolved_item_ids") or {}).get("maxItems") != 0:
+    fail("N/A initial-draft gate must forbid unresolved ids")
+if (not_applicable_gate_rule.get("not_applicable_reason") or {}).get("minLength") != 1:
+    fail("N/A initial-draft gate must require a non-empty reason")
+if (preflight_defs.get("exact_ref") or {}).get("properties", {}).get("size_bytes", {}).get("minimum") != 1:
+    fail("initial-draft exact refs must contain at least one byte")
+schema_owner_map = {}
+for rule in (preflight_defs.get("unresolved_item") or {}).get("allOf") or []:
+    tier = (
+        (rule.get("if") or {})
+        .get("properties", {})
+        .get("dependency_tier", {})
+        .get("const")
+    )
+    then_properties = (rule.get("then") or {}).get("properties") or {}
+    if tier:
+        schema_owner_map[tier] = {
+            "rank": (then_properties.get("dependency_rank") or {}).get("const"),
+            "owner": (then_properties.get("route_back_owner") or {}).get("const"),
+        }
+if schema_owner_map != {
+    item["tier"]: {"rank": item["rank"], "owner": item["owner"]}
+    for item in expected_preflight_dependency_order
+}:
+    fail("initial-draft schema owner mapping must match canonical policy")
+schema_authority_properties = (
+    (preflight_defs.get("authority_boundary") or {}).get("properties") or {}
+)
+if {key: value.get("const") for key, value in schema_authority_properties.items()} != {
+    "refs_only": True,
+    "can_write_domain_truth": False,
+    "can_sign_owner_receipt": False,
+    "can_create_typed_blocker": False,
+    "can_claim_quality_verdict": False,
+    "can_claim_publication_readiness": False,
+    "can_authorize_full_draft": False,
+}:
+    fail("initial-draft preflight schema must encode the no-authority boundary")
 if page_hash_evidence_schema.get("additionalProperties") is not False:
     fail("page evidence candidate owner schema must reject unknown top-level fields")
 if set(page_hash_evidence_schema.get("required") or []) != expected_page_hash_fields:
@@ -452,6 +676,11 @@ require_all(
     content_lock_paths,
     [*all_runtime_contract_paths, *all_runtime_source_paths],
 )
+require_all(
+    "capability package initial-draft contract content lock",
+    content_lock_paths,
+    ["contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json"],
+)
 
 profile_package = reference_provider_profile.get("adapter_package") or {}
 if reference_provider_profile.get("adapter_abi") is not None:
@@ -717,6 +946,180 @@ display_qc_kernel = read_text("skills/medical-display-qc/kernel.py")
 reference_integrity_skill = medical_method_specialist_skills[
     "medical-reference-integrity-auditor"
 ]
+reference_integrity_kernel = read_text(
+    "skills/medical-reference-integrity-auditor/kernel.py"
+)
+survival_skill = medical_method_specialist_skills["medical-survival-analysis-plan"]
+survival_kernel = read_text("skills/medical-survival-analysis-plan/kernel.py")
+data_freeze_skill = medical_method_specialist_skills[
+    "medical-data-freeze-and-analysis-readiness-reviewer"
+]
+data_freeze_kernel = read_text(
+    "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py"
+)
+initial_draft_skill_tokens = {
+    "medical-manuscript-writing": (
+        write_skill,
+        [
+            "medical_initial_draft_preflight_candidate_ref",
+            "scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
+            "baseline_data_citation",
+            "bounded_analysis_campaign",
+            "review_and_quality_gate",
+            "cannot authorize a full draft",
+        ],
+    ),
+    "medical-manuscript-review": (
+        review_skill,
+        [
+            "medical_initial_draft_preflight_candidate_ref",
+            "immutable reviewer",
+            "Figure 1-N",
+            "Table 1-N",
+            "cannot sign first-draft readiness",
+        ],
+    ),
+    "medical-statistical-review": (
+        stats_skill,
+        [
+            "validation_partition_integrity_ref",
+            "endpoint_analysis_set_reconciliation_ref",
+            "model_complexity_sparse_event_ref",
+            "decision_curve_validity_ref",
+            "no_tuning_prespecified",
+            "not a mechanical 5- or 10-events-per-variable pass rule",
+        ],
+    ),
+    "medical-survival-analysis-plan": (
+        survival_skill,
+        [
+            "fixed_horizon_risk_semantics_ref",
+            "competing_risk_ref",
+            "survival_estimand_plan_ref",
+            "decision_curve_validity_ref",
+            "non-informative censoring",
+        ],
+    ),
+    "medical-data-freeze-and-analysis-readiness-reviewer": (
+        data_freeze_skill,
+        [
+            "clinical_analysis_input_identity_ref",
+            "study_context",
+            "An all-N/A inventory never satisfies identity closure",
+        ],
+    ),
+    "medical-reference-integrity-auditor": (
+        reference_integrity_skill,
+        [
+            "citation_source_coverage_ref",
+            "four keyed sets",
+            "four empty sets",
+        ],
+    ),
+    "medical-table-design": (
+        table_skill,
+        [
+            "baseline_table_traceability_ref",
+            "available_n + missing_n = group_n",
+            "variable-level denominators",
+        ],
+    ),
+    "medical-display-qc": (
+        display_qc_skill,
+        [
+            "document_display_scope_coverage_ref",
+            "requires_reader_pdf=true",
+            "member_id",
+            "selected_layout_main_manuscript",
+            "reader_combined_main_and_supplementary",
+            "cannot substitute for page-render/page-hash evidence",
+        ],
+    ),
+}
+for skill_id, (skill_text, tokens) in initial_draft_skill_tokens.items():
+    for token in tokens:
+        if token not in skill_text:
+            fail(f"{skill_id} missing initial-draft preflight token: {token}")
+
+initial_draft_kernel_tokens = {
+    "medical-manuscript-writing": (
+        write_kernel,
+        [
+            "validate_medical_initial_draft_preflight_candidate",
+            "INITIAL_DRAFT_PREFLIGHT_DEPENDENCY_OWNERS",
+            "PREFLIGHT_SATISFIED_GATE_REF_MISSING",
+            "PREFLIGHT_ROUTE_BACK_GATE_INCOMPLETE",
+            "PREFLIGHT_NOT_APPLICABLE_GATE_REASON_MISSING",
+            "PREFLIGHT_DEPENDENCY_OWNER_INVALID",
+            "size_bytes < 1",
+        ],
+    ),
+    "medical-statistical-review": (
+        first_draft_quality_sources["skills/medical-statistical-review/kernel.py"],
+        [
+            "validate_validation_partition_integrity",
+            "VALIDATION_SELECTION_POLICY_MISSING",
+            "validate_endpoint_analysis_set_reconciliation",
+            "validate_model_complexity_sparse_event",
+            "ph_assessment_applicability",
+            "continuous_predictor_count",
+            "validate_decision_curve_validity",
+        ],
+    ),
+    "medical-survival-analysis-plan": (
+        survival_kernel,
+        [
+            "validate_survival_estimand_plan",
+            "fixed_horizon_risk_semantics_ref",
+            "competing_risk_ref",
+            "decision_curve_validity_ref",
+        ],
+    ),
+    "medical-data-freeze-and-analysis-readiness-reviewer": (
+        data_freeze_kernel,
+        [
+            "validate_clinical_analysis_input_identity_candidate",
+            "has_longitudinal_follow_up",
+            "is_multicenter",
+            "requires_endpoint_adjudication",
+            "CLINICAL_INPUT_IDENTITY_ALL_NOT_APPLICABLE",
+        ],
+    ),
+    "medical-reference-integrity-auditor": (
+        reference_integrity_kernel,
+        [
+            "audit_citation_source_coverage",
+            "CITATION_MANUSCRIPT_KEY_SET_EMPTY",
+            "CITATION_BIBLIOGRAPHY_KEY_SET_EMPTY",
+            "citation_source_coverage_ref",
+        ],
+    ),
+    "medical-table-design": (
+        table_kernel,
+        [
+            "validate_baseline_table_traceability",
+            "BASELINE_AVAILABLE_MISSING_N_IDENTITY_VIOLATION",
+            "BASELINE_SUMMARY_DENOMINATOR_MISMATCH",
+            "BASELINE_SMD_CROSS_SURFACE_CONFLICT",
+        ],
+    ),
+    "medical-display-qc": (
+        display_qc_kernel,
+        [
+            "validate_document_display_scope_coverage",
+            "requires_reader_pdf",
+            "expected_display_members",
+            "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_SNAPSHOT",
+            "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_AUDIT",
+            "DOCUMENT_DISPLAY_PAGE_EVIDENCE_MISSING",
+            "composed_paper_pdf_exact_ref",
+        ],
+    ),
+}
+for skill_id, (kernel_text, tokens) in initial_draft_kernel_tokens.items():
+    for token in tokens:
+        if token not in kernel_text:
+            fail(f"{skill_id} kernel missing initial-draft preflight token: {token}")
 for skill_id, skill_text in {
     "medical-manuscript-review": review_skill,
     "medical-statistical-review": stats_skill,
@@ -1524,6 +1927,37 @@ for skill_id, expected in method_expected.items():
         fail(f"medical-method specialist policy path wrong for {skill_id}")
     require_all(f"medical-method specialist routing tokens for {skill_id}", item.get("routing_tokens"), expected["tokens"])
     require_all(f"medical-method specialist candidate refs for {skill_id}", item.get("candidate_ref_families"), expected["refs"])
+initial_draft_optional_refs = {
+    "medical-reference-integrity-auditor": ["citation_source_coverage_ref"],
+    "medical-display-qc": ["document_display_scope_coverage_ref"],
+    "medical-survival-analysis-plan": [
+        "fixed_horizon_risk_semantics_ref",
+        "survival_estimand_plan_ref",
+        "decision_curve_validity_ref",
+    ],
+    "medical-data-freeze-and-analysis-readiness-reviewer": [
+        "clinical_analysis_input_identity_ref"
+    ],
+}
+for skill_id, refs in initial_draft_optional_refs.items():
+    capability_item = advanced_capability_by_id.get(skill_id)
+    policy_item = method_policy_by_id.get(skill_id)
+    if capability_item is None or policy_item is None:
+        fail(f"initial-draft optional specialist catalogs missing {skill_id}")
+    require_all(
+        f"capability map initial-draft optional refs for {skill_id}",
+        capability_item.get("candidate_ref_families"),
+        refs,
+    )
+    require_all(
+        f"module contract initial-draft optional refs for {skill_id}",
+        policy_item.get("candidate_ref_families"),
+        refs,
+    )
+    if capability_item.get("candidate_ref_families") != policy_item.get(
+        "candidate_ref_families"
+    ):
+        fail(f"optional specialist candidate ref catalogs diverge for {skill_id}")
 require_all(
     "medical-method specialist required handoff refs",
     method_policy.get("required_handoff_refs"),
@@ -3016,6 +3450,41 @@ def require_ai_judgment_candidate_policy(module: dict, policy: dict) -> None:
 
 def require_external_fit_ai_policy(module: dict) -> None:
     require_ai_judgment_candidate_policy(module, module.get("external_learning_module_fit") or {})
+
+initial_draft_module_refs = {
+    "mas-scholar-skills.display": ["document_display_scope_coverage_ref"],
+    "mas-scholar-skills.tables": ["baseline_table_traceability_ref"],
+    "mas-scholar-skills.stats": [
+        "validation_partition_integrity_ref",
+        "endpoint_analysis_set_reconciliation_ref",
+        "model_complexity_sparse_event_ref",
+        "decision_curve_validity_ref",
+    ],
+    "mas-scholar-skills.write": ["medical_initial_draft_preflight_candidate_ref"],
+    "mas-scholar-skills.review": ["medical_initial_draft_preflight_candidate_ref"],
+}
+for module_id, refs in initial_draft_module_refs.items():
+    module = require_module(module_id)
+    require_artifact_refs(module, refs)
+    require_quality_refs(module, refs)
+
+initial_draft_core_capability_refs = {
+    "medical-manuscript-writing": ["medical_initial_draft_preflight_candidate_ref"],
+    "medical-manuscript-review": ["medical_initial_draft_preflight_candidate_ref"],
+    "medical-statistical-review": [
+        "validation_partition_integrity_ref",
+        "endpoint_analysis_set_reconciliation_ref",
+        "model_complexity_sparse_event_ref",
+        "decision_curve_validity_ref",
+    ],
+    "medical-table-design": ["baseline_table_traceability_ref"],
+}
+for capability_id, refs in initial_draft_core_capability_refs.items():
+    capability = capability_by_id.get(capability_id)
+    if capability is None:
+        fail(f"capability map missing initial-draft capability {capability_id}")
+    if capability.get("candidate_ref_families") != refs:
+        fail(f"capability map initial-draft ref families diverge for {capability_id}")
 
 display_quality_floor = display_module.get("display_quality_floor_policy", {})
 if display_quality_floor.get("graphical_abstract_strategy") != "brief_first_reference_guided_ai_candidate_not_single_template_reuse":

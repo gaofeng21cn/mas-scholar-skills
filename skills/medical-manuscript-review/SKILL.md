@@ -274,6 +274,23 @@ domain owner decides whether the debt prevents quality, export, publication,
 or submission claims. This review cannot turn quality debt into an authority
 verdict, typed blocker, hosted-execution stop, or reviewer receipt.
 
+For a complete initial-draft review, independently consume the exact
+`medical_initial_draft_preflight_candidate_ref` from the immutable reviewer
+snapshot and recheck its seven gate dispositions, exact refs, unresolved-item
+closure, dependency ordering, canonical earliest owner, and no-authority
+boundary. Do not accept the authoring invocation's machine status as review
+evidence. Reconcile the manuscript, data/statistical/reference/table/display
+members actually present in the snapshot with the candidate, including every
+expected main Figure 1-N and Table 1-N member and the exact composed
+`paper.pdf` when a reader PDF is required. A shared display role cannot stand
+in for a missing member.
+
+Return an independent review finding and the narrowest route-back when the
+candidate is missing, stale, contradictory, or incompletely bound. Review may
+confirm candidate-shape evidence; it cannot sign first-draft readiness, replace
+the MAS owner receipt, create a typed blocker, or promote provider/render
+completion into a quality verdict.
+
 When the target journal or article type is known, add
 `venue_review_expectation_ref`: the reviewer standards being used, their source,
 and which expectations are formatting-only versus scientific blockers. Venue
@@ -577,6 +594,8 @@ Before leaving review, write or refresh a closeout packet with:
 - artifact, claim, result, reference, limitation, and reproduction refs
   actually inspected, plus the optional owner-provided
   `epistemic_review_scope_ref` locator when available
+- exact `medical_initial_draft_preflight_candidate_ref` consumed and the
+  independent preflight audit/route-back finding
 - remaining blockers and blocked readiness label
 - reusable critique lesson, if any
 - route-back recommendation with the narrowest next route

@@ -217,6 +217,33 @@ the narrowest route back. This is fail-open for ordinary drafting: it may yield
 typed blocker, stop hosted execution, issue an authority verdict, or authorize
 quality, export, publication, or submission readiness.
 
+### Medical Initial-Draft Preflight
+
+Before producing a complete initial draft, build
+`medical_initial_draft_preflight_candidate_ref` against
+`contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json`
+and run `validate_medical_initial_draft_preflight_candidate()` when the local
+kernel is available. The candidate must reconcile seven gates: study identity,
+data freeze, statistical integrity, citation integrity, table traceability,
+display scope, and story contract. Every satisfied gate carries at least one
+non-empty exact ref; every route-back gate binds its unresolved item ids; an
+inapplicable gate carries a reason and no unresolved item. File presence,
+provider completion, or a successful render is not a substitute for these refs.
+
+Order unresolved work by its owning dependency, not by the order in which it
+was noticed: `baseline_data_citation` routes to
+`baseline_and_evidence_setup`, `analysis` to `bounded_analysis_campaign`,
+`authoring_display` to `manuscript_authoring`, and `review` to
+`review_and_quality_gate`. The earliest unresolved canonical owner is the only
+`earliest_route_back_owner`; do not trust a caller-supplied alternative.
+
+When the preflight routes back, limit authoring to the story plan, section
+contracts, and narrowly bounded candidate prose supported by satisfied gates.
+Do not generate or label a complete initial draft from unresolved upstream
+identity, data, statistical, citation, table, or display evidence. The
+preflight remains refs-only and cannot authorize a full draft, sign an owner
+receipt, create a typed blocker, or claim quality/publication readiness.
+
 ## Preconditions
 
 Before serious drafting, confirm or create durable refs for:
@@ -617,6 +644,8 @@ usually needs:
 - `paper/review/revision_log.md`
 - `paper/review/submission_checklist.json`
 - `paper/paper_bundle_manifest.json` or equivalent bundle manifest when packaged
+- exact `medical_initial_draft_preflight_candidate_ref` and owner-gate handoff
+  ref for a complete initial-draft attempt
 
 The exact paths may vary by workspace. Preserve the meaning and make the
 handoff resumable without transient chat.

@@ -253,6 +253,15 @@ If development-cohort individual data are unavailable, make the source of
 summary statistics explicit and route missing rows to review or human gate
 rather than inventing comparable Table 1 cells.
 
+Before initial-draft handoff, build `baseline_table_traceability_ref` for every
+Table 1 variable. Bind the variable and unit, each group's total N, available N,
+missing N, displayed denominator, group/source identity, source metric, and the
+source/table SMD values. Require `available_n + missing_n = group_n` and the
+displayed summary denominator to equal the available N. A single global cohort
+denominator cannot replace variable-level denominators. Reconcile SMDs across
+source and Table 1 within an explicit rounding tolerance; do not omit SMD or
+invent comparability when a source cohort lacks individual-level data.
+
 For phenotype-atlas or recorded risk-treatment mismatch manuscripts, prefer a
 compact wide main Table 2 when the table's job is to compare phenotypes across
 baseline traits and core mismatch indicators. Use one row per phenotype with
@@ -285,6 +294,7 @@ Return refs-only candidate output:
 - `main_table_information_budget_ref`
 - `supplementary_detail_ref`
 - `table_repair_actions_ref`
+- `baseline_table_traceability_ref` when Table 1 is present
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 
