@@ -65,6 +65,7 @@ def table_shell_schema() -> dict[str, Any]:
             "source_metric_ref": {"type": "string"},
             "denominator_ref": {"type": "string"},
             "statistical_display_ref": {"type": "string"},
+            "baseline_table_traceability_ref": {"type": "object"},
             "footnotes": {"type": "array", "items": {"type": "string"}},
             "route_back_candidate": {"type": "string"},
         },
@@ -379,6 +380,232 @@ def lint_table_note_inventory(
     return findings
 
 
+def validate_baseline_table_traceability(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit Table 1 available/missing N, units, denominators, sources, and SMDs."""
+
+    findings: list[dict[str, object]] = []
+    rows = candidate.get("rows")
+    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes)) or not rows:
+        findings.append(
+            _baseline_finding(
+                "BASELINE_TRACEABILITY_ROWS_INVALID",
+                "rows",
+                "provide at least one baseline-variable row",
+            )
+        )
+        rows = []
+    tolerance = candidate.get("smd_tolerance", 0.005)
+    if (
+        isinstance(tolerance, bool)
+        or not isinstance(tolerance, (int, float))
+        or tolerance < 0
+        or tolerance > 0.05
+    ):
+        findings.append(
+            _baseline_finding(
+                "BASELINE_SMD_TOLERANCE_INVALID",
+                "smd_tolerance",
+                "use a declared rounding tolerance between 0 and 0.05",
+            )
+        )
+        tolerance = 0.005
+    traced_variables = 0
+    for row_index, row in enumerate(rows):
+        field = f"rows[{row_index}]"
+        if not isinstance(row, Mapping):
+            findings.append(
+                _baseline_finding(
+                    "BASELINE_TRACEABILITY_ROW_INVALID",
+                    field,
+                    "provide a structured variable row",
+                )
+            )
+            continue
+        variable_key = str(row.get("variable_key") or "").strip()
+        for ref_field in (
+            "variable_key",
+            "unit",
+            "denominator_ref",
+            "source_metric_ref",
+            "smd_source_ref",
+        ):
+            if not str(row.get(ref_field) or "").strip():
+                findings.append(
+                    _baseline_finding(
+                        "BASELINE_TRACEABILITY_FIELD_MISSING",
+                        f"{field}.{ref_field}",
+                        "bind the variable, unit, denominator, source metric, and SMD source",
+                    )
+                )
+        groups = row.get("groups")
+        if not isinstance(groups, Sequence) or isinstance(groups, (str, bytes)) or not groups:
+            findings.append(
+                _baseline_finding(
+                    "BASELINE_GROUP_TRACEABILITY_INVALID",
+                    f"{field}.groups",
+                    "provide group-level total, available, missing, and denominator counts",
+                )
+            )
+            groups = []
+        for group_index, group in enumerate(groups):
+            group_field = f"{field}.groups[{group_index}]"
+            if not isinstance(group, Mapping):
+                findings.append(
+                    _baseline_finding(
+                        "BASELINE_GROUP_ROW_INVALID",
+                        group_field,
+                        "provide a structured group count row",
+                    )
+                )
+                continue
+            if not str(group.get("group_id") or "").strip() or not str(
+                group.get("source_ref") or ""
+            ).strip():
+                findings.append(
+                    _baseline_finding(
+                        "BASELINE_GROUP_IDENTITY_SOURCE_MISSING",
+                        group_field,
+                        "bind each group count to its identity and source ref",
+                    )
+                )
+            counts: dict[str, int] = {}
+            for count_field in (
+                "group_n",
+                "available_n",
+                "missing_n",
+                "summary_denominator_n",
+            ):
+                value = group.get(count_field)
+                if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                    findings.append(
+                        _baseline_finding(
+                            "BASELINE_GROUP_COUNT_INVALID",
+                            f"{group_field}.{count_field}",
+                            "supply a non-negative integer count",
+                        )
+                    )
+                else:
+                    counts[count_field] = value
+            if len(counts) == 4:
+                if counts["available_n"] + counts["missing_n"] != counts["group_n"]:
+                    findings.append(
+                        _baseline_finding(
+                            "BASELINE_AVAILABLE_MISSING_N_IDENTITY_VIOLATION",
+                            group_field,
+                            "require available_n + missing_n = group_n",
+                        )
+                    )
+                if counts["summary_denominator_n"] != counts["available_n"]:
+                    findings.append(
+                        _baseline_finding(
+                            "BASELINE_SUMMARY_DENOMINATOR_MISMATCH",
+                            group_field,
+                            "bind the displayed summary denominator to available N",
+                        )
+                    )
+        smd_values = row.get("smd_values")
+        numeric_smds: list[tuple[str, float]] = []
+        if not isinstance(smd_values, Sequence) or isinstance(smd_values, (str, bytes)):
+            findings.append(
+                _baseline_finding(
+                    "BASELINE_SMD_VALUES_INVALID",
+                    f"{field}.smd_values",
+                    "provide source and table SMD rows",
+                )
+            )
+            smd_values = []
+        for smd_index, smd_row in enumerate(smd_values):
+            smd_field = f"{field}.smd_values[{smd_index}]"
+            if not isinstance(smd_row, Mapping):
+                findings.append(
+                    _baseline_finding(
+                        "BASELINE_SMD_ROW_INVALID",
+                        smd_field,
+                        "provide surface, value, and source_ref",
+                    )
+                )
+                continue
+            surface = str(smd_row.get("surface") or "").strip()
+            value = smd_row.get("value")
+            if not surface or not str(smd_row.get("source_ref") or "").strip():
+                findings.append(
+                    _baseline_finding(
+                        "BASELINE_SMD_SURFACE_SOURCE_MISSING",
+                        smd_field,
+                        "bind each reported SMD to its surface and source",
+                    )
+                )
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                findings.append(
+                    _baseline_finding(
+                        "BASELINE_SMD_VALUE_INVALID",
+                        f"{smd_field}.value",
+                        "supply a numeric SMD",
+                    )
+                )
+            else:
+                numeric_smds.append((surface, float(value)))
+        surfaces = {surface for surface, _ in numeric_smds}
+        if not {"source", "table1"}.issubset(surfaces):
+            findings.append(
+                _baseline_finding(
+                    "BASELINE_SMD_SOURCE_TABLE_BINDING_MISSING",
+                    f"{field}.smd_values",
+                    "include source and table1 SMD values",
+                )
+            )
+        if numeric_smds and max(value for _, value in numeric_smds) - min(
+            value for _, value in numeric_smds
+        ) > float(tolerance):
+            finding = _baseline_finding(
+                "BASELINE_SMD_CROSS_SURFACE_CONFLICT",
+                f"{field}.smd_values",
+                "reconcile source, Table 1, and manuscript SMD values",
+            )
+            finding["variable_key"] = variable_key
+            finding["reported_smds"] = [
+                {"surface": surface, "value": value}
+                for surface, value in numeric_smds
+            ]
+            findings.append(finding)
+        traced_variables += 1
+    if candidate.get("authority") is not False:
+        findings.append(
+            _baseline_finding(
+                "BASELINE_TRACEABILITY_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep Table 1 traceability refs-only with authority=false",
+            )
+        )
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "baseline_table_traceability_ref",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "traced_variable_count": traced_variables,
+        "findings": findings,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-table-design",
+            "reason": "baseline_table_traceability_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def _baseline_finding(code: str, field: str, action: str) -> dict[str, object]:
+    return {
+        "code": code,
+        "field": field,
+        "action": action,
+        "writes_authority": False,
+    }
+
+
 def _self_check() -> None:
     assert "columns" in table_shell_schema()["required"]
     assert normalize_column_name("HbA1c (%)") == "hba1c_percent"
@@ -471,7 +698,85 @@ def _self_check() -> None:
         "exception_reason": "The target journal permits this readable baseline table.",
     }
     assert lint_main_table_information_budget([documented_exception]) == []
-    print(json.dumps({"ok": True, "checks": 10}, indent=2, sort_keys=True))
+    physical_activity_conflict = validate_baseline_table_traceability(
+        {
+            "rows": [
+                {
+                    "variable_key": "physical_activity",
+                    "unit": "n (%)",
+                    "denominator_ref": "denominator:available-records",
+                    "source_metric_ref": "metric:physical-activity",
+                    "smd_source_ref": "metric:physical-activity-smd",
+                    "groups": [
+                        {
+                            "group_id": "development",
+                            "group_n": 5000,
+                            "available_n": 4800,
+                            "missing_n": 200,
+                            "summary_denominator_n": 4800,
+                            "source_ref": "table:source-development",
+                        },
+                        {
+                            "group_id": "validation",
+                            "group_n": 2408,
+                            "available_n": 2300,
+                            "missing_n": 108,
+                            "summary_denominator_n": 2300,
+                            "source_ref": "table:source-validation",
+                        },
+                    ],
+                    "smd_values": [
+                        {"surface": "source", "value": 0.07, "source_ref": "metric:smd"},
+                        {"surface": "table1", "value": 0.22, "source_ref": "table:T1"},
+                        {"surface": "manuscript", "value": 0.22, "source_ref": "text:results"},
+                    ],
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert "BASELINE_SMD_CROSS_SURFACE_CONFLICT" in {
+        item["code"] for item in physical_activity_conflict["findings"]
+    }
+    valid_baseline_trace = validate_baseline_table_traceability(
+        {
+            "rows": [
+                {
+                    "variable_key": "age",
+                    "unit": "years",
+                    "denominator_ref": "denominator:available-age",
+                    "source_metric_ref": "metric:age",
+                    "smd_source_ref": "metric:age-smd",
+                    "groups": [
+                        {
+                            "group_id": "development",
+                            "group_n": 5000,
+                            "available_n": 4990,
+                            "missing_n": 10,
+                            "summary_denominator_n": 4990,
+                            "source_ref": "table:source-development",
+                        },
+                        {
+                            "group_id": "validation",
+                            "group_n": 2408,
+                            "available_n": 2400,
+                            "missing_n": 8,
+                            "summary_denominator_n": 2400,
+                            "source_ref": "table:source-validation",
+                        },
+                    ],
+                    "smd_values": [
+                        {"surface": "source", "value": 0.101, "source_ref": "metric:smd"},
+                        {"surface": "table1", "value": 0.10, "source_ref": "table:T1"},
+                        {"surface": "manuscript", "value": 0.10, "source_ref": "text:results"},
+                    ],
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert valid_baseline_trace["machine_check_status"] == "candidate_complete"
+    print(json.dumps({"ok": True, "checks": 13}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

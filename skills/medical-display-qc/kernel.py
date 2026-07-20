@@ -23,6 +23,7 @@ DISPLAY_QC_REFS = (
     "claim_display_alignment_ref",
     "accessibility_and_size_ref",
     "editorial_page_composition_ref",
+    "document_display_scope_coverage_ref",
     "display_qc_support_map_ref",
     "page_hash_evidence_candidate_ref",
 )
@@ -58,6 +59,20 @@ REQUIRED_LAYOUT_REGRESSION_CASES = {
     "full_width_layout",
 }
 SEMANTIC_WRAP_ALGORITHM = "renderer_measured_greedy_word_boundary.v1"
+DOCUMENT_DISPLAY_REQUIRED_EXACT_REFS = (
+    "canonical_manuscript_ref",
+    "table_catalog_ref",
+    "figure_catalog_ref",
+    "caption_legend_manifest_ref",
+    "render_environment_ref",
+    "font_inventory_ref",
+    "composed_paper_pdf_exact_ref",
+)
+DOCUMENT_DISPLAY_PAGE_EVIDENCE_REFS = (
+    "page_render_evidence_ref",
+    "page_hash_evidence_candidate_ref",
+)
+EXACT_REF_FIELDS = frozenset({"kind", "ref", "size_bytes", "sha256"})
 
 QC_ROUTE_RULES = (
     ("artifact_owner_repair", ("blank", "missing", "broken", "export", "link")),
@@ -295,6 +310,469 @@ def lint_document_layout_inventory(
                 )
             )
     return findings
+
+
+def validate_document_display_scope_coverage(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit exact composed-PDF evidence and per-member display scope closure."""
+
+    findings: list[dict[str, Any]] = []
+    requires_reader_pdf = candidate.get("requires_reader_pdf")
+    if not isinstance(requires_reader_pdf, bool):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_READER_PDF_TRIGGER_INVALID",
+                "quality_debt",
+                "Declare requires_reader_pdf explicitly",
+                "display_redesign",
+            )
+        )
+    elif requires_reader_pdf is not True:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_READER_PDF_NOT_APPLICABLE",
+                "quality_debt",
+                "This validator only evaluates a reader-PDF-applicable candidate; use the upper preflight disposition for not-applicable cases",
+                "display_redesign",
+            )
+        )
+
+    exact_refs: dict[str, dict[str, object] | None] = {}
+    for field in DOCUMENT_DISPLAY_REQUIRED_EXACT_REFS:
+        exact_refs[field] = _document_scope_exact_ref(
+            candidate.get(field), field, findings
+        )
+    composed_paper_ref = exact_refs["composed_paper_pdf_exact_ref"]
+    if composed_paper_ref is not None and Path(
+        str(composed_paper_ref["ref"])
+    ).name.lower() != "paper.pdf":
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_COMPOSED_EXACT_REF_FILENAME_INVALID",
+                "quality_debt",
+                "composed_paper_pdf_exact_ref must identify paper.pdf",
+                "display_redesign",
+            )
+        )
+
+    page_evidence_fields = [
+        field
+        for field in DOCUMENT_DISPLAY_PAGE_EVIDENCE_REFS
+        if candidate.get(field) is not None
+    ]
+    if not page_evidence_fields:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_PAGE_EVIDENCE_MISSING",
+                "quality_debt",
+                "Bind page_render_evidence_ref or page_hash_evidence_candidate_ref; an audit inventory cannot replace page evidence",
+                "display_redesign",
+            )
+        )
+    for field in page_evidence_fields:
+        exact_refs[field] = _document_scope_exact_ref(
+            candidate.get(field), field, findings
+        )
+
+    supplement_applicable = candidate.get("supplement_applicable")
+    if not isinstance(supplement_applicable, bool):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_SUPPLEMENT_TRIGGER_INVALID",
+                "quality_debt",
+                "Declare whether a supplement is applicable",
+                "display_redesign",
+            )
+        )
+    elif not supplement_applicable and not str(
+        candidate.get("supplement_not_applicable_reason") or ""
+    ).strip():
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_SUPPLEMENT_REASON_MISSING",
+                "quality_debt",
+                "State why no supplement belongs in display scope",
+                "display_redesign",
+            )
+        )
+
+    expected_members = _expected_document_members(
+        candidate.get("expected_display_members"), findings
+    )
+
+    snapshot_entries = _document_scope_inventory(
+        candidate.get("snapshot_inventory"), "snapshot_inventory", findings
+    )
+    audit_entries = _document_scope_inventory(
+        candidate.get("audit_inventory"), "audit_inventory", findings
+    )
+    snapshot_main = [entry for entry in snapshot_entries if _is_main_composed_pdf(entry)]
+    audit_main = [entry for entry in audit_entries if _is_main_composed_pdf(entry)]
+    if not snapshot_main:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_PAPER_PDF_MISSING_FROM_SNAPSHOT",
+                "quality_debt",
+                "The immutable reviewer snapshot must include paper.pdf with role selected_layout_main_manuscript",
+                "display_redesign",
+            )
+        )
+    elif composed_paper_ref is not None and not any(
+        _inventory_entry_matches_exact_ref(entry, composed_paper_ref)
+        for entry in snapshot_main
+    ):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_PAPER_PDF_EXACT_REF_MISMATCH_IN_SNAPSHOT",
+                "quality_debt",
+                "The snapshot paper.pdf bytes must match composed_paper_pdf_exact_ref",
+                "display_redesign",
+            )
+        )
+    if not audit_main:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_PAPER_PDF_MISSING_FROM_AUDIT",
+                "quality_debt",
+                "The programmatic/visual audit inventory must include paper.pdf with role selected_layout_main_manuscript",
+                "display_redesign",
+            )
+        )
+    elif composed_paper_ref is not None and not any(
+        _inventory_entry_matches_exact_ref(entry, composed_paper_ref)
+        for entry in audit_main
+    ):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_PAPER_PDF_EXACT_REF_MISMATCH_IN_AUDIT",
+                "quality_debt",
+                "The audited paper.pdf bytes must match composed_paper_pdf_exact_ref",
+                "display_redesign",
+            )
+        )
+
+    if supplement_applicable is True:
+        snapshot_supplement = [
+            entry for entry in snapshot_entries if _is_supplement_composed_pdf(entry)
+        ]
+        audit_supplement = [
+            entry for entry in audit_entries if _is_supplement_composed_pdf(entry)
+        ]
+        if not snapshot_supplement:
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_SUPPLEMENT_PDF_MISSING_FROM_SNAPSHOT",
+                    "quality_debt",
+                    "Include the composed supplementary PDF in the immutable snapshot",
+                    "display_redesign",
+                )
+            )
+        if not audit_supplement:
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_SUPPLEMENT_PDF_MISSING_FROM_AUDIT",
+                    "quality_debt",
+                    "Include the composed supplementary PDF in the audit inventory",
+                    "display_redesign",
+                )
+            )
+        if snapshot_supplement and audit_supplement and not any(
+            _same_inventory_member_bytes(snapshot_entry, audit_entry)
+            for snapshot_entry in snapshot_supplement
+            for audit_entry in audit_supplement
+        ):
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_SUPPLEMENT_PDF_IDENTITY_MISMATCH",
+                    "quality_debt",
+                    "The snapshot and audited paper_with_supplementary.pdf must identify the same member bytes",
+                    "display_redesign",
+                )
+            )
+
+    expected_identity = {
+        (entry["member_id"], entry["role"]) for entry in expected_members
+    }
+    snapshot_identity = {
+        (entry["member_id"], entry["role"]) for entry in snapshot_entries
+    }
+    audit_identity = {
+        (entry["member_id"], entry["role"]) for entry in audit_entries
+    }
+    missing_snapshot_members = sorted(
+        f"{member_id}:{role}"
+        for member_id, role in expected_identity - snapshot_identity
+    )
+    missing_audit_members = sorted(
+        f"{member_id}:{role}" for member_id, role in expected_identity - audit_identity
+    )
+    if missing_snapshot_members:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_SNAPSHOT",
+                "quality_debt",
+                "Expected main figure/table members are absent from the immutable snapshot",
+                "display_redesign",
+                members=missing_snapshot_members,
+            )
+        )
+    if missing_audit_members:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_AUDIT",
+                "quality_debt",
+                "Expected main figure/table members are absent from the audit inventory",
+                "display_redesign",
+                members=missing_audit_members,
+            )
+        )
+    if candidate.get("authority") is not False:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_SCOPE_AUTHORITY_FORBIDDEN",
+                "quality_debt",
+                "Keep document scope coverage refs-only with authority=false",
+                "owner_visual_audit_decision",
+            )
+        )
+    findings.sort(key=lambda item: str(item["code"]))
+    complete = not findings
+    return {
+        "surface_kind": "document_display_scope_coverage_ref",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "missing_snapshot_members": missing_snapshot_members,
+        "missing_audit_members": missing_audit_members,
+        "bound_exact_ref_fields": sorted(
+            field for field, value in exact_refs.items() if value is not None
+        ),
+        "findings": findings,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-display-qc",
+            "reason": "document_display_scope_coverage_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def _document_scope_exact_ref(
+    value: object,
+    field: str,
+    findings: list[dict[str, Any]],
+) -> dict[str, object] | None:
+    if not isinstance(value, Mapping) or set(value) != EXACT_REF_FIELDS:
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_REQUIRED_EXACT_REF_INVALID",
+                "quality_debt",
+                f"{field} must contain exactly kind, ref, size_bytes, and sha256",
+                "display_redesign",
+                field=field,
+            )
+        )
+        return None
+    kind = normalize_evidence_ref(value.get("kind"))
+    ref = normalize_evidence_ref(value.get("ref"))
+    size_bytes = value.get("size_bytes")
+    digest = str(value.get("sha256") or "").strip().lower()
+    if (
+        not kind
+        or not ref
+        or isinstance(size_bytes, bool)
+        or not isinstance(size_bytes, int)
+        or size_bytes < 1
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
+    ):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_REQUIRED_EXACT_REF_INVALID",
+                "quality_debt",
+                f"{field} must be a non-empty durable exact ref",
+                "display_redesign",
+                field=field,
+            )
+        )
+        return None
+    return {
+        "kind": kind,
+        "ref": ref,
+        "size_bytes": size_bytes,
+        "sha256": digest,
+    }
+
+
+def _expected_document_members(
+    value: object,
+    findings: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_EXPECTED_MEMBERS_INVALID",
+                "quality_debt",
+                "Represent expected main figures/tables as member_id and role rows",
+                "display_redesign",
+            )
+        )
+        return []
+    members: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for index, item in enumerate(value):
+        if not isinstance(item, Mapping):
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_EXPECTED_MEMBER_ROW_INVALID",
+                    "quality_debt",
+                    f"expected_display_members[{index}] must bind member_id and role",
+                    "display_redesign",
+                )
+            )
+            continue
+        member_id = normalize_evidence_ref(item.get("member_id"))
+        role = str(item.get("role") or "").strip().lower()
+        identity = (member_id, role)
+        if not member_id or not role:
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_EXPECTED_MEMBER_ROW_INCOMPLETE",
+                    "quality_debt",
+                    f"expected_display_members[{index}] must bind member_id and role",
+                    "display_redesign",
+                )
+            )
+            continue
+        if identity in seen:
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_EXPECTED_MEMBER_DUPLICATE",
+                    "quality_debt",
+                    "Expected display member identities must be unique",
+                    "display_redesign",
+                    member_id=member_id,
+                    role=role,
+                )
+            )
+            continue
+        seen.add(identity)
+        members.append({"member_id": member_id, "role": role})
+    return members
+
+
+def _document_scope_inventory(
+    value: object,
+    field: str,
+    findings: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        findings.append(
+            _finding(
+                "DOCUMENT_DISPLAY_INVENTORY_INVALID",
+                "quality_debt",
+                f"{field} must be a list of exact member rows",
+                "display_redesign",
+            )
+        )
+        return []
+    entries: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for index, item in enumerate(value):
+        if not isinstance(item, Mapping):
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_INVENTORY_ROW_INVALID",
+                    "quality_debt",
+                    f"{field}[{index}] must be an exact member row",
+                    "display_redesign",
+                )
+            )
+            continue
+        member_id = normalize_evidence_ref(item.get("member_id"))
+        role = str(item.get("role") or "").strip().lower()
+        ref = normalize_evidence_ref(item.get("ref"))
+        size_bytes = item.get("size_bytes")
+        digest = str(item.get("sha256") or "").strip().lower()
+        if (
+            not member_id
+            or not role
+            or not ref
+            or isinstance(size_bytes, bool)
+            or not isinstance(size_bytes, int)
+            or size_bytes < 1
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
+        ):
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_INVENTORY_ROW_INCOMPLETE",
+                    "quality_debt",
+                    f"{field}[{index}] must bind member_id, role, ref, size_bytes, and sha256",
+                    "display_redesign",
+                )
+            )
+            continue
+        identity = (member_id, role)
+        if identity in seen:
+            findings.append(
+                _finding(
+                    "DOCUMENT_DISPLAY_INVENTORY_MEMBER_DUPLICATE",
+                    "quality_debt",
+                    f"{field} contains a duplicate member identity",
+                    "display_redesign",
+                    member_id=member_id,
+                    role=role,
+                )
+            )
+            continue
+        seen.add(identity)
+        entries.append(
+            {
+                "member_id": member_id,
+                "role": role,
+                "ref": ref,
+                "size_bytes": size_bytes,
+                "sha256": digest,
+            }
+        )
+    return entries
+
+
+def _is_main_composed_pdf(entry: Mapping[str, object]) -> bool:
+    role = entry.get("role", "")
+    name = Path(str(entry.get("ref") or "")).name.lower()
+    return role == "selected_layout_main_manuscript" and name == "paper.pdf"
+
+
+def _is_supplement_composed_pdf(entry: Mapping[str, object]) -> bool:
+    role = entry.get("role", "")
+    name = Path(str(entry.get("ref") or "")).name.lower()
+    return (
+        role == "reader_combined_main_and_supplementary"
+        and name == "paper_with_supplementary.pdf"
+    )
+
+
+def _inventory_entry_matches_exact_ref(
+    entry: Mapping[str, object], exact_ref: Mapping[str, object]
+) -> bool:
+    return (
+        entry.get("sha256") == exact_ref.get("sha256")
+        and entry.get("size_bytes") == exact_ref.get("size_bytes")
+        and Path(str(entry.get("ref") or "")).name.lower()
+        == Path(str(exact_ref.get("ref") or "")).name.lower()
+    )
+
+
+def _same_inventory_member_bytes(
+    left: Mapping[str, object], right: Mapping[str, object]
+) -> bool:
+    return (
+        left.get("member_id") == right.get("member_id")
+        and left.get("role") == right.get("role")
+        and left.get("sha256") == right.get("sha256")
+        and left.get("size_bytes") == right.get("size_bytes")
+    )
 
 
 def _sha256(path: Path) -> str:
@@ -2066,6 +2544,192 @@ def _self_check() -> None:
         "DISPLAY_AND_REFERENCES_SHARE_PAGE",
     }
     assert all(item["writes_authority"] is False for item in layout_findings)
+    def exact_ref(kind: str, ref: str, digest: str, size_bytes: int = 100) -> dict[str, object]:
+        return {
+            "kind": kind,
+            "ref": ref,
+            "size_bytes": size_bytes,
+            "sha256": f"sha256:{digest * 64}",
+        }
+
+    def inventory_member(
+        member_id: str,
+        role: str,
+        ref: str,
+        digest: str,
+        size_bytes: int = 100,
+    ) -> dict[str, object]:
+        return {
+            "member_id": member_id,
+            "role": role,
+            "ref": ref,
+            "size_bytes": size_bytes,
+            "sha256": f"sha256:{digest * 64}",
+        }
+
+    valid_document_candidate = {
+        "requires_reader_pdf": True,
+        "canonical_manuscript_ref": exact_ref(
+            "canonical_manuscript", "manuscript/paper.md", "1"
+        ),
+        "table_catalog_ref": exact_ref("table_catalog", "tables/catalog.json", "2"),
+        "figure_catalog_ref": exact_ref(
+            "figure_catalog", "figures/catalog.json", "3"
+        ),
+        "caption_legend_manifest_ref": exact_ref(
+            "caption_legend_manifest", "manuscript/captions.json", "4"
+        ),
+        "render_environment_ref": exact_ref(
+            "render_environment", "render/environment.json", "5"
+        ),
+        "font_inventory_ref": exact_ref(
+            "font_inventory", "render/fonts.json", "6"
+        ),
+        "composed_paper_pdf_exact_ref": exact_ref(
+            "composed_paper_pdf", "publication/paper.pdf", "7", 700
+        ),
+        "page_render_evidence_ref": exact_ref(
+            "page_render_evidence", "audit/pages.json", "8"
+        ),
+        "supplement_applicable": True,
+        "supplement_not_applicable_reason": None,
+        "expected_display_members": [
+            {"member_id": "figure-1", "role": "main_figure"},
+            {"member_id": "figure-2", "role": "main_figure"},
+            {"member_id": "table-1", "role": "main_table"},
+        ],
+        "snapshot_inventory": [
+            inventory_member(
+                "paper-main",
+                "selected_layout_main_manuscript",
+                "publication/paper.pdf",
+                "7",
+                700,
+            ),
+            inventory_member(
+                "paper-combined",
+                "reader_combined_main_and_supplementary",
+                "publication/paper_with_supplementary.pdf",
+                "9",
+                900,
+            ),
+            inventory_member("figure-1", "main_figure", "figures/F1.pdf", "a"),
+            inventory_member("figure-2", "main_figure", "figures/F2.pdf", "b"),
+            inventory_member("table-1", "main_table", "tables/T1.docx", "c"),
+        ],
+        "audit_inventory": [
+            inventory_member(
+                "paper-main",
+                "selected_layout_main_manuscript",
+                "audit/paper.pdf",
+                "7",
+                700,
+            ),
+            inventory_member(
+                "paper-combined",
+                "reader_combined_main_and_supplementary",
+                "audit/paper_with_supplementary.pdf",
+                "9",
+                900,
+            ),
+            inventory_member("figure-1", "main_figure", "audit/F1.png", "d"),
+            inventory_member("figure-2", "main_figure", "audit/F2.png", "e"),
+            inventory_member("table-1", "main_table", "audit/T1.png", "f"),
+        ],
+        "authority": False,
+    }
+    valid_document_scope = validate_document_display_scope_coverage(
+        valid_document_candidate
+    )
+    assert valid_document_scope["machine_check_status"] == "candidate_complete"
+
+    missing_members_candidate = json.loads(json.dumps(valid_document_candidate))
+    missing_members_candidate["snapshot_inventory"] = [
+        entry
+        for entry in missing_members_candidate["snapshot_inventory"]
+        if entry["member_id"] != "figure-2"
+    ]
+    missing_members_candidate["audit_inventory"] = [
+        entry
+        for entry in missing_members_candidate["audit_inventory"]
+        if entry["member_id"] != "table-1"
+    ]
+    missing_members = validate_document_display_scope_coverage(
+        missing_members_candidate
+    )
+    assert missing_members["missing_snapshot_members"] == ["figure-2:main_figure"]
+    assert missing_members["missing_audit_members"] == ["table-1:main_table"]
+    assert {item["code"] for item in missing_members["findings"]} >= {
+        "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_SNAPSHOT",
+        "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_AUDIT",
+    }
+
+    invalid_pdf_pair_candidate = json.loads(json.dumps(valid_document_candidate))
+    invalid_pdf_pair_candidate["snapshot_inventory"][0]["role"] = "main_composed_pdf"
+    invalid_pdf_pair_candidate["audit_inventory"][0]["ref"] = "audit/manuscript.pdf"
+    invalid_pdf_pair = validate_document_display_scope_coverage(
+        invalid_pdf_pair_candidate
+    )
+    assert {item["code"] for item in invalid_pdf_pair["findings"]} >= {
+        "DOCUMENT_DISPLAY_PAPER_PDF_MISSING_FROM_SNAPSHOT",
+        "DOCUMENT_DISPLAY_PAPER_PDF_MISSING_FROM_AUDIT",
+    }
+
+    missing_durable_refs_candidate = json.loads(json.dumps(valid_document_candidate))
+    missing_durable_refs_candidate.pop("font_inventory_ref")
+    missing_durable_refs_candidate.pop("page_render_evidence_ref")
+    missing_durable_refs_candidate["audit_inventory"].append(
+        inventory_member(
+            "page-audit", "page_render_evidence", "audit/pages.json", "8"
+        )
+    )
+    missing_durable_refs = validate_document_display_scope_coverage(
+        missing_durable_refs_candidate
+    )
+    assert {item["code"] for item in missing_durable_refs["findings"]} >= {
+        "DOCUMENT_DISPLAY_REQUIRED_EXACT_REF_INVALID",
+        "DOCUMENT_DISPLAY_PAGE_EVIDENCE_MISSING",
+    }
+
+    inapplicable_reader_pdf_candidate = json.loads(json.dumps(valid_document_candidate))
+    inapplicable_reader_pdf_candidate["requires_reader_pdf"] = False
+    inapplicable_reader_pdf_candidate["not_applicable_reason"] = "no reader PDF"
+    inapplicable_reader_pdf = validate_document_display_scope_coverage(
+        inapplicable_reader_pdf_candidate
+    )
+    assert inapplicable_reader_pdf["machine_check_status"] == "route_back_required"
+    assert "DOCUMENT_DISPLAY_READER_PDF_NOT_APPLICABLE" in {
+        item["code"] for item in inapplicable_reader_pdf["findings"]
+    }
+
+    valid_supplement_na_candidate = json.loads(json.dumps(valid_document_candidate))
+    valid_supplement_na_candidate["supplement_applicable"] = False
+    valid_supplement_na_candidate[
+        "supplement_not_applicable_reason"
+    ] = "the study has no supplement"
+    valid_supplement_na_candidate["snapshot_inventory"] = [
+        entry
+        for entry in valid_supplement_na_candidate["snapshot_inventory"]
+        if entry["member_id"] != "paper-combined"
+    ]
+    valid_supplement_na_candidate["audit_inventory"] = [
+        entry
+        for entry in valid_supplement_na_candidate["audit_inventory"]
+        if entry["member_id"] != "paper-combined"
+    ]
+    valid_supplement_na = validate_document_display_scope_coverage(
+        valid_supplement_na_candidate
+    )
+    assert valid_supplement_na["machine_check_status"] == "candidate_complete"
+
+    supplement_identity_candidate = json.loads(json.dumps(valid_document_candidate))
+    supplement_identity_candidate["audit_inventory"][1]["sha256"] = f"sha256:{'a' * 64}"
+    supplement_identity = validate_document_display_scope_coverage(
+        supplement_identity_candidate
+    )
+    assert "DOCUMENT_DISPLAY_SUPPLEMENT_PDF_IDENTITY_MISMATCH" in {
+        item["code"] for item in supplement_identity["findings"]
+    }
     assert _font_embedding_state("Type3", b"") is None
     assert _font_embedding_state("Type1", b"") is False
     assert _font_embedding_state("Type0", b"font-program") is True
@@ -2447,7 +3111,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 78 if fitz_available else 71 if pillow_available else 58
+    checks = 85 if fitz_available else 78 if pillow_available else 65
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

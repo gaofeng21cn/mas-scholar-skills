@@ -181,6 +181,44 @@ map must contain the central claim row, its `analysis_source_ref`, and every
 supporting main/supplement display ref. Missing binding is a refs-only
 statistical route-back candidate, not a statistical verdict or execution stop.
 
+## Initial-Draft Prediction-Model Integrity
+
+Before a prediction-model initial draft is treated as complete, build and
+pressure-test four separate refs: `validation_partition_integrity_ref`,
+`endpoint_analysis_set_reconciliation_ref`,
+`model_complexity_sparse_event_ref`, and, when decision curves are reported,
+`decision_curve_validity_ref`.
+
+For partition integrity, bind development, tuning, and validation partitions,
+their disjointness, source-population relation, and every penalty/tuning/model
+selection decision. An empty decision list is not evidence; record an explicit
+prespecified `no_tuning_prespecified` row when no tuning occurred. Validation
+outcomes cannot select hyperparameters, penalties, transforms, or model form.
+A center-disjoint split from one cohort is internal or internal-external
+validation, not external validation.
+
+For endpoint reconciliation, use one row per endpoint and follow-up basis with
+its exact analysis-set ref, N, events, estimand, and source metric. Distinct
+endpoints or horizons may legitimately have different N/events; this is not a
+conflict when their estimands and sources are independently bound. Never reuse
+one estimand or source ref to hide incompatible event counts.
+
+For model complexity, report candidate and effective degrees of freedom,
+continuous-predictor count, formal sample-size/overfitting method and inputs,
+expected and observed shrinkage or optimism, separation, penalty source,
+calibration, and full parameters. Events per parameter is descriptive context,
+not a mechanical 5- or 10-events-per-variable pass rule. Declare proportional-
+hazards applicability explicitly as `required` or
+`not_applicable_with_reason`; do not infer it from a model-name string.
+Nonlinearity evidence is required when any continuous predictor is modeled and
+may be explicitly inapplicable only when none exists.
+
+For decision curves, bind the horizon, censoring count and method, analysis-set
+policy, uncertainty method and interval, calibration basis and status,
+threshold range, net-benefit source, and at least one real clinical action
+scenario. Complete-case binary point estimates, unverified calibration, or a
+plot alone do not support clinical-utility language.
+
 ## EHR And Registry Signal Validity Rule
 
 For EHR, registry, chart-derived, claims-linked, or other real-world-data work,
@@ -391,6 +429,10 @@ Return refs-only candidate output:
 - optional owner-provided `epistemic_review_scope_ref` locator
 - `skill_pack_governance_policy_ref`
 - `statistical_action_matrix_ref`
+- `validation_partition_integrity_ref` for prediction-model validation
+- `endpoint_analysis_set_reconciliation_ref` for endpoint/horizon accounting
+- `model_complexity_sparse_event_ref` for model adequacy and diagnostics
+- `decision_curve_validity_ref` when decision curves are reported
 - `fixed_horizon_risk_semantics_ref` when a fixed horizon is used
 - `construct_comparability_ref` when sources or cohorts are compared
 - `ehr_registry_signal_validity_ref` when EHR/registry signal validity is material

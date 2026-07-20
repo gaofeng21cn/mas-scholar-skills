@@ -76,6 +76,59 @@ DENOMINATOR_SEMANTIC_KINDS = (
     "absolute_flagged_count",
 )
 
+VALIDATION_PARTITION_STRATEGIES = (
+    "random_split",
+    "temporal_split",
+    "center_disjoint",
+    "site_disjoint",
+    "independent_external_dataset",
+)
+VALIDATION_TYPES = ("internal", "internal_external", "external")
+SOURCE_POPULATION_RELATIONS = (
+    "same_cohort_partition",
+    "independently_assembled_external_population",
+    "unclear",
+)
+DEVELOPMENT_SELECTION_PARTITIONS = {
+    "development",
+    "development_resampling",
+}
+ENDPOINT_ROLES = ("primary", "secondary", "sensitivity")
+FOLLOW_UP_BASES = ("fixed_horizon", "full_follow_up")
+MODEL_SEPARATION_STATUSES = ("none", "suspected", "detected", "not_assessed")
+MODEL_PENALTY_SOURCES = (
+    "prespecified",
+    "development_resampling",
+    "external_prior",
+    "validation_outcome",
+)
+MODEL_ADEQUACY_METHODS = (
+    "riley_pmsampsize",
+    "bootstrap_optimism",
+    "simulation_based",
+    "owner_declared_equivalent",
+)
+DIAGNOSTIC_APPLICABILITY_STATUSES = (
+    "required",
+    "not_applicable_with_reason",
+)
+DCA_CENSORING_METHODS = (
+    "none_complete_follow_up",
+    "ipcw",
+    "survival_dca",
+)
+DCA_CALIBRATION_BASIS_STATUSES = (
+    "validated_absolute_risk",
+    "recalibrated_absolute_risk",
+    "unverified",
+)
+DCA_UNCERTAINTY_METHODS = (
+    "bootstrap",
+    "influence_function",
+    "cross_validation",
+    "other_prespecified",
+)
+
 P_VALUE_RE = re.compile(r"\bp\s*[<=>]\s*0?\.\d+|\bp-value\b", re.I)
 CI_RE = re.compile(r"\b(?:ci|confidence interval|credible interval)\b", re.I)
 EFFECT_RE = re.compile(r"\b(?:or|hr|rr|risk ratio|mean difference|effect size|estimate)\b", re.I)
@@ -100,6 +153,10 @@ def statistical_review_schema() -> dict[str, Any]:
             "statistical_action_matrix_ref": {"type": "array", "items": {"type": "object"}},
             "ehr_registry_signal_validity_ref": {"type": "object"},
             "denominator_semantics_matrix_ref": {"type": "array", "items": {"type": "object"}},
+            "validation_partition_integrity_ref": {"type": "object"},
+            "endpoint_analysis_set_reconciliation_ref": {"type": "object"},
+            "model_complexity_sparse_event_ref": {"type": "object"},
+            "decision_curve_validity_ref": {"type": "object"},
             "route_back_candidate": {"type": "string"},
         },
     }
@@ -226,6 +283,654 @@ def validate_fixed_horizon_risk_semantics(
             )
         )
     return findings
+
+
+def validate_validation_partition_integrity(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit partition independence and outcome-free model selection."""
+
+    findings: list[dict[str, object]] = []
+    required = (
+        "development_partition_ref",
+        "validation_partition_ref",
+        "partition_strategy",
+        "partitions_disjoint",
+        "claimed_validation_type",
+        "source_population_relation",
+        "validation_outcome_ref",
+        "selection_decisions",
+        "authority",
+    )
+    _require_candidate_fields(candidate, required, findings, "VALIDATION_PARTITION")
+    strategy = str(candidate.get("partition_strategy") or "")
+    validation_type = str(candidate.get("claimed_validation_type") or "")
+    source_relation = str(candidate.get("source_population_relation") or "")
+    if strategy not in VALIDATION_PARTITION_STRATEGIES:
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_PARTITION_STRATEGY_INVALID",
+                "partition_strategy",
+                "declare the actual split or independent external dataset strategy",
+            )
+        )
+    if validation_type not in VALIDATION_TYPES:
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_TYPE_INVALID",
+                "claimed_validation_type",
+                "use internal, internal_external, or external",
+            )
+        )
+    if source_relation not in SOURCE_POPULATION_RELATIONS:
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_SOURCE_POPULATION_RELATION_INVALID",
+                "source_population_relation",
+                "declare same-cohort partition, independently assembled external population, or unclear",
+            )
+        )
+    elif source_relation == "unclear":
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_SOURCE_POPULATION_PROVENANCE_UNRESOLVED",
+                "source_population_relation",
+                "resolve whether validation participants come from the same cohort or an independently assembled population",
+            )
+        )
+    development_ref = _candidate_ref_identity(candidate.get("development_partition_ref"))
+    validation_ref = _candidate_ref_identity(candidate.get("validation_partition_ref"))
+    if development_ref and development_ref == validation_ref:
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_PARTITIONS_NOT_DISTINCT",
+                "validation_partition_ref",
+                "bind development and validation to distinct partition refs",
+            )
+        )
+    if candidate.get("partitions_disjoint") is not True:
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_PARTITIONS_NOT_DISJOINT",
+                "partitions_disjoint",
+                "supply disjoint subject or cluster membership evidence",
+            )
+        )
+    if source_relation == "same_cohort_partition" and validation_type == "external":
+        findings.append(
+            _candidate_finding(
+                "SAME_SOURCE_SPLIT_MISLABELED_AS_EXTERNAL_VALIDATION",
+                "claimed_validation_type",
+                "label a within-cohort split as internal or internal_external validation",
+            )
+        )
+    if validation_type == "external":
+        if source_relation != "independently_assembled_external_population" or not _candidate_ref_identity(
+            candidate.get("independent_external_cohort_ref")
+        ):
+            findings.append(
+                _candidate_finding(
+                    "EXTERNAL_VALIDATION_INDEPENDENT_COHORT_MISSING",
+                    "independent_external_cohort_ref",
+                    "bind the external claim to an independent source population",
+                )
+            )
+
+    decisions = candidate.get("selection_decisions")
+    if not isinstance(decisions, Sequence) or isinstance(decisions, (str, bytes)):
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_SELECTION_DECISIONS_INVALID",
+                "selection_decisions",
+                "provide a list of tuning, penalty, and model-selection decisions",
+            )
+        )
+        decisions = []
+    if not decisions:
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_SELECTION_POLICY_MISSING",
+                "selection_decisions",
+                "declare the tuning/model-selection timeline, including a prespecified no-tuning policy",
+            )
+        )
+    for index, decision in enumerate(decisions):
+        field = f"selection_decisions[{index}]"
+        if not isinstance(decision, Mapping):
+            findings.append(
+                _candidate_finding(
+                    "VALIDATION_SELECTION_DECISION_INVALID",
+                    field,
+                    "provide a structured decision row",
+                )
+            )
+            continue
+        for required_field in (
+            "decision_kind",
+            "metric_ref",
+            "metric_partition",
+            "uses_validation_outcomes",
+        ):
+            if decision.get(required_field) in (None, ""):
+                findings.append(
+                    _candidate_finding(
+                        "VALIDATION_SELECTION_DECISION_FIELD_MISSING",
+                        f"{field}.{required_field}",
+                        "bind each selection decision to development-only evidence",
+                    )
+                )
+        metric_partition = str(decision.get("metric_partition") or "")
+        if (
+            metric_partition not in DEVELOPMENT_SELECTION_PARTITIONS
+            or decision.get("uses_validation_outcomes") is not False
+        ):
+            findings.append(
+                _candidate_finding(
+                    "VALIDATION_OUTCOME_USED_FOR_MODEL_SELECTION",
+                    field,
+                    "select penalty, tuning, and model form using development-only resampling",
+                )
+            )
+    _require_no_authority(candidate, findings, "validation_partition_integrity_ref")
+    return _candidate_audit_result(
+        "validation_partition_integrity_ref",
+        findings,
+        claimed_validation_type=validation_type,
+    )
+
+
+def validate_endpoint_analysis_set_reconciliation(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit endpoint, follow-up basis, N/event, estimand, and source separation."""
+
+    findings: list[dict[str, object]] = []
+    rows = candidate.get("rows")
+    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes)) or not rows:
+        findings.append(
+            _candidate_finding(
+                "ENDPOINT_ANALYSIS_SET_ROWS_INVALID",
+                "rows",
+                "provide at least one endpoint-specific analysis-set row",
+            )
+        )
+        rows = []
+    normalized: list[dict[str, object]] = []
+    required_fields = (
+        "endpoint_id",
+        "endpoint_role",
+        "follow_up_basis",
+        "analysis_set_ref",
+        "n",
+        "events",
+        "estimand_ref",
+        "source_metric_ref",
+    )
+    for index, row in enumerate(rows):
+        field = f"rows[{index}]"
+        if not isinstance(row, Mapping):
+            findings.append(
+                _candidate_finding(
+                    "ENDPOINT_ANALYSIS_SET_ROW_INVALID",
+                    field,
+                    "provide a structured reconciliation row",
+                )
+            )
+            continue
+        for required_field in required_fields:
+            if row.get(required_field) in (None, ""):
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_ANALYSIS_SET_FIELD_MISSING",
+                        f"{field}.{required_field}",
+                        "separate endpoint, time basis, analysis set, estimand, and source",
+                    )
+                )
+        endpoint_role = str(row.get("endpoint_role") or "")
+        follow_up_basis = str(row.get("follow_up_basis") or "")
+        if endpoint_role not in ENDPOINT_ROLES:
+            findings.append(
+                _candidate_finding(
+                    "ENDPOINT_ROLE_INVALID",
+                    f"{field}.endpoint_role",
+                    "use primary, secondary, or sensitivity",
+                )
+            )
+        if follow_up_basis not in FOLLOW_UP_BASES:
+            findings.append(
+                _candidate_finding(
+                    "FOLLOW_UP_BASIS_INVALID",
+                    f"{field}.follow_up_basis",
+                    "separate fixed-horizon from full-follow-up analyses",
+                )
+            )
+        n_value = row.get("n")
+        events = row.get("events")
+        if (
+            isinstance(n_value, bool)
+            or not isinstance(n_value, int)
+            or n_value <= 0
+            or isinstance(events, bool)
+            or not isinstance(events, int)
+            or events < 0
+            or (isinstance(n_value, int) and isinstance(events, int) and events > n_value)
+        ):
+            findings.append(
+                _candidate_finding(
+                    "ENDPOINT_N_EVENT_COUNT_INVALID",
+                    field,
+                    "supply integer N and event counts with 0 <= events <= N",
+                )
+            )
+        normalized.append(
+            {
+                "index": index,
+                "pair": (n_value, events),
+                "endpoint_id": str(row.get("endpoint_id") or ""),
+                "endpoint_role": endpoint_role,
+                "follow_up_basis": follow_up_basis,
+                "estimand_ref": _candidate_ref_identity(row.get("estimand_ref")),
+                "source_metric_ref": _candidate_ref_identity(row.get("source_metric_ref")),
+            }
+        )
+    if normalized and not any(row["endpoint_role"] == "primary" for row in normalized):
+        findings.append(
+            _candidate_finding(
+                "PRIMARY_ENDPOINT_ANALYSIS_SET_MISSING",
+                "rows",
+                "identify the primary endpoint analysis set",
+            )
+        )
+    for left_index, left in enumerate(normalized):
+        for right in normalized[left_index + 1 :]:
+            if left["pair"] == right["pair"]:
+                continue
+            shared_estimand = bool(left["estimand_ref"]) and (
+                left["estimand_ref"] == right["estimand_ref"]
+            )
+            shared_source = bool(left["source_metric_ref"]) and (
+                left["source_metric_ref"] == right["source_metric_ref"]
+            )
+            if shared_estimand or shared_source:
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_ANALYSIS_SET_ESTIMAND_SOURCE_CONFLATED",
+                        f"rows[{left['index']}]|rows[{right['index']}]",
+                        "bind each distinct N/event pair to its endpoint role, follow-up basis, estimand, and source metric",
+                    )
+                )
+    _require_no_authority(candidate, findings, "endpoint_analysis_set_reconciliation_ref")
+    return _candidate_audit_result(
+        "endpoint_analysis_set_reconciliation_ref",
+        findings,
+        row_count=len(normalized),
+    )
+
+
+def validate_model_complexity_sparse_event(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit model degrees of freedom against events and required diagnostics."""
+
+    findings: list[dict[str, object]] = []
+    required = (
+        "model_family",
+        "event_count",
+        "candidate_parameter_df",
+        "effective_parameter_df",
+        "continuous_predictor_count",
+        "sample_size_adequacy_method",
+        "sample_size_adequacy_inputs_ref",
+        "sample_size_adequacy_result_ref",
+        "expected_shrinkage_or_optimism_ref",
+        "observed_shrinkage_or_optimism_ref",
+        "separation_status",
+        "penalty_source",
+        "ph_assessment_applicability",
+        "ph_assessment_ref",
+        "nonlinearity_assessment_ref",
+        "calibration_intercept_ref",
+        "calibration_slope_ref",
+        "full_model_parameter_ref",
+        "authority",
+    )
+    _require_candidate_fields(candidate, required, findings, "MODEL_COMPLEXITY")
+    events = candidate.get("event_count")
+    effective_df = candidate.get("effective_parameter_df")
+    candidate_df = candidate.get("candidate_parameter_df")
+    numeric_valid = True
+    continuous_predictor_count = candidate.get("continuous_predictor_count")
+    for field, value, minimum in (
+        ("event_count", events, 1),
+        ("candidate_parameter_df", candidate_df, 1),
+        ("effective_parameter_df", effective_df, 1),
+        ("continuous_predictor_count", continuous_predictor_count, 0),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+            numeric_valid = False
+            findings.append(
+                _candidate_finding(
+                    "MODEL_COMPLEXITY_COUNT_INVALID",
+                    field,
+                    "supply positive integer event and parameter-degree counts",
+                )
+            )
+    events_per_df = None
+    if numeric_valid:
+        events_per_df = float(events) / float(effective_df)
+    adequacy_method = str(candidate.get("sample_size_adequacy_method") or "")
+    if adequacy_method not in MODEL_ADEQUACY_METHODS:
+        findings.append(
+            _candidate_finding(
+                "MODEL_SAMPLE_SIZE_ADEQUACY_METHOD_INVALID",
+                "sample_size_adequacy_method",
+                "use Riley/pmsampsize inputs, bootstrap optimism, simulation, or an owner-declared equivalent",
+            )
+        )
+    for ref_field in (
+        "sample_size_adequacy_inputs_ref",
+        "sample_size_adequacy_result_ref",
+        "expected_shrinkage_or_optimism_ref",
+        "observed_shrinkage_or_optimism_ref",
+    ):
+        if not _candidate_ref_identity(candidate.get(ref_field)):
+            findings.append(
+                _candidate_finding(
+                    "MODEL_FORMAL_ADEQUACY_EVIDENCE_MISSING",
+                    ref_field,
+                    "bind a formal sample-size/overfitting assessment and shrinkage or optimism evidence",
+                    severity="route_back_required",
+                )
+            )
+    separation = str(candidate.get("separation_status") or "")
+    if separation not in MODEL_SEPARATION_STATUSES:
+        findings.append(
+            _candidate_finding(
+                "MODEL_SEPARATION_STATUS_INVALID",
+                "separation_status",
+                "declare none, suspected, detected, or not_assessed",
+            )
+        )
+    elif separation in {"suspected", "detected", "not_assessed"}:
+        findings.append(
+            _candidate_finding(
+                "MODEL_SEPARATION_ROUTE_BACK_REQUIRED",
+                "separation_status",
+                "resolve or explicitly model sparse-level separation before full-draft claims",
+                severity="route_back_required",
+            )
+        )
+    penalty_source = str(candidate.get("penalty_source") or "")
+    if penalty_source not in MODEL_PENALTY_SOURCES:
+        findings.append(
+            _candidate_finding(
+                "MODEL_PENALTY_SOURCE_INVALID",
+                "penalty_source",
+                "declare prespecified, development-resampling, or external-prior penalty evidence",
+            )
+        )
+    elif penalty_source == "validation_outcome":
+        findings.append(
+            _candidate_finding(
+                "VALIDATION_OUTCOME_USED_FOR_PENALTY_SELECTION",
+                "penalty_source",
+                "select penalty strength without validation outcomes",
+                severity="route_back_required",
+            )
+        )
+    ph_applicability = str(candidate.get("ph_assessment_applicability") or "")
+    if ph_applicability not in DIAGNOSTIC_APPLICABILITY_STATUSES:
+        findings.append(
+            _candidate_finding(
+                "MODEL_PH_APPLICABILITY_INVALID",
+                "ph_assessment_applicability",
+                "declare required or not_applicable_with_reason explicitly",
+            )
+        )
+    nonlinearity_required = (
+        isinstance(continuous_predictor_count, int)
+        and not isinstance(continuous_predictor_count, bool)
+        and continuous_predictor_count > 0
+    )
+    for ref_field, allow_not_applicable, require_not_applicable in (
+        (
+            "ph_assessment_ref",
+            ph_applicability == "not_applicable_with_reason",
+            ph_applicability == "not_applicable_with_reason",
+        ),
+        ("nonlinearity_assessment_ref", not nonlinearity_required, False),
+        ("calibration_intercept_ref", True, False),
+        ("calibration_slope_ref", True, False),
+    ):
+        _validate_conditional_model_evidence(
+            candidate.get(ref_field),
+            ref_field,
+            findings,
+            allow_not_applicable=allow_not_applicable,
+            require_not_applicable=require_not_applicable,
+        )
+    if not _candidate_ref_identity(candidate.get("full_model_parameter_ref")):
+        findings.append(
+            _candidate_finding(
+                "MODEL_DIAGNOSTIC_OR_PARAMETER_REF_MISSING",
+                "full_model_parameter_ref",
+                "bind the full model parameter evidence",
+            )
+        )
+    _require_no_authority(candidate, findings, "model_complexity_sparse_event_ref")
+    return _candidate_audit_result(
+        "model_complexity_sparse_event_ref",
+        findings,
+        events_per_effective_parameter_df=events_per_df,
+        events_per_parameter_role="descriptive_only_not_adequacy_verdict",
+    )
+
+
+def _validate_conditional_model_evidence(
+    value: object,
+    field: str,
+    findings: list[dict[str, object]],
+    *,
+    allow_not_applicable: bool,
+    require_not_applicable: bool,
+) -> None:
+    """Accept a ref or an explicit status/ref/reason disposition."""
+
+    if isinstance(value, Mapping) and "status" in value:
+        if set(value) != {"status", "ref", "reason"}:
+            findings.append(
+                _candidate_finding(
+                    "MODEL_DIAGNOSTIC_DISPOSITION_FIELDS_INVALID",
+                    field,
+                    "use exactly status, ref, and reason",
+                )
+            )
+        status = str(value.get("status") or "")
+        ref = _candidate_ref_identity(value.get("ref"))
+        reason = str(value.get("reason") or "").strip()
+        if status == "present":
+            if not ref or reason:
+                findings.append(
+                    _candidate_finding(
+                        "MODEL_DIAGNOSTIC_PRESENT_INVALID",
+                        field,
+                        "bind a non-empty ref and leave reason empty",
+                    )
+                )
+            elif require_not_applicable:
+                findings.append(
+                    _candidate_finding(
+                        "MODEL_DIAGNOSTIC_APPLICABILITY_DISPOSITION_MISMATCH",
+                        field,
+                        "match the evidence disposition to the declared applicability",
+                    )
+                )
+        elif status == "not_applicable_with_reason":
+            if not allow_not_applicable or ref or not reason:
+                findings.append(
+                    _candidate_finding(
+                        "MODEL_DIAGNOSTIC_NOT_APPLICABLE_INVALID",
+                        field,
+                        "use not_applicable_with_reason only when the diagnostic does not apply",
+                    )
+                )
+        else:
+            findings.append(
+                _candidate_finding(
+                    "MODEL_DIAGNOSTIC_DISPOSITION_STATUS_INVALID",
+                    f"{field}.status",
+                    "use present or not_applicable_with_reason",
+                )
+            )
+        return
+    if not _candidate_ref_identity(value):
+        findings.append(
+            _candidate_finding(
+                "MODEL_DIAGNOSTIC_OR_PARAMETER_REF_MISSING",
+                field,
+                "bind diagnostic evidence or an explicit not-applicable disposition",
+            )
+        )
+    elif require_not_applicable:
+        findings.append(
+            _candidate_finding(
+                "MODEL_DIAGNOSTIC_APPLICABILITY_DISPOSITION_MISMATCH",
+                field,
+                "match the evidence disposition to the declared applicability",
+            )
+        )
+
+
+def validate_decision_curve_validity(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit fixed-horizon decision-curve semantics under censoring."""
+
+    findings: list[dict[str, object]] = []
+    required = (
+        "prediction_horizon_ref",
+        "censoring_before_horizon_count",
+        "censoring_method",
+        "analysis_set_policy",
+        "uncertainty_method",
+        "uncertainty_interval_ref",
+        "calibration_basis_ref",
+        "calibration_basis_status",
+        "threshold_range_ref",
+        "net_benefit_source_ref",
+        "clinical_action_scenarios",
+        "authority",
+    )
+    _require_candidate_fields(candidate, required, findings, "DECISION_CURVE")
+    censored = candidate.get("censoring_before_horizon_count")
+    if isinstance(censored, bool) or not isinstance(censored, int) or censored < 0:
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_CENSORING_COUNT_INVALID",
+                "censoring_before_horizon_count",
+                "supply a non-negative count",
+            )
+        )
+        censored = None
+    method = str(candidate.get("censoring_method") or "")
+    if method not in DCA_CENSORING_METHODS:
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_CENSORING_METHOD_INVALID",
+                "censoring_method",
+                "use complete-follow-up, IPCW, or survival-DCA semantics",
+            )
+        )
+    if isinstance(censored, int) and censored > 0:
+        if method not in {"ipcw", "survival_dca"}:
+            findings.append(
+                _candidate_finding(
+                    "DECISION_CURVE_EARLY_CENSORING_UNCORRECTED",
+                    "censoring_method",
+                    "use IPCW or survival decision-curve estimation at the fixed horizon",
+                    severity="route_back_required",
+                )
+            )
+        if str(candidate.get("analysis_set_policy") or "").startswith("complete_case"):
+            findings.append(
+                _candidate_finding(
+                    "DECISION_CURVE_COMPLETE_CASE_WITH_EARLY_CENSORING",
+                    "analysis_set_policy",
+                    "retain the censoring risk set and use a censoring-aware estimator",
+                    severity="route_back_required",
+                )
+            )
+    uncertainty_method = str(candidate.get("uncertainty_method") or "")
+    if uncertainty_method not in DCA_UNCERTAINTY_METHODS:
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_UNCERTAINTY_METHOD_INVALID",
+                "uncertainty_method",
+                "declare the bootstrap, influence-function, cross-validation, or other prespecified uncertainty method",
+            )
+        )
+    calibration_status = str(candidate.get("calibration_basis_status") or "")
+    if calibration_status not in DCA_CALIBRATION_BASIS_STATUSES:
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_CALIBRATION_BASIS_STATUS_INVALID",
+                "calibration_basis_status",
+                "declare validated_absolute_risk, recalibrated_absolute_risk, or unverified",
+            )
+        )
+    elif calibration_status == "unverified":
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_CALIBRATION_BASIS_UNVERIFIED",
+                "calibration_basis_status",
+                "validate or recalibrate absolute risk before threshold net-benefit claims",
+                severity="route_back_required",
+            )
+        )
+    for ref_field in (
+        "prediction_horizon_ref",
+        "uncertainty_interval_ref",
+        "calibration_basis_ref",
+        "threshold_range_ref",
+        "net_benefit_source_ref",
+    ):
+        if not _candidate_ref_identity(candidate.get(ref_field)):
+            findings.append(
+                _candidate_finding(
+                    "DECISION_CURVE_REQUIRED_REF_MISSING",
+                    ref_field,
+                    "bind the fixed horizon, uncertainty, calibration, threshold, and net-benefit source",
+                )
+            )
+    scenarios = candidate.get("clinical_action_scenarios")
+    if not isinstance(scenarios, Sequence) or isinstance(scenarios, (str, bytes)):
+        scenarios = []
+    if len(scenarios) != 1:
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_ACTION_SCENARIO_NOT_UNIQUE",
+                "clinical_action_scenarios",
+                "declare exactly one clinically actionable decision scenario",
+            )
+        )
+    elif not isinstance(scenarios[0], Mapping) or not all(
+        _candidate_ref_identity(scenarios[0].get(field))
+        for field in ("scenario_ref", "action_ref")
+    ):
+        findings.append(
+            _candidate_finding(
+                "DECISION_CURVE_ACTION_SCENARIO_INCOMPLETE",
+                "clinical_action_scenarios[0]",
+                "bind the scenario and resulting clinical action",
+            )
+        )
+    _require_no_authority(candidate, findings, "decision_curve_validity_ref")
+    return _candidate_audit_result(
+        "decision_curve_validity_ref",
+        findings,
+        censoring_method=method,
+        calibration_basis_status=calibration_status,
+    )
 
 
 def normalize_model_family(value: object) -> str:
@@ -415,6 +1120,80 @@ def _denominator_finding(code: str, metric_ref: str) -> dict[str, object]:
         "metric_ref": metric_ref,
         "action": "separate numerator, denominator, unit, and visual semantics",
         "writes_authority": False,
+    }
+
+
+def _candidate_finding(
+    code: str,
+    field: str,
+    action: str,
+    *,
+    severity: str = "quality_debt",
+) -> dict[str, object]:
+    return {
+        "code": code,
+        "field": field,
+        "severity": severity,
+        "action": action,
+        "writes_authority": False,
+    }
+
+
+def _require_candidate_fields(
+    candidate: Mapping[str, object],
+    required: Sequence[str],
+    findings: list[dict[str, object]],
+    prefix: str,
+) -> None:
+    for field in required:
+        if candidate.get(field) in (None, ""):
+            findings.append(
+                _candidate_finding(
+                    f"{prefix}_FIELD_MISSING",
+                    field,
+                    "supply the required refs-only candidate field",
+                )
+            )
+
+
+def _require_no_authority(
+    candidate: Mapping[str, object],
+    findings: list[dict[str, object]],
+    surface_kind: str,
+) -> None:
+    if candidate.get("authority") is not False:
+        findings.append(
+            _candidate_finding(
+                "STATISTICAL_CANDIDATE_AUTHORITY_FORBIDDEN",
+                "authority",
+                f"keep {surface_kind} refs-only with authority=false",
+            )
+        )
+
+
+def _candidate_audit_result(
+    surface_kind: str,
+    findings: Sequence[Mapping[str, object]],
+    **details: object,
+) -> dict[str, Any]:
+    ordered_findings = sorted(
+        (dict(item) for item in findings),
+        key=lambda item: (str(item.get("code")), str(item.get("field"))),
+    )
+    complete = not ordered_findings
+    return {
+        "surface_kind": surface_kind,
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "findings": ordered_findings,
+        **details,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-statistical-review",
+            "reason": f"{surface_kind}_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
     }
 
 
@@ -780,7 +1559,386 @@ def _self_check() -> None:
     )
     assert separated_semantics == []
     assert all(item["writes_authority"] is False for item in mixed_semantics)
-    print(json.dumps({"ok": True, "checks": 23}, indent=2, sort_keys=True))
+
+    validation_leakage = validate_validation_partition_integrity(
+        {
+            "development_partition_ref": "partition:centers-a-b",
+            "validation_partition_ref": "partition:center-c",
+            "partition_strategy": "center_disjoint",
+            "partitions_disjoint": True,
+            "claimed_validation_type": "external",
+            "source_population_relation": "same_cohort_partition",
+            "validation_outcome_ref": "outcome:validation-5y",
+            "selection_decisions": [
+                {
+                    "decision_kind": "ridge_penalty_selection",
+                    "metric_ref": "metric:validation-c-index",
+                    "metric_partition": "validation",
+                    "uses_validation_outcomes": True,
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert {item["code"] for item in validation_leakage["findings"]} >= {
+        "VALIDATION_OUTCOME_USED_FOR_MODEL_SELECTION",
+        "SAME_SOURCE_SPLIT_MISLABELED_AS_EXTERNAL_VALIDATION",
+    }
+    clean_internal_validation = validate_validation_partition_integrity(
+        {
+            "development_partition_ref": "partition:centers-a-b",
+            "validation_partition_ref": "partition:center-c",
+            "partition_strategy": "center_disjoint",
+            "partitions_disjoint": True,
+            "claimed_validation_type": "internal_external",
+            "source_population_relation": "same_cohort_partition",
+            "validation_outcome_ref": "outcome:validation-5y",
+            "selection_decisions": [
+                {
+                    "decision_kind": "ridge_penalty_selection",
+                    "metric_ref": "metric:development-cross-validation",
+                    "metric_partition": "development_resampling",
+                    "uses_validation_outcomes": False,
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert clean_internal_validation["machine_check_status"] == "candidate_complete"
+    independent_external_center = validate_validation_partition_integrity(
+        {
+            "development_partition_ref": "partition:source-population-a",
+            "validation_partition_ref": "partition:external-center-b",
+            "partition_strategy": "center_disjoint",
+            "partitions_disjoint": True,
+            "claimed_validation_type": "external",
+            "source_population_relation": "independently_assembled_external_population",
+            "independent_external_cohort_ref": "cohort:external-center-b",
+            "validation_outcome_ref": "outcome:external-5y",
+            "selection_decisions": [
+                {
+                    "decision_kind": "no_tuning_prespecified",
+                    "metric_ref": "policy:prespecified-model",
+                    "metric_partition": "development",
+                    "uses_validation_outcomes": False,
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert independent_external_center["machine_check_status"] == "candidate_complete"
+
+    conflated_analysis_sets = validate_endpoint_analysis_set_reconciliation(
+        {
+            "rows": [
+                {
+                    "endpoint_id": "cvd-death-5y",
+                    "endpoint_role": "primary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:7311",
+                    "n": 7311,
+                    "events": 48,
+                    "estimand_ref": "estimand:unspecified",
+                    "source_metric_ref": "metric:mixed-analysis-set",
+                },
+                {
+                    "endpoint_id": "cvd-death-all-followup",
+                    "endpoint_role": "primary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:7408",
+                    "n": 7408,
+                    "events": 50,
+                    "estimand_ref": "estimand:unspecified",
+                    "source_metric_ref": "metric:mixed-analysis-set",
+                },
+            ],
+            "authority": False,
+        }
+    )
+    assert "ENDPOINT_ANALYSIS_SET_ESTIMAND_SOURCE_CONFLATED" in {
+        item["code"] for item in conflated_analysis_sets["findings"]
+    }
+    reconciled_analysis_sets = validate_endpoint_analysis_set_reconciliation(
+        {
+            "rows": [
+                {
+                    "endpoint_id": "cvd-death-5y",
+                    "endpoint_role": "primary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:7311",
+                    "n": 7311,
+                    "events": 48,
+                    "estimand_ref": "estimand:5y-cumulative-incidence",
+                    "source_metric_ref": "metric:primary-5y",
+                },
+                {
+                    "endpoint_id": "cvd-death-all-followup",
+                    "endpoint_role": "secondary",
+                    "follow_up_basis": "full_follow_up",
+                    "analysis_set_ref": "set:7408",
+                    "n": 7408,
+                    "events": 50,
+                    "estimand_ref": "estimand:cause-specific-hazard",
+                    "source_metric_ref": "metric:secondary-full-followup",
+                },
+            ],
+            "authority": False,
+        }
+    )
+    assert reconciled_analysis_sets["machine_check_status"] == "candidate_complete"
+    parallel_secondary_endpoints = validate_endpoint_analysis_set_reconciliation(
+        {
+            "rows": [
+                {
+                    "endpoint_id": "cvd-death-5y",
+                    "endpoint_role": "primary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:cvd-death",
+                    "n": 7210,
+                    "events": 45,
+                    "estimand_ref": "estimand:cvd-death-cumulative-incidence",
+                    "source_metric_ref": "metric:cvd-death-5y",
+                },
+                {
+                    "endpoint_id": "stroke-5y",
+                    "endpoint_role": "secondary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:stroke",
+                    "n": 7200,
+                    "events": 31,
+                    "estimand_ref": "estimand:stroke-cumulative-incidence",
+                    "source_metric_ref": "metric:stroke-5y",
+                },
+                {
+                    "endpoint_id": "mi-5y",
+                    "endpoint_role": "secondary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:mi",
+                    "n": 7190,
+                    "events": 27,
+                    "estimand_ref": "estimand:mi-cumulative-incidence",
+                    "source_metric_ref": "metric:mi-5y",
+                },
+            ],
+            "authority": False,
+        }
+    )
+    assert parallel_secondary_endpoints["machine_check_status"] == (
+        "candidate_complete"
+    )
+
+    sparse_model = validate_model_complexity_sparse_event(
+        {
+            "model_family": "Cox",
+            "event_count": 52,
+            "candidate_parameter_df": 30,
+            "effective_parameter_df": 30,
+            "continuous_predictor_count": 8,
+            "sample_size_adequacy_method": "riley_pmsampsize",
+            "separation_status": "detected",
+            "penalty_source": "development_resampling",
+            "ph_assessment_applicability": "required",
+            "ph_assessment_ref": "diagnostic:ph",
+            "nonlinearity_assessment_ref": "diagnostic:splines",
+            "calibration_intercept_ref": "calibration:intercept",
+            "calibration_slope_ref": "calibration:slope",
+            "full_model_parameter_ref": "model:full-parameters",
+            "authority": False,
+        }
+    )
+    assert {item["code"] for item in sparse_model["findings"]} >= {
+        "MODEL_FORMAL_ADEQUACY_EVIDENCE_MISSING",
+        "MODEL_SEPARATION_ROUTE_BACK_REQUIRED",
+    }
+    formally_assessed_low_information_model = validate_model_complexity_sparse_event(
+        {
+            "model_family": "Cox",
+            "event_count": 52,
+            "candidate_parameter_df": 30,
+            "effective_parameter_df": 30,
+            "continuous_predictor_count": 8,
+            "sample_size_adequacy_method": "owner_declared_equivalent",
+            "sample_size_adequacy_inputs_ref": "adequacy:inputs",
+            "sample_size_adequacy_result_ref": "adequacy:result",
+            "expected_shrinkage_or_optimism_ref": "adequacy:expected-shrinkage",
+            "observed_shrinkage_or_optimism_ref": "adequacy:bootstrap-optimism",
+            "separation_status": "none",
+            "penalty_source": "development_resampling",
+            "ph_assessment_applicability": "required",
+            "ph_assessment_ref": "diagnostic:ph",
+            "nonlinearity_assessment_ref": "diagnostic:splines",
+            "calibration_intercept_ref": "calibration:intercept",
+            "calibration_slope_ref": "calibration:slope",
+            "full_model_parameter_ref": "model:full-parameters",
+            "authority": False,
+        }
+    )
+    assert formally_assessed_low_information_model["machine_check_status"] == (
+        "candidate_complete"
+    )
+    assert formally_assessed_low_information_model[
+        "events_per_parameter_role"
+    ] == "descriptive_only_not_adequacy_verdict"
+    classification_without_continuous_predictors = validate_model_complexity_sparse_event(
+        {
+            "model_family": "logistic classification",
+            "event_count": 120,
+            "candidate_parameter_df": 6,
+            "effective_parameter_df": 6,
+            "continuous_predictor_count": 0,
+            "sample_size_adequacy_method": "owner_declared_equivalent",
+            "sample_size_adequacy_inputs_ref": "adequacy:classification-inputs",
+            "sample_size_adequacy_result_ref": "adequacy:classification-result",
+            "expected_shrinkage_or_optimism_ref": "adequacy:expected-shrinkage",
+            "observed_shrinkage_or_optimism_ref": "adequacy:bootstrap-optimism",
+            "separation_status": "none",
+            "penalty_source": "prespecified",
+            "ph_assessment_applicability": "not_applicable_with_reason",
+            "ph_assessment_ref": {
+                "status": "not_applicable_with_reason",
+                "ref": "",
+                "reason": "the logistic model is not a proportional-hazards model",
+            },
+            "nonlinearity_assessment_ref": {
+                "status": "not_applicable_with_reason",
+                "ref": "",
+                "reason": "the model contains no continuous predictors",
+            },
+            "calibration_intercept_ref": "calibration:intercept",
+            "calibration_slope_ref": "calibration:slope",
+            "full_model_parameter_ref": "model:full-parameters",
+            "authority": False,
+        }
+    )
+    assert classification_without_continuous_predictors[
+        "machine_check_status"
+    ] == "candidate_complete"
+    continuous_predictor_without_assessment = validate_model_complexity_sparse_event(
+        {
+            "model_family": "logistic classification",
+            "event_count": 120,
+            "candidate_parameter_df": 6,
+            "effective_parameter_df": 6,
+            "continuous_predictor_count": 2,
+            "sample_size_adequacy_method": "owner_declared_equivalent",
+            "sample_size_adequacy_inputs_ref": "adequacy:classification-inputs",
+            "sample_size_adequacy_result_ref": "adequacy:classification-result",
+            "expected_shrinkage_or_optimism_ref": "adequacy:expected-shrinkage",
+            "observed_shrinkage_or_optimism_ref": "adequacy:bootstrap-optimism",
+            "separation_status": "none",
+            "penalty_source": "prespecified",
+            "ph_assessment_applicability": "not_applicable_with_reason",
+            "ph_assessment_ref": {
+                "status": "not_applicable_with_reason",
+                "ref": "",
+                "reason": "the logistic model is not a proportional-hazards model",
+            },
+            "nonlinearity_assessment_ref": {
+                "status": "not_applicable_with_reason",
+                "ref": "",
+                "reason": "not evaluated",
+            },
+            "calibration_intercept_ref": "calibration:intercept",
+            "calibration_slope_ref": "calibration:slope",
+            "full_model_parameter_ref": "model:full-parameters",
+            "authority": False,
+        }
+    )
+    assert "MODEL_DIAGNOSTIC_NOT_APPLICABLE_INVALID" in {
+        item["code"]
+        for item in continuous_predictor_without_assessment["findings"]
+    }
+    coxph_with_inconsistent_ph_disposition = validate_model_complexity_sparse_event(
+        {
+            "model_family": "CoxPH",
+            "event_count": 120,
+            "candidate_parameter_df": 6,
+            "effective_parameter_df": 6,
+            "continuous_predictor_count": 2,
+            "sample_size_adequacy_method": "owner_declared_equivalent",
+            "sample_size_adequacy_inputs_ref": "adequacy:coxph-inputs",
+            "sample_size_adequacy_result_ref": "adequacy:coxph-result",
+            "expected_shrinkage_or_optimism_ref": "adequacy:expected-shrinkage",
+            "observed_shrinkage_or_optimism_ref": "adequacy:bootstrap-optimism",
+            "separation_status": "none",
+            "penalty_source": "prespecified",
+            "ph_assessment_applicability": "required",
+            "ph_assessment_ref": {
+                "status": "not_applicable_with_reason",
+                "ref": "",
+                "reason": "incorrectly declared not applicable",
+            },
+            "nonlinearity_assessment_ref": "diagnostic:functional-form",
+            "calibration_intercept_ref": "calibration:intercept",
+            "calibration_slope_ref": "calibration:slope",
+            "full_model_parameter_ref": "model:full-parameters",
+            "authority": False,
+        }
+    )
+    assert "MODEL_DIAGNOSTIC_NOT_APPLICABLE_INVALID" in {
+        item["code"]
+        for item in coxph_with_inconsistent_ph_disposition["findings"]
+    }
+
+    invalid_dca = validate_decision_curve_validity(
+        {
+            "prediction_horizon_ref": "horizon:5y",
+            "censoring_before_horizon_count": 97,
+            "censoring_method": "none_complete_follow_up",
+            "analysis_set_policy": "complete_case_horizon_outcome",
+            "uncertainty_method": "bootstrap",
+            "uncertainty_interval_ref": "ci:bootstrap",
+            "calibration_basis_ref": "calibration:unrecalibrated-risk",
+            "calibration_basis_status": "unverified",
+            "threshold_range_ref": "threshold:0.01-0.20",
+            "net_benefit_source_ref": "metric:net-benefit",
+            "clinical_action_scenarios": [
+                {
+                    "scenario_ref": "scenario:preventive-review",
+                    "action_ref": "action:invite-review",
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert {item["code"] for item in invalid_dca["findings"]} >= {
+        "DECISION_CURVE_EARLY_CENSORING_UNCORRECTED",
+        "DECISION_CURVE_COMPLETE_CASE_WITH_EARLY_CENSORING",
+        "DECISION_CURVE_CALIBRATION_BASIS_UNVERIFIED",
+    }
+    valid_dca = validate_decision_curve_validity(
+        {
+            "prediction_horizon_ref": "horizon:5y",
+            "censoring_before_horizon_count": 97,
+            "censoring_method": "ipcw",
+            "analysis_set_policy": "ipcw_risk_set",
+            "uncertainty_method": "bootstrap",
+            "uncertainty_interval_ref": "ci:bootstrap-95",
+            "calibration_basis_ref": "calibration:validated-absolute-risk",
+            "calibration_basis_status": "validated_absolute_risk",
+            "threshold_range_ref": "threshold:0.01-0.20",
+            "net_benefit_source_ref": "metric:ipcw-net-benefit",
+            "clinical_action_scenarios": [
+                {
+                    "scenario_ref": "scenario:preventive-review",
+                    "action_ref": "action:invite-review",
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert valid_dca["machine_check_status"] == "candidate_complete"
+    assert all(
+        item["writes_authority"] is False
+        for audit in (
+            validation_leakage,
+            conflated_analysis_sets,
+            sparse_model,
+            invalid_dca,
+        )
+        for item in audit["findings"]
+    )
+    print(json.dumps({"ok": True, "checks": 39}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

@@ -234,6 +234,7 @@
       "contracts/scholar-skills-capability-modules.json",
       "contracts/publication-layout-profile.schema.json",
       "contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json",
+      "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
       "contracts/display-pack-receipt-templates.json",
       "contracts/professional-figure-workflow.schema.json",
       "references/professional-quality-ref-templates.md",
@@ -353,7 +354,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:1272c242295bb08fd43598aa0448cedb64929407cdb6b8696835a8fcc781e7fc"
+    "digest": "sha256:771fc6887c9059665f7e2c0c599ada18a29740968d800df2c1afd820418f8fd5"
   },
   "lifecycle": {
     "owner": "one-person-lab",

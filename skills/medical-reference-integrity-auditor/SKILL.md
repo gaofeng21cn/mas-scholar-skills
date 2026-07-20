@@ -33,7 +33,15 @@ scaffolds. It is stdlib-only and no-authority.
    superseded standard, or official-source status when relevant.
 4. Build `claim_citation_support_map_ref`: claim text, cited source, support
    type, population/endpoint/method fit, and support strength.
-5. Produce `route_back_candidate` for placeholders, fabricated-looking refs,
+5. Build `citation_source_coverage_ref` by reconciling four keyed sets exactly:
+   manuscript citations, bibliography records, source-context evidence, and
+   claim-citation support-map keys. Report every missing and orphan key; do not
+   let a partial bibliography stand in for closure. An initial medical draft
+   must contain at least one manuscript citation key and one verified keyed
+   bibliography record. A genuinely citation-free document type must use an
+   upper preflight `not_applicable_with_reason` disposition rather than passing
+   four empty sets.
+6. Produce `route_back_candidate` for placeholders, fabricated-looking refs,
    identifier mismatch, source mismatch, weak support, or missing primary source.
 
 ## Handoff Shape
@@ -46,6 +54,7 @@ Return:
 - `claim_citation_support_map_ref`
 - `duplicate_or_placeholder_ref`
 - `support_gap_ref`
+- `citation_source_coverage_ref`
 - optional owner-provided `epistemic_review_scope_ref` locator
 - `candidate_refs`
 - `route_back_candidate`

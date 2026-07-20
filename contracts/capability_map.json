@@ -5,7 +5,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_capability_map",
-  "updated_at": "2026-07-07",
+  "updated_at": "2026-07-20",
   "purpose": "Canonical OMA-readable mapping from MAS and Agent Lab feedback targets to MAS Scholar Skills professional skill sources.",
   "source_contract_ref": "contracts/scholar-skills-capability-modules.json",
   "failure_token_registry_ref": "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json",
@@ -33,6 +33,88 @@
     "capability_pack_may_claim_publication_readiness": false,
     "capability_pack_may_claim_current_package_authority": false,
     "closeout_refs_are_downstream_owner_targets_only": true
+  },
+  "medical_initial_draft_preflight_policy": {
+    "policy_id": "scholarskills_medical_initial_draft_preflight.v1",
+    "schema_ref": "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
+    "schema_version": 1,
+    "surface_kind": "medical_initial_draft_preflight_candidate_ref",
+    "statuses": [
+      "satisfied",
+      "route_back_required",
+      "not_applicable_with_reason"
+    ],
+    "gates": [
+      "study_identity",
+      "data_freeze",
+      "statistical_integrity",
+      "citation_integrity",
+      "table_traceability",
+      "display_scope",
+      "story_contract"
+    ],
+    "canonical_dependency_order": [
+      {
+        "tier": "baseline_data_citation",
+        "rank": 10,
+        "owner": "baseline_and_evidence_setup"
+      },
+      {
+        "tier": "analysis",
+        "rank": 20,
+        "owner": "bounded_analysis_campaign"
+      },
+      {
+        "tier": "authoring_display",
+        "rank": 30,
+        "owner": "manuscript_authoring"
+      },
+      {
+        "tier": "review",
+        "rank": 40,
+        "owner": "review_and_quality_gate"
+      }
+    ],
+    "gate_ref_families": {
+      "study_identity": [
+        "study_charter_ref",
+        "paper_identity_ref"
+      ],
+      "data_freeze": [
+        "clinical_analysis_input_identity_ref"
+      ],
+      "statistical_integrity": [
+        "validation_partition_integrity_ref",
+        "endpoint_analysis_set_reconciliation_ref",
+        "model_complexity_sparse_event_ref",
+        "decision_curve_validity_ref"
+      ],
+      "citation_integrity": [
+        "citation_source_coverage_ref"
+      ],
+      "table_traceability": [
+        "baseline_table_traceability_ref"
+      ],
+      "display_scope": [
+        "document_display_scope_coverage_ref"
+      ],
+      "story_contract": [
+        "first_draft_story_contract_ref"
+      ]
+    },
+    "producer_skill_id": "medical-manuscript-writing",
+    "independent_review_consumer_skill_id": "medical-manuscript-review",
+    "route_back_full_draft_policy": "route_back_required_limits_output_to_story_plan_section_contracts_and_bounded_candidate_prose",
+    "provider_or_render_completion_can_satisfy_preflight": false,
+    "authority_boundary": {
+      "refs_only": true,
+      "can_write_domain_truth": false,
+      "can_sign_owner_receipt": false,
+      "can_create_typed_blocker": false,
+      "can_claim_quality_verdict": false,
+      "can_claim_publication_readiness": false,
+      "can_authorize_full_draft": false
+    }
   },
   "capabilities": [
     {
@@ -268,6 +350,9 @@
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
+      "candidate_ref_families": [
+        "medical_initial_draft_preflight_candidate_ref"
+      ],
       "improvement_tokens": [
         "medical-manuscript-writing",
         "mas-scholar-skills.write",
@@ -330,6 +415,9 @@
         "references/professional-quality-ref-templates.md#epistemic-provenance-context",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
+      ],
+      "candidate_ref_families": [
+        "medical_initial_draft_preflight_candidate_ref"
       ],
       "improvement_tokens": [
         "medical-manuscript-review",
@@ -470,6 +558,12 @@
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
+      "candidate_ref_families": [
+        "validation_partition_integrity_ref",
+        "endpoint_analysis_set_reconciliation_ref",
+        "model_complexity_sparse_event_ref",
+        "decision_curve_validity_ref"
+      ],
       "improvement_tokens": [
         "medical-statistical-review",
         "mas-scholar-skills.stats",
@@ -534,6 +628,9 @@
         "docs/capability-modules.md#professional-skill-quality-floor",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
+      ],
+      "candidate_ref_families": [
+        "baseline_table_traceability_ref"
       ],
       "improvement_tokens": [
         "medical-table-design",
@@ -1458,6 +1555,7 @@
         "source_status_ref",
         "claim_citation_support_map_ref",
         "support_gap_ref",
+        "citation_source_coverage_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {
@@ -1548,6 +1646,7 @@
         "panel_caption_consistency_ref",
         "claim_display_alignment_ref",
         "accessibility_and_size_ref",
+        "document_display_scope_coverage_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {
@@ -1637,9 +1736,12 @@
         "survival_question_ref",
         "time_origin_and_risk_set_ref",
         "endpoint_and_censoring_ref",
+        "fixed_horizon_risk_semantics_ref",
         "competing_risk_ref",
         "model_plan_ref",
         "diagnostic_plan_ref",
+        "survival_estimand_plan_ref",
+        "decision_curve_validity_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {
@@ -1869,6 +1971,7 @@
         "dictionary_and_lineage_ref",
         "missingness_and_exclusion_ref",
         "analysis_readiness_gap_ref",
+        "clinical_analysis_input_identity_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {

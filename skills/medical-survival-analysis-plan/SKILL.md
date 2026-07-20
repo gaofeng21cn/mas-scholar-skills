@@ -33,7 +33,19 @@ reporting lint. It is stdlib-only and no-authority.
    parametric, Fine-Gray, landmarking, time-varying covariates, or sensitivity.
 6. Build `diagnostic_plan_ref`: proportional hazards, informative censoring,
    competing-risk assumptions, sparse events, calibration, and robustness.
-7. Produce `route_back_candidate` for undefined time zero, denominator drift,
+   Declare proportional-hazards applicability explicitly; require PH evidence
+   for Cox, Fine-Gray, and other proportional-hazards families, and use a
+   reasoned not-applicable disposition only for a genuinely non-PH model.
+   Require nonlinearity evidence when continuous predictors are present.
+7. When competing events can preclude the endpoint, build
+   `competing_risk_ref` with the competing event, estimand, cause-specific or
+   subdistribution boundary, and cumulative-incidence interpretation. Do not
+   silently treat a competing event as non-informative censoring.
+8. When decision curves are reported, consume or produce
+   `decision_curve_validity_ref` with fixed-horizon censoring handling,
+   uncertainty, calibration basis, threshold range, net-benefit source, and a
+   concrete clinical action scenario. A curve alone is not clinical utility.
+9. Produce `route_back_candidate` for undefined time zero, denominator drift,
    missing censoring logic, competing-risk mismatch, or owner analysis decisions.
 
 ## Handoff Shape
@@ -47,6 +59,8 @@ Return:
 - `competing_risk_ref`
 - `model_plan_ref`
 - `diagnostic_plan_ref`
+- `survival_estimand_plan_ref`
+- `decision_curve_validity_ref` when decision curves are reported
 - `survival_support_map_ref`
 - `candidate_refs`
 - `route_back_candidate`
