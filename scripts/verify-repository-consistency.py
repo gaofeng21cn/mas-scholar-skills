@@ -662,9 +662,13 @@ table_skill = capability_skill_texts["medical-table-design"]
 table_kernel = read_text("skills/medical-table-design/kernel.py")
 for token in [
     "Journal Footnote Discipline",
+    "Main-Table Information Budget",
     "lint_table_note_inventory()",
+    "lint_main_table_information_budget()",
+    "templates and gallery examples as a reference quality floor",
     "reader-facing table Markdown",
     "same long disclaimer below multiple tables",
+    "Do not render a standalone `Notes` heading",
 ]:
     if token not in table_skill:
         fail(f"medical-table-design missing journal footnote discipline token: {token}")
@@ -672,6 +676,13 @@ for token in [
     "TABLE_NOTE_BUDGET_EXCEEDED",
     "INTERNAL_AUDIT_METADATA_IN_READER_NOTE",
     "REPEATED_GLOBAL_TABLE_NOTE",
+    "MAIN_TABLE_ROW_BUDGET_EXCEEDED",
+    "MAIN_TABLE_COLUMN_BUDGET_EXCEEDED",
+    "MAIN_TABLE_BODY_WORD_BUDGET_EXCEEDED",
+    "MAIN_TABLE_FOOTNOTE_WORD_BUDGET_EXCEEDED",
+    "MAIN_TABLE_SUPPLEMENTARY_ROUTE_MISSING",
+    "MAIN_TABLE_STANDALONE_NOTES_HEADING_PRESENT",
+    "MAIN_TABLE_FINAL_EMBEDDING_NOT_ONE_PAGE",
 ]:
     if token not in table_kernel:
         fail(f"medical-table-design kernel missing table-note lint token: {token}")

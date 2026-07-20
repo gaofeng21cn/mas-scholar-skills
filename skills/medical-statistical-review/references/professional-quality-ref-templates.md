@@ -135,6 +135,39 @@ as a non-authoritative locator. Do not generate it, compare its digest, infer
 quality or currentness from it, or create a blocker or retry because it is
 missing or different.
 
+## Main-Table Information Budget Ref
+
+`main_table_information_budget_ref` is a compact assessment, not a mandatory
+layout template. Existing table templates and gallery examples are reference
+quality floors only; the professional Skill must still judge the reader
+question, table role, information load, and main-versus-supplement placement.
+
+Minimum candidate fields for each main table:
+
+```yaml
+main_table_information_budget_ref:
+  table_id: null
+  role: main_text
+  reader_question: null
+  row_count: null
+  column_count: null
+  body_word_count: null
+  max_cell_word_count: null
+  footnote_word_count: null
+  supplementary_detail_refs: []
+  final_embedding_status: pending
+  final_embedding_page_span: null
+  budget_status: within_default_budget
+  exception_reason: null
+  standalone_notes_heading_present: false
+```
+
+Use `within_default_budget` when the default Skill limits pass. Use
+`documented_exception` only for a journal- or table-specific reason verified at
+final size. An over-budget table without a documented exception should expose
+named supplementary-detail refs and a concrete compaction repair. This ref is
+quality evidence only; it does not authorize the table, package, or submission.
+
 ## Professional Figure Workflow Receipt
 
 For every new or materially repaired paper-facing figure, create one

@@ -124,6 +124,37 @@ journal-width table or composed PDF page. Check font size, wrapping, hierarchy,
 footnotes, and scanability at final embedding size. Programmatic non-overflow is
 necessary but cannot substitute for human-readable final-size inspection.
 
+## Main-Table Information Budget
+
+Every main-text table should answer one reader question.
+Treat templates and gallery examples as a reference quality floor, not as a
+required layout or a substitute for professional judgment. A table may use a
+new shell when its
+reader question or data structure does not fit an existing template, but it
+must still consume this Skill and document the information-budget decision.
+
+Use these defaults as a review trigger rather than a universal journal law:
+
+- at most 15 body rows and 8 columns, including the row-label column;
+- at most 350 body words and 24 words in the longest body cell;
+- at most 45 words of reader-visible footnotes;
+- one explicit reader question and one final embedded page.
+
+An over-budget main table should normally become a compact reader-facing
+projection with the complete matrix, audit inventory, subgroup detail, or
+sensitivity grid moved to a named supplementary table. A journal-specific or
+table-specific exception is allowed only when it remains readable at final
+size and the handoff states why compression would obscure the clinical
+comparison. Do not satisfy the budget by shrinking text, abbreviating beyond
+recognition, deleting denominators, or hiding uncertainty.
+
+Produce `main_table_information_budget_ref` for every main table with its role,
+reader question, row and column counts, body-word count, longest-cell word
+count, footnote-word count, supplementary-detail refs, and final embedded page
+span. Run `lint_main_table_information_budget()` before handoff. The lint emits
+refs-only quality debt; MAS decides whether to continue, route back, or accept a
+documented exception.
+
 ## Workflow
 
 1. Identify the table's job and manuscript location.
@@ -162,12 +193,18 @@ Check:
 - abbreviations are defined once and used consistently;
 - table body avoids internal workflow labels and runtime names;
 - main tables are not overloaded with supplementary-only detail.
+- every main table has one reader question and an explicit information-budget
+  assessment at final embedding size;
+- complete detail removed from a compact main table remains available through
+  a named supplementary-detail ref.
 
 ## Journal Footnote Discipline
 
 Reader-visible table notes should explain the table, not reproduce the paper's
 Methods, Limitations, generation ledger, or authority boundary.
 
+- Do not render a standalone `Notes` heading for a routine main table. Use a
+  compact unlabelled general footnote or keyed footnotes only when needed.
 - Keep main-table notes to zero to two concise items by default. More than two
   requires a table-specific or journal-specific reason and should be returned as
   a quality-debt finding until justified.
@@ -238,6 +275,8 @@ Return refs-only candidate output:
 - `triggered_meta_review_ref`
 - `rerun_receipt_ref`
 - `journal_table_contract_ref`
+- `main_table_information_budget_ref`
+- `supplementary_detail_ref`
 - `table_repair_actions_ref`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
