@@ -2510,18 +2510,21 @@ standard_handoff_refs = [
     "candidate_refs",
     "owner_gate_handoff_ref",
 ]
-input_scope_signature_ref = "input_scope_signature_ref"
+epistemic_review_scope_ref = "epistemic_review_scope_ref"
+retired_input_scope_signature_ref = "input_scope_signature_ref"
 standard_handoff = contract.get("standard_handoff_ref_families") or {}
-if standard_handoff.get("policy_id") != "scholarskills_standard_refs_only_handoff.v2":
+if standard_handoff.get("policy_id") != "scholarskills_standard_refs_only_handoff.v3":
     fail("contract missing standard refs-only handoff policy")
 if standard_handoff.get("applies_to_modules") != "active_professional_skill_modules":
     fail("standard handoff policy must apply to active professional skill modules")
 require_all("standard handoff refs", standard_handoff.get("required_ref_shapes"), standard_handoff_refs)
 require_all(
-    "standard optional handoff refs",
-    standard_handoff.get("optional_ref_shapes"),
-    [input_scope_signature_ref],
+    "standard optional epistemic context refs",
+    standard_handoff.get("optional_context_refs"),
+    [epistemic_review_scope_ref],
 )
+if "optional_ref_shapes" in standard_handoff:
+    fail("ScholarSkills must not publish a second optional review handoff surface")
 if standard_handoff.get("no_authority_policy") != "source_pack_candidate_refs_and_owner_gate_handoff_only":
     fail("standard handoff policy must stay refs-only/no-authority")
 for key in [
@@ -2537,224 +2540,94 @@ for key in [
     if standard_handoff.get(key) is not False:
         fail(f"standard handoff authority flag {key} must be false")
 
-input_scope_policy = standard_handoff.get("input_scope_signature_policy") or {}
-if input_scope_policy.get("surface_kind") != "scholarskills_input_scope_signature_candidate.v1":
-    fail("input scope signature must remain a refs-only candidate surface")
-if input_scope_policy.get("signature_kind") != (
-    "deterministic_content_digest_not_lock_identity_owner_signature_"
-    "reviewer_receipt_or_authority"
-):
-    fail("input scope signature must be a content digest without signature authority")
-expected_input_scope_ids = [
-    "manuscript_review",
-    "statistical_review",
-    "reference_integrity",
-    "display_qc",
-    "submission_prep",
-]
-if input_scope_policy.get("allowed_scope_ids") != expected_input_scope_ids:
-    fail("input scope signature must expose the five bounded review scopes")
-if input_scope_policy.get("canonical_digest_member_fields") != [
-    "member_id",
-    "role",
-    "sha256",
-    "size_bytes",
-]:
-    fail("input scope signature must hash only deterministic member identity and bytes")
-if input_scope_policy.get("canonical_payload_exact_keys") != [
-    "members",
-    "scope_contract_version",
-    "scope_id",
-    "upstream_scope_bindings",
-]:
-    fail("input scope signature canonical payload keys must remain exact")
-if input_scope_policy.get("canonical_upstream_binding_exact_keys") != [
-    "scope_id",
-    "scope_signature_sha256",
-]:
-    fail("input scope signature upstream bindings must exclude receipt locators")
-if input_scope_policy.get("canonicalization") != (
-    "mas_record_validation_canonical_json_bytes_v1"
-):
-    fail("input scope signature must use MAS canonical JSON bytes")
-canonical_json_policy = input_scope_policy.get("canonical_json_bytes") or {}
-if canonical_json_policy != {
-    "encoding": "utf-8",
-    "ensure_ascii": True,
-    "recursive_sort_keys": True,
-    "separators": [",", ":"],
-    "trailing_newline": False,
-    "compatibility_ref": (
-        "med-autoscience:src/med_autoscience/authority_handlers/"
-        "_record_validation.py#canonical_json_bytes"
+epistemic_policy = standard_handoff.get("epistemic_provenance_context_policy") or {}
+expected_epistemic_policy = {
+    "context_ref": epistemic_review_scope_ref,
+    "surface_kind": "opl_epistemic_review_scope",
+    "version": "opl-epistemic-review-scope.v2",
+    "contract_ref": (
+        "opl-framework:contracts/opl-framework/"
+        "epistemic-review-scope-v2.schema.json"
     ),
+    "purpose": (
+        "prevent_ai_hallucination_and_support_audit_recalculation_and_"
+        "reproduction"
+    ),
+    "evidence_profile": "epistemic_provenance",
+    "trust_model": "trusted_local_workspace",
+    "relationship_to_skill": (
+        "optional_owner_supplied_context_not_skill_produced_handoff_or_"
+        "currentness_control"
+    ),
+    "skill_records_only_refs_actually_inspected": True,
+    "optional_artifact_hash_role": "locator_stale_hint_and_deduplication_only",
+    "hash_change_alone_invalidates_review": False,
+    "governance_metadata_layout_or_package_wrapper_invalidates_scientific_review": False,
+    "release_integrity_is_separate": True,
+    "missing_context_blocks_skill_use": False,
+    "skill_can_compute_scope_digest": False,
+    "skill_can_build_upstream_hash_closure": False,
+    "skill_can_decide_review_currentness": False,
+    "skill_can_invalidate_prior_review": False,
+    "skill_can_schedule_review_or_retry": False,
+    "skill_can_enforce_attempt_budget": False,
+    "ownership": {
+        "generic_scope_validation_currentness_and_attempt_enforcement": "opl_framework",
+        "domain_dependencies_and_verdict": "consuming_domain_owner",
+        "professional_quality_rules": "mas_scholar_skills",
+    },
+}
+if epistemic_policy != expected_epistemic_policy:
+    fail("ScholarSkills epistemic context must stay lightweight and Framework-owned")
+
+retired_aliases = standard_handoff.get("retired_optional_ref_aliases") or {}
+if retired_aliases != {
+    retired_input_scope_signature_ref: {
+        "state": "retired_read_only_compatibility",
+        "must_not_be_generated": True,
+        "must_not_drive_currentness_or_receipt_reuse": True,
+        "must_not_create_blocker_or_retry": True,
+    }
 }:
-    fail("input scope signature canonical JSON bytes must match MAS exactly")
-for key in ["sha256_field_format", "scope_signature_format"]:
-    if input_scope_policy.get(key) != "sha256:<lowercase-hex>":
-        fail(f"input scope {key} must use sha256:<lowercase-hex>")
-if input_scope_policy.get("member_sort_key") != ["role", "member_id"]:
-    fail("input scope members must sort by role and stable member id")
-if input_scope_policy.get("upstream_scope_binding_sort_key") != [
-    "scope_id",
+    fail("legacy input scope signature must remain read-only compatibility only")
+for retired_digest_field in [
+    "input_scope_signature_policy",
+    "canonical_digest_member_fields",
+    "canonical_payload_exact_keys",
+    "canonical_upstream_binding_exact_keys",
     "scope_signature_sha256",
+    "upstream_scope_bindings",
+    "golden_vector",
 ]:
-    fail("upstream scope bindings must have a deterministic sort key")
-if input_scope_policy.get("member_id_policy") != (
-    "owner_assigned_path_independent_stable_artifact_id_not_derived_from_"
-    "locator_relative_or_absolute_path"
-):
-    fail("member id must be owner-assigned, stable, and path-independent")
-for key in [
-    "member_id_may_be_derived_from_locator_or_path",
-    "candidate_receipt_ref_in_digest",
-    "path_move_changes_scope_digest",
-]:
-    if input_scope_policy.get(key) is not False:
-        fail(f"input scope path-independence flag {key} must be false")
-require_all(
-    "input scope digest-excluded observations",
-    input_scope_policy.get("digest_excluded_observations"),
-    [
-        "locator_ref",
-        "path_move",
-        "mtime",
-        "checkout_path",
-        "checkout_head",
-        "checkout_dirty_state",
-        "untracked_files",
-        "reviewer_identity",
-        "model_identity",
-        "model_version",
-        "skill_version",
-        "runtime_version",
-        "host",
-        "timestamp",
-    ],
-)
-if input_scope_policy.get("science_scopes_exclude_package_and_build_scripts") is not True:
-    fail("package/build scripts must not invalidate scientific review scopes")
-if input_scope_policy.get("digest_mismatch_effect") != (
-    "same_scope_prior_candidate_receipt_non_reusable_only"
-):
-    fail("scope digest mismatch must affect only the same-scope candidate receipt")
-for key in [
-    "cross_scope_receipt_invalidation",
-    "can_act_as_lock",
-    "can_act_as_signature_authority",
-    "can_create_global_blocker",
-    "can_claim_quality_verdict",
-]:
-    if input_scope_policy.get(key) is not False:
-        fail(f"input scope signature policy flag {key} must be false")
-if input_scope_policy.get("legacy_handoff_without_optional_ref_allowed") is not True:
-    fail("legacy handoffs without an input scope signature must remain compatible")
+    if retired_digest_field in standard_handoff:
+        fail(f"ScholarSkills must not own review digest field {retired_digest_field}")
 
 require_all(
-    "package content lock input scope reference",
+    "package content lock epistemic reference",
     (package_manifest.get("content_lock") or {}).get("paths"),
     ["references/professional-quality-ref-templates.md"],
 )
 
-golden_scope_vector = input_scope_policy.get("golden_vector") or {}
-
-def canonical_scope_payload(handoff):
-    members = sorted(
-        [
-            {
-                key: member[key]
-                for key in input_scope_policy["canonical_digest_member_fields"]
-            }
-            for member in handoff.get("members") or []
-        ],
-        key=lambda member: (member["role"], member["member_id"]),
-    )
-    upstream = sorted(
-        [
-            {
-                key: binding[key]
-                for key in input_scope_policy["canonical_upstream_binding_exact_keys"]
-            }
-            for binding in handoff.get("upstream_scope_bindings") or []
-        ],
-        key=lambda binding: (
-            binding["scope_id"],
-            binding["scope_signature_sha256"],
-        ),
-    )
-    return {
-        "scope_id": handoff["scope_id"],
-        "scope_contract_version": handoff["scope_contract_version"],
-        "members": members,
-        "upstream_scope_bindings": upstream,
-    }
-
-def canonical_scope_bytes(handoff):
-    return json.dumps(
-        canonical_scope_payload(handoff),
-        ensure_ascii=True,
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
-
-golden_bytes = canonical_scope_bytes(golden_scope_vector)
-for member in golden_scope_vector.get("members") or []:
-    if not re.fullmatch(r"sha256:[0-9a-f]{64}", str(member.get("sha256") or "")):
-        fail("input scope member SHA-256 must use lowercase prefixed form")
-for binding in golden_scope_vector.get("upstream_scope_bindings") or []:
-    if not re.fullmatch(
-        r"sha256:[0-9a-f]{64}",
-        str(binding.get("scope_signature_sha256") or ""),
-    ):
-        fail("upstream scope SHA-256 must use lowercase prefixed form")
-if golden_bytes.decode("utf-8") != golden_scope_vector.get("canonical_json_utf8"):
-    fail("input scope golden vector canonical JSON bytes drifted")
-golden_digest = f"sha256:{hashlib.sha256(golden_bytes).hexdigest()}"
-if golden_digest != golden_scope_vector.get("expected_scope_signature_sha256"):
-    fail("input scope golden vector SHA-256 drifted")
-if not re.fullmatch(r"sha256:[0-9a-f]{64}", golden_digest):
-    fail("input scope golden vector digest must be lowercase sha256")
-
-renamed_scope_vector = json.loads(json.dumps(golden_scope_vector))
-rename_variant = renamed_scope_vector.get("rename_locator_variant") or {}
-if rename_variant.get("provenance_observation") != "path_move":
-    fail("input scope golden vector must exercise a path_move observation")
-if rename_variant.get("member_locator_ref") == renamed_scope_vector["members"][0].get(
-    "locator_ref"
-):
-    fail("input scope golden vector must exercise a changed member locator")
-if rename_variant.get("upstream_candidate_receipt_ref") == renamed_scope_vector[
-    "upstream_scope_bindings"
-][0].get("candidate_receipt_ref"):
-    fail("input scope golden vector must exercise a changed receipt locator")
-renamed_scope_vector["members"][0]["locator_ref"] = rename_variant.get(
-    "member_locator_ref"
-)
-renamed_scope_vector["upstream_scope_bindings"][0][
-    "candidate_receipt_ref"
-] = rename_variant.get("upstream_candidate_receipt_ref")
-renamed_scope_vector["provenance_observations"] = [
-    rename_variant.get("provenance_observation")
-]
-if canonical_scope_bytes(renamed_scope_vector) != golden_bytes:
-    fail("path rename, locator, or receipt-locator drift must not change scope digest")
-
 require_all(
-    "medical-method optional handoff refs",
-    method_policy.get("optional_handoff_refs"),
-    [input_scope_signature_ref],
+    "medical-method optional epistemic context refs",
+    method_policy.get("optional_context_refs"),
+    [epistemic_review_scope_ref],
 )
 for skill_id in ["medical-reference-integrity-auditor", "medical-display-qc"]:
-    require_all(
-        f"{skill_id} scoped input candidate refs",
-        (method_policy_by_id.get(skill_id) or {}).get("candidate_ref_families"),
-        [input_scope_signature_ref],
-    )
-    require_all(
-        f"capability map {skill_id} scoped input candidate refs",
-        (advanced_capability_by_id.get(skill_id) or {}).get("candidate_ref_families"),
-        [input_scope_signature_ref],
-    )
+    for candidate_refs, label in [
+        (
+            (method_policy_by_id.get(skill_id) or {}).get("candidate_ref_families") or [],
+            f"{skill_id} owner contract candidate refs",
+        ),
+        (
+            (advanced_capability_by_id.get(skill_id) or {}).get("candidate_ref_families") or [],
+            f"{skill_id} capability map candidate refs",
+        ),
+    ]:
+        if retired_input_scope_signature_ref in candidate_refs:
+            fail(f"{label} must not generate the retired input scope signature")
+        if epistemic_review_scope_ref in candidate_refs:
+            fail(f"{label} must not emit owner-supplied epistemic context")
 
 scope_skill_texts = {
     "manuscript_review": review_skill,
@@ -2764,35 +2637,40 @@ scope_skill_texts = {
     "submission_prep": submit_skill,
 }
 for scope_id, text in scope_skill_texts.items():
-    for token in [input_scope_signature_ref, f"scope_id={scope_id}"]:
+    for token in [
+        epistemic_review_scope_ref,
+        "scope digest",
+    ]:
         if token not in text:
-            fail(f"{scope_id} skill missing scoped input handoff token: {token}")
+            fail(f"{scope_id} skill missing lightweight epistemic token: {token}")
+    if retired_input_scope_signature_ref in text:
+        fail(f"{scope_id} skill must not generate the retired input scope signature")
 for capability_id in [
     "medical-manuscript-review",
     "medical-statistical-review",
     "medical-submission-prep",
 ]:
     require_all(
-        f"{capability_id} input scope verification ref",
+        f"{capability_id} epistemic context verification ref",
         (capability_by_id.get(capability_id) or {}).get("verification_refs"),
-        ["references/professional-quality-ref-templates.md#input-scope-signature-handoff"],
+        ["references/professional-quality-ref-templates.md#epistemic-provenance-context"],
     )
 for skill_id in ["medical-reference-integrity-auditor", "medical-display-qc"]:
     require_all(
-        f"{skill_id} input scope verification ref",
+        f"{skill_id} epistemic context verification ref",
         (advanced_capability_by_id.get(skill_id) or {}).get("verification_refs"),
-        ["references/professional-quality-ref-templates.md#input-scope-signature-handoff"],
+        ["references/professional-quality-ref-templates.md#epistemic-provenance-context"],
     )
 for token in [
-    "scholarskills_input_scope_signature_candidate.v1",
-    "not a lock",
-    "same `scope_id`",
-    "Package/build scripts",
-    "checkout HEAD",
-    "reviewer/model identity",
+    "prevent AI hallucination",
+    "trusted local workspace",
+    "do not copy the whole scope",
+    "must not invalidate medical, statistical, or reference review",
+    "release and installation integrity use a separate OPL contract",
+    "Do not generate it",
 ]:
     if token not in professional_ref_templates:
-        fail(f"professional quality templates missing input scope token: {token}")
+        fail(f"professional quality templates missing epistemic provenance token: {token}")
 
 for module in professional_modules:
     module_id = module.get("module_id")

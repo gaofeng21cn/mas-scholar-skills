@@ -327,7 +327,7 @@
         "scripts/verify.sh#medical-manuscript-review-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
         "references/professional-quality-ref-templates.md#claim-citation-quality-loop",
-        "references/professional-quality-ref-templates.md#input-scope-signature-handoff",
+        "references/professional-quality-ref-templates.md#epistemic-provenance-context",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -466,7 +466,7 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/stats",
         "scripts/verify.sh#medical-statistical-review-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
-        "references/professional-quality-ref-templates.md#input-scope-signature-handoff",
+        "references/professional-quality-ref-templates.md#epistemic-provenance-context",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -594,7 +594,7 @@
         "contracts/scholar-skills-capability-modules.json#/capability_module_classification_policy/real_skill_backed_module_map/submit",
         "scripts/verify.sh#medical-submission-prep-frontmatter",
         "docs/capability-modules.md#professional-skill-quality-floor",
-        "references/professional-quality-ref-templates.md#input-scope-signature-handoff",
+        "references/professional-quality-ref-templates.md#epistemic-provenance-context",
         "scripts/verify.sh#capability-map-token-policy",
         "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json"
       ],
@@ -1439,7 +1439,7 @@
       "verification_refs": [
         "scripts/verify.sh#medical-reference-integrity-auditor-frontmatter",
         "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
-        "references/professional-quality-ref-templates.md#input-scope-signature-handoff",
+        "references/professional-quality-ref-templates.md#epistemic-provenance-context",
         "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
       ],
       "candidate_ref_families": [
@@ -1448,7 +1448,6 @@
         "source_status_ref",
         "claim_citation_support_map_ref",
         "support_gap_ref",
-        "input_scope_signature_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {
@@ -1530,7 +1529,7 @@
       "verification_refs": [
         "scripts/verify.sh#medical-display-qc-frontmatter",
         "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
-        "references/professional-quality-ref-templates.md#input-scope-signature-handoff",
+        "references/professional-quality-ref-templates.md#epistemic-provenance-context",
         "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
       ],
       "candidate_ref_families": [
@@ -1539,7 +1538,6 @@
         "panel_caption_consistency_ref",
         "claim_display_alignment_ref",
         "accessibility_and_size_ref",
-        "input_scope_signature_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {

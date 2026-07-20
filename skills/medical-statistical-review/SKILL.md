@@ -372,7 +372,7 @@ Return refs-only candidate output:
 - `opportunistic_knowledge_prefetch_ref`
 - `project_local_ledger_pointer_ref`
 - `rerun_receipt_ref`
-- `input_scope_signature_ref` when exact-input provenance is available
+- optional owner-provided `epistemic_review_scope_ref` locator
 - `skill_pack_governance_policy_ref`
 - `statistical_action_matrix_ref`
 - `ehr_registry_signal_validity_ref` when EHR/registry signal validity is material
@@ -380,14 +380,15 @@ Return refs-only candidate output:
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 
-For `input_scope_signature_ref`, use `scope_id=statistical_review` and bind the
-estimand and analysis plan, cohort/denominator and missingness inputs, numeric
-trace and analysis outputs, and only the manuscript, table, or figure claims
-whose statistical meaning was reviewed. Bibliography metadata, package/build
-scripts, checkout/model state, mtimes, and locators do not enter this digest.
-A mismatch makes only the prior `statistical_review` candidate receipt
-non-reusable; it is not a lock, signature authority, statistical verdict, or
-whole-package blocker.
+When `epistemic_review_scope_ref` is present in the OPL Attempt or owner
+context, use it only to locate the estimand, denominator and missingness
+context, analysis code and parameters, results and diagnostics, claims,
+limitations, and reproduction instructions actually assessed. Record those
+consumed refs in the candidate. Do not compute a scope digest, compare an
+upstream hash closure, decide review currentness, or schedule a retry. Hashes
+are optional locator or stale hints only; layout, package, checklist, receipt,
+checkout, model, or Skill metadata changes do not invalidate statistical
+review unless a declared statistical dependency actually changed.
 
 ## MAS Boundary
 

@@ -159,19 +159,19 @@ Return:
 - `editorial_page_composition_ref`
 - `display_qc_support_map_ref`
 - `page_hash_evidence_candidate_ref` when fixed-raster PDF evidence is available
-- `input_scope_signature_ref` when exact-input provenance is available
+- optional owner-provided `epistemic_review_scope_ref` locator
 - `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 
-For `input_scope_signature_ref`, use `scope_id=display_qc` and bind the exact
-rendered artifacts, visible captions and catalog metadata, source-data or
-semantic refs, layout registry, deterministic render inputs, and composed-page
-evidence actually inspected. Unrelated manuscript sections, bibliography
-metadata, package/build scripts, checkout/model state, mtimes, and locators do
-not enter this digest. A mismatch makes only the prior `display_qc` candidate
-receipt non-reusable; it is not a visual verdict, lock, signature authority, or
-whole-package blocker.
+When `epistemic_review_scope_ref` is present in the OPL Attempt or owner
+context, use it only to locate the visual content, source-result linkage,
+layout/render context, accessibility evidence, and final-scale artifact
+actually inspected. Record those consumed refs in the candidate. Do not
+compute a scope digest, decide review currentness, or schedule a retry. Hashes
+are optional locator or stale hints only. Display findings remain limited to
+the inspected display dependencies and do not invalidate medical,
+statistical, or reference review.
 
 Do not turn a QC candidate into artifact authority, visual audit receipt,
 owner acceptance, typed blocker, current-package authority, or publication

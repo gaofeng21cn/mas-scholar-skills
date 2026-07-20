@@ -46,18 +46,19 @@ Return:
 - `claim_citation_support_map_ref`
 - `duplicate_or_placeholder_ref`
 - `support_gap_ref`
-- `input_scope_signature_ref` when exact-input provenance is available
+- optional owner-provided `epistemic_review_scope_ref` locator
 - `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`
 
-For `input_scope_signature_ref`, use `scope_id=reference_integrity` and bind
-the bibliography or citation ledger, cited sentences, claim-citation support
-map, identifier metadata, and source-status lookup receipts used by the audit.
-Numeric outputs, display assets, package/build scripts, checkout/model state,
-mtimes, and locators do not enter this digest. A mismatch makes only the prior
-`reference_integrity` candidate receipt non-reusable; it is not citation
-acceptance, a lock, signature authority, quality verdict, or global blocker.
+When `epistemic_review_scope_ref` is present in the OPL Attempt or owner
+context, use it only to locate the cited claims, source records,
+identifier/status evidence, and citation linkage actually checked. Record
+those consumed refs in the candidate. Do not compute a scope digest, decide
+review currentness, or schedule a retry. Hashes are optional locator or stale
+hints only; layout, package, checklist, receipt, checkout, model, or Skill
+metadata changes do not invalidate reference review unless a cited claim,
+source, identifier status, or declared citation dependency actually changed.
 
 Do not treat a clean audit candidate as citation acceptance, source truth,
 owner receipt, typed blocker, reviewer receipt, or publication readiness.

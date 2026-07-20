@@ -428,21 +428,19 @@ Red flags include:
 Restrained wording can reduce claim risk, but it cannot clear these red flags
 by itself.
 
-## Input Scope Binding
+## Epistemic Evidence Context
 
-When exact-input provenance is useful, return the optional
-`input_scope_signature_ref` from
-`references/professional-quality-ref-templates.md#input-scope-signature-handoff`
-with `scope_id=manuscript_review`. Bind only the canonical manuscript text,
-abstract, captions and table notes under review, the claim-evidence map, the
-review fact base, and the numeric, citation, display, or prior-review refs
-actually consumed. Package/build scripts, checkout/model state, mtimes,
-locators, and unrelated artifacts stay outside the digest.
+When the OPL Attempt or domain owner supplies an optional
+`epistemic_review_scope_ref`, use it only to locate the manuscript text,
+claims, supporting results and references, limitations, and contextual refs
+actually reviewed. Record those consumed refs in the review candidate so the
+reasoning can be audited and reproduced.
 
-This content digest is not a lock, owner signature, reviewer receipt, quality
-verdict, or readiness decision. A mismatch makes only the prior
-`manuscript_review` candidate receipt non-reusable; it cannot invalidate other
-scope receipts or block the whole paper workflow.
+Do not compute a scope digest, build an upstream hash closure, decide receipt
+reuse/currentness, or schedule another review. Hashes are optional locator or
+stale hints only. Package, layout, checklist, receipt, checkout, model, or Skill
+metadata changes do not invalidate a manuscript review unless the reviewed
+content or a declared dependency actually changed.
 
 ## Revision Delta Audit
 
@@ -568,8 +566,9 @@ Before leaving review, write or refresh a closeout packet with:
 - claim-warning refs used, each marked as refs-only review signal
 - critique-as-repair hints and any triggered meta-review refs
 - opportunistic prefetch refs or rerun receipts consumed as evidence
-- optional `input_scope_signature_ref` for the bounded `manuscript_review`
-  inputs, when exact-input provenance is available
+- artifact, claim, result, reference, limitation, and reproduction refs
+  actually inspected, plus the optional owner-provided
+  `epistemic_review_scope_ref` locator when available
 - remaining blockers and blocked readiness label
 - reusable critique lesson, if any
 - route-back recommendation with the narrowest next route
