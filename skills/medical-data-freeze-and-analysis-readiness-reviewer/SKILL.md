@@ -42,7 +42,24 @@ review skeletons, lineage rows, and forbidden-authority lint.
    cannot be waived as not applicable. Follow-up closure/completeness, center
    inventory, and endpoint-adjudication evidence are required only when their
    context trigger is true; otherwise record a reasoned not-applicable
-   disposition. An all-N/A inventory never satisfies identity closure.
+   disposition. Use the three explicit states `present`, `missing`, and
+   `not_applicable_with_reason`; every `present` item must carry an exact
+   kind/ref/size/SHA-256 ref.
+   Bind the three study-context triggers to an exact `study_context_ref`; a
+   false trigger cannot contradict present longitudinal, center, adjudication,
+   fixed-horizon, or full-follow-up evidence.
+   An all-N/A inventory never satisfies identity closure. Record
+   cohort/unit/deduplication, center, endpoint, follow-up, and
+   governance identity separately so one coarse ref cannot hide a missing
+   clinical identity component. Add `endpoint_state_counts` with analysis N,
+   declared time basis, target events, competing events, unknown cause, early
+   censoring, event-free count, exact
+   source-policy ref, and exact regeneration ref; the four states must exhaust
+   analysis N. Early censoring is a separate state only under fixed-horizon
+   accounting.
+   Run `validate_clinical_analysis_input_identity_candidate_v2()` for new
+   candidates. The unversioned validator preserves the earlier compact-string
+   v1 input contract for same-major callers.
 7. Build `analysis_readiness_gap_ref`: missing owner decision, unstable body,
    unresolved lineage, variable ambiguity, privacy/access concern, or analysis
    contract gap.

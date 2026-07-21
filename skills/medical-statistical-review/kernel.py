@@ -8,6 +8,7 @@ readiness.
 from __future__ import annotations
 
 import json
+import math
 import re
 from typing import Any, Mapping, Sequence
 
@@ -129,6 +130,52 @@ DCA_UNCERTAINTY_METHODS = (
     "other_prespecified",
 )
 
+PREDICTION_PERFORMANCE_BOUNDARIES = (
+    "ranking_only",
+    "absolute_risk_supported",
+    "not_estimable",
+)
+PREDICTION_SURFACE_NAMES = ("abstract_conclusion", "main_conclusion")
+PREDICTION_DISCRIMINATION_METRIC_TYPES = (
+    "harrell_c_index",
+    "uno_c_index",
+    "time_dependent_auc",
+)
+PREDICTION_PERFORMANCE_POLICY_ID = (
+    "scholarskills_linked_prediction_performance.v2"
+)
+PREDICTION_IPA_CONSISTENCY_TOLERANCE = 0.002
+PREDICTION_CALIBRATION_REASONABLE_BOUNDS = {
+    "slope": (0.8, 1.2),
+    "intercept": (-0.2, 0.2),
+    "oe_ratio": (0.8, 1.2),
+}
+PREDICTION_LIMITING_EVIDENCE_POLICY_ID = (
+    "scholarskills_prediction_limiting_evidence.v1"
+)
+PREDICTION_LIMITED_IPA_UPPER_BOUND = 0.02
+PREDICTION_LIMITING_POLICY_OVERRIDE_FIELDS = (
+    "limited_prediction_error_ipa_upper_bound",
+    "limiting_calibration_bounds",
+)
+PREDICTION_LIMITING_METRIC_VALUE_FIELDS = {
+    "brier_ref": "brier_value",
+    "ipa_ref": "ipa_value",
+    "calibration_slope_ref": "calibration_slope",
+    "calibration_intercept_ref": "calibration_intercept",
+    "oe_ratio_ref": "oe_ratio",
+}
+PREDICTION_LIMITING_METRIC_LABEL_PATTERNS = {
+    "brier_ref": r"\bbrier\b",
+    "ipa_ref": r"\bipa\b",
+    "calibration_slope_ref": r"\bcalibration slope\b",
+    "calibration_intercept_ref": r"\bcalibration intercept\b",
+    "oe_ratio_ref": r"\b(?:o:e|o/e|observed[- ]to[- ]expected)\b",
+}
+PREDICTION_LIMITING_NUMERIC_TOKEN_PATTERN = (
+    r"[+-]?(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:e[+-]?\d+)?"
+)
+
 P_VALUE_RE = re.compile(r"\bp\s*[<=>]\s*0?\.\d+|\bp-value\b", re.I)
 CI_RE = re.compile(r"\b(?:ci|confidence interval|credible interval)\b", re.I)
 EFFECT_RE = re.compile(r"\b(?:or|hr|rr|risk ratio|mean difference|effect size|estimate)\b", re.I)
@@ -157,6 +204,7 @@ def statistical_review_schema() -> dict[str, Any]:
             "endpoint_analysis_set_reconciliation_ref": {"type": "object"},
             "model_complexity_sparse_event_ref": {"type": "object"},
             "decision_curve_validity_ref": {"type": "object"},
+            "linked_prediction_performance_ref": {"type": "object"},
             "route_back_candidate": {"type": "string"},
         },
     }
@@ -442,7 +490,7 @@ def validate_validation_partition_integrity(
 def validate_endpoint_analysis_set_reconciliation(
     candidate: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Audit endpoint, follow-up basis, N/event, estimand, and source separation."""
+    """Audit the stable v1 endpoint reconciliation contract."""
 
     findings: list[dict[str, object]] = []
     rows = candidate.get("rows")
@@ -513,6 +561,152 @@ def validate_endpoint_analysis_set_reconciliation(
             or isinstance(events, bool)
             or not isinstance(events, int)
             or events < 0
+            or (
+                isinstance(n_value, int)
+                and isinstance(events, int)
+                and events > n_value
+            )
+        ):
+            findings.append(
+                _candidate_finding(
+                    "ENDPOINT_N_EVENT_COUNT_INVALID",
+                    field,
+                    "supply integer N and event counts with 0 <= events <= N",
+                )
+            )
+        normalized.append(
+            {
+                "index": index,
+                "pair": (n_value, events),
+                "endpoint_id": str(row.get("endpoint_id") or ""),
+                "endpoint_role": endpoint_role,
+                "follow_up_basis": follow_up_basis,
+                "estimand_ref": _candidate_ref_identity(row.get("estimand_ref")),
+                "source_metric_ref": _candidate_ref_identity(
+                    row.get("source_metric_ref")
+                ),
+            }
+        )
+    if normalized and not any(row["endpoint_role"] == "primary" for row in normalized):
+        findings.append(
+            _candidate_finding(
+                "PRIMARY_ENDPOINT_ANALYSIS_SET_MISSING",
+                "rows",
+                "identify the primary endpoint analysis set",
+            )
+        )
+    for left_index, left in enumerate(normalized):
+        for right in normalized[left_index + 1 :]:
+            if left["pair"] == right["pair"]:
+                continue
+            shared_estimand = bool(left["estimand_ref"]) and (
+                left["estimand_ref"] == right["estimand_ref"]
+            )
+            shared_source = bool(left["source_metric_ref"]) and (
+                left["source_metric_ref"] == right["source_metric_ref"]
+            )
+            if shared_estimand or shared_source:
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_ANALYSIS_SET_ESTIMAND_SOURCE_CONFLATED",
+                        f"rows[{left['index']}]|rows[{right['index']}]",
+                        "bind each distinct N/event pair to its endpoint role, follow-up basis, estimand, and source metric",
+                    )
+                )
+    _require_no_authority(candidate, findings, "endpoint_analysis_set_reconciliation_ref")
+    return _candidate_audit_result(
+        "endpoint_analysis_set_reconciliation_ref",
+        findings,
+        row_count=len(normalized),
+    )
+
+
+def validate_endpoint_analysis_set_reconciliation_v2(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit endpoint, follow-up basis, N/event, estimand, and source separation."""
+
+    findings: list[dict[str, object]] = []
+    rows = candidate.get("rows")
+    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes)) or not rows:
+        findings.append(
+            _candidate_finding(
+                "ENDPOINT_ANALYSIS_SET_ROWS_INVALID",
+                "rows",
+                "provide at least one endpoint-specific analysis-set row",
+            )
+        )
+        rows = []
+    normalized: list[dict[str, object]] = []
+    required_fields = (
+        "endpoint_id",
+        "endpoint_role",
+        "follow_up_basis",
+        "analysis_set_ref",
+        "n",
+        "events",
+        "competing_events",
+        "unknown_cause_count",
+        "early_censoring_count",
+        "event_free_count",
+        "estimand_ref",
+        "source_metric_ref",
+        "observed_risk_estimator",
+        "observed_risk_ref",
+        "prediction_error_estimator",
+        "prediction_error_ref",
+    )
+    for index, row in enumerate(rows):
+        field = f"rows[{index}]"
+        if not isinstance(row, Mapping):
+            findings.append(
+                _candidate_finding(
+                    "ENDPOINT_ANALYSIS_SET_ROW_INVALID",
+                    field,
+                    "provide a structured reconciliation row",
+                )
+            )
+            continue
+        for required_field in required_fields:
+            if row.get(required_field) in (None, ""):
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_ANALYSIS_SET_FIELD_MISSING",
+                        f"{field}.{required_field}",
+                        "separate endpoint, time basis, analysis set, estimand, and source",
+                    )
+                )
+        endpoint_role = str(row.get("endpoint_role") or "")
+        follow_up_basis = str(row.get("follow_up_basis") or "")
+        if endpoint_role not in ENDPOINT_ROLES:
+            findings.append(
+                _candidate_finding(
+                    "ENDPOINT_ROLE_INVALID",
+                    f"{field}.endpoint_role",
+                    "use primary, secondary, or sensitivity",
+                )
+            )
+        if follow_up_basis not in FOLLOW_UP_BASES:
+            findings.append(
+                _candidate_finding(
+                    "FOLLOW_UP_BASIS_INVALID",
+                    f"{field}.follow_up_basis",
+                    "separate fixed-horizon from full-follow-up analyses",
+                )
+            )
+        n_value = row.get("n")
+        events = row.get("events")
+        competing_events = row.get("competing_events")
+        unknown_cause = row.get("unknown_cause_count")
+        early_censoring = row.get("early_censoring_count")
+        event_free = row.get("event_free_count")
+        if (
+            isinstance(n_value, bool)
+            or not isinstance(n_value, int)
+            or n_value <= 0
+            or isinstance(events, bool)
+            or not isinstance(events, int)
+            or events < 0
             or (isinstance(n_value, int) and isinstance(events, int) and events > n_value)
         ):
             findings.append(
@@ -522,6 +716,122 @@ def validate_endpoint_analysis_set_reconciliation(
                     "supply integer N and event counts with 0 <= events <= N",
                 )
             )
+        for count_field, count_value in (
+            ("competing_events", competing_events),
+            ("unknown_cause_count", unknown_cause),
+            ("early_censoring_count", early_censoring),
+            ("event_free_count", event_free),
+        ):
+            if (
+                isinstance(count_value, bool)
+                or not isinstance(count_value, int)
+                or count_value < 0
+                or (
+                    isinstance(n_value, int)
+                    and not isinstance(n_value, bool)
+                    and count_value > n_value
+                )
+            ):
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_AUXILIARY_COUNT_INVALID",
+                        f"{field}.{count_field}",
+                        "supply a non-negative count within the declared analysis set",
+                    )
+                )
+        counts_valid = all(
+            isinstance(value, int) and not isinstance(value, bool)
+            for value in (
+                n_value,
+                events,
+                competing_events,
+                unknown_cause,
+                early_censoring,
+                event_free,
+            )
+        )
+        if counts_valid:
+            state_total = events + competing_events + unknown_cause + event_free
+            if follow_up_basis == "fixed_horizon":
+                state_total += early_censoring
+            elif follow_up_basis == "full_follow_up" and early_censoring != 0:
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_EARLY_CENSORING_TIME_BASIS_MISMATCH",
+                        f"{field}.early_censoring_count",
+                        "use early-censored state only for fixed-horizon accounting",
+                    )
+                )
+            if state_total != n_value:
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_STATE_COUNT_CONSERVATION_VIOLATION",
+                        field,
+                        "make endpoint states mutually exclusive and exhaustive for the declared follow-up basis",
+                    )
+                )
+        if follow_up_basis == "fixed_horizon":
+            observed_estimator = str(row.get("observed_risk_estimator") or "")
+            prediction_error_estimator = str(
+                row.get("prediction_error_estimator") or ""
+            )
+            if observed_estimator not in FIXED_HORIZON_OBSERVED_RISK_ESTIMATORS:
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_FIXED_HORIZON_RISK_ESTIMATOR_INVALID",
+                        f"{field}.observed_risk_estimator",
+                        "declare a fixed-horizon observed-risk estimator",
+                    )
+                )
+            if (
+                isinstance(early_censoring, int)
+                and early_censoring > 0
+                and observed_estimator == "binary_proportion"
+            ):
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_FIXED_HORIZON_EARLY_CENSORING_UNHANDLED",
+                        f"{field}.observed_risk_estimator",
+                        "use a censoring-aware observed-risk estimator",
+                    )
+                )
+            if not prediction_error_estimator:
+                findings.append(
+                    _candidate_finding(
+                        "ENDPOINT_PREDICTION_ERROR_ESTIMATOR_MISSING",
+                        f"{field}.prediction_error_estimator",
+                        "name the censoring-aware prediction-error estimator",
+                    )
+                )
+            for ref_field in ("observed_risk_ref", "prediction_error_ref"):
+                _validate_exact_evidence_ref_or_disposition(
+                    row.get(ref_field),
+                    f"{field}.{ref_field}",
+                    findings,
+                    allowed_dispositions=(),
+                    code="ENDPOINT_FIXED_HORIZON_REF_INVALID",
+                )
+        elif follow_up_basis == "full_follow_up":
+            for estimator_field, ref_field in (
+                ("observed_risk_estimator", "observed_risk_ref"),
+                ("prediction_error_estimator", "prediction_error_ref"),
+            ):
+                if row.get(estimator_field) != "not_applicable_with_reason":
+                    findings.append(
+                        _candidate_finding(
+                            "ENDPOINT_FULL_FOLLOW_UP_DISPOSITION_INVALID",
+                            f"{field}.{estimator_field}",
+                            "use not_applicable_with_reason for fixed-horizon risk and prediction-error estimators",
+                        )
+                    )
+                _validate_exact_evidence_ref_or_disposition(
+                    row.get(ref_field),
+                    f"{field}.{ref_field}",
+                    findings,
+                    allowed_dispositions=("not_applicable_with_reason",),
+                    require_disposition=True,
+                    code="ENDPOINT_FULL_FOLLOW_UP_DISPOSITION_INVALID",
+                )
         normalized.append(
             {
                 "index": index,
@@ -564,6 +874,457 @@ def validate_endpoint_analysis_set_reconciliation(
         "endpoint_analysis_set_reconciliation_ref",
         findings,
         row_count=len(normalized),
+    )
+
+
+def validate_linked_prediction_performance(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Require discrimination, prediction error, calibration, and claim limits together."""
+
+    findings: list[dict[str, object]] = []
+    required = (
+        "discrimination_metric_type",
+        "discrimination_metric_ref",
+        "discrimination_uncertainty_ref",
+        "brier_ref",
+        "null_brier_ref",
+        "ipa_ref",
+        "calibration_slope_ref",
+        "calibration_intercept_ref",
+        "oe_ratio_ref",
+        "grouped_calibration_ref",
+        "ipa_consistency_tolerance",
+        "calibration_reasonable_bounds",
+        "performance_boundary",
+        "limiting_evidence",
+        "surface_text",
+        "authority",
+    )
+    _require_candidate_fields(candidate, required, findings, "PREDICTION_PERFORMANCE")
+    discrimination_metric_type = str(
+        candidate.get("discrimination_metric_type") or ""
+    )
+    if discrimination_metric_type not in PREDICTION_DISCRIMINATION_METRIC_TYPES:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_DISCRIMINATION_METRIC_TYPE_INVALID",
+                "discrimination_metric_type",
+                "use harrell_c_index, uno_c_index, or time_dependent_auc",
+            )
+        )
+    for override_field in PREDICTION_LIMITING_POLICY_OVERRIDE_FIELDS:
+        if override_field in candidate:
+            findings.append(
+                _candidate_finding(
+                    "PREDICTION_LIMITING_POLICY_CALLER_OVERRIDE_FORBIDDEN",
+                    override_field,
+                    "use the versioned kernel-owned limiting-evidence policy",
+                )
+            )
+    tolerance_value = candidate.get("ipa_consistency_tolerance")
+    tolerance_matches_policy = (
+        not isinstance(tolerance_value, bool)
+        and isinstance(tolerance_value, (int, float))
+        and math.isfinite(float(tolerance_value))
+        and float(tolerance_value) == PREDICTION_IPA_CONSISTENCY_TOLERANCE
+    )
+    if tolerance_value is not None and not tolerance_matches_policy:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_IPA_TOLERANCE_CALLER_OVERRIDE_FORBIDDEN",
+                "ipa_consistency_tolerance",
+                "use the versioned kernel policy value; callers cannot override the IPA tolerance",
+            )
+        )
+    bounds_value = candidate.get("calibration_reasonable_bounds")
+    bounds_match_policy = isinstance(bounds_value, Mapping) and set(
+        bounds_value
+    ) == set(PREDICTION_CALIBRATION_REASONABLE_BOUNDS)
+    if bounds_match_policy:
+        for (
+            metric_name,
+            expected_bounds,
+        ) in PREDICTION_CALIBRATION_REASONABLE_BOUNDS.items():
+            raw_bounds = bounds_value.get(metric_name)
+            if not (
+                isinstance(raw_bounds, Sequence)
+                and not isinstance(raw_bounds, (str, bytes))
+                and len(raw_bounds) == 2
+                and all(
+                    not isinstance(value, bool)
+                    and isinstance(value, (int, float))
+                    and math.isfinite(float(value))
+                    for value in raw_bounds
+                )
+                and tuple(float(value) for value in raw_bounds) == expected_bounds
+            ):
+                bounds_match_policy = False
+                break
+    if bounds_value is not None and not bounds_match_policy:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_CALIBRATION_BOUNDS_CALLER_OVERRIDE_FORBIDDEN",
+                "calibration_reasonable_bounds",
+                "use the versioned kernel policy values; callers cannot override calibration bounds",
+            )
+        )
+    for ref_field in (
+        "discrimination_metric_ref",
+        "discrimination_uncertainty_ref",
+        "brier_ref",
+        "null_brier_ref",
+        "ipa_ref",
+        "calibration_slope_ref",
+        "calibration_intercept_ref",
+        "oe_ratio_ref",
+        "grouped_calibration_ref",
+    ):
+        _validate_exact_evidence_ref_or_disposition(
+            candidate.get(ref_field),
+            ref_field,
+            findings,
+            allowed_dispositions=("not_estimable_with_reason",),
+            code="PREDICTION_PERFORMANCE_REF_INVALID",
+        )
+    numeric_ref_pairs = (
+        ("discrimination_estimate", "discrimination_metric_ref"),
+        ("brier_value", "brier_ref"),
+        ("null_brier_value", "null_brier_ref"),
+        ("ipa_value", "ipa_ref"),
+        ("calibration_slope", "calibration_slope_ref"),
+        ("calibration_intercept", "calibration_intercept_ref"),
+        ("oe_ratio", "oe_ratio_ref"),
+    )
+    numeric_values: dict[str, float] = {}
+    for field, ref_field in numeric_ref_pairs:
+        if field not in candidate:
+            findings.append(
+                _candidate_finding(
+                    "PREDICTION_PERFORMANCE_VALUE_MISSING",
+                    field,
+                    "supply a value or null paired with a not-estimable disposition",
+                )
+            )
+            continue
+        value = candidate.get(field)
+        ref_value = candidate.get(ref_field)
+        not_estimable = (
+            isinstance(ref_value, Mapping)
+            and ref_value.get("status") == "not_estimable_with_reason"
+        )
+        if not_estimable:
+            if value is not None:
+                findings.append(
+                    _candidate_finding(
+                        "PREDICTION_PERFORMANCE_NOT_ESTIMABLE_VALUE_NOT_NULL",
+                        field,
+                        "set the value to null when its evidence is not estimable",
+                    )
+                )
+        elif (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+        ):
+            findings.append(
+                _candidate_finding(
+                    "PREDICTION_PERFORMANCE_VALUE_INVALID",
+                    field,
+                    "supply a finite numeric value for exact evidence",
+                )
+            )
+        else:
+            numeric_values[field] = float(value)
+    brier_value = numeric_values.get("brier_value")
+    null_brier_value = numeric_values.get("null_brier_value")
+    discrimination_estimate = numeric_values.get("discrimination_estimate")
+    if (
+        discrimination_estimate is not None
+        and not 0.0 <= discrimination_estimate <= 1.0
+    ):
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_DISCRIMINATION_RANGE_INVALID",
+                "discrimination_estimate",
+                "require the declared discrimination metric within [0, 1]",
+            )
+        )
+    if brier_value is not None and not 0.0 <= brier_value <= 1.0:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_BRIER_RANGE_INVALID",
+                "brier_value",
+                "require Brier score within [0, 1]",
+            )
+        )
+    if null_brier_value is not None and not 0.0 < null_brier_value <= 1.0:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_NULL_BRIER_RANGE_INVALID",
+                "null_brier_value",
+                "require a positive null-model Brier score within (0, 1]",
+            )
+        )
+    tolerance = PREDICTION_IPA_CONSISTENCY_TOLERANCE
+    ipa_value = numeric_values.get("ipa_value")
+    ipa_identity_evaluable = (
+        brier_value is not None
+        and null_brier_value is not None
+        and null_brier_value > 0
+        and ipa_value is not None
+    )
+    ipa_identity_matches = bool(
+        ipa_identity_evaluable
+        and abs(ipa_value - (1.0 - brier_value / null_brier_value)) <= tolerance
+    )
+    if ipa_identity_evaluable and not ipa_identity_matches:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_IPA_IDENTITY_MISMATCH",
+                "ipa_value",
+                "reconcile IPA with 1 - Brier/null Brier within the kernel-owned tolerance",
+            )
+        )
+    calibration_bounds = PREDICTION_CALIBRATION_REASONABLE_BOUNDS
+    boundary = str(candidate.get("performance_boundary") or "")
+    if boundary not in PREDICTION_PERFORMANCE_BOUNDARIES:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_PERFORMANCE_BOUNDARY_INVALID",
+                "performance_boundary",
+                "use ranking_only, absolute_risk_supported, or not_estimable",
+            )
+        )
+    if boundary == "absolute_risk_supported":
+        calibration_values = {
+            "slope": numeric_values.get("calibration_slope"),
+            "intercept": numeric_values.get("calibration_intercept"),
+            "oe_ratio": numeric_values.get("oe_ratio"),
+        }
+        calibration_supported = (
+            all(value is not None for value in calibration_values.values())
+            and all(
+                calibration_bounds[name][0]
+                <= float(calibration_values[name])
+                <= calibration_bounds[name][1]
+                for name in calibration_values
+            )
+            and brier_value is not None
+            and null_brier_value is not None
+            and brier_value < null_brier_value
+            and ipa_value is not None
+            and ipa_value > 0
+            and isinstance(candidate.get("grouped_calibration_ref"), Mapping)
+            and set(candidate.get("grouped_calibration_ref", {}))
+            == {"kind", "ref", "size_bytes", "sha256"}
+        )
+        if not calibration_supported:
+            findings.append(
+                _candidate_finding(
+                    "ABSOLUTE_RISK_SUPPORT_CONTRADICTS_LINKED_PERFORMANCE",
+                    "performance_boundary",
+                    "downgrade the claim or provide jointly acceptable calibration and prediction-error evidence",
+                    severity="route_back_required",
+                )
+            )
+    limiting = candidate.get("limiting_evidence")
+    if not isinstance(limiting, Sequence) or isinstance(limiting, (str, bytes)):
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_LIMITING_EVIDENCE_INVALID",
+                "limiting_evidence",
+                "provide structured limiting-evidence rows",
+            )
+        )
+        limiting = []
+    if boundary != "absolute_risk_supported" and not limiting:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_LIMITING_EVIDENCE_MISSING",
+                "limiting_evidence",
+                "make adverse or unavailable absolute-risk evidence visible",
+            )
+        )
+    required_phrases: list[str] = []
+    validated_limiting_metric_fields: set[str] = set()
+    for ref_field, bound_name in (
+        ("calibration_slope_ref", "slope"),
+        ("calibration_intercept_ref", "intercept"),
+        ("oe_ratio_ref", "oe_ratio"),
+    ):
+        value_field = PREDICTION_LIMITING_METRIC_VALUE_FIELDS[ref_field]
+        value = numeric_values.get(value_field)
+        lower, upper = PREDICTION_CALIBRATION_REASONABLE_BOUNDS[bound_name]
+        if value is not None and not lower <= value <= upper:
+            validated_limiting_metric_fields.add(ref_field)
+    prediction_error_is_limited = bool(
+        brier_value is not None
+        and 0.0 <= brier_value <= 1.0
+        and null_brier_value is not None
+        and 0.0 < null_brier_value <= 1.0
+        and ipa_value is not None
+        and ipa_identity_matches
+        and ipa_value <= PREDICTION_LIMITED_IPA_UPPER_BOUND
+    )
+    if prediction_error_is_limited:
+        validated_limiting_metric_fields.add("brier_ref")
+        validated_limiting_metric_fields.add("ipa_ref")
+    limiting_metric_panel = {
+        identity: ref_field
+        for ref_field in PREDICTION_LIMITING_METRIC_VALUE_FIELDS
+        if ref_field in validated_limiting_metric_fields
+        if (
+            identity := _exact_evidence_ref_identity(candidate.get(ref_field))
+        )
+        is not None
+    }
+    cited_limiting_metric_fields: set[str] = set()
+    for index, item in enumerate(limiting):
+        field = f"limiting_evidence[{index}]"
+        if not isinstance(item, Mapping):
+            findings.append(
+                _candidate_finding(
+                    "PREDICTION_LIMITING_EVIDENCE_ROW_INVALID",
+                    field,
+                    "provide metric_ref, interpretation, and required_surface_phrase",
+                )
+            )
+            continue
+        for item_field in ("interpretation", "required_surface_phrase"):
+            if not str(item.get(item_field) or "").strip():
+                findings.append(
+                    _candidate_finding(
+                        "PREDICTION_LIMITING_EVIDENCE_FIELD_MISSING",
+                        f"{field}.{item_field}",
+                        "complete the limiting-evidence row",
+                    )
+                )
+        if boundary == "ranking_only":
+            metric_identity = _exact_evidence_ref_identity(item.get("metric_ref"))
+            if metric_identity is None:
+                findings.append(
+                    _candidate_finding(
+                        "PREDICTION_LIMITING_EVIDENCE_METRIC_REF_INVALID",
+                        f"{field}.metric_ref",
+                        "bind the limiting row to an exact metric ref from the current performance panel",
+                    )
+                )
+                metric_field = None
+            else:
+                metric_field = limiting_metric_panel.get(metric_identity)
+                if metric_field is None:
+                    findings.append(
+                        _candidate_finding(
+                            "PREDICTION_LIMITING_EVIDENCE_METRIC_NOT_IN_PANEL",
+                            f"{field}.metric_ref",
+                            "cite an adverse or limited calibration or prediction-error metric from this candidate",
+                        )
+                    )
+                else:
+                    cited_limiting_metric_fields.add(metric_field)
+            if metric_field is not None and not _prediction_limiting_phrase_supported(
+                metric_field,
+                str(item.get("required_surface_phrase") or ""),
+                numeric_values,
+            ):
+                findings.append(
+                    _candidate_finding(
+                        "PREDICTION_LIMITING_EVIDENCE_PHRASE_UNSUPPORTED",
+                        f"{field}.required_surface_phrase",
+                        "use the cited metric label and its current validated value",
+                    )
+                )
+        phrase = str(item.get("required_surface_phrase") or "").strip().casefold()
+        if phrase:
+            required_phrases.append(phrase)
+    if boundary == "ranking_only" and not cited_limiting_metric_fields:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_RANKING_LIMITING_METRIC_MISSING",
+                "limiting_evidence",
+                "cite at least one exact adverse-calibration or kernel-limited prediction-error metric",
+                severity="route_back_required",
+            )
+        )
+    surface_text = candidate.get("surface_text")
+    if not isinstance(surface_text, Mapping):
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_SURFACE_TEXT_INVALID",
+                "surface_text",
+                "provide abstract and main conclusion text",
+            )
+        )
+        surface_text = {}
+    for surface in PREDICTION_SURFACE_NAMES:
+        text = str(surface_text.get(surface) or "")
+        if not text.strip():
+            findings.append(
+                _candidate_finding(
+                    "PREDICTION_REQUIRED_SURFACE_MISSING",
+                    f"surface_text.{surface}",
+                    "report both the usable property and limiting property",
+                )
+            )
+            continue
+        lowered = text.casefold()
+        for phrase in required_phrases:
+            if phrase not in lowered:
+                findings.append(
+                    _candidate_finding(
+                        "PREDICTION_LIMIT_NOT_VISIBLE_ON_SURFACE",
+                        f"surface_text.{surface}",
+                        f"include the linked limiting evidence phrase: {phrase}",
+                    )
+                )
+        unsupported_claim = re.search(
+            r"\b(?:accurate|reliable)\s+(?:individual\s+)?absolute risk\b|"
+            r"\b(?:clinical deployment|treatment benefit|threshold-based use)\b",
+            text,
+            flags=re.I,
+        )
+        if unsupported_claim:
+            preceding_context = text[
+                max(0, unsupported_claim.start() - 64) : unsupported_claim.start()
+            ]
+            explicitly_negated = re.search(
+                r"\b(?:cannot|does not|do not|not|preclude(?:s|d)?|"
+                r"should not|is not suitable for)\b[^.;:]{0,48}$",
+                preceding_context,
+                flags=re.I,
+            )
+        else:
+            explicitly_negated = None
+        if (
+            boundary != "absolute_risk_supported"
+            and unsupported_claim
+            and not explicitly_negated
+        ):
+            findings.append(
+                _candidate_finding(
+                    "PREDICTION_CLAIM_EXCEEDS_PERFORMANCE_BOUNDARY",
+                    f"surface_text.{surface}",
+                    "limit the conclusion to supported ranking or discrimination",
+                    severity="route_back_required",
+                )
+            )
+    _require_no_authority(candidate, findings, "linked_prediction_performance_ref")
+    return _candidate_audit_result(
+        "linked_prediction_performance_ref",
+        findings,
+        performance_boundary=boundary,
+        limiting_evidence_count=len(limiting),
+        performance_policy_id=PREDICTION_PERFORMANCE_POLICY_ID,
+        limiting_evidence_policy_id=PREDICTION_LIMITING_EVIDENCE_POLICY_ID,
+        limited_prediction_error_ipa_upper_bound=(
+            PREDICTION_LIMITED_IPA_UPPER_BOUND
+        ),
+        ipa_consistency_tolerance=PREDICTION_IPA_CONSISTENCY_TOLERANCE,
+        calibration_reasonable_bounds={
+            name: list(bounds)
+            for name, bounds in PREDICTION_CALIBRATION_REASONABLE_BOUNDS.items()
+        },
     )
 
 
@@ -1208,6 +1969,96 @@ def _candidate_ref_identity(value: object) -> str:
     return ""
 
 
+def _exact_evidence_ref_identity(
+    value: object,
+) -> tuple[str, str, int, str] | None:
+    exact_fields = {"kind", "ref", "size_bytes", "sha256"}
+    if not isinstance(value, Mapping) or set(value) != exact_fields:
+        return None
+    kind = str(value.get("kind") or "").strip()
+    ref = str(value.get("ref") or "").strip()
+    size_bytes = value.get("size_bytes")
+    digest = str(value.get("sha256") or "").strip().lower()
+    if (
+        not kind
+        or not ref
+        or isinstance(size_bytes, bool)
+        or not isinstance(size_bytes, int)
+        or size_bytes <= 0
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
+    ):
+        return None
+    return kind, ref, size_bytes, digest
+
+
+def _prediction_limiting_phrase_supported(
+    metric_ref_field: str,
+    phrase: str,
+    numeric_values: Mapping[str, float],
+) -> bool:
+    lowered = phrase.strip().casefold()
+    label_pattern = PREDICTION_LIMITING_METRIC_LABEL_PATTERNS.get(metric_ref_field)
+    if not lowered or label_pattern is None:
+        return False
+    value_field = PREDICTION_LIMITING_METRIC_VALUE_FIELDS.get(metric_ref_field)
+    value = numeric_values.get(value_field)
+    if value is None:
+        return False
+    token_pattern = re.compile(
+        rf"(?:{label_pattern})(?:\s*(?:=|:)\s*|\s+)"
+        rf"(?P<number>{PREDICTION_LIMITING_NUMERIC_TOKEN_PATTERN})"
+        rf"(?P<unit>%?)(?![\w.%])"
+    )
+    for match in token_pattern.finditer(lowered):
+        observed = float(match.group("number"))
+        unit = match.group("unit")
+        expected = value * 100.0 if unit == "%" else value
+        if unit == "%" and metric_ref_field != "ipa_ref":
+            continue
+        if not math.isfinite(observed) or not math.isfinite(expected):
+            continue
+        if observed == 0.0 and expected == 0.0 and math.copysign(
+            1.0, observed
+        ) != math.copysign(1.0, expected):
+            continue
+        if math.isclose(observed, expected, rel_tol=1e-12, abs_tol=1e-12):
+            return True
+    return False
+
+
+def _validate_exact_evidence_ref_or_disposition(
+    value: object,
+    field: str,
+    findings: list[dict[str, object]],
+    *,
+    allowed_dispositions: Sequence[str],
+    code: str,
+    require_disposition: bool = False,
+) -> None:
+    """Require an immutable exact ref or a typed unavailable disposition."""
+
+    disposition_fields = {"status", "ref", "reason"}
+    if _exact_evidence_ref_identity(value) is not None:
+        valid = not require_disposition
+    elif isinstance(value, Mapping) and set(value) == disposition_fields:
+        status = str(value.get("status") or "")
+        valid = (
+            status in allowed_dispositions
+            and value.get("ref") is None
+            and bool(str(value.get("reason") or "").strip())
+        )
+    else:
+        valid = False
+    if not valid:
+        findings.append(
+            _candidate_finding(
+                code,
+                field,
+                "bind kind/ref/size_bytes/sha256 evidence or an allowed explicit disposition",
+            )
+        )
+
+
 def _registry_signal_violation(
     code: str, field: str, action: str
 ) -> dict[str, str | bool]:
@@ -1342,6 +2193,52 @@ def _finding(ref: str, code: str, action: str) -> dict[str, str]:
 
 
 def _self_check() -> None:
+    def exact_ref(tag: str) -> dict[str, object]:
+        return {
+            "kind": "statistical_evidence",
+            "ref": f"evidence://{tag}",
+            "size_bytes": 100,
+            "sha256": "sha256:" + "a" * 64,
+        }
+
+    def endpoint_support(
+        n: int, events: int, *, fixed_horizon: bool = True
+    ) -> dict[str, object]:
+        competing_events = 96 if fixed_horizon else 0
+        early_censoring_count = 1 if fixed_horizon else 0
+        return {
+            "competing_events": competing_events,
+            "unknown_cause_count": 0,
+            "early_censoring_count": early_censoring_count,
+            "event_free_count": (
+                n - events - competing_events - early_censoring_count
+            ),
+            "observed_risk_estimator": (
+                "cumulative_incidence" if fixed_horizon else "not_applicable_with_reason"
+            ),
+            "observed_risk_ref": (
+                exact_ref("risk-cumulative-incidence")
+                if fixed_horizon
+                else {
+                    "status": "not_applicable_with_reason",
+                    "ref": None,
+                    "reason": "full-follow-up estimand has no fixed-horizon observed risk",
+                }
+            ),
+            "prediction_error_estimator": (
+                "ipcw_brier" if fixed_horizon else "not_applicable_with_reason"
+            ),
+            "prediction_error_ref": (
+                exact_ref("prediction-error-ipcw-brier")
+                if fixed_horizon
+                else {
+                    "status": "not_applicable_with_reason",
+                    "ref": None,
+                    "reason": "full-follow-up estimand has no fixed-horizon prediction error",
+                }
+            ),
+        }
+
     assert "analysis_plan_ref" in statistical_review_schema()["required"]
     assert normalize_model_family("Cox proportional hazards") == "survival"
     assert reporting_checklist_skeleton(["c1"])[0]["claim_ref"] == "c1"
@@ -1628,7 +2525,29 @@ def _self_check() -> None:
     )
     assert independent_external_center["machine_check_status"] == "candidate_complete"
 
-    conflated_analysis_sets = validate_endpoint_analysis_set_reconciliation(
+    legacy_endpoint_candidate = {
+        "rows": [
+            {
+                "endpoint_id": "cvd-death-5y",
+                "endpoint_role": "primary",
+                "follow_up_basis": "fixed_horizon",
+                "analysis_set_ref": "set:7408",
+                "n": 7408,
+                "events": 48,
+                "estimand_ref": "estimand:5y-cumulative-incidence",
+                "source_metric_ref": "metric:primary-5y",
+            }
+        ],
+        "authority": False,
+    }
+    assert validate_endpoint_analysis_set_reconciliation(legacy_endpoint_candidate)[
+        "machine_check_status"
+    ] == "candidate_complete"
+    assert validate_endpoint_analysis_set_reconciliation_v2(
+        legacy_endpoint_candidate
+    )["machine_check_status"] == "route_back_required"
+
+    conflated_analysis_sets = validate_endpoint_analysis_set_reconciliation_v2(
         {
             "rows": [
                 {
@@ -1638,6 +2557,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:7311",
                     "n": 7311,
                     "events": 48,
+                    **endpoint_support(7311, 48),
                     "estimand_ref": "estimand:unspecified",
                     "source_metric_ref": "metric:mixed-analysis-set",
                 },
@@ -1648,6 +2568,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:7408",
                     "n": 7408,
                     "events": 50,
+                    **endpoint_support(7408, 50),
                     "estimand_ref": "estimand:unspecified",
                     "source_metric_ref": "metric:mixed-analysis-set",
                 },
@@ -1658,7 +2579,7 @@ def _self_check() -> None:
     assert "ENDPOINT_ANALYSIS_SET_ESTIMAND_SOURCE_CONFLATED" in {
         item["code"] for item in conflated_analysis_sets["findings"]
     }
-    reconciled_analysis_sets = validate_endpoint_analysis_set_reconciliation(
+    reconciled_analysis_sets = validate_endpoint_analysis_set_reconciliation_v2(
         {
             "rows": [
                 {
@@ -1668,6 +2589,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:7311",
                     "n": 7311,
                     "events": 48,
+                    **endpoint_support(7311, 48),
                     "estimand_ref": "estimand:5y-cumulative-incidence",
                     "source_metric_ref": "metric:primary-5y",
                 },
@@ -1678,6 +2600,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:7408",
                     "n": 7408,
                     "events": 50,
+                    **endpoint_support(7408, 50, fixed_horizon=False),
                     "estimand_ref": "estimand:cause-specific-hazard",
                     "source_metric_ref": "metric:secondary-full-followup",
                 },
@@ -1686,7 +2609,63 @@ def _self_check() -> None:
         }
     )
     assert reconciled_analysis_sets["machine_check_status"] == "candidate_complete"
-    parallel_secondary_endpoints = validate_endpoint_analysis_set_reconciliation(
+    nonconserving_endpoint = validate_endpoint_analysis_set_reconciliation_v2(
+        {
+            "rows": [
+                {
+                    "endpoint_id": "cvd-death-5y",
+                    "endpoint_role": "primary",
+                    "follow_up_basis": "fixed_horizon",
+                    "analysis_set_ref": "set:100",
+                    "n": 100,
+                    "events": 20,
+                    "competing_events": 70,
+                    "unknown_cause_count": 0,
+                    "early_censoring_count": 20,
+                    "event_free_count": 0,
+                    "observed_risk_estimator": "cumulative_incidence",
+                    "observed_risk_ref": exact_ref("risk-nonconserving"),
+                    "prediction_error_estimator": "ipcw_brier",
+                    "prediction_error_ref": exact_ref("error-nonconserving"),
+                    "estimand_ref": "estimand:5y",
+                    "source_metric_ref": "metric:5y",
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert "ENDPOINT_STATE_COUNT_CONSERVATION_VIOLATION" in {
+        item["code"] for item in nonconserving_endpoint["findings"]
+    }
+    arbitrary_full_follow_up_ref = validate_endpoint_analysis_set_reconciliation_v2(
+        {
+            "rows": [
+                {
+                    "endpoint_id": "cvd-death-all-followup",
+                    "endpoint_role": "primary",
+                    "follow_up_basis": "full_follow_up",
+                    "analysis_set_ref": "set:7408",
+                    "n": 7408,
+                    "events": 50,
+                    "competing_events": 0,
+                    "unknown_cause_count": 0,
+                    "early_censoring_count": 0,
+                    "event_free_count": 7358,
+                    "observed_risk_estimator": "not_applicable_full_follow_up",
+                    "observed_risk_ref": "not_applicable:full-follow-up",
+                    "prediction_error_estimator": "not_applicable_full_follow_up",
+                    "prediction_error_ref": "not_applicable:full-follow-up",
+                    "estimand_ref": "estimand:cause-specific-hazard",
+                    "source_metric_ref": "metric:secondary-full-followup",
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert "ENDPOINT_FULL_FOLLOW_UP_DISPOSITION_INVALID" in {
+        item["code"] for item in arbitrary_full_follow_up_ref["findings"]
+    }
+    parallel_secondary_endpoints = validate_endpoint_analysis_set_reconciliation_v2(
         {
             "rows": [
                 {
@@ -1696,6 +2675,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:cvd-death",
                     "n": 7210,
                     "events": 45,
+                    **endpoint_support(7210, 45),
                     "estimand_ref": "estimand:cvd-death-cumulative-incidence",
                     "source_metric_ref": "metric:cvd-death-5y",
                 },
@@ -1706,6 +2686,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:stroke",
                     "n": 7200,
                     "events": 31,
+                    **endpoint_support(7200, 31),
                     "estimand_ref": "estimand:stroke-cumulative-incidence",
                     "source_metric_ref": "metric:stroke-5y",
                 },
@@ -1716,6 +2697,7 @@ def _self_check() -> None:
                     "analysis_set_ref": "set:mi",
                     "n": 7190,
                     "events": 27,
+                    **endpoint_support(7190, 27),
                     "estimand_ref": "estimand:mi-cumulative-incidence",
                     "source_metric_ref": "metric:mi-5y",
                 },
@@ -1928,6 +2910,353 @@ def _self_check() -> None:
         }
     )
     assert valid_dca["machine_check_status"] == "candidate_complete"
+    linked_performance = {
+        "discrimination_metric_type": "time_dependent_auc",
+        "discrimination_metric_ref": exact_ref("metric-auc"),
+        "discrimination_estimate": 0.857,
+        "discrimination_uncertainty_ref": exact_ref("ci-auc"),
+        "brier_ref": exact_ref("metric-brier"),
+        "brier_value": 0.00638,
+        "null_brier_ref": exact_ref("metric-null-brier"),
+        "null_brier_value": 0.00644,
+        "ipa_ref": exact_ref("metric-ipa"),
+        "ipa_value": 0.0082,
+        "calibration_slope_ref": exact_ref("metric-calibration-slope"),
+        "calibration_slope": 3.37,
+        "calibration_intercept_ref": exact_ref("metric-calibration-intercept"),
+        "calibration_intercept": 0.10,
+        "oe_ratio_ref": exact_ref("metric-oe"),
+        "oe_ratio": 1.30,
+        "grouped_calibration_ref": exact_ref("metric-grouped-calibration"),
+        "ipa_consistency_tolerance": 0.002,
+        "calibration_reasonable_bounds": {
+            "slope": [0.8, 1.2],
+            "intercept": [-0.2, 0.2],
+            "oe_ratio": [0.8, 1.2],
+        },
+        "performance_boundary": "ranking_only",
+        "limiting_evidence": [
+            {
+                "metric_ref": exact_ref("metric-ipa"),
+                "interpretation": "incremental prediction-error improvement is limited",
+                "required_surface_phrase": "IPA 0.82%",
+            },
+            {
+                "metric_ref": exact_ref("metric-calibration-slope"),
+                "interpretation": "absolute-risk calibration is distorted",
+                "required_surface_phrase": "calibration slope 3.37",
+            },
+        ],
+        "surface_text": {
+            "abstract_conclusion": "Ranking was promising, but IPA 0.82% and calibration slope 3.37 do not support reliable individual absolute risk.",
+            "main_conclusion": "The model supports provisional ranking; IPA 0.82% and calibration slope 3.37 preclude threshold-based use.",
+        },
+        "authority": False,
+    }
+    linked_performance_audit = validate_linked_prediction_performance(
+        linked_performance
+    )
+    assert linked_performance_audit["machine_check_status"] == "candidate_complete"
+    not_estimable_grouped_calibration = json.loads(json.dumps(linked_performance))
+    not_estimable_grouped_calibration["grouped_calibration_ref"] = {
+        "status": "not_estimable_with_reason",
+        "ref": None,
+        "reason": "too few endpoint events for stable grouped calibration",
+    }
+    assert validate_linked_prediction_performance(not_estimable_grouped_calibration)[
+        "machine_check_status"
+    ] == "candidate_complete"
+    not_estimable_calibration_slope = json.loads(json.dumps(linked_performance))
+    not_estimable_calibration_slope["calibration_slope_ref"] = {
+        "status": "not_estimable_with_reason",
+        "ref": None,
+        "reason": "calibration slope could not be estimated reliably",
+    }
+    not_estimable_calibration_slope["calibration_slope"] = None
+    not_estimable_calibration_slope["limiting_evidence"] = [
+        linked_performance["limiting_evidence"][0]
+    ]
+    not_estimable_calibration_slope["surface_text"] = {
+        "abstract_conclusion": (
+            "Ranking was promising, but IPA 0.82% does not support reliable "
+            "individual absolute risk."
+        ),
+        "main_conclusion": "The model supports provisional ranking; IPA 0.82% precludes threshold-based use.",
+    }
+    assert validate_linked_prediction_performance(not_estimable_calibration_slope)[
+        "machine_check_status"
+    ] == "candidate_complete"
+    malformed_metric_ref = json.loads(json.dumps(linked_performance))
+    malformed_metric_ref["brier_ref"].pop("size_bytes")
+    assert "PREDICTION_PERFORMANCE_REF_INVALID" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(malformed_metric_ref)[
+            "findings"
+        ]
+    }
+    nan_metric = dict(linked_performance, brier_value=float("nan"))
+    infinite_metric = dict(linked_performance, calibration_slope=float("inf"))
+    for nonfinite_candidate in (nan_metric, infinite_metric):
+        assert "PREDICTION_PERFORMANCE_VALUE_INVALID" in {
+            item["code"]
+            for item in validate_linked_prediction_performance(
+                nonfinite_candidate
+            )["findings"]
+        }
+    invalid_brier = dict(linked_performance, brier_value=1.1)
+    zero_null_brier = dict(linked_performance, null_brier_value=0.0)
+    ipa_mismatch = dict(linked_performance, ipa_value=0.5)
+    assert "PREDICTION_BRIER_RANGE_INVALID" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(invalid_brier)["findings"]
+    }
+    assert "PREDICTION_NULL_BRIER_RANGE_INVALID" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(zero_null_brier)[
+            "findings"
+        ]
+    }
+    assert "PREDICTION_IPA_IDENTITY_MISMATCH" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(ipa_mismatch)["findings"]
+    }
+    invalid_discrimination_type = dict(
+        linked_performance, discrimination_metric_type="accuracy"
+    )
+    assert "PREDICTION_DISCRIMINATION_METRIC_TYPE_INVALID" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            invalid_discrimination_type
+        )["findings"]
+    }
+    invalid_discrimination_range = dict(
+        linked_performance, discrimination_estimate=42
+    )
+    assert "PREDICTION_DISCRIMINATION_RANGE_INVALID" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            invalid_discrimination_range
+        )["findings"]
+    }
+    unsupported_limiting_locator = json.loads(json.dumps(linked_performance))
+    unsupported_limiting_locator["limiting_evidence"][0]["metric_ref"] = exact_ref(
+        "unrelated-metric"
+    )
+    assert "PREDICTION_LIMITING_EVIDENCE_METRIC_NOT_IN_PANEL" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            unsupported_limiting_locator
+        )["findings"]
+    }
+    arbitrary_string_limiting_ref = json.loads(json.dumps(linked_performance))
+    arbitrary_string_limiting_ref["limiting_evidence"][0]["metric_ref"] = (
+        "metric:ipa"
+    )
+    assert "PREDICTION_LIMITING_EVIDENCE_METRIC_REF_INVALID" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            arbitrary_string_limiting_ref
+        )["findings"]
+    }
+    unsupported_limiting_phrase = json.loads(json.dumps(linked_performance))
+    unsupported_limiting_phrase["limiting_evidence"][0][
+        "required_surface_phrase"
+    ] = "model performance was limited"
+    assert "PREDICTION_LIMITING_EVIDENCE_PHRASE_UNSUPPORTED" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            unsupported_limiting_phrase
+        )["findings"]
+    }
+    limiting_phrase_numeric_values = {
+        field: value
+        for field, value in (
+            ("brier_value", linked_performance["brier_value"]),
+            ("ipa_value", linked_performance["ipa_value"]),
+            ("calibration_slope", linked_performance["calibration_slope"]),
+            (
+                "calibration_intercept",
+                linked_performance["calibration_intercept"],
+            ),
+            ("oe_ratio", linked_performance["oe_ratio"]),
+        )
+        if isinstance(value, float)
+    }
+    for limiting_index, invalid_phrase in (
+        (0, "IPA 0.0082%"),
+        (0, "IPA -0.82%"),
+        (0, "IPA 0.0082e3"),
+        (1, "calibration slope 3.37%"),
+        (1, "calibration slope -3.37"),
+        (1, "calibration slope 3.37e2"),
+    ):
+        invalid_percentage_semantics = json.loads(json.dumps(linked_performance))
+        invalid_percentage_semantics["limiting_evidence"][limiting_index][
+            "required_surface_phrase"
+        ] = invalid_phrase
+        invalid_percentage_semantics["surface_text"] = {
+            "abstract_conclusion": f"Ranking only; {invalid_phrase} limits use.",
+            "main_conclusion": f"Ranking only; {invalid_phrase} precludes use.",
+        }
+        assert "PREDICTION_LIMITING_EVIDENCE_PHRASE_UNSUPPORTED" in {
+            item["code"]
+            for item in validate_linked_prediction_performance(
+                invalid_percentage_semantics
+            )["findings"]
+        }
+    assert _prediction_limiting_phrase_supported(
+        "ipa_ref", "IPA 0.82%", limiting_phrase_numeric_values
+    )
+    assert _prediction_limiting_phrase_supported(
+        "ipa_ref", "IPA 0.0082", limiting_phrase_numeric_values
+    )
+    assert _prediction_limiting_phrase_supported(
+        "calibration_slope_ref",
+        "calibration slope 3.37",
+        limiting_phrase_numeric_values,
+    )
+    assert _prediction_limiting_phrase_supported(
+        "calibration_slope_ref",
+        "calibration slope 3.370e0",
+        limiting_phrase_numeric_values,
+    )
+    good_performance_as_limit = json.loads(json.dumps(linked_performance))
+    good_performance_as_limit.update(
+        {
+            "brier_value": 0.1,
+            "null_brier_value": 0.2,
+            "ipa_value": 0.5,
+            "calibration_slope": 1.0,
+            "calibration_intercept": 0.0,
+            "oe_ratio": 1.0,
+            "limiting_evidence": [
+                {
+                    "metric_ref": exact_ref("metric-brier"),
+                    "interpretation": "the caller labels a well-performing metric as limiting",
+                    "required_surface_phrase": "Brier 0.10",
+                }
+            ],
+            "surface_text": {
+                "abstract_conclusion": "Ranking only; Brier 0.10 was caller-labeled as limiting.",
+                "main_conclusion": "Ranking only; Brier 0.10 was caller-labeled as limiting.",
+            },
+        }
+    )
+    assert {
+        "PREDICTION_LIMITING_EVIDENCE_METRIC_NOT_IN_PANEL",
+        "PREDICTION_RANKING_LIMITING_METRIC_MISSING",
+    }.issubset(
+        {
+            item["code"]
+            for item in validate_linked_prediction_performance(
+                good_performance_as_limit
+            )["findings"]
+        }
+    )
+    limited_prediction_error_boundary = json.loads(json.dumps(linked_performance))
+    limited_prediction_error_boundary.update(
+        {
+            "brier_value": 0.098,
+            "null_brier_value": 0.1,
+            "ipa_value": 0.02,
+            "calibration_slope": 1.0,
+            "calibration_intercept": 0.0,
+            "oe_ratio": 1.0,
+            "limiting_evidence": [
+                {
+                    "metric_ref": exact_ref("metric-ipa"),
+                    "interpretation": "prediction-error improvement is at the kernel limit",
+                    "required_surface_phrase": "IPA 2.00%",
+                }
+            ],
+            "surface_text": {
+                "abstract_conclusion": "Ranking only; IPA 2.00% limits absolute-risk use.",
+                "main_conclusion": "Ranking only; IPA 2.00% precludes threshold use.",
+            },
+        }
+    )
+    assert validate_linked_prediction_performance(
+        limited_prediction_error_boundary
+    )["machine_check_status"] == "candidate_complete"
+    adverse_calibration_boundary = json.loads(json.dumps(linked_performance))
+    adverse_calibration_boundary.update(
+        {
+            "brier_value": 0.05,
+            "null_brier_value": 0.1,
+            "ipa_value": 0.5,
+            "calibration_slope": 1.2001,
+            "calibration_intercept": 0.0,
+            "oe_ratio": 1.0,
+            "limiting_evidence": [
+                {
+                    "metric_ref": exact_ref("metric-calibration-slope"),
+                    "interpretation": "calibration slope is beyond the kernel bound",
+                    "required_surface_phrase": "calibration slope 1.2001",
+                }
+            ],
+            "surface_text": {
+                "abstract_conclusion": "Ranking only; calibration slope 1.2001 limits absolute-risk use.",
+                "main_conclusion": "Ranking only; calibration slope 1.2001 precludes threshold use.",
+            },
+        }
+    )
+    assert validate_linked_prediction_performance(adverse_calibration_boundary)[
+        "machine_check_status"
+    ] == "candidate_complete"
+    caller_limiting_policy_override = dict(
+        linked_performance, limited_prediction_error_ipa_upper_bound=0.9
+    )
+    assert "PREDICTION_LIMITING_POLICY_CALLER_OVERRIDE_FORBIDDEN" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            caller_limiting_policy_override
+        )["findings"]
+    }
+    slope_only_absolute_risk = dict(
+        linked_performance,
+        performance_boundary="absolute_risk_supported",
+        calibration_slope=1.0,
+        calibration_intercept=0.5,
+        oe_ratio=1.5,
+    )
+    assert "ABSOLUTE_RISK_SUPPORT_CONTRADICTS_LINKED_PERFORMANCE" in {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            slope_only_absolute_risk
+        )["findings"]
+    }
+    caller_policy_override = dict(
+        linked_performance,
+        performance_boundary="absolute_risk_supported",
+        ipa_value=0.04,
+        ipa_consistency_tolerance=0.05,
+        calibration_reasonable_bounds={
+            "slope": [-100.0, 100.0],
+            "intercept": [-100.0, 100.0],
+            "oe_ratio": [-100.0, 100.0],
+        },
+    )
+    caller_policy_override_codes = {
+        item["code"]
+        for item in validate_linked_prediction_performance(
+            caller_policy_override
+        )["findings"]
+    }
+    assert {
+        "PREDICTION_IPA_TOLERANCE_CALLER_OVERRIDE_FORBIDDEN",
+        "PREDICTION_CALIBRATION_BOUNDS_CALLER_OVERRIDE_FORBIDDEN",
+        "PREDICTION_IPA_IDENTITY_MISMATCH",
+        "ABSOLUTE_RISK_SUPPORT_CONTRADICTS_LINKED_PERFORMANCE",
+    }.issubset(caller_policy_override_codes)
+    hidden_limit = json.loads(json.dumps(linked_performance))
+    hidden_limit["surface_text"]["abstract_conclusion"] = (
+        "AUC 0.857 supports accurate individual absolute risk and clinical deployment."
+    )
+    hidden_limit_audit = validate_linked_prediction_performance(hidden_limit)
+    assert {
+        "PREDICTION_LIMIT_NOT_VISIBLE_ON_SURFACE",
+        "PREDICTION_CLAIM_EXCEEDS_PERFORMANCE_BOUNDARY",
+    }.issubset({item["code"] for item in hidden_limit_audit["findings"]})
     assert all(
         item["writes_authority"] is False
         for audit in (
@@ -1935,10 +3264,12 @@ def _self_check() -> None:
             conflated_analysis_sets,
             sparse_model,
             invalid_dca,
+            validate_linked_prediction_performance(caller_policy_override),
+            hidden_limit_audit,
         )
         for item in audit["findings"]
     )
-    print(json.dumps({"ok": True, "checks": 39}, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "checks": 80}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

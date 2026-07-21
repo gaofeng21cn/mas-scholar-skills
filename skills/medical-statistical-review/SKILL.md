@@ -186,8 +186,8 @@ statistical route-back candidate, not a statistical verdict or execution stop.
 Before a prediction-model initial draft is treated as complete, build and
 pressure-test four separate refs: `validation_partition_integrity_ref`,
 `endpoint_analysis_set_reconciliation_ref`,
-`model_complexity_sparse_event_ref`, and, when decision curves are reported,
-`decision_curve_validity_ref`.
+`model_complexity_sparse_event_ref`, and `linked_prediction_performance_ref`;
+also build `decision_curve_validity_ref` when decision curves are reported.
 
 For partition integrity, bind development, tuning, and validation partitions,
 their disjointness, source-population relation, and every penalty/tuning/model
@@ -201,7 +201,13 @@ For endpoint reconciliation, use one row per endpoint and follow-up basis with
 its exact analysis-set ref, N, events, estimand, and source metric. Distinct
 endpoints or horizons may legitimately have different N/events; this is not a
 conflict when their estimands and sources are independently bound. Never reuse
-one estimand or source ref to hide incompatible event counts.
+one estimand or source ref to hide incompatible event counts. Require events,
+competing events, and early censoring to conserve the analysis N. Fixed-horizon
+risk and prediction-error evidence uses exact refs; full-follow-up rows use an
+explicit `not_applicable_with_reason` disposition rather than a placeholder ref.
+Run `validate_endpoint_analysis_set_reconciliation_v2()` for new candidates.
+The unversioned validator preserves the earlier eight-field v1 row contract for
+same-major callers.
 
 For model complexity, report candidate and effective degrees of freedom,
 continuous-predictor count, formal sample-size/overfitting method and inputs,
@@ -218,6 +224,34 @@ policy, uncertainty method and interval, calibration basis and status,
 threshold range, net-benefit source, and at least one real clinical action
 scenario. Complete-case binary point estimates, unverified calibration, or a
 plot alone do not support clinical-utility language.
+
+For linked prediction performance, assess discrimination, Brier and null Brier,
+IPA, calibration slope/intercept, O:E, and grouped calibration together. Check
+that discrimination declares `harrell_c_index`, `uno_c_index`, or
+`time_dependent_auc` and lies within `[0, 1]`. For a `ranking_only` boundary,
+bind every limiting-evidence row to the exact current Brier, IPA, or calibration
+metric ref and require its surface phrase to carry that metric's current value.
+IPA may use either its raw proportion or the corresponding `value * 100`
+percentage. A percent suffix cannot be attached to the raw IPA value, Brier,
+calibration slope/intercept, or O:E value. The metric label must be followed by
+a complete signed decimal or scientific numeric token whose parsed value and
+unit match the current metric; substring, wrong-sign, and wrong-exponent
+matches are invalid.
+The versioned kernel limiting-evidence policy treats prediction-error evidence
+as limited only when the validated IPA is at most 0.02; reasonable calibration,
+larger IPA, or a favorable Brier/null-Brier pair cannot be relabeled as a
+limitation. Callers cannot override this threshold or the kernel calibration
+bounds.
+Then check the Brier ranges and the identity `IPA = 1 - Brier/null Brier` against the
+versioned, kernel-owned tolerance. Require finite intercept and O:E values or
+typed dispositions, and judge calibration against versioned, kernel-owned
+bounds. Candidate producers cannot override either policy. Absolute-risk
+support is a joint performance and calibration decision and cannot be inferred
+from calibration slope alone. Each metric uses an exact ref or explicit
+`not_estimable_with_reason` disposition.
+When the boundary is `ranking_only`, carry adverse calibration or limited
+prediction-error evidence into both abstract and main conclusions and forbid
+absolute-risk, threshold-use, or deployment claims.
 
 ## EHR And Registry Signal Validity Rule
 
@@ -432,6 +466,8 @@ Return refs-only candidate output:
 - `validation_partition_integrity_ref` for prediction-model validation
 - `endpoint_analysis_set_reconciliation_ref` for endpoint/horizon accounting
 - `model_complexity_sparse_event_ref` for model adequacy and diagnostics
+- `linked_prediction_performance_ref` for linked discrimination, prediction
+  error, calibration, and claim boundaries
 - `decision_curve_validity_ref` when decision curves are reported
 - `fixed_horizon_risk_semantics_ref` when a fixed horizon is used
 - `construct_comparability_ref` when sources or cohorts are compared

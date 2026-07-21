@@ -41,7 +41,24 @@ scaffolds. It is stdlib-only and no-authority.
    bibliography record. A genuinely citation-free document type must use an
    upper preflight `not_applicable_with_reason` disposition rather than passing
    four empty sets.
-6. Produce `route_back_candidate` for placeholders, fabricated-looking refs,
+   Run `audit_citation_source_coverage_v2()` for new candidates so coverage is
+   bound to an exact active inventory ref. The unversioned auditor preserves
+   the earlier four-set v1 contract.
+6. Build `active_reference_currentness_ref` for every active key. Bind title,
+   year, and stable identifier to exact metadata/source-context refs; currentness
+   evidence must be an exact ref or an explicit not-applicable disposition.
+   Open, corrected, superseded, or retracted status cannot be hidden by set
+   coverage.
+7. Keep excluded keys in `excluded_reference_ledger_ref` with exclusion reason,
+   prior role, unresolved status, and reintroduction gate. Build
+   `claim_citation_edge_completeness_ref` with locator, excerpt, fit/boundary,
+   and an exact `source_support_ref` for each active claim-source edge.
+   Bind all four lanes to one exact `active_inventory_ref` and verify the same
+   non-empty active key set in `reference_lane_active_inventory_binding_ref`.
+   Use typed `uncleared`, `cleared`, and `reintroduced` history states; a
+   reintroduced source must reopen currentness and claim-edge review with exact
+   refs before it legally returns to the active inventory.
+8. Produce `route_back_candidate` for placeholders, fabricated-looking refs,
    identifier mismatch, source mismatch, weak support, or missing primary source.
 
 ## Handoff Shape
@@ -55,6 +72,10 @@ Return:
 - `duplicate_or_placeholder_ref`
 - `support_gap_ref`
 - `citation_source_coverage_ref`
+- `active_reference_currentness_ref`
+- `excluded_reference_ledger_ref`
+- `claim_citation_edge_completeness_ref`
+- `reference_lane_active_inventory_binding_ref`
 - optional owner-provided `epistemic_review_scope_ref` locator
 - `candidate_refs`
 - `route_back_candidate`

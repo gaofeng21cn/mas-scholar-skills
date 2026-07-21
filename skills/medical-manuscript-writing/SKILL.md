@@ -222,13 +222,32 @@ quality, export, publication, or submission readiness.
 Before producing a complete initial draft, build
 `medical_initial_draft_preflight_candidate_ref` against
 `contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json`
-and run `validate_medical_initial_draft_preflight_candidate()` when the local
-kernel is available. The candidate must reconcile seven gates: study identity,
+and run `validate_medical_initial_draft_preflight_candidate_v2()` when the local
+kernel is available. The v1 validator remains available only for same-major
+compatibility with already-produced candidates; new initial drafts use the v2
+semantic policy. The candidate must reconcile seven gates: study identity,
 data freeze, statistical integrity, citation integrity, table traceability,
 display scope, and story contract. Every satisfied gate carries at least one
 non-empty exact ref; every route-back gate binds its unresolved item ids; an
 inapplicable gate carries a reason and no unresolved item. File presence,
 provider completion, or a successful render is not a substitute for these refs.
+
+A satisfied gate must cover every required ref family declared by the package
+policy, not merely contain one arbitrary exact ref. Statistical integrity also
+requires one explicit fixed-horizon applicability disposition and one decision-
+curve applicability disposition. The JSON schema validates the stable v1 shape;
+`validate_medical_initial_draft_preflight_candidate_v2()` is mandatory for ref-kind
+family and conditional-disposition semantics.
+When either analysis is genuinely inapplicable, use
+`build_medical_initial_draft_applicability_disposition()` and bind its canonical
+content identity with `medical_initial_draft_applicability_disposition_exact_ref()`.
+The v2 preflight validator must receive the disposition candidates and rejects
+arbitrary, reused, stale, target-mismatched, or authority-bearing placeholder
+refs.
+For `initial_complete_draft`, the applicability matrix marks all seven gates
+required: no required gate, especially study identity, data freeze, or story
+contract, may use `not_applicable_with_reason`, and an aggregate `satisfied`
+state cannot contain a required-gate N/A disposition.
 
 Order unresolved work by its owning dependency, not by the order in which it
 was noticed: `baseline_data_citation` routes to
