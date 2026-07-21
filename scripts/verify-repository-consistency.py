@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import ast
 import hashlib
 import json
 import pathlib
@@ -237,7 +238,7 @@ expected_preflight_dependency_order = [
 preflight_policy = contract.get("medical_initial_draft_preflight_policy") or {}
 if capability_map.get("medical_initial_draft_preflight_policy") != preflight_policy:
     fail("capability map and canonical module contract must expose one identical initial-draft preflight policy")
-if preflight_policy.get("policy_id") != "scholarskills_medical_initial_draft_preflight.v1":
+if preflight_policy.get("policy_id") != "scholarskills_medical_initial_draft_preflight.v2":
     fail("initial-draft preflight policy id is missing")
 if preflight_policy.get("schema_ref") != "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json":
     fail("initial-draft preflight policy must point to the owner schema")
@@ -245,6 +246,12 @@ if preflight_policy.get("schema_version") != 1:
     fail("initial-draft preflight policy must freeze schema version 1")
 if preflight_policy.get("surface_kind") != "medical_initial_draft_preflight_candidate_ref":
     fail("initial-draft preflight policy surface kind is wrong")
+if preflight_policy.get("stable_v1_compatibility") != {
+    "structural_schema_unchanged": True,
+    "legacy_validator": "validate_medical_initial_draft_preflight_candidate",
+    "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2",
+}:
+    fail("initial-draft preflight policy must preserve the stable v1 validator")
 if preflight_policy.get("statuses") != expected_preflight_statuses:
     fail("initial-draft preflight policy statuses are wrong")
 if preflight_policy.get("gates") != expected_preflight_gates:
@@ -258,14 +265,44 @@ if preflight_policy.get("gate_ref_families") != {
         "validation_partition_integrity_ref",
         "endpoint_analysis_set_reconciliation_ref",
         "model_complexity_sparse_event_ref",
-        "decision_curve_validity_ref",
+        "linked_prediction_performance_ref",
     ],
-    "citation_integrity": ["citation_source_coverage_ref"],
+    "citation_integrity": [
+        "citation_source_coverage_ref",
+        "active_reference_currentness_ref",
+        "excluded_reference_ledger_ref",
+        "claim_citation_edge_completeness_ref",
+        "reference_lane_active_inventory_binding_ref",
+    ],
     "table_traceability": ["baseline_table_traceability_ref"],
-    "display_scope": ["document_display_scope_coverage_ref"],
+    "display_scope": [
+        "document_display_scope_coverage_ref",
+        "display_render_integrity_ref",
+    ],
     "story_contract": ["first_draft_story_contract_ref"],
 }:
     fail("initial-draft preflight policy gate ref families are wrong")
+if preflight_policy.get("conditional_gate_ref_families") != {
+    "statistical_integrity": [
+        ["fixed_horizon_risk_semantics_ref", "fixed_horizon_not_applicable_ref"],
+        ["decision_curve_validity_ref", "decision_curve_not_applicable_ref"],
+    ]
+}:
+    fail("initial-draft preflight conditional ref families are wrong")
+if preflight_policy.get("manuscript_mode_applicability") != {
+    "initial_complete_draft": {
+        gate_name: "required" for gate_name in expected_preflight_gates
+    }
+}:
+    fail("initial-draft preflight manuscript-mode applicability is wrong")
+if preflight_policy.get("schema_validation_scope") != "structural_shape_and_exact_ref_only":
+    fail("initial-draft preflight schema scope must stay structural")
+if preflight_policy.get("semantic_family_validation") != {
+    "mandatory": True,
+    "kernel": "skills/medical-manuscript-writing/kernel.py",
+    "function": "validate_medical_initial_draft_preflight_candidate_v2",
+}:
+    fail("initial-draft preflight semantic family kernel must be mandatory")
 if preflight_policy.get("producer_skill_id") != "medical-manuscript-writing":
     fail("initial-draft preflight producer must be medical-manuscript-writing")
 if preflight_policy.get("independent_review_consumer_skill_id") != "medical-manuscript-review":
@@ -274,6 +311,24 @@ if preflight_policy.get("provider_or_render_completion_can_satisfy_preflight") i
     fail("provider or render completion must not satisfy initial-draft preflight")
 if preflight_policy.get("route_back_full_draft_policy") != "route_back_required_limits_output_to_story_plan_section_contracts_and_bounded_candidate_prose":
     fail("route-back preflight must limit output rather than authorize a full draft")
+expected_applicability_disposition_policy = {
+    "surface_kind": "medical_initial_draft_applicability_disposition_candidate.v1",
+    "schema_version": 1,
+    "producer_function": "build_medical_initial_draft_applicability_disposition",
+    "validator_function": "validate_medical_initial_draft_applicability_disposition",
+    "exact_ref_function": "medical_initial_draft_applicability_disposition_exact_ref",
+    "binding_policy": "strict_v2_validates_candidate_content_target_and_canonical_size_sha_ref_identity",
+    "authority": False,
+}
+if preflight_policy.get("applicability_disposition_policy") != expected_applicability_disposition_policy:
+    fail("canonical contract applicability disposition policy is wrong")
+if (
+    (capability_map.get("medical_initial_draft_preflight_policy") or {}).get(
+        "applicability_disposition_policy"
+    )
+    != expected_applicability_disposition_policy
+):
+    fail("capability map applicability disposition policy is wrong")
 preflight_authority = preflight_policy.get("authority_boundary") or {}
 if preflight_authority != {
     "refs_only": True,
@@ -298,6 +353,13 @@ if initial_draft_preflight_schema.get("additionalProperties") is not False:
     fail("initial-draft preflight schema must reject unknown top-level fields")
 if set((preflight_defs.get("status") or {}).get("enum") or []) != set(expected_preflight_statuses):
     fail("initial-draft preflight schema statuses must match policy")
+if (
+    (initial_draft_preflight_schema.get("properties") or {})
+    .get("manuscript_mode", {})
+    .get("minLength")
+    != 1
+):
+    fail("stable v1 preflight schema must retain non-empty manuscript-mode compatibility")
 gate_items_schema = (
     (initial_draft_preflight_schema.get("properties") or {}).get("gate_items") or {}
 )
@@ -967,6 +1029,8 @@ initial_draft_skill_tokens = {
             "bounded_analysis_campaign",
             "review_and_quality_gate",
             "cannot authorize a full draft",
+            "initial_complete_draft",
+            "all seven gates",
         ],
     ),
     "medical-manuscript-review": (
@@ -986,6 +1050,10 @@ initial_draft_skill_tokens = {
             "endpoint_analysis_set_reconciliation_ref",
             "model_complexity_sparse_event_ref",
             "decision_curve_validity_ref",
+            "linked prediction performance",
+            "calibration slope alone",
+            "kernel-owned tolerance",
+            "Candidate producers cannot override either policy",
             "no_tuning_prespecified",
             "not a mechanical 5- or 10-events-per-variable pass rule",
         ],
@@ -1005,6 +1073,8 @@ initial_draft_skill_tokens = {
         [
             "clinical_analysis_input_identity_ref",
             "study_context",
+            "study_context_ref",
+            "Early censoring is a separate state",
             "An all-N/A inventory never satisfies identity closure",
         ],
     ),
@@ -1014,6 +1084,8 @@ initial_draft_skill_tokens = {
             "citation_source_coverage_ref",
             "four keyed sets",
             "four empty sets",
+            "reference_lane_active_inventory_binding_ref",
+            "reintroduced",
         ],
     ),
     "medical-table-design": (
@@ -1028,11 +1100,13 @@ initial_draft_skill_tokens = {
         display_qc_skill,
         [
             "document_display_scope_coverage_ref",
+            "display_render_integrity_ref",
             "requires_reader_pdf=true",
             "member_id",
             "selected_layout_main_manuscript",
             "reader_combined_main_and_supplementary",
             "cannot substitute for page-render/page-hash evidence",
+            "PNG pixels directly",
         ],
     ),
 }
@@ -1046,11 +1120,22 @@ initial_draft_kernel_tokens = {
         write_kernel,
         [
             "validate_medical_initial_draft_preflight_candidate",
+            "validate_medical_initial_draft_preflight_candidate_v2",
+            "build_medical_initial_draft_applicability_disposition",
+            "validate_medical_initial_draft_applicability_disposition",
+            "medical_initial_draft_applicability_disposition_exact_ref",
+            "medical_initial_draft_applicability_disposition_candidate.v1",
+            "PREFLIGHT_APPLICABILITY_DISPOSITION_CANDIDATE_MISSING",
+            "PREFLIGHT_APPLICABILITY_DISPOSITION_IDENTITY_MISMATCH",
+            "PREFLIGHT_APPLICABILITY_DISPOSITION_REUSED",
+            "PREFLIGHT_CONDITIONAL_REF_ALTERNATIVES_NOT_EXCLUSIVE",
             "INITIAL_DRAFT_PREFLIGHT_DEPENDENCY_OWNERS",
             "PREFLIGHT_SATISFIED_GATE_REF_MISSING",
             "PREFLIGHT_ROUTE_BACK_GATE_INCOMPLETE",
             "PREFLIGHT_NOT_APPLICABLE_GATE_REASON_MISSING",
             "PREFLIGHT_DEPENDENCY_OWNER_INVALID",
+            "PREFLIGHT_REQUIRED_GATE_NOT_APPLICABLE",
+            "INITIAL_DRAFT_PREFLIGHT_MANUSCRIPT_MODE_APPLICABILITY",
             "size_bytes < 1",
         ],
     ),
@@ -1060,10 +1145,28 @@ initial_draft_kernel_tokens = {
             "validate_validation_partition_integrity",
             "VALIDATION_SELECTION_POLICY_MISSING",
             "validate_endpoint_analysis_set_reconciliation",
+            "validate_endpoint_analysis_set_reconciliation_v2",
             "validate_model_complexity_sparse_event",
             "ph_assessment_applicability",
             "continuous_predictor_count",
             "validate_decision_curve_validity",
+            "PREDICTION_IPA_IDENTITY_MISMATCH",
+            "PREDICTION_IPA_TOLERANCE_CALLER_OVERRIDE_FORBIDDEN",
+            "PREDICTION_CALIBRATION_BOUNDS_CALLER_OVERRIDE_FORBIDDEN",
+            "PREDICTION_PERFORMANCE_POLICY_ID",
+            "scholarskills_linked_prediction_performance.v2",
+            "PREDICTION_DISCRIMINATION_METRIC_TYPES",
+            "PREDICTION_DISCRIMINATION_RANGE_INVALID",
+            "PREDICTION_LIMITING_EVIDENCE_METRIC_REF_INVALID",
+            "PREDICTION_LIMITING_EVIDENCE_METRIC_NOT_IN_PANEL",
+            "PREDICTION_LIMITING_EVIDENCE_PHRASE_UNSUPPORTED",
+            "PREDICTION_LIMITING_EVIDENCE_POLICY_ID",
+            "PREDICTION_LIMITED_IPA_UPPER_BOUND",
+            "PREDICTION_LIMITING_POLICY_CALLER_OVERRIDE_FORBIDDEN",
+            "PREDICTION_RANKING_LIMITING_METRIC_MISSING",
+            "PREDICTION_IPA_CONSISTENCY_TOLERANCE",
+            "PREDICTION_CALIBRATION_REASONABLE_BOUNDS",
+            "ABSOLUTE_RISK_SUPPORT_CONTRADICTS_LINKED_PERFORMANCE",
         ],
     ),
     "medical-survival-analysis-plan": (
@@ -1079,19 +1182,25 @@ initial_draft_kernel_tokens = {
         data_freeze_kernel,
         [
             "validate_clinical_analysis_input_identity_candidate",
+            "validate_clinical_analysis_input_identity_candidate_v2",
             "has_longitudinal_follow_up",
             "is_multicenter",
             "requires_endpoint_adjudication",
             "CLINICAL_INPUT_IDENTITY_ALL_NOT_APPLICABLE",
+            "CLINICAL_INPUT_STUDY_CONTEXT_EXACT_REF_INVALID",
+            "early_censored_count",
         ],
     ),
     "medical-reference-integrity-auditor": (
         reference_integrity_kernel,
         [
             "audit_citation_source_coverage",
+            "audit_citation_source_coverage_v2",
             "CITATION_MANUSCRIPT_KEY_SET_EMPTY",
             "CITATION_BIBLIOGRAPHY_KEY_SET_EMPTY",
             "citation_source_coverage_ref",
+            "audit_reference_lane_active_inventory_binding",
+            "EXCLUDED_REFERENCE_CLEARANCE_STATUS_INVALID",
         ],
     ),
     "medical-table-design": (
@@ -1106,6 +1215,8 @@ initial_draft_kernel_tokens = {
     "medical-display-qc": (
         display_qc_kernel,
         [
+            "DISPLAY_QC_REFS",
+            "display_render_integrity_ref",
             "validate_document_display_scope_coverage",
             "requires_reader_pdf",
             "expected_display_members",
@@ -1113,6 +1224,8 @@ initial_draft_kernel_tokens = {
             "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_AUDIT",
             "DOCUMENT_DISPLAY_PAGE_EVIDENCE_MISSING",
             "composed_paper_pdf_exact_ref",
+            "physical_dimensions_inches",
+            "normalized_crop_bounds",
         ],
     ),
 }
@@ -1120,6 +1233,56 @@ for skill_id, (kernel_text, tokens) in initial_draft_kernel_tokens.items():
     for token in tokens:
         if token not in kernel_text:
             fail(f"{skill_id} kernel missing initial-draft preflight token: {token}")
+
+def require_unversioned_v1_binding(
+    label: str,
+    source_text: str,
+    function_name: str,
+    internal_function_name: str,
+) -> None:
+    tree = ast.parse(source_text)
+    function = next(
+        (
+            node
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and node.name == function_name
+        ),
+        None,
+    )
+    if function is None:
+        fail(f"{label} missing unversioned v1 entrypoint {function_name}")
+    calls = [
+        node
+        for node in ast.walk(function)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == internal_function_name
+    ]
+    if len(calls) != 1:
+        fail(f"{label} unversioned entrypoint must call one internal validator")
+    strict_keyword = next(
+        (keyword for keyword in calls[0].keywords if keyword.arg == "strict_v2"),
+        None,
+    )
+    if (
+        strict_keyword is None
+        or not isinstance(strict_keyword.value, ast.Constant)
+        or strict_keyword.value.value is not False
+    ):
+        fail(f"{label} unversioned entrypoint must bind strict_v2=false")
+
+require_unversioned_v1_binding(
+    "clinical input identity",
+    data_freeze_kernel,
+    "validate_clinical_analysis_input_identity_candidate",
+    "_validate_clinical_analysis_input_identity_candidate",
+)
+require_unversioned_v1_binding(
+    "citation source coverage",
+    reference_integrity_kernel,
+    "audit_citation_source_coverage",
+    "_audit_citation_source_coverage",
+)
 for skill_id, skill_text in {
     "medical-manuscript-review": review_skill,
     "medical-statistical-review": stats_skill,
@@ -1929,7 +2092,10 @@ for skill_id, expected in method_expected.items():
     require_all(f"medical-method specialist candidate refs for {skill_id}", item.get("candidate_ref_families"), expected["refs"])
 initial_draft_optional_refs = {
     "medical-reference-integrity-auditor": ["citation_source_coverage_ref"],
-    "medical-display-qc": ["document_display_scope_coverage_ref"],
+    "medical-display-qc": [
+        "document_display_scope_coverage_ref",
+        "display_render_integrity_ref",
+    ],
     "medical-survival-analysis-plan": [
         "fixed_horizon_risk_semantics_ref",
         "survival_estimand_plan_ref",
@@ -3452,12 +3618,16 @@ def require_external_fit_ai_policy(module: dict) -> None:
     require_ai_judgment_candidate_policy(module, module.get("external_learning_module_fit") or {})
 
 initial_draft_module_refs = {
-    "mas-scholar-skills.display": ["document_display_scope_coverage_ref"],
+    "mas-scholar-skills.display": [
+        "document_display_scope_coverage_ref",
+        "display_render_integrity_ref",
+    ],
     "mas-scholar-skills.tables": ["baseline_table_traceability_ref"],
     "mas-scholar-skills.stats": [
         "validation_partition_integrity_ref",
         "endpoint_analysis_set_reconciliation_ref",
         "model_complexity_sparse_event_ref",
+        "linked_prediction_performance_ref",
         "decision_curve_validity_ref",
     ],
     "mas-scholar-skills.write": ["medical_initial_draft_preflight_candidate_ref"],
@@ -3475,6 +3645,7 @@ initial_draft_core_capability_refs = {
         "validation_partition_integrity_ref",
         "endpoint_analysis_set_reconciliation_ref",
         "model_complexity_sparse_event_ref",
+        "linked_prediction_performance_ref",
         "decision_curve_validity_ref",
     ],
     "medical-table-design": ["baseline_table_traceability_ref"],
@@ -3485,6 +3656,46 @@ for capability_id, refs in initial_draft_core_capability_refs.items():
         fail(f"capability map missing initial-draft capability {capability_id}")
     if capability.get("candidate_ref_families") != refs:
         fail(f"capability map initial-draft ref families diverge for {capability_id}")
+
+stats_capability = capability_by_id["medical-statistical-review"]
+expected_endpoint_validator_binding = {
+    "legacy_validator": "validate_endpoint_analysis_set_reconciliation",
+    "current_semantic_validator": "validate_endpoint_analysis_set_reconciliation_v2",
+}
+if stats_capability.get("candidate_validator_bindings") != {
+    "endpoint_analysis_set_reconciliation_ref": expected_endpoint_validator_binding,
+}:
+    fail("statistical capability endpoint validator binding is wrong")
+if "fixed_horizon_risk_semantics_ref" in set(
+    stats_capability.get("candidate_ref_families") or []
+):
+    fail("statistical capability must not own fixed-horizon risk semantics")
+survival_capability = advanced_capability_by_id.get("medical-survival-analysis-plan") or {}
+if "fixed_horizon_risk_semantics_ref" not in set(
+    survival_capability.get("candidate_ref_families") or []
+):
+    fail("survival specialist must own fixed-horizon risk semantics")
+
+stats_module = require_module("mas-scholar-skills.stats")
+stats_artifacts = {
+    item.get("ref_id"): item for item in stats_module.get("artifact_refs") or []
+}
+endpoint_artifact = stats_artifacts.get("endpoint_analysis_set_reconciliation_ref")
+if endpoint_artifact is None:
+    fail("canonical stats module missing endpoint reconciliation artifact")
+if {
+    "legacy_validator": endpoint_artifact.get("legacy_validator"),
+    "current_semantic_validator": endpoint_artifact.get(
+        "current_semantic_validator"
+    ),
+} != expected_endpoint_validator_binding:
+    fail("canonical stats endpoint artifact validator binding is wrong")
+if "fixed_horizon_risk_semantics_ref" in stats_artifacts:
+    fail("canonical stats module must not own fixed-horizon risk semantics")
+if "fixed_horizon_risk_semantics_ref" in set(
+    (stats_module.get("quality_evidence") or {}).get("required_ref_shapes") or []
+):
+    fail("canonical stats quality evidence must not require fixed-horizon risk semantics")
 
 display_quality_floor = display_module.get("display_quality_floor_policy", {})
 if display_quality_floor.get("graphical_abstract_strategy") != "brief_first_reference_guided_ai_candidate_not_single_template_reuse":

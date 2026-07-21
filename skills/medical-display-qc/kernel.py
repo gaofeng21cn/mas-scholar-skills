@@ -24,6 +24,7 @@ DISPLAY_QC_REFS = (
     "accessibility_and_size_ref",
     "editorial_page_composition_ref",
     "document_display_scope_coverage_ref",
+    "display_render_integrity_ref",
     "display_qc_support_map_ref",
     "page_hash_evidence_candidate_ref",
 )
@@ -89,6 +90,250 @@ def normalize_evidence_ref(value: object) -> str:
     text = str(value or "").strip()
     text = re.sub(r"\s+", " ", text)
     return text.strip(" .;,")
+
+
+def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[str, Any]:
+    """Audit renderer/font locks and semantic parity of the final raster/vector pair."""
+
+    findings: list[dict[str, object]] = []
+    font_locks = candidate.get("font_locks")
+    if not isinstance(font_locks, Sequence) or isinstance(font_locks, (str, bytes)) or not font_locks:
+        findings.append(_layout_violation("display_font_locks_missing"))
+        font_locks = []
+    for index, lock in enumerate(font_locks):
+        if not isinstance(lock, Mapping) or not str(lock.get("font_file_ref") or "").strip() or re.fullmatch(
+            r"sha256:[0-9a-f]{64}", str(lock.get("font_file_sha256") or "")
+        ) is None:
+            findings.append(_layout_violation("display_font_lock_invalid", index=index))
+    renderer = candidate.get("renderer_lock")
+    if not isinstance(renderer, Mapping) or not all(
+        str(renderer.get(field) or "").strip()
+        for field in ("family", "version", "headless_backend")
+    ):
+        findings.append(_layout_violation("display_renderer_lock_invalid"))
+    if candidate.get("renderer_draw_complete") is not True:
+        findings.append(_layout_violation("display_renderer_draw_incomplete"))
+    if candidate.get("artist_scope") != "all_text_artists":
+        findings.append(_layout_violation("display_artist_scope_incomplete"))
+    generation_ref = str(candidate.get("single_generation_source_ref") or "").strip()
+    if not generation_ref:
+        findings.append(_layout_violation("display_single_generation_source_missing"))
+    exports = candidate.get("paired_exports")
+    if not isinstance(exports, Sequence) or isinstance(exports, (str, bytes)):
+        exports = []
+    by_format: dict[str, Mapping[str, object]] = {}
+    for index, export in enumerate(exports):
+        if not isinstance(export, Mapping):
+            findings.append(_layout_violation("display_paired_export_invalid", index=index))
+            continue
+        artifact_format = str(export.get("format") or "").lower()
+        if artifact_format not in {"png", "pdf"} or artifact_format in by_format:
+            findings.append(_layout_violation("display_paired_export_format_invalid", index=index))
+            continue
+        by_format[artifact_format] = export
+        if not _display_render_exact_ref_valid(export.get("artifact_ref")):
+            findings.append(
+                _layout_violation(
+                    "display_paired_export_exact_ref_invalid",
+                    index=index,
+                    field="artifact_ref",
+                )
+            )
+        for field in (
+            "visible_payload_sha256",
+            "labels_sha256",
+            "panel_order_sha256",
+            "source_fingerprint",
+        ):
+            value = str(export.get(field) or "")
+            valid = re.fullmatch(r"sha256:[0-9a-f]{64}", value) is not None
+            if not valid:
+                findings.append(
+                    _layout_violation(
+                        "display_paired_export_field_invalid", index=index, field=field
+                    )
+                )
+        dimensions = export.get("dimensions")
+        dimensions_valid = (
+            isinstance(dimensions, Mapping)
+            and set(dimensions) == {"width", "height", "unit"}
+            and _display_render_finite_number(dimensions.get("width"))
+            and _display_render_finite_number(dimensions.get("height"))
+            and float(dimensions.get("width")) > 0
+            and float(dimensions.get("height")) > 0
+            and dimensions.get("unit") == ("px" if artifact_format == "png" else "pt")
+        )
+        if not dimensions_valid:
+            findings.append(
+                _layout_violation("display_paired_export_dimensions_invalid", index=index)
+            )
+        crop = export.get("crop_bounds")
+        crop_coordinates = (
+            crop.get("coordinates") if isinstance(crop, Mapping) else None
+        )
+        crop_valid = (
+            isinstance(crop, Mapping)
+            and set(crop) == {"coordinates", "unit"}
+            and dimensions_valid
+            and crop.get("unit") == dimensions.get("unit")
+            and isinstance(crop_coordinates, Sequence)
+            and not isinstance(crop_coordinates, (str, bytes))
+            and len(crop_coordinates) == 4
+            and all(
+                _display_render_finite_number(value) for value in crop_coordinates
+            )
+            and float(crop_coordinates[2]) > float(crop_coordinates[0])
+            and float(crop_coordinates[3]) > float(crop_coordinates[1])
+        )
+        if not crop_valid:
+            findings.append(_layout_violation("display_paired_export_crop_invalid", index=index))
+        elif (
+            float(crop_coordinates[0]) < 0
+            or float(crop_coordinates[1]) < 0
+            or float(crop_coordinates[2]) > float(dimensions["width"])
+            or float(crop_coordinates[3]) > float(dimensions["height"])
+        ):
+            findings.append(
+                _layout_violation("display_paired_export_crop_outside_dimensions", index=index)
+            )
+        physical_dimensions = _display_render_number_sequence(
+            export.get("physical_dimensions_inches"), 2
+        )
+        normalized_crop = _display_render_number_sequence(
+            export.get("normalized_crop_bounds"), 4
+        )
+        resolution = export.get("resolution_per_inch")
+        if artifact_format == "png":
+            resolution_valid = (
+                _display_render_finite_number(resolution)
+                and float(resolution) > 0
+            )
+            units_per_inch = float(resolution) if resolution_valid else None
+        else:
+            resolution_valid = resolution is None
+            units_per_inch = 72.0
+        if not resolution_valid:
+            findings.append(
+                _layout_violation(
+                    "display_paired_export_resolution_invalid", index=index
+                )
+            )
+        if (
+            physical_dimensions is None
+            or any(value <= 0 for value in physical_dimensions)
+            or not dimensions_valid
+            or units_per_inch is None
+            or not all(
+                math.isclose(observed, expected, rel_tol=0.0, abs_tol=1e-6)
+                for observed, expected in zip(
+                    physical_dimensions,
+                    (
+                        float(dimensions["width"]) / units_per_inch,
+                        float(dimensions["height"]) / units_per_inch,
+                    ),
+                    strict=True,
+                )
+            )
+        ):
+            findings.append(
+                _layout_violation(
+                    "display_paired_export_physical_dimensions_invalid", index=index
+                )
+            )
+        if (
+            normalized_crop is None
+            or not crop_valid
+            or not all(0.0 <= value <= 1.0 for value in normalized_crop)
+            or not all(
+                math.isclose(observed, expected, rel_tol=0.0, abs_tol=1e-9)
+                for observed, expected in zip(
+                    normalized_crop,
+                    (
+                        float(crop_coordinates[0]) / float(dimensions["width"]),
+                        float(crop_coordinates[1]) / float(dimensions["height"]),
+                        float(crop_coordinates[2]) / float(dimensions["width"]),
+                        float(crop_coordinates[3]) / float(dimensions["height"]),
+                    ),
+                    strict=True,
+                )
+            )
+        ):
+            findings.append(
+                _layout_violation(
+                    "display_paired_export_normalized_crop_invalid", index=index
+                )
+            )
+    if set(by_format) != {"png", "pdf"}:
+        findings.append(_layout_violation("display_paired_export_pair_incomplete"))
+    else:
+        for field in (
+            "visible_payload_sha256",
+            "labels_sha256",
+            "panel_order_sha256",
+            "source_fingerprint",
+            "physical_dimensions_inches",
+            "normalized_crop_bounds",
+        ):
+            if by_format["png"].get(field) != by_format["pdf"].get(field):
+                findings.append(
+                    _layout_violation("display_paired_export_parity_mismatch", field=field)
+                )
+    if not str(candidate.get("final_scale_visual_note") or "").strip():
+        findings.append(_layout_violation("display_final_scale_visual_note_missing"))
+    if candidate.get("authority") is not False:
+        findings.append(_layout_violation("display_render_integrity_authority_forbidden"))
+    findings.sort(key=lambda item: json.dumps(item, sort_keys=True))
+    complete = not findings
+    return {
+        "surface_kind": "display_render_integrity_ref",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "findings": findings,
+        "route_back_candidate": None if complete else {
+            "route": "medical-display-qc",
+            "reason": "display_render_integrity_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def _display_render_exact_ref_valid(value: object) -> bool:
+    if not isinstance(value, Mapping) or set(value) != EXACT_REF_FIELDS:
+        return False
+    size_bytes = value.get("size_bytes")
+    return (
+        bool(normalize_evidence_ref(value.get("kind")))
+        and bool(normalize_evidence_ref(value.get("ref")))
+        and not isinstance(size_bytes, bool)
+        and isinstance(size_bytes, int)
+        and size_bytes > 0
+        and re.fullmatch(
+            r"sha256:[0-9a-f]{64}",
+            str(value.get("sha256") or "").strip().lower(),
+        )
+        is not None
+    )
+
+
+def _display_render_finite_number(value: object) -> bool:
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and math.isfinite(float(value))
+    )
+
+
+def _display_render_number_sequence(
+    value: object, expected_length: int
+) -> list[float] | None:
+    if (
+        not isinstance(value, Sequence)
+        or isinstance(value, (str, bytes))
+        or len(value) != expected_length
+        or not all(_display_render_finite_number(item) for item in value)
+    ):
+        return None
+    return [float(item) for item in value]
 
 
 def display_artifact_row(
@@ -2499,12 +2744,105 @@ def _main(argv: list[str] | None = None) -> int:
 
 
 def _self_check() -> None:
+    digest = "sha256:" + "a" * 64
+    def render_exact_ref(artifact_format: str) -> dict[str, object]:
+        return {
+            "kind": f"final_{artifact_format}_export",
+            "ref": f"artifact://figure-1.{artifact_format}",
+            "size_bytes": 100,
+            "sha256": digest,
+        }
+
+    render_integrity_candidate = {
+        "font_locks": [
+            {"font_file_ref": "font://source-sans", "font_file_sha256": digest}
+        ],
+        "renderer_lock": {
+            "family": "matplotlib",
+            "version": "3.x",
+            "headless_backend": "Agg",
+        },
+        "renderer_draw_complete": True,
+        "artist_scope": "all_text_artists",
+        "single_generation_source_ref": "source://figure-1",
+        "paired_exports": [
+            {
+                "format": artifact_format,
+                "artifact_ref": render_exact_ref(artifact_format),
+                "visible_payload_sha256": digest,
+                "labels_sha256": digest,
+                "panel_order_sha256": digest,
+                "source_fingerprint": digest,
+                "dimensions": {
+                    "width": 1800 if artifact_format == "png" else 432,
+                    "height": 900 if artifact_format == "png" else 216,
+                    "unit": "px" if artifact_format == "png" else "pt",
+                },
+                "crop_bounds": {
+                    "coordinates": (
+                        [0, 0, 1800, 900]
+                        if artifact_format == "png"
+                        else [0, 0, 432, 216]
+                    ),
+                    "unit": "px" if artifact_format == "png" else "pt",
+                },
+                "resolution_per_inch": 300 if artifact_format == "png" else None,
+                "physical_dimensions_inches": [6, 3],
+                "normalized_crop_bounds": [0, 0, 1, 1],
+            }
+            for artifact_format in ("png", "pdf")
+        ],
+        "final_scale_visual_note": "Both exports were inspected at final manuscript scale.",
+        "authority": False,
+    }
+    render_integrity = validate_display_render_integrity(render_integrity_candidate)
+    assert render_integrity["machine_check_status"] == "candidate_complete"
+    payload_tamper = json.loads(json.dumps(render_integrity_candidate))
+    payload_tamper["paired_exports"][1]["visible_payload_sha256"] = (
+        "sha256:" + "b" * 64
+    )
+    payload_tamper_audit = validate_display_render_integrity(payload_tamper)
+    assert "display_paired_export_parity_mismatch" in {
+        item["code"] for item in payload_tamper_audit["findings"]
+    }
+    malformed_artifact_ref = json.loads(json.dumps(render_integrity_candidate))
+    malformed_artifact_ref["paired_exports"][0]["artifact_ref"].pop("size_bytes")
+    assert "display_paired_export_exact_ref_invalid" in {
+        item["code"]
+        for item in validate_display_render_integrity(malformed_artifact_ref)[
+            "findings"
+        ]
+    }
+    nonfinite_crop = json.loads(json.dumps(render_integrity_candidate))
+    nonfinite_crop["paired_exports"][0]["crop_bounds"]["coordinates"][2] = float("inf")
+    assert "display_paired_export_crop_invalid" in {
+        item["code"]
+        for item in validate_display_render_integrity(nonfinite_crop)["findings"]
+    }
+    physical_mismatch = json.loads(json.dumps(render_integrity_candidate))
+    physical_mismatch["paired_exports"][1]["physical_dimensions_inches"] = [5, 3]
+    assert "display_paired_export_parity_mismatch" in {
+        item["code"]
+        for item in validate_display_render_integrity(physical_mismatch)["findings"]
+    }
+    unit_mismatch = json.loads(json.dumps(render_integrity_candidate))
+    unit_mismatch["paired_exports"][1]["dimensions"]["unit"] = "px"
+    assert "display_paired_export_dimensions_invalid" in {
+        item["code"]
+        for item in validate_display_render_integrity(unit_mismatch)["findings"]
+    }
+    missing_visual_note = dict(render_integrity_candidate, final_scale_visual_note="")
+    assert "display_final_scale_visual_note_missing" in {
+        item["code"]
+        for item in validate_display_render_integrity(missing_visual_note)["findings"]
+    }
     assert normalize_evidence_ref("  fig:1 ;") == "fig:1"
     row = display_artifact_row("artifact:pdf", page_ref=" page 2 ", panel_ref="A")
     assert row["writes_authority"] is False
     skeleton = display_qc_skeleton("artifact:pdf")
     assert "display_qc_support_map_ref" in skeleton["required_refs"]
     assert "programmatic_figure_audit_ref" in skeleton["required_refs"]
+    assert "display_render_integrity_ref" in skeleton["required_refs"]
     assert skeleton["authority"]["can_sign_visual_audit_receipt"] is False
     assert classify_display_qc_route("blank exported panel")["route"] == "artifact_owner_repair"
     support = display_qc_support_map([{"artifact_ref": "fig:1", "issue": "caption drift"}])
@@ -3111,7 +3449,7 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 85 if fitz_available else 78 if pillow_available else 65
+    checks = 93 if fitz_available else 86 if pillow_available else 73
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

@@ -35,10 +35,15 @@
     "closeout_refs_are_downstream_owner_targets_only": true
   },
   "medical_initial_draft_preflight_policy": {
-    "policy_id": "scholarskills_medical_initial_draft_preflight.v1",
+    "policy_id": "scholarskills_medical_initial_draft_preflight.v2",
     "schema_ref": "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
     "schema_version": 1,
     "surface_kind": "medical_initial_draft_preflight_candidate_ref",
+    "stable_v1_compatibility": {
+      "structural_schema_unchanged": true,
+      "legacy_validator": "validate_medical_initial_draft_preflight_candidate",
+      "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2"
+    },
     "statuses": [
       "satisfied",
       "route_back_required",
@@ -87,20 +92,63 @@
         "validation_partition_integrity_ref",
         "endpoint_analysis_set_reconciliation_ref",
         "model_complexity_sparse_event_ref",
-        "decision_curve_validity_ref"
+        "linked_prediction_performance_ref"
       ],
       "citation_integrity": [
-        "citation_source_coverage_ref"
+        "citation_source_coverage_ref",
+        "active_reference_currentness_ref",
+        "excluded_reference_ledger_ref",
+        "claim_citation_edge_completeness_ref",
+        "reference_lane_active_inventory_binding_ref"
       ],
       "table_traceability": [
         "baseline_table_traceability_ref"
       ],
       "display_scope": [
-        "document_display_scope_coverage_ref"
+        "document_display_scope_coverage_ref",
+        "display_render_integrity_ref"
       ],
       "story_contract": [
         "first_draft_story_contract_ref"
       ]
+    },
+    "conditional_gate_ref_families": {
+      "statistical_integrity": [
+        [
+          "fixed_horizon_risk_semantics_ref",
+          "fixed_horizon_not_applicable_ref"
+        ],
+        [
+          "decision_curve_validity_ref",
+          "decision_curve_not_applicable_ref"
+        ]
+      ]
+    },
+    "applicability_disposition_policy": {
+      "surface_kind": "medical_initial_draft_applicability_disposition_candidate.v1",
+      "schema_version": 1,
+      "producer_function": "build_medical_initial_draft_applicability_disposition",
+      "validator_function": "validate_medical_initial_draft_applicability_disposition",
+      "exact_ref_function": "medical_initial_draft_applicability_disposition_exact_ref",
+      "binding_policy": "strict_v2_validates_candidate_content_target_and_canonical_size_sha_ref_identity",
+      "authority": false
+    },
+    "manuscript_mode_applicability": {
+      "initial_complete_draft": {
+        "study_identity": "required",
+        "data_freeze": "required",
+        "statistical_integrity": "required",
+        "citation_integrity": "required",
+        "table_traceability": "required",
+        "display_scope": "required",
+        "story_contract": "required"
+      }
+    },
+    "schema_validation_scope": "structural_shape_and_exact_ref_only",
+    "semantic_family_validation": {
+      "mandatory": true,
+      "kernel": "skills/medical-manuscript-writing/kernel.py",
+      "function": "validate_medical_initial_draft_preflight_candidate_v2"
     },
     "producer_skill_id": "medical-manuscript-writing",
     "independent_review_consumer_skill_id": "medical-manuscript-review",
@@ -562,8 +610,15 @@
         "validation_partition_integrity_ref",
         "endpoint_analysis_set_reconciliation_ref",
         "model_complexity_sparse_event_ref",
+        "linked_prediction_performance_ref",
         "decision_curve_validity_ref"
       ],
+      "candidate_validator_bindings": {
+        "endpoint_analysis_set_reconciliation_ref": {
+          "legacy_validator": "validate_endpoint_analysis_set_reconciliation",
+          "current_semantic_validator": "validate_endpoint_analysis_set_reconciliation_v2"
+        }
+      },
       "improvement_tokens": [
         "medical-statistical-review",
         "mas-scholar-skills.stats",
@@ -1556,6 +1611,10 @@
         "claim_citation_support_map_ref",
         "support_gap_ref",
         "citation_source_coverage_ref",
+        "active_reference_currentness_ref",
+        "excluded_reference_ledger_ref",
+        "claim_citation_edge_completeness_ref",
+        "reference_lane_active_inventory_binding_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {
@@ -1647,6 +1706,7 @@
         "claim_display_alignment_ref",
         "accessibility_and_size_ref",
         "document_display_scope_coverage_ref",
+        "display_render_integrity_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {

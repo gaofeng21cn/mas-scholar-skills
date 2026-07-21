@@ -12,6 +12,18 @@ from typing import Any, Iterable, Mapping, Sequence
 
 
 PLACEHOLDER_RE = re.compile(r"\b(?:tbd|todo|missing|unknown|n/?a|placeholder)\b", re.I)
+REFERENCE_CURRENTNESS_STATUSES = (
+    "verified_current",
+    "open_currentness",
+    "corrected_or_updated",
+    "retracted",
+    "not_applicable_with_reason",
+)
+EXCLUDED_REFERENCE_CLEARANCE_STATUSES = (
+    "uncleared",
+    "cleared",
+    "reintroduced",
+)
 
 
 def normalize_doi(value: object) -> str:
@@ -111,9 +123,30 @@ def reference_inventory_skeleton(keys: Iterable[str]) -> list[dict[str, object]]
 def audit_citation_source_coverage(
     candidate: Mapping[str, object],
 ) -> dict[str, Any]:
+    """Close the stable v1 four-set citation coverage contract."""
+
+    return _audit_citation_source_coverage(candidate, strict_v2=False)
+
+
+def audit_citation_source_coverage_v2(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Close four-set coverage against an exact active inventory ref."""
+
+    return _audit_citation_source_coverage(candidate, strict_v2=True)
+
+
+def _audit_citation_source_coverage(
+    candidate: Mapping[str, object], *, strict_v2: bool
+) -> dict[str, Any]:
     """Close manuscript citations against bibliography, source context, and claims."""
 
     findings: list[dict[str, object]] = []
+    active_inventory_ref = (
+        _active_inventory_exact_ref(candidate.get("active_inventory_ref"), findings)
+        if strict_v2
+        else None
+    )
     manuscript_keys = _citation_key_set(
         candidate.get("manuscript_citation_keys"),
         "manuscript_citation_keys",
@@ -249,6 +282,7 @@ def audit_citation_source_coverage(
     complete = not findings
     return {
         "surface_kind": "citation_source_coverage_ref",
+        **({"active_inventory_ref": active_inventory_ref} if strict_v2 else {}),
         "machine_check_status": "candidate_complete" if complete else "route_back_required",
         "manuscript_citation_key_count": len(manuscript_keys),
         "bibliography_key_count": len(bibliography_keys),
@@ -266,6 +300,404 @@ def audit_citation_source_coverage(
         else {
             "route": "medical-reference-integrity-auditor",
             "reason": "citation_source_coverage_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def audit_active_reference_currentness(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit metadata and currentness for every active citation key."""
+
+    findings: list[dict[str, object]] = []
+    active_inventory_ref = _active_inventory_exact_ref(
+        candidate.get("active_inventory_ref"), findings
+    )
+    active_keys = _citation_key_set(
+        candidate.get("active_keys"), "active_keys", findings
+    )
+    records = candidate.get("records")
+    if not isinstance(records, Sequence) or isinstance(records, (str, bytes)):
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_CURRENTNESS_RECORDS_INVALID",
+                "records",
+                "provide one currentness record per active key",
+            )
+        )
+        records = []
+    seen: set[str] = set()
+    open_keys: list[str] = []
+    for index, record in enumerate(records):
+        field = f"records[{index}]"
+        if not isinstance(record, Mapping):
+            findings.append(
+                _coverage_finding(
+                    "REFERENCE_CURRENTNESS_RECORD_INVALID",
+                    field,
+                    "provide a structured currentness record",
+                )
+            )
+            continue
+        key = _normalize_citation_key(record.get("citation_key"))
+        if not key or key in seen:
+            findings.append(
+                _coverage_finding(
+                    "REFERENCE_CURRENTNESS_KEY_INVALID",
+                    f"{field}.citation_key",
+                    "provide one unique active citation key",
+                )
+            )
+            continue
+        seen.add(key)
+        for metadata_field in ("title", "year", "stable_identifier"):
+            if not str(record.get(metadata_field) or "").strip():
+                findings.append(
+                    _coverage_finding(
+                        "REFERENCE_ACTIVE_METADATA_MISSING",
+                        f"{field}.{metadata_field}",
+                        "bind active sources to verified title, year, and stable identifier",
+                    )
+                )
+        for ref_field in ("metadata_source_ref", "source_context_ref"):
+            _validate_reference_evidence_ref(
+                record.get(ref_field),
+                f"{field}.{ref_field}",
+                findings,
+                allowed_dispositions=(),
+            )
+        status = str(record.get("status") or "")
+        if status not in REFERENCE_CURRENTNESS_STATUSES:
+            findings.append(
+                _coverage_finding(
+                    "REFERENCE_CURRENTNESS_STATUS_INVALID",
+                    f"{field}.status",
+                    "use a canonical currentness status",
+                )
+            )
+        evidence_ref = record.get("currentness_evidence_ref")
+        reason = str(record.get("reason") or "").strip()
+        if status in {"verified_current", "corrected_or_updated"}:
+            _validate_reference_evidence_ref(
+                evidence_ref,
+                f"{field}.currentness_evidence_ref",
+                findings,
+                allowed_dispositions=(),
+            )
+        elif status == "not_applicable_with_reason":
+            _validate_reference_evidence_ref(
+                evidence_ref,
+                f"{field}.currentness_evidence_ref",
+                findings,
+                allowed_dispositions=("not_applicable_with_reason",),
+                require_disposition=True,
+            )
+            if not reason:
+                findings.append(
+                    _coverage_finding(
+                        "REFERENCE_CURRENTNESS_REASON_MISSING",
+                        f"{field}.reason",
+                        "state why currentness checking is not applicable",
+                    )
+                )
+        elif evidence_ref is not None:
+            _validate_reference_evidence_ref(
+                evidence_ref,
+                f"{field}.currentness_evidence_ref",
+                findings,
+                allowed_dispositions=(),
+            )
+        if status in {"open_currentness", "retracted"}:
+            open_keys.append(key)
+            findings.append(
+                _coverage_finding(
+                    "REFERENCE_ACTIVE_CURRENTNESS_OPEN",
+                    f"{field}.status",
+                    "resolve, replace, or exclude the active source before citation closure",
+                )
+            )
+    missing = sorted(active_keys - seen)
+    orphan = sorted(seen - active_keys)
+    if missing:
+        finding = _coverage_finding(
+            "REFERENCE_CURRENTNESS_ACTIVE_KEY_MISSING",
+            "records",
+            "add currentness records for every active key",
+        )
+        finding["citation_keys"] = missing
+        findings.append(finding)
+    if orphan:
+        finding = _coverage_finding(
+            "REFERENCE_CURRENTNESS_ORPHAN_KEY",
+            "records",
+            "remove non-active records or move them to the excluded ledger",
+        )
+        finding["citation_keys"] = orphan
+        findings.append(finding)
+    if candidate.get("authority") is not False:
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_CURRENTNESS_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep source status refs-only with authority=false",
+            )
+        )
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "active_reference_currentness_ref",
+        "active_inventory_ref": active_inventory_ref,
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "active_key_count": len(active_keys),
+        "record_count": len(seen),
+        "open_currentness_keys": sorted(open_keys),
+        "findings": findings,
+        "route_back_candidate": None if complete else {
+            "route": "medical-reference-integrity-auditor",
+            "reason": "active_reference_currentness_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def audit_excluded_reference_ledger(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Keep excluded sources outside active surfaces until their gate is satisfied."""
+
+    findings: list[dict[str, object]] = []
+    active_inventory_ref = _active_inventory_exact_ref(
+        candidate.get("active_inventory_ref"), findings
+    )
+    active_keys = _citation_key_set(candidate.get("active_keys"), "active_keys", findings)
+    records = candidate.get("excluded_records")
+    if not isinstance(records, Sequence) or isinstance(records, (str, bytes)):
+        findings.append(
+            _coverage_finding(
+                "EXCLUDED_REFERENCE_RECORDS_INVALID",
+                "excluded_records",
+                "provide a separate excluded-source ledger",
+            )
+        )
+        records = []
+    excluded_keys: set[str] = set()
+    reintroduced_keys: set[str] = set()
+    for index, record in enumerate(records):
+        field = f"excluded_records[{index}]"
+        if not isinstance(record, Mapping):
+            findings.append(
+                _coverage_finding(
+                    "EXCLUDED_REFERENCE_RECORD_INVALID",
+                    field,
+                    "provide a structured excluded-source record",
+                )
+            )
+            continue
+        key = _normalize_citation_key(record.get("citation_key"))
+        if not key or key in excluded_keys:
+            findings.append(
+                _coverage_finding(
+                    "EXCLUDED_REFERENCE_KEY_INVALID",
+                    f"{field}.citation_key",
+                    "provide a unique excluded citation key",
+                )
+            )
+            continue
+        excluded_keys.add(key)
+        for required in (
+            "exclusion_reason",
+            "prior_role",
+            "unresolved_status",
+            "reintroduction_gate",
+            "clearance_status",
+        ):
+            if not str(record.get(required) or "").strip():
+                findings.append(
+                    _coverage_finding(
+                        "EXCLUDED_REFERENCE_FIELD_MISSING",
+                        f"{field}.{required}",
+                        "preserve exclusion provenance and the explicit reintroduction gate",
+                    )
+                )
+        clearance_status = str(record.get("clearance_status") or "")
+        currentness_reopened_ref = record.get("currentness_reopened_ref")
+        claim_edge_reopened_ref = record.get("claim_edge_reopened_ref")
+        if clearance_status not in EXCLUDED_REFERENCE_CLEARANCE_STATUSES:
+            findings.append(
+                _coverage_finding(
+                    "EXCLUDED_REFERENCE_CLEARANCE_STATUS_INVALID",
+                    f"{field}.clearance_status",
+                    "use uncleared, cleared, or reintroduced",
+                )
+            )
+        elif clearance_status in {"uncleared", "cleared"}:
+            if key in active_keys:
+                findings.append(
+                    _coverage_finding(
+                        "EXCLUDED_REFERENCE_REINTRODUCED_WITHOUT_CLEARANCE",
+                        f"{field}.citation_key",
+                        "mark the cleared source reintroduced and reopen currentness and claim-edge review",
+                    )
+                )
+            if currentness_reopened_ref is not None or claim_edge_reopened_ref is not None:
+                findings.append(
+                    _coverage_finding(
+                        "EXCLUDED_REFERENCE_REOPENED_REF_CONTRADICTORY",
+                        field,
+                        "keep reopened refs null until the source is reintroduced",
+                    )
+                )
+        elif clearance_status == "reintroduced":
+            if key not in active_keys:
+                findings.append(
+                    _coverage_finding(
+                        "EXCLUDED_REFERENCE_REINTRODUCED_KEY_NOT_ACTIVE",
+                        f"{field}.citation_key",
+                        "add the reintroduced key to the shared active inventory",
+                    )
+                )
+            for ref_field, ref_value in (
+                ("currentness_reopened_ref", currentness_reopened_ref),
+                ("claim_edge_reopened_ref", claim_edge_reopened_ref),
+            ):
+                _validate_reference_evidence_ref(
+                    ref_value,
+                    f"{field}.{ref_field}",
+                    findings,
+                    allowed_dispositions=(),
+                )
+            reintroduced_keys.add(key)
+    reintroduced = sorted(reintroduced_keys)
+    if candidate.get("authority") is not False:
+        findings.append(
+            _coverage_finding(
+                "EXCLUDED_REFERENCE_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep the excluded ledger refs-only with authority=false",
+            )
+        )
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "excluded_reference_ledger_ref",
+        "active_inventory_ref": active_inventory_ref,
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "excluded_key_count": len(excluded_keys),
+        "reintroduced_keys": reintroduced,
+        "findings": findings,
+        "route_back_candidate": None if complete else {
+            "route": "medical-reference-integrity-auditor",
+            "reason": "excluded_reference_ledger_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def audit_claim_citation_edge_completeness(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Require located, excerpted, scope-bounded support for active citation edges."""
+
+    findings: list[dict[str, object]] = []
+    active_inventory_ref = _active_inventory_exact_ref(
+        candidate.get("active_inventory_ref"), findings
+    )
+    active_keys = _citation_key_set(candidate.get("active_keys"), "active_keys", findings)
+    edges = candidate.get("edges")
+    if not isinstance(edges, Sequence) or isinstance(edges, (str, bytes)) or not edges:
+        findings.append(
+            _coverage_finding(
+                "CLAIM_CITATION_EDGES_INVALID",
+                "edges",
+                "provide at least one located claim-source edge",
+            )
+        )
+        edges = []
+    represented: set[str] = set()
+    required_fields = (
+        "claim_id",
+        "citation_key",
+        "claim_text",
+        "support_type",
+        "locator",
+        "excerpt",
+        "population_fit",
+        "endpoint_fit",
+        "method_fit",
+        "support_boundary",
+        "source_support_ref",
+    )
+    for index, edge in enumerate(edges):
+        field = f"edges[{index}]"
+        if not isinstance(edge, Mapping):
+            findings.append(
+                _coverage_finding(
+                    "CLAIM_CITATION_EDGE_INVALID",
+                    field,
+                    "provide a structured claim-source edge",
+                )
+            )
+            continue
+        for required in required_fields:
+            if required == "source_support_ref":
+                _validate_reference_evidence_ref(
+                    edge.get(required),
+                    f"{field}.{required}",
+                    findings,
+                    allowed_dispositions=(),
+                )
+            elif not str(edge.get(required) or "").strip():
+                findings.append(
+                    _coverage_finding(
+                        "CLAIM_CITATION_EDGE_FIELD_MISSING",
+                        f"{field}.{required}",
+                        "bind claim text, exact source passage, fit, and support boundary",
+                    )
+                )
+        key = _normalize_citation_key(edge.get("citation_key"))
+        if key:
+            represented.add(key)
+            if key not in active_keys:
+                findings.append(
+                    _coverage_finding(
+                        "CLAIM_CITATION_EDGE_NONACTIVE_KEY",
+                        f"{field}.citation_key",
+                        "use only active source keys in the active claim map",
+                    )
+                )
+    missing = sorted(active_keys - represented)
+    if missing:
+        finding = _coverage_finding(
+            "CLAIM_CITATION_ACTIVE_KEY_WITHOUT_EDGE",
+            "edges",
+            "add at least one complete claim-source edge for every active key",
+        )
+        finding["citation_keys"] = missing
+        findings.append(finding)
+    if candidate.get("authority") is not False:
+        findings.append(
+            _coverage_finding(
+                "CLAIM_CITATION_EDGE_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep claim support refs-only with authority=false",
+            )
+        )
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "claim_citation_edge_completeness_ref",
+        "active_inventory_ref": active_inventory_ref,
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "edge_count": len(edges),
+        "active_key_count": len(active_keys),
+        "findings": findings,
+        "route_back_candidate": None if complete else {
+            "route": "medical-evidence-synthesis-and-claim-map",
+            "reason": "claim_citation_edges_require_repair",
             "authority": False,
         },
         "authority": False,
@@ -321,15 +753,220 @@ def _coverage_finding(code: str, field: str, action: str) -> dict[str, object]:
     }
 
 
+def _validate_reference_evidence_ref(
+    value: object,
+    field: str,
+    findings: list[dict[str, object]],
+    *,
+    allowed_dispositions: Sequence[str],
+    require_disposition: bool = False,
+) -> None:
+    exact_fields = {"kind", "ref", "size_bytes", "sha256"}
+    disposition_fields = {"status", "ref", "reason"}
+    if isinstance(value, Mapping) and set(value) == exact_fields:
+        size_bytes = value.get("size_bytes")
+        valid = (
+            bool(str(value.get("kind") or "").strip())
+            and bool(str(value.get("ref") or "").strip())
+            and not isinstance(size_bytes, bool)
+            and isinstance(size_bytes, int)
+            and size_bytes > 0
+            and re.fullmatch(
+                r"sha256:[0-9a-f]{64}",
+                str(value.get("sha256") or "").strip().lower(),
+            )
+            is not None
+            and not require_disposition
+        )
+    elif isinstance(value, Mapping) and set(value) == disposition_fields:
+        valid = (
+            str(value.get("status") or "") in allowed_dispositions
+            and value.get("ref") is None
+            and bool(str(value.get("reason") or "").strip())
+        )
+    else:
+        valid = False
+    if not valid:
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_EVIDENCE_EXACT_REF_INVALID",
+                field,
+                "bind kind/ref/size_bytes/sha256 evidence or an allowed explicit disposition",
+            )
+        )
+
+
+def _active_inventory_exact_ref(
+    value: object, findings: list[dict[str, object]]
+) -> dict[str, object] | None:
+    before = len(findings)
+    _validate_reference_evidence_ref(
+        value,
+        "active_inventory_ref",
+        findings,
+        allowed_dispositions=(),
+    )
+    if len(findings) != before or not isinstance(value, Mapping):
+        return None
+    return {
+        "kind": str(value["kind"]).strip(),
+        "ref": str(value["ref"]).strip(),
+        "size_bytes": value["size_bytes"],
+        "sha256": str(value["sha256"]).strip().lower(),
+    }
+
+
+def audit_reference_lane_active_inventory_binding(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Require four citation-integrity lanes to consume one active inventory."""
+
+    findings: list[dict[str, object]] = []
+    lanes = candidate.get("lanes")
+    required_lanes = {
+        "citation_source_coverage",
+        "active_reference_currentness",
+        "excluded_reference_ledger",
+        "claim_citation_edge_completeness",
+    }
+    if not isinstance(lanes, Mapping) or set(lanes) != required_lanes:
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_LANE_SET_INVALID",
+                "lanes",
+                "provide exactly the four citation-integrity lanes",
+            )
+        )
+        lanes = {}
+    identities: dict[str, tuple[str, str, int, str]] = {}
+    active_key_sets: dict[str, set[str]] = {}
+    for lane_name in sorted(required_lanes):
+        lane = lanes.get(lane_name)
+        if not isinstance(lane, Mapping):
+            findings.append(
+                _coverage_finding(
+                    "REFERENCE_LANE_INVALID",
+                    f"lanes.{lane_name}",
+                    "provide the lane candidate and its active inventory ref",
+                )
+            )
+            continue
+        lane_findings: list[dict[str, object]] = []
+        normalized_ref = _active_inventory_exact_ref(
+            lane.get("active_inventory_ref"), lane_findings
+        )
+        if normalized_ref is None:
+            findings.extend(
+                {
+                    **finding,
+                    "field": f"lanes.{lane_name}.{finding['field']}",
+                }
+                for finding in lane_findings
+            )
+        else:
+            identities[lane_name] = (
+                str(normalized_ref["kind"]),
+                str(normalized_ref["ref"]),
+                int(normalized_ref["size_bytes"]),
+                str(normalized_ref["sha256"]),
+            )
+        key_field = (
+            "manuscript_citation_keys"
+            if lane_name == "citation_source_coverage"
+            else "active_keys"
+        )
+        key_findings: list[dict[str, object]] = []
+        active_keys = _citation_key_set(lane.get(key_field), key_field, key_findings)
+        if key_findings:
+            findings.extend(
+                {
+                    **finding,
+                    "field": f"lanes.{lane_name}.{finding['field']}",
+                }
+                for finding in key_findings
+            )
+        active_key_sets[lane_name] = active_keys
+        if not active_keys:
+            findings.append(
+                _coverage_finding(
+                    "REFERENCE_LANE_ACTIVE_KEY_SET_EMPTY",
+                    f"lanes.{lane_name}.{key_field}",
+                    "bind every lane to the non-empty active inventory",
+                )
+            )
+    if identities and len(set(identities.values())) != 1:
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_LANE_ACTIVE_INVENTORY_MISMATCH",
+                "lanes",
+                "use one exact active inventory ref and digest across all four lanes",
+            )
+        )
+    if active_key_sets and len({frozenset(keys) for keys in active_key_sets.values()}) != 1:
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_LANE_ACTIVE_KEY_SET_MISMATCH",
+                "lanes",
+                "use the same active citation-key set across all four lanes",
+            )
+        )
+    if candidate.get("authority") is not False:
+        findings.append(
+            _coverage_finding(
+                "REFERENCE_LANE_BINDING_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep lane binding refs-only with authority=false",
+            )
+        )
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    shared_identity = (
+        next(iter(identities.values()))
+        if len(identities) == len(required_lanes)
+        and len(set(identities.values())) == 1
+        else None
+    )
+    return {
+        "surface_kind": "reference_lane_active_inventory_binding_ref",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "active_inventory_ref": None
+        if shared_identity is None
+        else {
+            "kind": shared_identity[0],
+            "ref": shared_identity[1],
+            "size_bytes": shared_identity[2],
+            "sha256": shared_identity[3],
+        },
+        "findings": findings,
+        "route_back_candidate": None if complete else {
+            "route": "medical-reference-integrity-auditor",
+            "reason": "reference_lane_active_inventory_binding_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
 def _self_check() -> None:
+    def exact_ref(tag: str) -> dict[str, object]:
+        return {
+            "kind": "reference_evidence",
+            "ref": f"evidence://{tag}",
+            "size_bytes": 100,
+            "sha256": "sha256:" + "a" * 64,
+        }
+
+    active_inventory_ref = exact_ref("active-inventory")
+
     assert normalize_doi("https://doi.org/10.1000/ABC.") == "10.1000/abc"
     assert normalize_pmid("PMID: 12345") == "12345"
     assert normalize_pmcid("pmc987") == "PMC987"
     refs = [{"title": "A Trial", "doi": "10.1/A"}, {"title": "B", "doi": "10.1/a"}]
     assert lint_reference_identifiers(refs)[0]["code"] == "DUPLICATE_REFERENCE_KEY"
     assert reference_inventory_skeleton(["ref1"])[0]["citation_key"] == "ref1"
-    empty_coverage = audit_citation_source_coverage(
+    empty_coverage = audit_citation_source_coverage_v2(
         {
+            "active_inventory_ref": active_inventory_ref,
             "manuscript_citation_keys": [],
             "bibliography_records": [],
             "source_context_keys": [],
@@ -342,8 +979,9 @@ def _self_check() -> None:
         "CITATION_BIBLIOGRAPHY_KEY_SET_EMPTY",
     }.issubset({item["code"] for item in empty_coverage["findings"]})
     manuscript_keys = [f"ref{index:02d}" for index in range(1, 22)]
-    incomplete_coverage = audit_citation_source_coverage(
+    incomplete_coverage = audit_citation_source_coverage_v2(
         {
+            "active_inventory_ref": active_inventory_ref,
             "manuscript_citation_keys": manuscript_keys,
             "bibliography_records": [
                 {"citation_key": key} for key in manuscript_keys[:8]
@@ -358,8 +996,9 @@ def _self_check() -> None:
     assert incomplete_coverage["missing_bibliography_keys"] == [
         f"ref{index:02d}" for index in range(9, 22)
     ]
-    incomplete_source_context = audit_citation_source_coverage(
+    incomplete_source_context = audit_citation_source_coverage_v2(
         {
+            "active_inventory_ref": active_inventory_ref,
             "manuscript_citation_keys": manuscript_keys,
             "bibliography_records": [
                 {"citation_key": key} for key in manuscript_keys
@@ -373,8 +1012,9 @@ def _self_check() -> None:
     assert incomplete_source_context["missing_source_context_keys"] == [
         f"ref{index:02d}" for index in range(9, 22)
     ]
-    complete_coverage = audit_citation_source_coverage(
+    complete_coverage = audit_citation_source_coverage_v2(
         {
+            "active_inventory_ref": active_inventory_ref,
             "manuscript_citation_keys": manuscript_keys,
             "bibliography_records": [
                 {"citation_key": key} for key in manuscript_keys
@@ -385,7 +1025,250 @@ def _self_check() -> None:
         }
     )
     assert complete_coverage["machine_check_status"] == "candidate_complete"
-    print(json.dumps({"ok": True, "checks": 13}, indent=2, sort_keys=True))
+    legacy_coverage_candidate = {
+        "manuscript_citation_keys": manuscript_keys,
+        "bibliography_records": [
+            {"citation_key": key} for key in manuscript_keys
+        ],
+        "source_context_keys": manuscript_keys,
+        "claim_map_keys": manuscript_keys,
+        "authority": False,
+    }
+    legacy_coverage = audit_citation_source_coverage(legacy_coverage_candidate)
+    strict_legacy_coverage = audit_citation_source_coverage_v2(
+        legacy_coverage_candidate
+    )
+    assert legacy_coverage["machine_check_status"] == "candidate_complete"
+    assert "active_inventory_ref" not in legacy_coverage
+    assert strict_legacy_coverage["machine_check_status"] == "route_back_required"
+    active_currentness = audit_active_reference_currentness(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A", "B"],
+            "records": [
+                {
+                    "citation_key": key,
+                    "title": f"Source {key}",
+                    "year": "2025",
+                    "stable_identifier": f"pmid:{index}",
+                    "status": "verified_current",
+                    "metadata_source_ref": exact_ref(f"metadata-{key}"),
+                    "source_context_ref": exact_ref(f"context-{key}"),
+                    "currentness_evidence_ref": exact_ref(f"currentness-{key}"),
+                    "reason": None,
+                }
+                for index, key in enumerate(("A", "B"), start=1)
+            ],
+            "authority": False,
+        }
+    )
+    assert active_currentness["machine_check_status"] == "candidate_complete"
+    open_currentness = audit_active_reference_currentness(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A"],
+            "records": [
+                {
+                    "citation_key": "A",
+                    "title": "Source A",
+                    "year": "2025",
+                    "stable_identifier": "doi:10.1/a",
+                    "status": "open_currentness",
+                    "metadata_source_ref": exact_ref("metadata-A"),
+                    "source_context_ref": exact_ref("context-A"),
+                    "currentness_evidence_ref": None,
+                    "reason": "publisher status remains unresolved",
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert open_currentness["open_currentness_keys"] == ["a"]
+    malformed_currentness = {
+        "active_inventory_ref": active_inventory_ref,
+        "active_keys": ["A"],
+        "records": [
+            {
+                "citation_key": "A",
+                "title": "Source A",
+                "year": "2025",
+                "stable_identifier": "doi:10.1/a",
+                "status": "verified_current",
+                "metadata_source_ref": exact_ref("metadata-A"),
+                "source_context_ref": exact_ref("context-A"),
+                "currentness_evidence_ref": exact_ref("currentness-A"),
+                "reason": None,
+            }
+        ],
+        "authority": False,
+    }
+    malformed_currentness["records"][0]["currentness_evidence_ref"].pop(
+        "size_bytes"
+    )
+    assert "REFERENCE_EVIDENCE_EXACT_REF_INVALID" in {
+        item["code"]
+        for item in audit_active_reference_currentness(malformed_currentness)[
+            "findings"
+        ]
+    }
+    excluded_ok = audit_excluded_reference_ledger(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A", "B"],
+            "excluded_records": [
+                {
+                    "citation_key": "X",
+                    "exclusion_reason": "not needed for active claim set",
+                    "prior_role": "background",
+                    "unresolved_status": "open_currentness",
+                    "reintroduction_gate": "currentness and claim support required",
+                    "clearance_status": "uncleared",
+                    "currentness_reopened_ref": None,
+                    "claim_edge_reopened_ref": None,
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert excluded_ok["machine_check_status"] == "candidate_complete"
+    reintroduced = audit_excluded_reference_ledger(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A", "X"],
+            "excluded_records": [
+                {
+                    "citation_key": "X",
+                    "exclusion_reason": "status unresolved",
+                    "prior_role": "background",
+                    "unresolved_status": "cleared_for_reintroduction",
+                    "reintroduction_gate": "currentness and claim support required",
+                    "clearance_status": "reintroduced",
+                    "currentness_reopened_ref": exact_ref("X-currentness-reopened"),
+                    "claim_edge_reopened_ref": exact_ref("X-edge-reopened"),
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert reintroduced["reintroduced_keys"] == ["x"]
+    assert reintroduced["machine_check_status"] == "candidate_complete"
+    uncleared_reintroduction = audit_excluded_reference_ledger(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A", "X"],
+            "excluded_records": [
+                {
+                    "citation_key": "X",
+                    "exclusion_reason": "status unresolved",
+                    "prior_role": "background",
+                    "unresolved_status": "open_currentness",
+                    "reintroduction_gate": "currentness and claim support required",
+                    "clearance_status": "uncleared",
+                    "currentness_reopened_ref": None,
+                    "claim_edge_reopened_ref": None,
+                }
+            ],
+            "authority": False,
+        }
+    )
+    assert "EXCLUDED_REFERENCE_REINTRODUCED_WITHOUT_CLEARANCE" in {
+        item["code"] for item in uncleared_reintroduction["findings"]
+    }
+    edge = {
+        "claim_id": "claim-1",
+        "citation_key": "A",
+        "claim_text": "A bounded claim",
+        "support_type": "direct_primary",
+        "locator": "p. 4, Results",
+        "excerpt": "Exact supporting passage.",
+        "population_fit": "matched",
+        "endpoint_fit": "matched",
+        "method_fit": "matched",
+        "support_boundary": "association only",
+        "source_support_ref": exact_ref("claim-1-source-support"),
+    }
+    edge_audit = audit_claim_citation_edge_completeness(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A"],
+            "edges": [edge],
+            "authority": False,
+        }
+    )
+    assert edge_audit["machine_check_status"] == "candidate_complete"
+    missing_locator = dict(edge, locator="")
+    missing_locator_audit = audit_claim_citation_edge_completeness(
+        {
+            "active_inventory_ref": active_inventory_ref,
+            "active_keys": ["A"],
+            "edges": [missing_locator],
+            "authority": False,
+        }
+    )
+    assert "CLAIM_CITATION_EDGE_FIELD_MISSING" in {
+        item["code"] for item in missing_locator_audit["findings"]
+    }
+    missing_support_hash = json.loads(json.dumps(edge))
+    missing_support_hash["source_support_ref"].pop("sha256")
+    assert "REFERENCE_EVIDENCE_EXACT_REF_INVALID" in {
+        item["code"]
+        for item in audit_claim_citation_edge_completeness(
+            {
+                "active_inventory_ref": active_inventory_ref,
+                "active_keys": ["A"],
+                "edges": [missing_support_hash],
+                "authority": False,
+            }
+        )["findings"]
+    }
+    lane_binding_candidate = {
+        "lanes": {
+            "citation_source_coverage": {
+                "active_inventory_ref": active_inventory_ref,
+                "manuscript_citation_keys": ["A"],
+            },
+            "active_reference_currentness": {
+                "active_inventory_ref": active_inventory_ref,
+                "active_keys": ["A"],
+            },
+            "excluded_reference_ledger": {
+                "active_inventory_ref": active_inventory_ref,
+                "active_keys": ["A"],
+            },
+            "claim_citation_edge_completeness": {
+                "active_inventory_ref": active_inventory_ref,
+                "active_keys": ["A"],
+            },
+        },
+        "authority": False,
+    }
+    assert audit_reference_lane_active_inventory_binding(lane_binding_candidate)[
+        "machine_check_status"
+    ] == "candidate_complete"
+    mismatched_lane_inventory = json.loads(json.dumps(lane_binding_candidate))
+    mismatched_lane_inventory["lanes"]["claim_citation_edge_completeness"][
+        "active_inventory_ref"
+    ]["sha256"] = "sha256:" + "b" * 64
+    assert "REFERENCE_LANE_ACTIVE_INVENTORY_MISMATCH" in {
+        item["code"]
+        for item in audit_reference_lane_active_inventory_binding(
+            mismatched_lane_inventory
+        )["findings"]
+    }
+    empty_lane_bypass = json.loads(json.dumps(lane_binding_candidate))
+    empty_lane_bypass["lanes"]["excluded_reference_ledger"]["active_keys"] = []
+    assert {
+        "REFERENCE_LANE_ACTIVE_KEY_SET_EMPTY",
+        "REFERENCE_LANE_ACTIVE_KEY_SET_MISMATCH",
+    }.issubset(
+        {
+            item["code"]
+            for item in audit_reference_lane_active_inventory_binding(
+                empty_lane_bypass
+            )["findings"]
+        }
+    )
+    print(json.dumps({"ok": True, "checks": 32}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

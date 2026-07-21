@@ -105,6 +105,13 @@ currentness, package identity, a receipt, a verdict, or authority.
    for other renderer families rather than treating Matplotlib as the only
    backend. Preserve the existing rule that unverified embedding, including an
    empty Type 3 font-program extraction, remains unknown rather than passing.
+   Build `display_render_integrity_ref` with an exact artifact ref for each PNG
+   and PDF export, explicit px/pt units, finite dimensions, four-coordinate
+   crop bounds, canonical physical dimensions in inches, normalized crop, and
+   parity of visible payload, labels, panel order, source fingerprint,
+   physical dimensions, and normalized crop. Never compare PNG pixels directly
+   with PDF points. A filename or arbitrary artifact string is not
+   paired-export evidence.
 7. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
    the same SHA-256 `source_fingerprint` and identical per-format
    `output_fingerprints`. Any difference routes back to the source/render owner
@@ -176,6 +183,8 @@ Return:
 - `accessibility_and_size_ref`
 - `editorial_page_composition_ref`
 - `document_display_scope_coverage_ref` when a reader PDF is required
+- `display_render_integrity_ref` for renderer/font locks and exact PNG/PDF
+  semantic parity
 - `display_qc_support_map_ref`
 - `page_hash_evidence_candidate_ref` when fixed-raster PDF evidence is available
 - optional owner-provided `epistemic_review_scope_ref` locator

@@ -147,10 +147,15 @@
     }
   },
   "medical_initial_draft_preflight_policy": {
-    "policy_id": "scholarskills_medical_initial_draft_preflight.v1",
+    "policy_id": "scholarskills_medical_initial_draft_preflight.v2",
     "schema_ref": "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
     "schema_version": 1,
     "surface_kind": "medical_initial_draft_preflight_candidate_ref",
+    "stable_v1_compatibility": {
+      "structural_schema_unchanged": true,
+      "legacy_validator": "validate_medical_initial_draft_preflight_candidate",
+      "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2"
+    },
     "statuses": [
       "satisfied",
       "route_back_required",
@@ -199,20 +204,63 @@
         "validation_partition_integrity_ref",
         "endpoint_analysis_set_reconciliation_ref",
         "model_complexity_sparse_event_ref",
-        "decision_curve_validity_ref"
+        "linked_prediction_performance_ref"
       ],
       "citation_integrity": [
-        "citation_source_coverage_ref"
+        "citation_source_coverage_ref",
+        "active_reference_currentness_ref",
+        "excluded_reference_ledger_ref",
+        "claim_citation_edge_completeness_ref",
+        "reference_lane_active_inventory_binding_ref"
       ],
       "table_traceability": [
         "baseline_table_traceability_ref"
       ],
       "display_scope": [
-        "document_display_scope_coverage_ref"
+        "document_display_scope_coverage_ref",
+        "display_render_integrity_ref"
       ],
       "story_contract": [
         "first_draft_story_contract_ref"
       ]
+    },
+    "conditional_gate_ref_families": {
+      "statistical_integrity": [
+        [
+          "fixed_horizon_risk_semantics_ref",
+          "fixed_horizon_not_applicable_ref"
+        ],
+        [
+          "decision_curve_validity_ref",
+          "decision_curve_not_applicable_ref"
+        ]
+      ]
+    },
+    "applicability_disposition_policy": {
+      "surface_kind": "medical_initial_draft_applicability_disposition_candidate.v1",
+      "schema_version": 1,
+      "producer_function": "build_medical_initial_draft_applicability_disposition",
+      "validator_function": "validate_medical_initial_draft_applicability_disposition",
+      "exact_ref_function": "medical_initial_draft_applicability_disposition_exact_ref",
+      "binding_policy": "strict_v2_validates_candidate_content_target_and_canonical_size_sha_ref_identity",
+      "authority": false
+    },
+    "manuscript_mode_applicability": {
+      "initial_complete_draft": {
+        "study_identity": "required",
+        "data_freeze": "required",
+        "statistical_integrity": "required",
+        "citation_integrity": "required",
+        "table_traceability": "required",
+        "display_scope": "required",
+        "story_contract": "required"
+      }
+    },
+    "schema_validation_scope": "structural_shape_and_exact_ref_only",
+    "semantic_family_validation": {
+      "mandatory": true,
+      "kernel": "skills/medical-manuscript-writing/kernel.py",
+      "function": "validate_medical_initial_draft_preflight_candidate_v2"
     },
     "producer_skill_id": "medical-manuscript-writing",
     "independent_review_consumer_skill_id": "medical-manuscript-review",
@@ -1272,6 +1320,12 @@
           "ref_kind": "candidate_artifact_ref",
           "role": "composed_reader_pdf_and_member_level_display_scope_candidate",
           "body_policy": "refs_only_display_scope_evidence_not_visual_audit_owner_receipt_or_publication_readiness"
+        },
+        {
+          "ref_id": "display_render_integrity_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "font_renderer_artist_scope_paired_export_and_visual_note_candidate",
+          "body_policy": "refs_only_render_integrity_evidence_not_visual_audit_or_publication_authority"
         }
       ],
       "receipt_policy": {
@@ -1325,6 +1379,7 @@
           "annotation_to_source_regeneration_ref",
           "skill_pack_governance_policy_ref",
           "document_display_scope_coverage_ref",
+          "display_render_integrity_ref",
           "final_size_export_ref",
           "source_pack_ref",
           "candidate_refs",
@@ -1849,13 +1904,21 @@
           "ref_id": "endpoint_analysis_set_reconciliation_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "endpoint_horizon_n_event_estimand_source_reconciliation_candidate",
-          "body_policy": "refs_only_endpoint_reconciliation_evidence_not_analysis_truth_or_owner_receipt"
+          "body_policy": "refs_only_endpoint_reconciliation_evidence_not_analysis_truth_or_owner_receipt",
+          "legacy_validator": "validate_endpoint_analysis_set_reconciliation",
+          "current_semantic_validator": "validate_endpoint_analysis_set_reconciliation_v2"
         },
         {
           "ref_id": "model_complexity_sparse_event_ref",
           "ref_kind": "candidate_artifact_ref",
           "role": "formal_model_adequacy_sparse_event_and_diagnostic_candidate",
           "body_policy": "refs_only_model_adequacy_evidence_not_statistical_verdict_or_publication_readiness"
+        },
+        {
+          "ref_id": "linked_prediction_performance_ref",
+          "ref_kind": "candidate_artifact_ref",
+          "role": "linked_discrimination_prediction_error_calibration_and_claim_boundary_candidate",
+          "body_policy": "refs_only_performance_boundary_evidence_not_statistical_or_clinical_authority"
         },
         {
           "ref_id": "decision_curve_validity_ref",
@@ -1899,6 +1962,7 @@
           "validation_partition_integrity_ref",
           "endpoint_analysis_set_reconciliation_ref",
           "model_complexity_sparse_event_ref",
+          "linked_prediction_performance_ref",
           "decision_curve_validity_ref",
           "source_pack_ref",
           "candidate_refs",
@@ -4164,6 +4228,10 @@
           "claim_citation_support_map_ref",
           "support_gap_ref",
           "citation_source_coverage_ref",
+          "active_reference_currentness_ref",
+          "excluded_reference_ledger_ref",
+          "claim_citation_edge_completeness_ref",
+          "reference_lane_active_inventory_binding_ref",
           "owner_gate_handoff_ref"
         ],
         "routing_tokens": [
@@ -4248,6 +4316,7 @@
           "claim_display_alignment_ref",
           "accessibility_and_size_ref",
           "document_display_scope_coverage_ref",
+          "display_render_integrity_ref",
           "owner_gate_handoff_ref"
         ],
         "routing_tokens": [

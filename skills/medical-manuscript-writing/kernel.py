@@ -6,6 +6,7 @@ MAS truth, owner receipts, typed blockers, artifacts, or publication readiness.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from typing import Any, Mapping, Sequence
@@ -81,6 +82,51 @@ INITIAL_DRAFT_PREFLIGHT_GATES = (
     "display_scope",
     "story_contract",
 )
+
+INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES = {
+    "study_identity": ("study_charter_ref", "paper_identity_ref"),
+    "data_freeze": ("clinical_analysis_input_identity_ref",),
+    "statistical_integrity": (
+        "validation_partition_integrity_ref",
+        "endpoint_analysis_set_reconciliation_ref",
+        "model_complexity_sparse_event_ref",
+        "linked_prediction_performance_ref",
+    ),
+    "citation_integrity": (
+        "citation_source_coverage_ref",
+        "active_reference_currentness_ref",
+        "excluded_reference_ledger_ref",
+        "claim_citation_edge_completeness_ref",
+        "reference_lane_active_inventory_binding_ref",
+    ),
+    "table_traceability": ("baseline_table_traceability_ref",),
+    "display_scope": (
+        "document_display_scope_coverage_ref",
+        "display_render_integrity_ref",
+    ),
+    "story_contract": ("first_draft_story_contract_ref",),
+}
+
+INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES = {
+    "statistical_integrity": (
+        ("fixed_horizon_risk_semantics_ref", "fixed_horizon_not_applicable_ref"),
+        ("decision_curve_validity_ref", "decision_curve_not_applicable_ref"),
+    ),
+}
+
+INITIAL_DRAFT_APPLICABILITY_DISPOSITION_SURFACE_KIND = (
+    "medical_initial_draft_applicability_disposition_candidate.v1"
+)
+INITIAL_DRAFT_APPLICABILITY_DISPOSITION_TARGETS = {
+    "fixed_horizon_not_applicable_ref": "fixed_horizon_risk_semantics_ref",
+    "decision_curve_not_applicable_ref": "decision_curve_validity_ref",
+}
+
+INITIAL_DRAFT_PREFLIGHT_MANUSCRIPT_MODE_APPLICABILITY = {
+    "initial_complete_draft": {
+        gate_name: "required" for gate_name in INITIAL_DRAFT_PREFLIGHT_GATES
+    },
+}
 
 INITIAL_DRAFT_PREFLIGHT_DEPENDENCY_TIERS = {
     "baseline_data_citation": 10,
@@ -245,8 +291,146 @@ def terminology_surface_ledger_schema() -> dict[str, Any]:
     }
 
 
+def medical_initial_draft_applicability_disposition_schema() -> dict[str, Any]:
+    """Return the versioned no-authority applicability disposition schema."""
+
+    return {
+        "surface_kind": INITIAL_DRAFT_APPLICABILITY_DISPOSITION_SURFACE_KIND,
+        "schema_version": 1,
+        "required": [
+            "surface_kind",
+            "schema_version",
+            "target_ref_kind",
+            "status",
+            "reason",
+            "evidence_ref",
+            "authority",
+        ],
+        "target_ref_kinds": sorted(
+            INITIAL_DRAFT_APPLICABILITY_DISPOSITION_TARGETS.values()
+        ),
+        "status": "not_applicable_with_reason",
+        "authority": False,
+    }
+
+
+def build_medical_initial_draft_applicability_disposition(
+    target_ref_kind: str,
+    reason: str,
+    evidence_ref: Mapping[str, object],
+) -> dict[str, object]:
+    """Build a deterministic disposition candidate without creating authority."""
+
+    candidate: dict[str, object] = {
+        "surface_kind": INITIAL_DRAFT_APPLICABILITY_DISPOSITION_SURFACE_KIND,
+        "schema_version": 1,
+        "target_ref_kind": target_ref_kind,
+        "status": "not_applicable_with_reason",
+        "reason": reason,
+        "evidence_ref": dict(evidence_ref),
+        "authority": False,
+    }
+    audit = validate_medical_initial_draft_applicability_disposition(candidate)
+    if audit["machine_check_status"] != "candidate_complete":
+        raise ValueError("invalid medical initial-draft applicability disposition")
+    return candidate
+
+
+def validate_medical_initial_draft_applicability_disposition(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Validate disposition content while preserving the no-authority boundary."""
+
+    violations: list[dict[str, object]] = []
+    expected_fields = set(
+        medical_initial_draft_applicability_disposition_schema()["required"]
+    )
+    _check_exact_fields(candidate, expected_fields, "candidate", violations)
+    if (
+        candidate.get("surface_kind")
+        != INITIAL_DRAFT_APPLICABILITY_DISPOSITION_SURFACE_KIND
+    ):
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_DISPOSITION_SURFACE_KIND_INVALID", "surface_kind"
+            )
+        )
+    if candidate.get("schema_version") != 1:
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_DISPOSITION_SCHEMA_VERSION_INVALID", "schema_version"
+            )
+        )
+    if candidate.get("target_ref_kind") not in set(
+        INITIAL_DRAFT_APPLICABILITY_DISPOSITION_TARGETS.values()
+    ):
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_DISPOSITION_TARGET_REF_KIND_INVALID", "target_ref_kind"
+            )
+        )
+    if candidate.get("status") != "not_applicable_with_reason":
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_DISPOSITION_STATUS_INVALID", "status"
+            )
+        )
+    if not str(candidate.get("reason") or "").strip():
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_DISPOSITION_REASON_MISSING", "reason"
+            )
+        )
+    violations.extend(_validate_exact_ref(candidate.get("evidence_ref"), "evidence_ref"))
+    if candidate.get("authority") is not False:
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_DISPOSITION_AUTHORITY_FORBIDDEN", "authority"
+            )
+        )
+    violations.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not violations
+    return {
+        "surface_kind": "medical_initial_draft_applicability_disposition_audit.v1",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "violations": violations,
+        "authority": False,
+    }
+
+
+def medical_initial_draft_applicability_disposition_exact_ref(
+    candidate: Mapping[str, object], ref: str
+) -> dict[str, object]:
+    """Bind a validated disposition candidate to its canonical content identity."""
+
+    audit = validate_medical_initial_draft_applicability_disposition(candidate)
+    if audit["machine_check_status"] != "candidate_complete" or not ref.strip():
+        raise ValueError("cannot bind an invalid applicability disposition")
+    target_ref_kind = str(candidate["target_ref_kind"])
+    alias_kind = next(
+        alias
+        for alias, target in INITIAL_DRAFT_APPLICABILITY_DISPOSITION_TARGETS.items()
+        if target == target_ref_kind
+    )
+    payload = _medical_initial_draft_applicability_disposition_payload(candidate)
+    return {
+        "kind": alias_kind,
+        "ref": ref.strip(),
+        "size_bytes": len(payload),
+        "sha256": f"sha256:{hashlib.sha256(payload).hexdigest()}",
+    }
+
+
+def _medical_initial_draft_applicability_disposition_payload(
+    candidate: Mapping[str, object],
+) -> bytes:
+    return json.dumps(
+        candidate, ensure_ascii=True, separators=(",", ":"), sort_keys=True
+    ).encode("utf-8")
+
+
 def medical_initial_draft_preflight_candidate_schema() -> dict[str, Any]:
-    """Return the package-owned machine contract locator for draft preflight."""
+    """Return the stable v1 structural preflight contract locator."""
 
     return {
         "$ref": (
@@ -263,8 +447,56 @@ def medical_initial_draft_preflight_candidate_schema() -> dict[str, Any]:
     }
 
 
+def medical_initial_draft_preflight_candidate_schema_v2() -> dict[str, Any]:
+    """Return the strict v2 semantic policy over the stable v1 JSON shape."""
+
+    return {
+        **medical_initial_draft_preflight_candidate_schema(),
+        "semantic_policy_id": "scholarskills_medical_initial_draft_preflight.v2",
+        "required_gate_ref_families": {
+            gate: list(refs)
+            for gate, refs in INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES.items()
+        },
+        "conditional_gate_ref_alternatives": {
+            gate: [list(group) for group in groups]
+            for gate, groups in INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES.items()
+        },
+    }
+
+
 def validate_medical_initial_draft_preflight_candidate(
     candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Validate the stable v1 preflight semantics for same-major callers."""
+
+    return _validate_medical_initial_draft_preflight_candidate(
+        candidate, strict_v2=False, applicability_disposition_candidates=None
+    )
+
+
+def validate_medical_initial_draft_preflight_candidate_v2(
+    candidate: Mapping[str, object],
+    *,
+    applicability_disposition_candidates: Mapping[
+        str, Mapping[str, object]
+    ] | None = None,
+) -> dict[str, Any]:
+    """Validate v2 ref-family and initial-complete-draft semantics."""
+
+    return _validate_medical_initial_draft_preflight_candidate(
+        candidate,
+        strict_v2=True,
+        applicability_disposition_candidates=applicability_disposition_candidates,
+    )
+
+
+def _validate_medical_initial_draft_preflight_candidate(
+    candidate: Mapping[str, object],
+    *,
+    strict_v2: bool,
+    applicability_disposition_candidates: Mapping[
+        str, Mapping[str, object]
+    ] | None,
 ) -> dict[str, Any]:
     """Validate exact refs, dependency order, and no-authority preflight shape."""
 
@@ -291,8 +523,25 @@ def validate_medical_initial_draft_preflight_candidate(
         violations.append(_preflight_violation("PREFLIGHT_SURFACE_KIND_INVALID", "surface_kind"))
     if candidate.get("schema_version") != 1:
         violations.append(_preflight_violation("PREFLIGHT_SCHEMA_VERSION_INVALID", "schema_version"))
-    if not str(candidate.get("manuscript_mode") or "").strip():
-        violations.append(_preflight_violation("PREFLIGHT_MANUSCRIPT_MODE_MISSING", "manuscript_mode"))
+    manuscript_mode = str(candidate.get("manuscript_mode") or "").strip()
+    applicability = (
+        INITIAL_DRAFT_PREFLIGHT_MANUSCRIPT_MODE_APPLICABILITY.get(manuscript_mode)
+        if strict_v2
+        else {}
+    )
+    if strict_v2 and applicability is None:
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_MANUSCRIPT_MODE_INVALID", "manuscript_mode"
+            )
+        )
+        applicability = {}
+    elif not strict_v2 and not manuscript_mode:
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_MANUSCRIPT_MODE_MISSING", "manuscript_mode"
+            )
+        )
 
     status = str(candidate.get("status") or "")
     if status not in INITIAL_DRAFT_PREFLIGHT_STATUSES:
@@ -397,6 +646,7 @@ def validate_medical_initial_draft_preflight_candidate(
         gate_items = {}
     _check_exact_fields(gate_items, set(INITIAL_DRAFT_PREFLIGHT_GATES), "gate_items", violations)
     gate_expected_fields = {"status", "refs", "unresolved_item_ids", "not_applicable_reason"}
+    disposition_identities: set[tuple[str, str]] = set()
     for gate_name in INITIAL_DRAFT_PREFLIGHT_GATES:
         gate = gate_items.get(gate_name)
         label = f"gate_items.{gate_name}"
@@ -435,6 +685,83 @@ def validate_medical_initial_draft_preflight_candidate(
         if gate_status == "satisfied":
             if not refs:
                 violations.append(_preflight_violation("PREFLIGHT_SATISFIED_GATE_REF_MISSING", f"{label}.refs"))
+            if strict_v2:
+                ref_kinds = {
+                    str(ref.get("kind") or "").strip()
+                    for ref in refs
+                    if isinstance(ref, Mapping)
+                }
+                for required_kind in INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES.get(
+                    gate_name, ()
+                ):
+                    if required_kind not in ref_kinds:
+                        violations.append(
+                            _preflight_violation(
+                                "PREFLIGHT_REQUIRED_REF_FAMILY_MISSING",
+                                f"{label}.refs[{required_kind}]",
+                            )
+                        )
+                for alternatives in INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES.get(
+                    gate_name, ()
+                ):
+                    alternative_instances = [
+                        (ref_index, ref)
+                        for ref_index, ref in enumerate(refs)
+                        if isinstance(ref, Mapping)
+                        and ref.get("kind") in set(alternatives)
+                    ]
+                    if not alternative_instances:
+                        violations.append(
+                            _preflight_violation(
+                                "PREFLIGHT_CONDITIONAL_REF_DISPOSITION_MISSING",
+                                f"{label}.refs[{'|'.join(alternatives)}]",
+                            )
+                        )
+                    elif len(alternative_instances) > 1:
+                        violations.append(
+                            _preflight_violation(
+                                "PREFLIGHT_CONDITIONAL_REF_ALTERNATIVES_NOT_EXCLUSIVE",
+                                f"{label}.refs[{'|'.join(alternatives)}]",
+                            )
+                        )
+                    for ref_index, ref in alternative_instances:
+                        if ref.get("kind") not in set(
+                            INITIAL_DRAFT_APPLICABILITY_DISPOSITION_TARGETS
+                        ):
+                            continue
+                        locator = str(ref.get("ref") or "")
+                        disposition = (
+                            applicability_disposition_candidates.get(locator)
+                            if isinstance(
+                                applicability_disposition_candidates, Mapping
+                            )
+                            else None
+                        )
+                        if isinstance(disposition, Mapping):
+                            disposition_identity = (
+                                str(disposition.get("target_ref_kind") or ""),
+                                "sha256:"
+                                + hashlib.sha256(
+                                    _medical_initial_draft_applicability_disposition_payload(
+                                        disposition
+                                    )
+                                ).hexdigest(),
+                            )
+                            if disposition_identity in disposition_identities:
+                                violations.append(
+                                    _preflight_violation(
+                                        "PREFLIGHT_APPLICABILITY_DISPOSITION_REUSED",
+                                        f"{label}.refs[{ref_index}]",
+                                    )
+                                )
+                            disposition_identities.add(disposition_identity)
+                        violations.extend(
+                            _validate_applicability_disposition_binding(
+                                ref,
+                                applicability_disposition_candidates,
+                                f"{label}.refs[{ref_index}]",
+                            )
+                        )
             if unresolved_ids or na_reason is not None:
                 violations.append(_preflight_violation("PREFLIGHT_SATISFIED_GATE_CONTRADICTORY", label))
         elif gate_status == "route_back_required":
@@ -443,6 +770,13 @@ def validate_medical_initial_draft_preflight_candidate(
         elif gate_status == "not_applicable_with_reason":
             if unresolved_ids or not str(na_reason or "").strip():
                 violations.append(_preflight_violation("PREFLIGHT_NOT_APPLICABLE_GATE_REASON_MISSING", label))
+            if strict_v2 and applicability.get(gate_name) == "required":
+                violations.append(
+                    _preflight_violation(
+                        "PREFLIGHT_REQUIRED_GATE_NOT_APPLICABLE",
+                        f"{label}.status",
+                    )
+                )
 
     if sorted(referenced_unresolved_ids) != sorted(unresolved_by_id):
         violations.append(_preflight_violation("PREFLIGHT_UNRESOLVED_ITEMS_NOT_EXACTLY_BOUND", "unresolved_items"))
@@ -476,6 +810,20 @@ def validate_medical_initial_draft_preflight_candidate(
     elif status == "satisfied":
         if unresolved_items or earliest_owner is not None or top_na_reason is not None:
             violations.append(_preflight_violation("PREFLIGHT_SATISFIED_STATE_CONTRADICTORY", "status"))
+        if strict_v2:
+            required_na_gates = sorted(
+                gate_name
+                for gate_name, gate in gate_items.items()
+                if applicability.get(gate_name) == "required"
+                and isinstance(gate, Mapping)
+                and gate.get("status") == "not_applicable_with_reason"
+            )
+            if required_na_gates:
+                violation = _preflight_violation(
+                    "PREFLIGHT_SATISFIED_REQUIRED_GATE_NOT_APPLICABLE", "status"
+                )
+                violation["gate_names"] = required_na_gates
+                violations.append(violation)
     elif status == "not_applicable_with_reason":
         if unresolved_items or earliest_owner is not None or not str(top_na_reason or "").strip():
             violations.append(_preflight_violation("PREFLIGHT_NOT_APPLICABLE_STATE_INVALID", "status"))
@@ -487,7 +835,11 @@ def validate_medical_initial_draft_preflight_candidate(
     violations.sort(key=lambda item: (str(item["code"]), str(item["field"])))
     complete = not violations
     return {
-        "surface_kind": "medical_initial_draft_preflight_kernel_audit_candidate.v1",
+        "surface_kind": (
+            "medical_initial_draft_preflight_kernel_audit_candidate.v2"
+            if strict_v2
+            else "medical_initial_draft_preflight_kernel_audit_candidate.v1"
+        ),
         "machine_check_status": (
             "candidate_ref_shape_complete" if complete else "candidate_ref_shape_incomplete"
         ),
@@ -532,6 +884,57 @@ def _validate_exact_ref(value: object, label: str) -> list[dict[str, object]]:
         violations.append(_preflight_violation("PREFLIGHT_EXACT_REF_FIELD_INVALID", f"{label}.size_bytes"))
     if not re.fullmatch(r"sha256:[0-9a-f]{64}", str(value.get("sha256") or "")):
         violations.append(_preflight_violation("PREFLIGHT_EXACT_REF_FIELD_INVALID", f"{label}.sha256"))
+    return violations
+
+
+def _validate_applicability_disposition_binding(
+    ref_value: Mapping[str, object],
+    disposition_candidates: Mapping[str, Mapping[str, object]] | None,
+    label: str,
+) -> list[dict[str, object]]:
+    violations: list[dict[str, object]] = []
+    alias_kind = str(ref_value.get("kind") or "")
+    expected_target = INITIAL_DRAFT_APPLICABILITY_DISPOSITION_TARGETS.get(alias_kind)
+    locator = str(ref_value.get("ref") or "")
+    if expected_target is None:
+        return violations
+    disposition = (
+        disposition_candidates.get(locator)
+        if isinstance(disposition_candidates, Mapping)
+        else None
+    )
+    if not isinstance(disposition, Mapping):
+        return [
+            _preflight_violation(
+                "PREFLIGHT_APPLICABILITY_DISPOSITION_CANDIDATE_MISSING", label
+            )
+        ]
+    audit = validate_medical_initial_draft_applicability_disposition(disposition)
+    if audit["machine_check_status"] != "candidate_complete":
+        violation = _preflight_violation(
+            "PREFLIGHT_APPLICABILITY_DISPOSITION_CANDIDATE_INVALID", label
+        )
+        violation["candidate_violation_codes"] = sorted(
+            {str(item["code"]) for item in audit["violations"]}
+        )
+        violations.append(violation)
+        return violations
+    if disposition.get("target_ref_kind") != expected_target:
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_APPLICABILITY_DISPOSITION_TARGET_MISMATCH", label
+            )
+        )
+        return violations
+    expected_ref = medical_initial_draft_applicability_disposition_exact_ref(
+        disposition, locator
+    )
+    if dict(ref_value) != expected_ref:
+        violations.append(
+            _preflight_violation(
+                "PREFLIGHT_APPLICABILITY_DISPOSITION_IDENTITY_MISMATCH", label
+            )
+        )
     return violations
 
 
@@ -758,9 +1161,9 @@ def _matched_terms(text: str, terms: tuple[str, ...]) -> list[str]:
 
 
 def _self_check() -> None:
-    def exact_ref(tag: str) -> dict[str, object]:
+    def exact_ref(tag: str, *, kind: str = "self_check_ref") -> dict[str, object]:
         return {
-            "kind": "self_check_ref",
+            "kind": kind,
             "ref": f"artifact://{tag}",
             "size_bytes": 1,
             "sha256": f"sha256:{tag * 64}",
@@ -769,15 +1172,29 @@ def _self_check() -> None:
     def preflight_candidate(
         unresolved_items: Sequence[Mapping[str, object]] = (),
     ) -> dict[str, object]:
-        gate_items: dict[str, dict[str, object]] = {
-            gate_name: {
+        gate_items: dict[str, dict[str, object]] = {}
+        tag_index = 0
+        for gate_name in INITIAL_DRAFT_PREFLIGHT_GATES:
+            required_kinds = list(
+                INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES[gate_name]
+            )
+            required_kinds.extend(
+                alternatives[0]
+                for alternatives in INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES.get(
+                    gate_name, ()
+                )
+            )
+            refs = []
+            for kind in required_kinds:
+                tag = format(tag_index % 16, "x")
+                tag_index += 1
+                refs.append(exact_ref(tag, kind=kind))
+            gate_items[gate_name] = {
                 "status": "satisfied",
-                "refs": [exact_ref("a")],
+                "refs": refs,
                 "unresolved_item_ids": [],
                 "not_applicable_reason": None,
             }
-            for gate_name in INITIAL_DRAFT_PREFLIGHT_GATES
-        }
         for item in unresolved_items:
             domain = str(item["domain"])
             gate_items[domain]["status"] = "route_back_required"
@@ -833,7 +1250,7 @@ def _self_check() -> None:
     assert terminology_surface_ledger_schema()["properties"]["authority"] == {
         "const": False
     }
-    preflight_schema = medical_initial_draft_preflight_candidate_schema()
+    preflight_schema = medical_initial_draft_preflight_candidate_schema_v2()
     assert preflight_schema["dependency_tiers"] == {
         "baseline_data_citation": 10,
         "analysis": 20,
@@ -846,10 +1263,188 @@ def _self_check() -> None:
         "authoring_display": "manuscript_authoring",
         "review": "review_and_quality_gate",
     }
-    satisfied_preflight = validate_medical_initial_draft_preflight_candidate(
+    satisfied_preflight = validate_medical_initial_draft_preflight_candidate_v2(
         preflight_candidate()
     )
     assert satisfied_preflight["machine_check_status"] == "candidate_ref_shape_complete"
+    legacy_preflight = preflight_candidate()
+    legacy_preflight["manuscript_mode"] = "legacy_complete_draft"
+    for gate in legacy_preflight["gate_items"].values():
+        gate["refs"] = [exact_ref("a")]
+    legacy_v1_audit = validate_medical_initial_draft_preflight_candidate(
+        legacy_preflight
+    )
+    legacy_v2_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        legacy_preflight
+    )
+    assert legacy_v1_audit["machine_check_status"] == "candidate_ref_shape_complete"
+    assert legacy_v1_audit["surface_kind"].endswith(".v1")
+    assert legacy_v2_audit["machine_check_status"] == "candidate_ref_shape_incomplete"
+    assert "PREFLIGHT_MANUSCRIPT_MODE_INVALID" in {
+        item["code"] for item in legacy_v2_audit["violations"]
+    }
+    fixed_horizon_disposition = (
+        build_medical_initial_draft_applicability_disposition(
+            "fixed_horizon_risk_semantics_ref",
+            "the manuscript does not report a fixed prediction horizon",
+            exact_ref("d", kind="study_design_evidence_ref"),
+        )
+    )
+    decision_curve_disposition = (
+        build_medical_initial_draft_applicability_disposition(
+            "decision_curve_validity_ref",
+            "the manuscript does not report a decision-curve analysis",
+            exact_ref("e", kind="analysis_scope_evidence_ref"),
+        )
+    )
+    invalid_disposition = dict(fixed_horizon_disposition, authority=True)
+    assert "PREFLIGHT_DISPOSITION_AUTHORITY_FORBIDDEN" in {
+        item["code"]
+        for item in validate_medical_initial_draft_applicability_disposition(
+            invalid_disposition
+        )["violations"]
+    }
+    fixed_horizon_disposition_ref = (
+        medical_initial_draft_applicability_disposition_exact_ref(
+            fixed_horizon_disposition, "artifact://disposition/fixed-horizon"
+        )
+    )
+    decision_curve_disposition_ref = (
+        medical_initial_draft_applicability_disposition_exact_ref(
+            decision_curve_disposition, "artifact://disposition/decision-curve"
+        )
+    )
+    disposition_preflight = preflight_candidate()
+    disposition_preflight["gate_items"]["statistical_integrity"]["refs"] = [
+        ref
+        for ref in disposition_preflight["gate_items"]["statistical_integrity"][
+            "refs"
+        ]
+        if ref["kind"]
+        not in {"fixed_horizon_risk_semantics_ref", "decision_curve_validity_ref"}
+    ] + [fixed_horizon_disposition_ref, decision_curve_disposition_ref]
+    disposition_registry = {
+        fixed_horizon_disposition_ref["ref"]: fixed_horizon_disposition,
+        decision_curve_disposition_ref["ref"]: decision_curve_disposition,
+    }
+    disposition_preflight_audit = (
+        validate_medical_initial_draft_preflight_candidate_v2(
+            disposition_preflight,
+            applicability_disposition_candidates=disposition_registry,
+        )
+    )
+    assert disposition_preflight_audit["machine_check_status"] == (
+        "candidate_ref_shape_complete"
+    )
+    fixed_horizon_xor_violation = preflight_candidate()
+    fixed_horizon_xor_violation["gate_items"]["statistical_integrity"][
+        "refs"
+    ].append(fixed_horizon_disposition_ref)
+    fixed_horizon_xor_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        fixed_horizon_xor_violation,
+        applicability_disposition_candidates=disposition_registry,
+    )
+    assert "PREFLIGHT_CONDITIONAL_REF_ALTERNATIVES_NOT_EXCLUSIVE" in {
+        item["code"] for item in fixed_horizon_xor_audit["violations"]
+    }
+    decision_curve_xor_violation = preflight_candidate()
+    decision_curve_xor_violation["gate_items"]["statistical_integrity"][
+        "refs"
+    ].append(decision_curve_disposition_ref)
+    decision_curve_xor_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        decision_curve_xor_violation,
+        applicability_disposition_candidates=disposition_registry,
+    )
+    assert "PREFLIGHT_CONDITIONAL_REF_ALTERNATIVES_NOT_EXCLUSIVE" in {
+        item["code"] for item in decision_curve_xor_audit["violations"]
+    }
+    arbitrary_disposition_preflight = json.loads(json.dumps(disposition_preflight))
+    arbitrary_disposition_preflight["gate_items"]["statistical_integrity"]["refs"][
+        -2
+    ] = exact_ref("a", kind="fixed_horizon_not_applicable_ref")
+    arbitrary_disposition_preflight["gate_items"]["statistical_integrity"]["refs"][
+        -1
+    ] = exact_ref("a", kind="decision_curve_not_applicable_ref")
+    arbitrary_disposition_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        arbitrary_disposition_preflight
+    )
+    assert "PREFLIGHT_APPLICABILITY_DISPOSITION_CANDIDATE_MISSING" in {
+        item["code"] for item in arbitrary_disposition_audit["violations"]
+    }
+    duplicate_fixed_horizon_ref = (
+        medical_initial_draft_applicability_disposition_exact_ref(
+            fixed_horizon_disposition,
+            "artifact://disposition/fixed-horizon-second-locator",
+        )
+    )
+    duplicate_disposition_preflight = json.loads(json.dumps(disposition_preflight))
+    duplicate_disposition_preflight["gate_items"]["statistical_integrity"][
+        "refs"
+    ].append(duplicate_fixed_horizon_ref)
+    duplicate_disposition_registry = dict(disposition_registry)
+    duplicate_disposition_registry[duplicate_fixed_horizon_ref["ref"]] = (
+        fixed_horizon_disposition
+    )
+    duplicate_disposition_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        duplicate_disposition_preflight,
+        applicability_disposition_candidates=duplicate_disposition_registry,
+    )
+    assert {
+        "PREFLIGHT_CONDITIONAL_REF_ALTERNATIVES_NOT_EXCLUSIVE",
+        "PREFLIGHT_APPLICABILITY_DISPOSITION_REUSED",
+    }.issubset({item["code"] for item in duplicate_disposition_audit["violations"]})
+    stale_disposition_registry = json.loads(json.dumps(disposition_registry))
+    stale_disposition_registry[fixed_horizon_disposition_ref["ref"]]["reason"] = (
+        "a different reason after the exact ref was frozen"
+    )
+    stale_disposition_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        disposition_preflight,
+        applicability_disposition_candidates=stale_disposition_registry,
+    )
+    assert "PREFLIGHT_APPLICABILITY_DISPOSITION_IDENTITY_MISMATCH" in {
+        item["code"] for item in stale_disposition_audit["violations"]
+    }
+    missing_family = preflight_candidate()
+    missing_family["gate_items"]["statistical_integrity"]["refs"] = [
+        ref
+        for ref in missing_family["gate_items"]["statistical_integrity"]["refs"]
+        if ref["kind"] != "linked_prediction_performance_ref"
+    ]
+    missing_family_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        missing_family
+    )
+    assert "PREFLIGHT_REQUIRED_REF_FAMILY_MISSING" in {
+        item["code"] for item in missing_family_audit["violations"]
+    }
+    missing_disposition = preflight_candidate()
+    missing_disposition["gate_items"]["statistical_integrity"]["refs"] = [
+        ref
+        for ref in missing_disposition["gate_items"]["statistical_integrity"]["refs"]
+        if ref["kind"] != "decision_curve_validity_ref"
+    ]
+    missing_disposition_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        missing_disposition
+    )
+    assert "PREFLIGHT_CONDITIONAL_REF_DISPOSITION_MISSING" in {
+        item["code"] for item in missing_disposition_audit["violations"]
+    }
+    na_bypass = preflight_candidate()
+    for gate_name in INITIAL_DRAFT_PREFLIGHT_GATES:
+        if gate_name == "story_contract":
+            continue
+        na_bypass["gate_items"][gate_name] = {
+            "status": "not_applicable_with_reason",
+            "refs": [],
+            "unresolved_item_ids": [],
+            "not_applicable_reason": "caller declared the required gate inapplicable",
+        }
+    na_bypass_audit = validate_medical_initial_draft_preflight_candidate_v2(
+        na_bypass
+    )
+    assert {
+        "PREFLIGHT_REQUIRED_GATE_NOT_APPLICABLE",
+        "PREFLIGHT_SATISFIED_REQUIRED_GATE_NOT_APPLICABLE",
+    }.issubset({item["code"] for item in na_bypass_audit["violations"]})
     route_back_preflight = validate_medical_initial_draft_preflight_candidate(
         preflight_candidate([analysis_gap, authoring_gap])
     )
@@ -1012,7 +1607,7 @@ def _self_check() -> None:
         "INTERNAL_REVIEW_LANGUAGE_IN_READER_SURFACE",
     }
     assert all(item["writes_authority"] is False for item in reader_findings)
-    print(json.dumps({"ok": True, "checks": 23}, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "checks": 39}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
