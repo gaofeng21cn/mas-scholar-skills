@@ -354,7 +354,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:2a3dcf8d13fb64c122997ba38bbcb390d3d55c935c980df6e1f8afb1341afb31"
+    "digest": "sha256:f55d93073e9150ab4e3812dff52e6f8bded877210897a528f0c920cf8f9264f7"
   },
   "lifecycle": {
     "owner": "one-person-lab",

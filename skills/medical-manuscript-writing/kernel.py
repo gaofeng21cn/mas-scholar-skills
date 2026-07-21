@@ -47,16 +47,90 @@ FIRST_DRAFT_STORY_REFS = (
     "terminology_surface_ledger_ref",
 )
 
+FIXED_HORIZON_FIRST_DRAFT_REFS = (
+    "fixed_horizon_risk_semantics_ref",
+)
+
+ANOMALY_SENSITIVITY_FIRST_DRAFT_REFS = (
+    "anomaly_sensitivity_ref",
+)
+
+VERIFICATION_SCOPE_FIRST_DRAFT_REFS = (
+    "verification_scope_contract_ref",
+)
+
 EXTERNAL_VALIDATION_FIRST_DRAFT_REFS = (
     "source_model_provenance_ref",
     "target_population_and_followup_ref",
-    "fixed_horizon_risk_semantics_ref",
     "construct_comparability_ref",
     "calibration_and_performance_ref",
-    "structured_display_source_map_ref",
+    "claim_family_scope_qualifier_ref",
     "claim_guardrail_ref",
     "negative_or_non_estimable_result_ref",
 )
+
+PAPER_FACING_DISPLAY_FIRST_DRAFT_REFS = (
+    "structured_display_source_map_ref",
+    "renderer_provenance_ref",
+)
+
+AUTHORING_FREEZE_INPUT_REFS = (
+    "medical_initial_draft_preflight_candidate_ref",
+    "manuscript_ref",
+    "structured_evidence_ref",
+    "claim_map_ref",
+    "table_bundle_ref",
+    "figure_bundle_ref",
+    "renderer_provenance_ref",
+)
+
+INITIAL_DRAFT_SPECIALIST_REF_ROUTES = {
+    "fixed_horizon_risk_semantics_ref": {
+        "producer": "medical-survival-analysis-plan",
+        "consumers": ("medical-statistical-review", "medical-manuscript-writing"),
+    },
+    "anomaly_sensitivity_ref": {
+        "producer": "medical-statistical-review",
+        "consumers": ("medical-manuscript-writing", "medical-manuscript-review"),
+    },
+    "verification_scope_contract_ref": {
+        "producer": "medical-statistical-review",
+        "consumers": (
+            "medical-evidence-integrity-reviewer",
+            "medical-manuscript-writing",
+        ),
+    },
+    "construct_comparability_ref": {
+        "producer": "medical-risk-model-transportability-reviewer",
+        "consumers": (
+            "medical-evidence-integrity-reviewer",
+            "medical-manuscript-writing",
+        ),
+    },
+    "claim_family_scope_qualifier_ref": {
+        "producer": "medical-risk-model-transportability-reviewer",
+        "consumers": (
+            "medical-evidence-integrity-reviewer",
+            "medical-manuscript-writing",
+        ),
+    },
+    "structured_display_source_map_ref": {
+        "producer": "medical-manuscript-writing",
+        "consumers": ("medical-manuscript-review",),
+    },
+    "renderer_provenance_ref": {
+        "producer": "medical-manuscript-writing",
+        "consumers": ("medical-manuscript-review",),
+    },
+}
+
+AUTHORING_FREEZE_HANDOFF_ROUTE = {
+    "producer": "medical-manuscript-writing",
+    "consumers": ("medical-manuscript-review", "consuming_domain_owner"),
+    "refs_only": True,
+    "writes_authority": False,
+    "signs_review_currentness": False,
+}
 
 TERMINOLOGY_SURFACES = (
     "manuscript_text",
@@ -252,19 +326,177 @@ def first_draft_story_contract_schema() -> dict[str, Any]:
     }
 
 
-def external_validation_first_draft_contract_schema() -> dict[str, Any]:
+def applicable_initial_draft_specialist_refs(
+    *,
+    fixed_horizon: bool,
+    external_validation: bool,
+    paper_facing_displays: bool,
+    analysis_input_anomalies: bool = False,
+) -> tuple[str, ...]:
+    """Return specialist refs only for applicable fixed-horizon or validation drafts."""
+
+    refs: list[str] = []
+    if fixed_horizon:
+        refs.extend(FIXED_HORIZON_FIRST_DRAFT_REFS)
+    if external_validation:
+        refs.extend(EXTERNAL_VALIDATION_FIRST_DRAFT_REFS)
+    if fixed_horizon or external_validation:
+        refs.extend(VERIFICATION_SCOPE_FIRST_DRAFT_REFS)
+    if (fixed_horizon or external_validation) and analysis_input_anomalies:
+        refs.extend(ANOMALY_SENSITIVITY_FIRST_DRAFT_REFS)
+    if (fixed_horizon or external_validation) and paper_facing_displays:
+        refs.extend(PAPER_FACING_DISPLAY_FIRST_DRAFT_REFS)
+    return tuple(dict.fromkeys(refs))
+
+
+def audit_applicable_initial_draft_specialist_refs(
+    candidate_refs: Mapping[str, object] | Sequence[str],
+    *,
+    fixed_horizon: bool,
+    external_validation: bool,
+    paper_facing_displays: bool,
+    analysis_input_anomalies: bool = False,
+) -> dict[str, Any]:
+    """Audit applicable specialist ref names without changing the v1 preflight shape."""
+
+    present = (
+        {str(key) for key in candidate_refs}
+        if isinstance(candidate_refs, Mapping)
+        else {str(value) for value in candidate_refs}
+    )
+    required = applicable_initial_draft_specialist_refs(
+        fixed_horizon=fixed_horizon,
+        external_validation=external_validation,
+        paper_facing_displays=paper_facing_displays,
+        analysis_input_anomalies=analysis_input_anomalies,
+    )
+    missing = [ref for ref in required if ref not in present]
+    return {
+        "surface_kind": "initial_draft_specialist_ref_audit_candidate.v1",
+        "applicability": {
+            "fixed_horizon": fixed_horizon,
+            "external_validation": external_validation,
+            "paper_facing_displays": paper_facing_displays,
+            "analysis_input_anomalies": analysis_input_anomalies,
+        },
+        "required_refs": list(required),
+        "missing_refs": missing,
+        "producer_consumer_routes": {
+            ref: INITIAL_DRAFT_SPECIALIST_REF_ROUTES[ref]
+            for ref in required
+            if ref in INITIAL_DRAFT_SPECIALIST_REF_ROUTES
+        },
+        "machine_check_status": (
+            "candidate_ref_names_complete" if not missing else "route_back_required"
+        ),
+        "route_back_candidate": None
+        if not missing
+        else {
+            "route": INITIAL_DRAFT_SPECIALIST_REF_ROUTES.get(
+                missing[0], {"producer": "manuscript_authoring"}
+            )["producer"],
+            "reason": "applicable_initial_draft_specialist_ref_missing",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def external_validation_first_draft_contract_schema(
+    *,
+    fixed_horizon: bool = False,
+    paper_facing_displays: bool = True,
+    analysis_input_anomalies: bool = False,
+) -> dict[str, Any]:
     """Return the specialist inputs required before external-validation prose."""
 
+    required_refs = applicable_initial_draft_specialist_refs(
+        fixed_horizon=fixed_horizon,
+        external_validation=True,
+        paper_facing_displays=paper_facing_displays,
+        analysis_input_anomalies=analysis_input_anomalies,
+    )
     return {
         "type": "object",
-        "required": list(EXTERNAL_VALIDATION_FIRST_DRAFT_REFS),
+        "required": list(required_refs),
         "properties": {
-            ref: {"type": "string"} for ref in EXTERNAL_VALIDATION_FIRST_DRAFT_REFS
+            ref: {"type": "string"} for ref in required_refs
         }
         | {
             "route_back_candidate": {"type": "object"},
             "authority": {"const": False},
         },
+    }
+
+
+def build_authoring_freeze_handoff_candidate(
+    candidate_refs: Mapping[str, object],
+    *,
+    preflight_candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Freeze generated draft inputs for review only after preflight succeeds."""
+
+    missing = [ref for ref in AUTHORING_FREEZE_INPUT_REFS if ref not in candidate_refs]
+    ref_violations: dict[str, list[dict[str, object]]] = {}
+    for ref_name in AUTHORING_FREEZE_INPUT_REFS:
+        if ref_name not in candidate_refs:
+            continue
+        violations = _validate_exact_ref(candidate_refs[ref_name], ref_name)
+        if violations:
+            ref_violations[ref_name] = violations
+
+    preflight_audit = validate_medical_initial_draft_preflight_candidate(
+        preflight_candidate
+    )
+    preflight_satisfied = (
+        preflight_audit["machine_check_status"] == "candidate_ref_shape_complete"
+        and preflight_candidate.get("status") == "satisfied"
+        and not preflight_candidate.get("unresolved_items")
+    )
+    if missing or ref_violations or not preflight_satisfied:
+        return {
+            "surface_kind": "authoring_freeze_handoff_audit_candidate.v1",
+            "machine_check_status": "route_back_required",
+            "missing_refs": missing,
+            "invalid_ref_findings": ref_violations,
+            "preflight_satisfied": preflight_satisfied,
+            "immutable_candidate_snapshot_ref": None,
+            "producer_consumer_route": dict(AUTHORING_FREEZE_HANDOFF_ROUTE),
+            "route_back_candidate": {
+                "route": "medical-manuscript-writing",
+                "reason": "authoring_candidate_not_ready_to_freeze",
+                "authority": False,
+            },
+            "authority": False,
+        }
+
+    frozen_inputs = {
+        ref_name: dict(candidate_refs[ref_name])
+        for ref_name in AUTHORING_FREEZE_INPUT_REFS
+    }
+    payload = json.dumps(
+        frozen_inputs,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    snapshot_sha256 = hashlib.sha256(payload).hexdigest()
+    return {
+        "surface_kind": "authoring_freeze_handoff_audit_candidate.v1",
+        "machine_check_status": "candidate_frozen_for_independent_review",
+        "missing_refs": [],
+        "invalid_ref_findings": {},
+        "preflight_satisfied": True,
+        "immutable_candidate_snapshot_ref": {
+            "kind": "immutable_candidate_snapshot_ref",
+            "ref": f"opl-content://sha256/{snapshot_sha256}",
+            "size_bytes": len(payload),
+            "sha256": f"sha256:{snapshot_sha256}",
+        },
+        "frozen_input_refs": frozen_inputs,
+        "producer_consumer_route": dict(AUTHORING_FREEZE_HANDOFF_ROUTE),
+        "route_back_candidate": None,
+        "authority": False,
     }
 
 
@@ -1244,9 +1476,89 @@ def _self_check() -> None:
     assert set(first_draft_story_contract_schema()["required"]) == set(
         FIRST_DRAFT_STORY_REFS
     )
-    assert set(external_validation_first_draft_contract_schema()["required"]) == set(
-        EXTERNAL_VALIDATION_FIRST_DRAFT_REFS
+    ordinary_audit = audit_applicable_initial_draft_specialist_refs(
+        {},
+        fixed_horizon=False,
+        external_validation=False,
+        paper_facing_displays=True,
+        analysis_input_anomalies=False,
     )
+    assert ordinary_audit["required_refs"] == []
+    assert ordinary_audit["machine_check_status"] == "candidate_ref_names_complete"
+    fixed_horizon_required = applicable_initial_draft_specialist_refs(
+        fixed_horizon=True,
+        external_validation=False,
+        paper_facing_displays=False,
+        analysis_input_anomalies=False,
+    )
+    assert fixed_horizon_required == (
+        *FIXED_HORIZON_FIRST_DRAFT_REFS,
+        *VERIFICATION_SCOPE_FIRST_DRAFT_REFS,
+    )
+    assert "immutable_candidate_snapshot_ref" not in fixed_horizon_required
+    non_horizon_external_required = set(
+        applicable_initial_draft_specialist_refs(
+            fixed_horizon=False,
+            external_validation=True,
+            paper_facing_displays=False,
+            analysis_input_anomalies=False,
+        )
+    )
+    assert "fixed_horizon_risk_semantics_ref" not in non_horizon_external_required
+    assert "anomaly_sensitivity_ref" not in non_horizon_external_required
+    assert "verification_scope_contract_ref" in non_horizon_external_required
+    assert "construct_comparability_ref" in non_horizon_external_required
+    assert "immutable_candidate_snapshot_ref" not in non_horizon_external_required
+    external_required = set(
+        external_validation_first_draft_contract_schema(
+            fixed_horizon=True,
+            paper_facing_displays=True,
+            analysis_input_anomalies=True,
+        )["required"]
+    )
+    assert external_required == {
+        *FIXED_HORIZON_FIRST_DRAFT_REFS,
+        *ANOMALY_SENSITIVITY_FIRST_DRAFT_REFS,
+        *VERIFICATION_SCOPE_FIRST_DRAFT_REFS,
+        *EXTERNAL_VALIDATION_FIRST_DRAFT_REFS,
+        *PAPER_FACING_DISPLAY_FIRST_DRAFT_REFS,
+    }
+    assert "immutable_candidate_snapshot_ref" not in external_required
+    assert "immutable_candidate_snapshot_ref" not in (
+        external_validation_first_draft_contract_schema(
+            fixed_horizon=True,
+            paper_facing_displays=True,
+            analysis_input_anomalies=True,
+        )["required"]
+    )
+    missing_specialist_audit = audit_applicable_initial_draft_specialist_refs(
+        {ref: "artifact://candidate" for ref in external_required - {"anomaly_sensitivity_ref"}},
+        fixed_horizon=True,
+        external_validation=True,
+        paper_facing_displays=True,
+        analysis_input_anomalies=True,
+    )
+    assert missing_specialist_audit["missing_refs"] == ["anomaly_sensitivity_ref"]
+    assert missing_specialist_audit["route_back_candidate"]["route"] == (
+        "medical-statistical-review"
+    )
+    assert missing_specialist_audit["authority"] is False
+    assert "immutable_candidate_snapshot_ref" not in INITIAL_DRAFT_SPECIALIST_REF_ROUTES
+    assert AUTHORING_FREEZE_HANDOFF_ROUTE == {
+        "producer": "medical-manuscript-writing",
+        "consumers": ("medical-manuscript-review", "consuming_domain_owner"),
+        "refs_only": True,
+        "writes_authority": False,
+        "signs_review_currentness": False,
+    }
+    assert INITIAL_DRAFT_SPECIALIST_REF_ROUTES["renderer_provenance_ref"] == {
+        "producer": "medical-manuscript-writing",
+        "consumers": ("medical-manuscript-review",),
+    }
+    assert INITIAL_DRAFT_SPECIALIST_REF_ROUTES["structured_display_source_map_ref"] == {
+        "producer": "medical-manuscript-writing",
+        "consumers": ("medical-manuscript-review",),
+    }
     assert terminology_surface_ledger_schema()["properties"]["authority"] == {
         "const": False
     }
@@ -1445,6 +1757,27 @@ def _self_check() -> None:
         "PREFLIGHT_REQUIRED_GATE_NOT_APPLICABLE",
         "PREFLIGHT_SATISFIED_REQUIRED_GATE_NOT_APPLICABLE",
     }.issubset({item["code"] for item in na_bypass_audit["violations"]})
+
+    freeze_inputs = {
+        ref_name: exact_ref(tag)
+        for ref_name, tag in zip(
+            AUTHORING_FREEZE_INPUT_REFS,
+            ("0", "1", "2", "3", "4", "5", "6"),
+            strict=True,
+        )
+    }
+    freeze_handoff = build_authoring_freeze_handoff_candidate(
+        freeze_inputs,
+        preflight_candidate=preflight_candidate(),
+    )
+    assert freeze_handoff["machine_check_status"] == (
+        "candidate_frozen_for_independent_review"
+    )
+    assert freeze_handoff["immutable_candidate_snapshot_ref"]["kind"] == (
+        "immutable_candidate_snapshot_ref"
+    )
+    assert freeze_handoff["producer_consumer_route"] == AUTHORING_FREEZE_HANDOFF_ROUTE
+    assert freeze_handoff["authority"] is False
     route_back_preflight = validate_medical_initial_draft_preflight_candidate(
         preflight_candidate([analysis_gap, authoring_gap])
     )
@@ -1452,6 +1785,12 @@ def _self_check() -> None:
     assert route_back_preflight["earliest_route_back_owner"] == (
         "bounded_analysis_campaign"
     )
+    unfrozen_handoff = build_authoring_freeze_handoff_candidate(
+        freeze_inputs,
+        preflight_candidate=preflight_candidate([analysis_gap, authoring_gap]),
+    )
+    assert unfrozen_handoff["machine_check_status"] == "route_back_required"
+    assert unfrozen_handoff["immutable_candidate_snapshot_ref"] is None
 
     unprefixed_sha = json.loads(json.dumps(preflight_candidate()))
     unprefixed_sha["source_pack_ref"]["sha256"] = "a" * 64

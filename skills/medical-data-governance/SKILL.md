@@ -88,6 +88,16 @@ known exclusions, and the source-lineage limit. The capsule is a refs-only
 handoff for review and route-back; it is not an executable runtime package,
 source-readiness verdict, FAIR verdict, or MAS owner receipt.
 
+For analysis variables that contain implausible, extreme, sentinel-like, or
+unit-inconsistent values, produce `analysis_input_anomaly_inventory_ref` before
+an initial fixed-horizon or external-validation draft. Bind the dataset and
+variable fingerprints, codebook range, exact deterministic flag rule, flagged
+count and denominator, missing/sentinel distinction, row-locator refs where
+permitted, source lineage, and whether correction is source-supported or
+unresolved. Do not silently delete, winsorize, recode, or repair observations.
+Route the inventory to `medical-statistical-review`, which owns the
+`anomaly_sensitivity_ref`; this skill does not decide statistical robustness.
+
 OpenScience main `f120290` contributes local-first `claimType` +
 `graphWarnings` source traceability patterns, not data authority or a second
 skill catalog. Use refs-only `claim_type_ref` and
@@ -248,13 +258,18 @@ analysis, cleanup, archival, or owner-gate handoff:
 7. Review study binding: inclusion/exclusion cohort lock, endpoint/outcome
    definitions, variable ascertainment, analysis window, missingness scope,
    denominator availability, and source readiness receipt refs.
-8. Compare version changes when an update is proposed. Flag impact on cohorts,
+8. Build `analysis_input_anomaly_inventory_ref` when a claim-critical analysis
+   field has implausible, extreme, sentinel-like, unit-inconsistent, or
+   codebook-conflicting values. Preserve both the original value provenance and
+   the proposed sensitivity rule; route any correction decision to the data
+   owner.
+9. Compare version changes when an update is proposed. Flag impact on cohorts,
    denominators, derived variables, statistical analysis, tables, figures,
    manuscript claims, and submission data/code availability.
-9. Build `semantic_reproducible_capsule_ref` for any claim-critical dataset,
+10. Build `semantic_reproducible_capsule_ref` for any claim-critical dataset,
    derived variable, table, figure, or manuscript statement whose meaning must
    survive handoff to writing, review, statistics, display, or submission.
-10. Produce a refs-only governance handoff with missing inputs, safe next
+11. Produce a refs-only governance handoff with missing inputs, safe next
     command, owner gate target, and route-back recommendation.
 
 ## Machine Assessment Refs
@@ -344,6 +359,7 @@ Return refs-only candidate output:
 - `derived_variable_registry_ref`
 - `source_lineage_ref`
 - `semantic_reproducible_capsule_ref`
+- `analysis_input_anomaly_inventory_ref` when analysis-input anomalies are material
 - `source_readiness_receipt_ref`
 - `cohort_definition_lock_ref`
 - `version_diff_impact_ref`

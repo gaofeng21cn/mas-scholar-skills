@@ -33,6 +33,14 @@ surface.
   `evidence_gap_decision_candidate_ref`, `nonblocking_gap_candidate_ref`.
 - PDF evidence exploration: `pdf_parse_manifest_ref`, `pdf_outline_ref`,
   `page_evidence_refs`.
+- Fixed-horizon or external-validation initial drafts: consume
+  `verification_scope_contract_ref` and check that every claim cites evidence
+  inside the declared verified scope. For external validation, also consume
+  `claim_family_scope_qualifier_ref` and `construct_comparability_ref`; check
+  that no claim family borrows evidence from another and that a not-estimable
+  construct stop remains visible. This reviewer aggregates these refs; their producers remain
+  `medical-statistical-review` and
+  `medical-risk-model-transportability-reviewer`.
 
 ## Evidence-Gap Triage Mode
 
@@ -66,7 +74,13 @@ or provider-running claims.
 4. Build `evidence_gap_decision_candidate_ref`: whether the gap is an owner
    gate, human gate, proceed-with-assumption, soft quality gap, observability
    backlog, or evidence tail.
-5. Produce `route_back_candidate` when the evidence cannot support the claim or
+5. For fixed-horizon or external-validation initial drafts, consume
+   `verification_scope_contract_ref` and reject
+   evidence claims about analyses, sensitivities, displays, or reruns outside
+   its declared assessed scope. For external validation, consume
+   `claim_family_scope_qualifier_ref` and `construct_comparability_ref` without
+   widening their allowed claims.
+6. Produce `route_back_candidate` when the evidence cannot support the claim or
    the next action belongs to a source/domain owner.
 
 ## Handoff Shape
@@ -77,6 +91,9 @@ Return:
 - `source_support_map_ref`
 - `identifier_integrity_ref`
 - `evidence_gap_decision_candidate_ref`
+- consumed `verification_scope_contract_ref` when applicable
+- consumed `claim_family_scope_qualifier_ref` when applicable
+- consumed `construct_comparability_ref` when applicable
 - `verdict_candidate`
 - `candidate_refs`
 - `route_back_candidate`

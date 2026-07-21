@@ -25,10 +25,17 @@ reporting lint. It is stdlib-only and no-authority.
    baseline covariates, and risk-set construction.
 3. Build `endpoint_and_censoring_ref`: event ascertainment, competing events,
    censoring rules, loss to follow-up, and administrative censoring.
-4. Build `fixed_horizon_risk_semantics_ref` when a horizon is reported: event
-   count, recorded count fraction, early censoring, observed-risk estimator,
-   prediction-error estimator, and independent-censoring assumption. A recorded
-   event fraction is not a Kaplan-Meier or cumulative-incidence risk estimate.
+4. Produce `fixed_horizon_risk_semantics_ref` before a fixed-horizon result is
+   interpreted. Bind the horizon and analysis set; recorded event count and
+   count fraction; number censored before the horizon; Kaplan-Meier risk for an
+   all-cause endpoint or cumulative incidence when a competing event precludes
+   the endpoint; IPCW Brier or another named censoring-aware prediction-error
+   estimator; O:E convention; censoring model, positivity/weight handling, and
+   independent-censoring assumption. A recorded event fraction is descriptive,
+   not a Kaplan-Meier or cumulative-incidence risk estimate, whenever early
+   censoring exists or horizon completeness is unknown. Route the ref to
+   `medical-statistical-review` and `medical-manuscript-writing` for consumption;
+   neither consumer may silently replace its estimand.
 5. Build `model_plan_ref`: Kaplan-Meier, cumulative incidence, Cox, flexible
    parametric, Fine-Gray, landmarking, time-varying covariates, or sensitivity.
 6. Build `diagnostic_plan_ref`: proportional hazards, informative censoring,

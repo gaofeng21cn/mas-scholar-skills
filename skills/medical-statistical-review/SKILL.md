@@ -253,6 +253,27 @@ When the boundary is `ranking_only`, carry adverse calibration or limited
 prediction-error evidence into both abstract and main conclusions and forbid
 absolute-risk, threshold-use, or deployment claims.
 
+For every applicable fixed-horizon initial draft, consume
+`fixed_horizon_risk_semantics_ref` from `medical-survival-analysis-plan`. For
+every fixed-horizon or external-validation initial draft, produce
+`verification_scope_contract_ref`. Produce `anomaly_sensitivity_ref` when
+`analysis_input_anomaly_inventory_ref` from `medical-data-governance` records an
+implausible, extreme, sentinel-like, unit-inconsistent, or codebook-conflicting
+value. Bind the primary
+handling, at least one justified sensitivity or an explicit reason none is
+estimable, affected N/events, each key estimand under both analyses, tolerance
+or interpretation rule, and claim impact. Do not use post hoc deletion or
+winsorization to make a result look stable.
+
+The verification scope must enumerate the exact analysis inputs, estimands,
+methods, anomaly rules, sensitivity variants, tables, figures, and claims that
+were actually checked, plus excluded or unverified items and the command/output
+or rerun refs used. A successful script, build, or spot check verifies only its
+declared scope. This refs-only contract does not establish artifact currentness,
+review currentness, analysis acceptance, or readiness; it is consumed by
+`medical-evidence-integrity-reviewer` and `medical-manuscript-writing` and
+remains subject to MAS/domain-owner acceptance.
+
 ## EHR And Registry Signal Validity Rule
 
 For EHR, registry, chart-derived, claims-linked, or other real-world-data work,
@@ -341,9 +362,14 @@ publication readiness.
    weakens interpretation.
 9. Check multiplicity, subgroup, sensitivity, and robustness claims. Downgrade
    exploratory or underpowered claims.
-10. Check whether figures and tables show the same estimates, denominators, and
-   uncertainty as the manuscript text.
-11. Produce a statistical action matrix and route-back candidate.
+10. For an applicable fixed-horizon initial draft, consume the survival
+    estimand plan. For a fixed-horizon or external-validation draft, produce
+    `verification_scope_contract_ref`; if a data-governance anomaly inventory
+    records material anomalies, also produce `anomaly_sensitivity_ref` before
+    prose handoff.
+11. Check whether figures and tables show the same estimates, denominators, and
+    uncertainty as the manuscript text.
+12. Produce a statistical action matrix and route-back candidate.
 
 For descriptive registry, phenotype-atlas, or treatment-gap papers, the
 statistical review should prefer robustness and denominator discipline over
@@ -419,14 +445,22 @@ For prediction-model external validation, also route back when:
   range, net-benefit calculation, calibration basis, and clinical action
   scenario.
 
-Before first-draft handoff, create `fixed_horizon_risk_semantics_ref` for
-each fixed-horizon endpoint. Separate the recorded event count and count
+Before first-draft handoff, consume `fixed_horizon_risk_semantics_ref` from
+`medical-survival-analysis-plan` for each fixed-horizon endpoint. Confirm that it
+separates the recorded event count and count
 fraction from the observed-risk estimand. If any participant is censored before
 the horizon, or horizon completeness is unknown, the count fraction is
 descriptive only and cannot serve as the primary observed risk without a
 documented design justification. Bind the censoring-aware risk, prediction-error
 or Brier, O:E, and grouped-calibration estimands to their exact source refs and
 state the independent-censoring and survey-weighting boundaries.
+
+Also require `verification_scope_contract_ref` for every applicable
+fixed-horizon or external-validation initial draft and
+`anomaly_sensitivity_ref` only when the analysis-input anomaly inventory is
+material. Ordinary initial drafts without either analysis type do not inherit
+these requirements; record not-applicable only when an owner surface asks for
+a disposition.
 
 For cross-cohort endpoints, cause categories, phenotypes, or secondary
 attribution layers, create `construct_comparability_ref` with source and target
@@ -469,7 +503,9 @@ Return refs-only candidate output:
 - `linked_prediction_performance_ref` for linked discrimination, prediction
   error, calibration, and claim boundaries
 - `decision_curve_validity_ref` when decision curves are reported
-- `fixed_horizon_risk_semantics_ref` when a fixed horizon is used
+- consumed `fixed_horizon_risk_semantics_ref` when a fixed horizon is used
+- `anomaly_sensitivity_ref` when a fixed-horizon or external-validation draft has material input anomalies
+- `verification_scope_contract_ref` for an applicable fixed-horizon or external-validation initial draft
 - `construct_comparability_ref` when sources or cohorts are compared
 - `ehr_registry_signal_validity_ref` when EHR/registry signal validity is material
 - `claim_strength_calibration_ref`

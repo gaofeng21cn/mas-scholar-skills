@@ -1031,6 +1031,9 @@ initial_draft_skill_tokens = {
             "cannot authorize a full draft",
             "initial_complete_draft",
             "all seven gates",
+            "audit_applicable_initial_draft_specialist_refs()",
+            "immutable_candidate_snapshot_ref",
+            "does not sign an immutable reviewer snapshot",
         ],
     ),
     "medical-manuscript-review": (
@@ -1056,6 +1059,9 @@ initial_draft_skill_tokens = {
             "Candidate producers cannot override either policy",
             "no_tuning_prespecified",
             "not a mechanical 5- or 10-events-per-variable pass rule",
+            "anomaly_sensitivity_ref",
+            "verification_scope_contract_ref",
+            "does not establish artifact currentness",
         ],
     ),
     "medical-survival-analysis-plan": (
@@ -1066,6 +1072,8 @@ initial_draft_skill_tokens = {
             "survival_estimand_plan_ref",
             "decision_curve_validity_ref",
             "non-informative censoring",
+            "IPCW Brier",
+            "recorded event fraction is descriptive",
         ],
     ),
     "medical-data-freeze-and-analysis-readiness-reviewer": (
@@ -1137,6 +1145,16 @@ initial_draft_kernel_tokens = {
             "PREFLIGHT_REQUIRED_GATE_NOT_APPLICABLE",
             "INITIAL_DRAFT_PREFLIGHT_MANUSCRIPT_MODE_APPLICABILITY",
             "size_bytes < 1",
+            "applicable_initial_draft_specialist_refs",
+            "audit_applicable_initial_draft_specialist_refs",
+            "INITIAL_DRAFT_SPECIALIST_REF_ROUTES",
+            "ordinary_audit",
+            "fixed_horizon_required",
+            'assert "immutable_candidate_snapshot_ref" not in fixed_horizon_required',
+            'assert "immutable_candidate_snapshot_ref" not in external_required',
+            "build_authoring_freeze_handoff_candidate",
+            "AUTHORING_FREEZE_HANDOFF_ROUTE",
+            '"signs_review_currentness": False',
         ],
     ),
     "medical-statistical-review": (
@@ -1283,6 +1301,81 @@ require_unversioned_v1_binding(
     "audit_citation_source_coverage",
     "_audit_citation_source_coverage",
 )
+
+transportability_skill = medical_method_specialist_skills[
+    "medical-risk-model-transportability-reviewer"
+]
+evidence_integrity_skill = medical_method_specialist_skills[
+    "medical-evidence-integrity-reviewer"
+]
+initial_draft_learning_skill_tokens = {
+    "medical-survival-analysis-plan": (
+        survival_skill,
+        [
+            "fixed_horizon_risk_semantics_ref",
+            "Kaplan-Meier risk",
+            "cumulative incidence",
+            "IPCW Brier",
+            "medical-statistical-review",
+            "medical-manuscript-writing",
+        ],
+    ),
+    "medical-risk-model-transportability-reviewer": (
+        transportability_skill,
+        [
+            "claim_family_scope_qualifier_ref",
+            "construct_comparability_ref",
+            "not estimable",
+            "identity-preserving linkage",
+            "family cannot satisfy another; discrimination does not establish calibrated",
+            "absolute risk, deployment utility, or the cause of transport failure",
+        ],
+    ),
+    "medical-data-governance": (
+        data_governance_skill,
+        [
+            "analysis_input_anomaly_inventory_ref",
+            "medical-statistical-review",
+            "Do not silently delete, winsorize, recode, or repair observations",
+        ],
+    ),
+    "medical-statistical-review": (
+        stats_skill,
+        [
+            "analysis_input_anomaly_inventory_ref",
+            "anomaly_sensitivity_ref",
+            "verification_scope_contract_ref",
+            "medical-evidence-integrity-reviewer",
+            "medical-manuscript-writing",
+        ],
+    ),
+    "medical-evidence-integrity-reviewer": (
+        evidence_integrity_skill,
+        [
+            "verification_scope_contract_ref",
+            "claim_family_scope_qualifier_ref",
+            "construct_comparability_ref",
+            "medical-statistical-review",
+            "medical-risk-model-transportability-reviewer",
+        ],
+    ),
+    "medical-manuscript-writing": (
+        write_skill,
+        [
+            "immutable_candidate_snapshot_ref",
+            "Only after the seven-gate preflight is satisfied",
+            "build_authoring_freeze_handoff_candidate()",
+            "refs-only and no-authority",
+            "renderer_provenance_ref",
+            "structured_display_source_map_ref",
+            "does not sign an immutable reviewer snapshot",
+        ],
+    ),
+}
+for skill_id, (skill_text, tokens) in initial_draft_learning_skill_tokens.items():
+    for token in tokens:
+        if token not in skill_text:
+            fail(f"{skill_id} missing Study 002 initial-draft learning token: {token}")
 for skill_id, skill_text in {
     "medical-manuscript-review": review_skill,
     "medical-statistical-review": stats_skill,

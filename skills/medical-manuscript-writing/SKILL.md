@@ -263,6 +263,33 @@ identity, data, statistical, citation, table, or display evidence. The
 preflight remains refs-only and cannot authorize a full draft, sign an owner
 receipt, create a typed blocker, or claim quality/publication readiness.
 
+Run `audit_applicable_initial_draft_specialist_refs()` before placing an
+applicable fixed-horizon or external-validation candidate into the seven-gate
+preflight. An ordinary initial draft with neither condition requires none of
+these specialist refs. A fixed-horizon draft consumes
+`fixed_horizon_risk_semantics_ref`; every fixed-horizon or external-validation
+draft consumes `verification_scope_contract_ref`; when
+`analysis_input_anomaly_inventory_ref` records material anomalies, consume
+`anomaly_sensitivity_ref`. An external-validation draft also consumes
+`construct_comparability_ref`, `claim_family_scope_qualifier_ref`, and its
+model/performance/claim refs. When paper-facing displays exist, consume
+`structured_display_source_map_ref` and the active display producer's
+`single_generation_source_ref`, `deterministic_render_ref`,
+`clean_rebuild_consistency_ref`, and output fingerprints, then aggregate them
+as `renderer_provenance_ref` for `medical-manuscript-review`.
+
+Only after the seven-gate preflight is satisfied and the manuscript,
+structured evidence, claim map, tables, and figures have been generated, run
+`build_authoring_freeze_handoff_candidate()` to produce
+`immutable_candidate_snapshot_ref`. Bind the exact generated candidate plus
+renderer provenance submitted for independent review. A numeric, semantic,
+source, render-request, or output change requires a new authoring candidate
+snapshot. This downstream writing ref is refs-only and no-authority: it
+does not sign an immutable reviewer snapshot, decide review currentness,
+invalidate a prior receipt, accept an artifact, or claim readiness. MAS/OPL and the
+consuming domain owner retain those decisions. Pass the authoring-freeze ref to
+`medical-manuscript-review` only through its immutable reviewer input snapshot.
+
 ## Preconditions
 
 Before serious drafting, confirm or create durable refs for:
@@ -415,8 +442,10 @@ should include:
 
 - an `external_validation_first_draft_contract_ref` that consumes source-model
   provenance, target-population/follow-up, fixed-horizon risk semantics,
-  construct comparability, calibration/performance, structured display-source,
-  claim-guardrail, and negative-or-non-estimable-result refs before prose;
+  anomaly sensitivity, verification scope, construct comparability,
+  claim-family scope qualifiers, calibration/performance, structured
+  display-source, renderer provenance, claim-guardrail,
+  and negative-or-non-estimable-result refs before prose;
 - source-model provenance, full equation or coefficient table, predictor coding,
   unit conversions, and baseline survival or absolute-risk extraction;
 - when the source model survives mainly as an archived fixed equation, state
@@ -472,6 +501,20 @@ should include:
   figure, caption, and catalog entry to the current structured numeric source.
   After a numeric or semantic change, regenerate affected displays; do not reuse
   a render request whose payload embeds superseded values.
+- one `renderer_provenance_ref` produced by writing as a refs-only aggregation
+  of the display producer's structured source fingerprint, exact request/config
+  bytes, renderer identity/version, clean-rebuild evidence, and final output
+  fingerprints. Writing records this binding for review handoff; it does not
+  execute or accept the render, and renderer success or a matching image alone
+  does not establish currentness.
+- one `claim_family_scope_qualifier_ref` that keeps ranking/discrimination,
+  absolute calibration, risk-scale compression, recalibration, clinical
+  utility, and causal transport explanations separate. Draft only the wording
+  allowed for each evidence-bound family.
+- `verification_scope_contract_ref` for every external validation, including
+  the exact analyses/displays assessed; add `anomaly_sensitivity_ref` only when
+  a material input anomaly is inventoried. State anomaly handling and
+  robustness without hiding implausible values.
 
 For near-submission external-validation revisions, prefer a discrete
 `Limitations` paragraph when the draft already has stable Methods, Results, and
@@ -665,6 +708,9 @@ usually needs:
 - `paper/paper_bundle_manifest.json` or equivalent bundle manifest when packaged
 - exact `medical_initial_draft_preflight_candidate_ref` and owner-gate handoff
   ref for a complete initial-draft attempt
+- `immutable_candidate_snapshot_ref` for an applicable fixed-horizon or
+  external-validation authoring freeze; this is not a reviewer-currentness or
+  owner-acceptance receipt
 
 The exact paths may vary by workspace. Preserve the meaning and make the
 handoff resumable without transient chat.
