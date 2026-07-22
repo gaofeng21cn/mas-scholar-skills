@@ -50,7 +50,9 @@ skills and 24 routers or named-specialty skills. Specialty skills are present
 for discovery but selected only when a task actually needs that specialty.
 The machine catalog also includes two pure adapter modules for scientific search
 and reference verification; OPL Connect performs their network I/O and records
-receipts.
+receipts. Framework-owned OPL Connect handles primary PubMed/PMC discovery; the
+package's scientific-search adapter is deliberately limited to Crossref/OpenAlex
+metadata, coverage, and citation-graph fallback.
 
 See [Capability Modules](./docs/capability-modules.md) for the current mapping.
 

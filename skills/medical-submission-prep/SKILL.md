@@ -213,10 +213,11 @@ The repair target is the canonical source/export mapping: do not hide an
 internal artifact by changing only its filename or PDF metadata.
 
 If journal-facing background, reporting-standard, data-sharing, guideline, or
-reviewer-response text needs biomedical literature support, route it to MAS
-`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
-and `pubmed_source_refs` as candidate refs only; MAS still decides citation
-acceptance and manuscript use.
+reviewer-response text needs biomedical literature support, route it to
+`medical-research-lit`. Record `opl_connect_search_ref`,
+`opl_connect_reference_verification_ref`, and `pubmed_source_refs` as candidate
+refs only. OPL Connect owns provider transport and receipts; MAS still decides
+medical support strength, citation acceptance, and manuscript use.
 
 ## Reviewer Response Mode
 

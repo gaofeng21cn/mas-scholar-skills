@@ -110,6 +110,12 @@ function isEvidence(value: unknown): value is AdapterEvidence {
     && typeof record.normalized === 'object';
 }
 
+function stringList(value: unknown): string[] {
+  return (Array.isArray(value) ? value : [value])
+    .map(asString)
+    .filter((entry): entry is string => Boolean(entry));
+}
+
 function parsePubmedSummary(payload: unknown, requestedPmid: string): CandidateRecord | null {
   const result = asRecord(asRecord(payload).result);
   const uids = Array.isArray(result.uids) ? result.uids.map(asString).filter(Boolean) : [];
@@ -145,6 +151,7 @@ function parsePubmedSummary(payload: unknown, requestedPmid: string): CandidateR
         year: yearFromText(asString(entry.pubdate)),
         journal: asString(entry.fulljournalname) ?? asString(entry.source),
         authors,
+        article_types: stringList(entry.pubtype),
       }),
       retraction_or_update_flags: {},
       normalized: { doi, pmid: uid, pmcid, title },
@@ -162,9 +169,15 @@ function parseEuropePmcSearch(payload: unknown, reference: ReferenceRecord): Can
   const results = Array.isArray(resultList.result) ? resultList.result : [];
   const entry = asRecord(results[0]);
   if (Object.keys(entry).length === 0) return null;
+  const source = asString(entry.source)?.toUpperCase() ?? null;
+  const providerId = asString(entry.id);
   const doi = normalizeDoi(asString(entry.doi));
-  const pmid = asString(entry.pmid) ?? asString(entry.id);
-  const pmcid = normalizePmcid(asString(entry.pmcid));
+  const pmid = asString(entry.pmid)
+    ?? (source === 'MED' || (providerId !== null && /^\d+$/.test(providerId)) ? providerId : null);
+  const pmcid = normalizePmcid(
+    asString(entry.pmcid)
+      ?? (source === 'PMC' || providerId?.toUpperCase().startsWith('PMC') ? providerId : null),
+  );
   const title = asString(entry.title);
   const authorList = asRecord(entry.authorList);
   const authors = (Array.isArray(authorList.author) ? authorList.author : [])
@@ -175,7 +188,7 @@ function parseEuropePmcSearch(payload: unknown, reference: ReferenceRecord): Can
     || entry.inEPMC === true
     || entry.isOpenAccess === true
     || pmcid !== null;
-  const identifiers = { doi, pmid, pmcid, europe_pmc: asString(entry.id) };
+  const identifiers = { doi, pmid, pmcid, europe_pmc: providerId };
   return {
     identifiers,
     full_text_available: fullTextAvailable,
@@ -188,6 +201,7 @@ function parseEuropePmcSearch(payload: unknown, reference: ReferenceRecord): Can
         journal: asString(entry.journalTitle),
         authors,
         abstract: asString(entry.abstractText),
+        article_types: stringList(asRecord(entry.pubTypeList).pubType),
       }),
       retraction_or_update_flags: {},
       normalized: { doi, pmid, pmcid, title },

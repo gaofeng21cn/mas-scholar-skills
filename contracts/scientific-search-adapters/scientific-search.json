@@ -5,6 +5,14 @@
   "profile_role": "optional_connector_profile",
   "registry_owner": "mas-scholar-skills.scientific-search-adapters",
   "provider_ontology_owner": "profile_not_framework_core",
+  "provider_scope": {
+    "role": "generic_metadata_coverage_and_citation_graph_fallback_only",
+    "excluded_provider_ids": [
+      "pubmed",
+      "pmc"
+    ],
+    "excluded_provider_route": "opl_connect_framework_unified_scientific_search"
+  },
   "adapter_package": {
     "package_id": "mas-scholar-skills",
     "module_id": "mas-scholar-skills.scientific-search-adapters",

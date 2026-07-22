@@ -143,7 +143,8 @@ def handoff_skeleton(literature_question: str = "") -> dict[str, object]:
         "literature_retrieval_contract_ref": "",
         "query_plan_ref": "",
         "search_command_ref": "",
-        "mas_provider_lookup_ref": "",
+        "opl_connect_search_ref": "",
+        "opl_connect_reference_verification_ref": "",
         "pubmed_source_refs": [],
         "fallback_source_refs": [],
         "identifier_resolution_ref": "",
@@ -181,7 +182,8 @@ def _self_check() -> None:
     assert lint_citation_support("PMID: TBD\npublication ready")
     assert handoff_skeleton("x")["literature_question"] == "x"
     handoff = handoff_skeleton()
-    assert handoff["mas_provider_lookup_ref"] == ""
+    assert handoff["opl_connect_search_ref"] == ""
+    assert handoff["opl_connect_reference_verification_ref"] == ""
     assert handoff["pubmed_source_refs"] == []
     assert not any("connector_invocation" in field for field in handoff)
 

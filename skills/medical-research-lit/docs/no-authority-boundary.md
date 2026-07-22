@@ -46,8 +46,10 @@ not professional Skills or Stage owners. The first maps a known reference/provid
 input to bounded HTTP request descriptions, parses supplied responses, and may
 choose one Europe PMC full-text follow-up. The second maps
 `provider + query + limit` to one Crossref/OpenAlex request and normalizes all
-returned candidates. Both modules keep network, environment, filesystem, process,
-receipt, verdict, blocker, reference-truth, and domain-authority flags false.
+returned fallback candidates; it explicitly excludes PubMed/PMC discovery, which
+is implemented once by Framework-owned OPL Connect. Both modules keep network,
+environment, filesystem, process, receipt, verdict, blocker, reference-truth, and
+domain-authority flags false.
 
 ## Owner Route
 

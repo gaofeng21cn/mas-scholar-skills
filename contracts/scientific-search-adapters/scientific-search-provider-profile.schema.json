@@ -11,6 +11,7 @@
     "profile_role",
     "registry_owner",
     "provider_ontology_owner",
+    "provider_scope",
     "adapter_package",
     "default_provider_ids",
     "providers",
@@ -35,6 +36,9 @@
     "provider_ontology_owner": {
       "const": "profile_not_framework_core"
     },
+    "provider_scope": {
+      "$ref": "#/$defs/providerScope"
+    },
     "adapter_package": {
       "$ref": "#/$defs/adapterPackage"
     },
@@ -57,6 +61,29 @@
     }
   },
   "$defs": {
+    "providerScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "excluded_provider_ids",
+        "excluded_provider_route"
+      ],
+      "properties": {
+        "role": {
+          "const": "generic_metadata_coverage_and_citation_graph_fallback_only"
+        },
+        "excluded_provider_ids": {
+          "const": [
+            "pubmed",
+            "pmc"
+          ]
+        },
+        "excluded_provider_route": {
+          "const": "opl_connect_framework_unified_scientific_search"
+        }
+      }
+    },
     "adapterPackage": {
       "type": "object",
       "additionalProperties": false,

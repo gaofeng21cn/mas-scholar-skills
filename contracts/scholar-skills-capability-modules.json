@@ -877,7 +877,8 @@
         "source_ref_chain_template_ref",
         "literature_retrieval_contract_ref",
         "query_plan_ref",
-        "mas_provider_lookup_ref",
+        "opl_connect_search_ref",
+        "opl_connect_reference_verification_ref",
         "pubmed_source_refs",
         "fallback_source_refs",
         "identifier_resolution_ref",
@@ -2062,9 +2063,9 @@
           "descriptor_only": true
         },
         {
-          "entry_id": "mas_domain_provider_lookup",
-          "entry_kind": "domain_owned_source_lookup",
-          "command": "research-integrity-reference-verification",
+          "entry_id": "opl_connect_pubmed_pmc_search",
+          "entry_kind": "opl_connect_scientific_search",
+          "command": "opl connect scientific search --provider <pubmed|pmc> --query <query> --limit <n> --json",
           "mutation": false,
           "descriptor_only": false,
           "provider_priority": [
@@ -2072,7 +2073,15 @@
             "crossref_metadata_fallback",
             "openalex_coverage_or_citation_graph_fallback"
           ],
-          "authority_boundary": "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth"
+          "authority_boundary": "opl_connect_read_only_provider_transport_not_citation_acceptance_literature_verdict_or_domain_truth"
+        },
+        {
+          "entry_id": "opl_connect_reference_verification",
+          "entry_kind": "opl_connect_reference_verification",
+          "command": "opl connect references verify --references-file <path> --providers pubmed,pmc --json",
+          "mutation": false,
+          "descriptor_only": false,
+          "authority_boundary": "opl_connect_metadata_provider_receipt_only_not_citation_acceptance_literature_verdict_or_domain_truth"
         }
       ],
       "artifact_refs": [
@@ -2127,7 +2136,7 @@
         {
           "ref_id": "pubmed_source_refs",
           "ref_kind": "external_source_ref",
-          "role": "pubmed_normalized_metadata_refs_from_mas_domain_provider_lookup",
+          "role": "pubmed_pmc_normalized_metadata_refs_from_opl_connect_search_and_verification",
           "body_policy": "refs_only_pubmed_metadata_not_fulltext_or_literature_verdict"
         },
         {
@@ -2203,10 +2212,16 @@
           "body_policy": "refs_only_reference_completeness_hint_not_literature_verdict"
         },
         {
-          "ref_id": "mas_provider_lookup_ref",
-          "ref_kind": "domain_action_ref",
-          "role": "mas_domain_owned_pubmed_provider_evidence_lookup",
-          "body_policy": "read_only_provider_evidence_input_not_citation_acceptance_or_owner_authority"
+          "ref_id": "opl_connect_search_ref",
+          "ref_kind": "external_source_ref",
+          "role": "opl_connect_scientific_search_provider_receipt_and_normalized_source_refs",
+          "body_policy": "read_only_provider_transport_input_not_citation_acceptance_or_owner_authority"
+        },
+        {
+          "ref_id": "opl_connect_reference_verification_ref",
+          "ref_kind": "external_source_ref",
+          "role": "opl_connect_strict_identifier_metadata_verification_receipt_refs",
+          "body_policy": "metadata_provider_receipt_only_not_citation_acceptance_or_owner_authority"
         }
       ],
       "receipt_policy": {
@@ -2254,7 +2269,8 @@
           "source_pack_ref",
           "candidate_refs",
           "owner_gate_handoff_ref",
-          "mas_provider_lookup_ref"
+          "opl_connect_search_ref",
+          "opl_connect_reference_verification_ref"
         ],
         "can_claim_quality_verdict": false,
         "handoff_policy": "standard_refs_only_source_pack_candidate_refs_owner_gate_handoff"
@@ -2304,7 +2320,7 @@
           "citation_manifest_before_claim_use",
           "source_verification_and_coverage_gap_map",
           "metadata_scrape_receipt_before_evidence_map",
-          "mas_domain_provider_lookup_before_citation_manifest_when_pubmed_is_relevant",
+          "opl_connect_pubmed_pmc_search_and_verification_before_citation_manifest_when_biomedical_sources_are_relevant",
           "claim_support_route_back_when_sources_do_not_cover_claim",
           "systematic_review_protocol_and_criteria_before_screening",
           "slr_data_extraction_schema_and_quality_appraisal_as_candidate_refs",
@@ -2324,7 +2340,8 @@
           "citation_coverage_ref",
           "evidence_map_ref",
           "metadata_scrape_ref",
-          "mas_provider_lookup_ref",
+          "opl_connect_search_ref",
+          "opl_connect_reference_verification_ref",
           "pubmed_source_refs",
           "fallback_source_refs",
           "claim_support_ref",
@@ -3824,7 +3841,9 @@
         "max_steps": 1,
         "http_execution_owner": "opl_connect",
         "candidate_consumption_owner": "opl_connect_then_domain_owner",
-        "adapter_input_output_policy": "serializable_request_state_response_only"
+        "adapter_input_output_policy": "serializable_request_state_response_only",
+        "provider_scope": "crossref_openalex_generic_metadata_coverage_and_citation_graph_fallback_only",
+        "excluded_primary_biomedical_discovery_route": "opl_connect_pubmed_pmc_framework_search"
       },
       "authority_boundary": {
         "can_perform_network_io": false,

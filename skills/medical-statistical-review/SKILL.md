@@ -408,10 +408,11 @@ classes, or release-level counts as prevalence, true non-treatment, guideline
 nonadherence, or treatment effect without the required design and evidence.
 
 If a statistical method, reporting claim, guideline statement, or clinical
-interpretation needs biomedical literature support, route it to MAS
-`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
-and `pubmed_source_refs` as candidate refs only; MAS still decides citation
-acceptance and manuscript use.
+interpretation needs biomedical literature support, route it to
+`medical-research-lit`. Record `opl_connect_search_ref`,
+`opl_connect_reference_verification_ref`, and `pubmed_source_refs` as candidate
+refs only. OPL Connect owns provider transport and receipts; MAS still decides
+medical support strength, citation acceptance, and manuscript use.
 
 ## Common Route-Backs
 

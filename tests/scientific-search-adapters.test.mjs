@@ -53,8 +53,8 @@ test('manifest, profile, registry, descriptor, and plugin expose the locked sear
   const binding = manifest.exports.runtime_module_bindings.find(
     (item) => item.module_id === 'mas-scholar-skills.scientific-search-adapters',
   );
-  assert.equal(manifest.version, '0.2.15');
-  assert.equal(plugin.version, '0.2.15');
+  assert.equal(manifest.version, '0.2.16');
+  assert.equal(plugin.version, '0.2.16');
   assert.equal(manifest.content_lock.canonicalization, 'ordered_path_length_file_length_bytes');
   assert.ok(binding);
   assert.equal(binding.adapter_abi, SCIENTIFIC_SEARCH_ADAPTER_ABI);
@@ -70,6 +70,11 @@ test('manifest, profile, registry, descriptor, and plugin expose the locked sear
   ]);
   assert.equal(binding.max_steps, 1);
   assert.deepEqual(profile.adapter_package.adapter_ids, registry.adapters.map((item) => item.adapter_id));
+  assert.deepEqual(profile.provider_scope, {
+    role: 'generic_metadata_coverage_and_citation_graph_fallback_only',
+    excluded_provider_ids: ['pubmed', 'pmc'],
+    excluded_provider_route: 'opl_connect_framework_unified_scientific_search',
+  });
   assert.deepEqual(
     profile.providers.map((item) => [item.provider_id, item.adapter_id]),
     registry.adapters.map((item) => [item.provider_id, item.adapter_id]),

@@ -53,6 +53,7 @@ export function compactMetadata(input: {
   journal?: string | null;
   authors?: string[];
   abstract?: string | null;
+  article_types?: string[];
 }): ReferenceMetadata {
   return Object.fromEntries(
     Object.entries(input).filter(([, value]) => (

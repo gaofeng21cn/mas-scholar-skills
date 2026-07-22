@@ -1,6 +1,6 @@
 ---
 name: medical-research-lit
-description: "Use when a MAS medical-paper task needs professional AI-first literature discovery, especially PubMed/PMC-oriented search planning, query refinement, source screening, fallback reason capture, PMID/DOI verification, citation-support checks, claim-support maps, and refs-only handoff back to MAS scout/write/review. This professional specialist skill is maintained in mas-scholar-skills; MAS owns domain provider lookup and citation acceptance, while OPL Connect may supply generic Crossref/OpenAlex fallback inputs."
+description: "Use when a MAS medical-paper task needs professional AI-first literature discovery, especially PubMed/PMC-oriented search planning, query refinement, source screening, fallback reason capture, PMID/DOI verification, citation-support checks, claim-support maps, and refs-only handoff back to MAS scout/write/review. This professional specialist skill is maintained in mas-scholar-skills; OPL Connect owns provider search, verification, normalization, and receipt transport, while MAS owns medical screening, claim support, and citation acceptance."
 ---
 
 # Medical Research Literature
@@ -20,8 +20,9 @@ quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
 When MAS supplies `citation_integrity_pack`, consume
 `references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
-This skill owns the AI source-screening and claim-support handoff; MAS provider
-lookup and citation acceptance remain separate authority surfaces.
+This skill owns the AI source-screening and claim-support handoff. OPL Connect
+provider transport and MAS citation acceptance remain separate authority
+surfaces.
 
 Sibling skill routes are `medical-manuscript-writing` for citation-to-text
 integration, `medical-manuscript-review` for citation and claim critique,
@@ -45,10 +46,12 @@ literature review skills:
 - claim-level support grading instead of "found some papers";
 - citation metadata verification before manuscript use.
 
-The MAS default for medical and clinical claims is PubMed/PMC through the MAS
-domain action `research-integrity-reference-verification`. It returns
-`mas_provider_lookup_ref` and `pubmed_source_refs` as read-only evidence
-inputs. Use broader sources only when the question needs metadata
+The default discovery route for medical and clinical claims is PubMed/PMC
+through OPL Connect scientific search. Candidate identifiers and metadata are
+then strictly checked through OPL Connect reference verification. Record
+`opl_connect_search_ref`, `opl_connect_reference_verification_ref`, and
+`pubmed_source_refs` as read-only evidence inputs. Use broader sources only
+when the question needs metadata
 normalization, cross-disciplinary coverage, citation graph expansion, guideline
 lookup beyond PubMed indexing, or full-text/protocol context. Crossref and
 OpenAlex may be supplied through an explicit generic OPL Connect fallback as
@@ -121,23 +124,28 @@ identifier/title normalization, deduplication, citation-support lint, and
 refs-only handoff skeletons. It uses no credentials, providers, network calls,
 or MAS authority surfaces.
 
-## MAS Provider Lookup Boundary
+## Provider Transport Boundary
 
-Use MAS domain provider lookup as the biomedical source-evidence route, not as
-a literature authority. The expected provider split is:
+Use OPL Connect as the biomedical provider transport, not as literature or
+citation authority. The expected provider split is:
 
-- MAS `research-integrity-reference-verification` first for PubMed/PMC
-  citation search, article metadata, PMIDs, PMCIDs, and biomedical full-text
-  routing when available.
+- OPL Connect `scientific search --provider pubmed|pmc` first for PubMed/PMC
+  topic discovery, article metadata, PMIDs, PMCIDs, article types, and
+  biomedical full-text routing when available.
+- OPL Connect `references verify --providers pubmed,pmc` for strict candidate
+  identifier and metadata verification after discovery.
 - Explicit OPL Connect Crossref only when DOI/title/journal metadata resolution,
   publisher metadata, or PubMed coverage fallback is needed.
 - Explicit OPL Connect OpenAlex only when citation graph, related work,
   institution/venue metadata, or broad coverage fallback is needed.
 
-Provider outputs must remain in `mas_provider_lookup_ref`, `pubmed_source_refs`,
-and `fallback_source_refs`. This skill consumes those refs to make an AI
-screening and claim-support handoff. It must not copy provider clients into the
-skill, write provider attempts, or promise live provider readiness.
+Provider outputs must remain in `opl_connect_search_ref`,
+`opl_connect_reference_verification_ref`, `pubmed_source_refs`, and
+`fallback_source_refs`. This skill consumes those refs to make an AI screening
+and claim-support handoff. It must not copy provider clients into the skill,
+write provider attempts, or claim that provider receipts are citation
+acceptance. MAS remains the owner of medical screening, claim-support judgment,
+citation acceptance, and any citation-ledger mutation.
 
 ## Retrieval Contract
 
@@ -149,8 +157,9 @@ Before searching, define `literature_retrieval_contract_ref`:
   citation being checked;
 - accepted identifiers such as PMID, PMCID, DOI, trial id, guideline id, title,
   author, year, journal, or preprint id;
-- source route: PubMed/PMC through MAS domain provider lookup for biomedical
-  citations/full text, Crossref or OpenAlex generic connector refs for metadata
+- source route: PubMed/PMC through OPL Connect scientific search for biomedical
+  discovery/full-text routing and OPL Connect reference verification for
+  retained candidate identifiers; Crossref or OpenAlex connector refs for metadata
   or coverage fallback, Semantic Scholar/OpenAlex for citation graph expansion,
   medRxiv/bioRxiv for preprints, Unpaywall for open-access lookup, and official
   guideline/provider sites when the claim is a standard or policy;
@@ -161,7 +170,8 @@ Before searching, define `literature_retrieval_contract_ref`:
 - expected output fields and whether the task needs targeted lookup or
   exhaustive search;
 - pagination/count reconciliation plan when the retrieval claims completeness;
-- access date, `mas_provider_lookup_ref` or fallback ref, and external
+- access date, `opl_connect_search_ref`,
+  `opl_connect_reference_verification_ref` or fallback ref, and external
   provider/API provenance.
 - DOI/PMID/PMCID/retraction/version-check plan when the source is surprising,
   high-profile, recent, contested, or manuscript-critical.
@@ -183,12 +193,16 @@ need, preprint/published-version check, or official-source requirement.
 2. Build a PubMed-oriented query plan with synonyms, MeSH candidates when
    useful, Boolean structure, date/language limits only when justified, and
    explicit exclusion criteria.
-3. Route the PubMed/PMC lookup to MAS
-   `research-integrity-reference-verification`. Record
-   `mas_provider_lookup_ref` and `pubmed_source_refs`. If the domain action is
-   unavailable, record the missing provider lookup as a fallback reason and use
-   the current project-approved literature-search tool without promising live
-   provider readiness.
+3. Discover PubMed/PMC candidates through
+   `opl connect scientific search --provider pubmed|pmc --query <query> --limit <n> --json`.
+   Record `opl_connect_search_ref` and `pubmed_source_refs`. For retained or
+   claim-critical candidates, run
+   `opl connect references verify --references-file <path> --providers pubmed,pmc --json`
+   and record `opl_connect_reference_verification_ref`. The hosted executor may
+   use the equivalent curated `opl-connect` MCP tools. If neither dedicated
+   surface is exposed, record the exact missing tool/server/command as the
+   fallback reason before using a project-approved alternative; do not state
+   generically that PubMed is unavailable.
 4. If PubMed/PMC does not cover the support need, run an approved fallback and
    record `fallback_source_refs`: Crossref/OpenAlex connector refs for metadata,
    coverage, or citation graph fallback, Semantic Scholar or local citation
@@ -235,7 +249,8 @@ Return a compact structure with:
 - `literature_retrieval_contract_ref`
 - `query_plan_ref`
 - `search_command_ref`
-- `mas_provider_lookup_ref`
+- `opl_connect_search_ref`
+- `opl_connect_reference_verification_ref`
 - `pubmed_source_refs`
 - `fallback_source_refs`
 - `pubmed_crossref_openalex_fallback_ref`

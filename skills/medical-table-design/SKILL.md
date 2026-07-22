@@ -173,10 +173,11 @@ documented exception.
 9. Produce a candidate table manifest and route-back list.
 
 If a table note, benchmark, guideline, endpoint definition, or clinical
-interpretation needs biomedical literature support, route it to MAS
-`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
-and `pubmed_source_refs` as candidate refs only; MAS still decides citation
-acceptance and manuscript use.
+interpretation needs biomedical literature support, route it to
+`medical-research-lit`. Record `opl_connect_search_ref`,
+`opl_connect_reference_verification_ref`, and `pubmed_source_refs` as candidate
+refs only. OPL Connect owns provider transport and receipts; MAS still decides
+medical support strength, citation acceptance, and manuscript use.
 
 ## Quality Checks
 

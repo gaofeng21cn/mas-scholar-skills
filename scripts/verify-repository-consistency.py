@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.15":
-    fail("plugin version must be 0.2.15")
+if manifest.get("version") != "0.2.16":
+    fail("plugin version must be 0.2.16")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -494,8 +494,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.15":
-    fail("capability package version must be 0.2.15")
+if package_manifest.get("version") != "0.2.16":
+    fail("capability package version must be 0.2.16")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}
@@ -834,6 +834,13 @@ if any(value is not False for value in (scientific_search_registry.get("no_autho
     fail("scientific search registry authority flags must all be false")
 if any(value is not False for value in (scientific_search_profile.get("no_authority_boundary") or {}).values()):
     fail("scientific search profile authority flags must all be false")
+expected_search_provider_scope = {
+    "role": "generic_metadata_coverage_and_citation_graph_fallback_only",
+    "excluded_provider_ids": ["pubmed", "pmc"],
+    "excluded_provider_route": "opl_connect_framework_unified_scientific_search",
+}
+if scientific_search_profile.get("provider_scope") != expected_search_provider_scope:
+    fail("scientific search package profile must exclude PubMed/PMC and remain a generic fallback adapter")
 if len(search_profile_adapter_ids) != 2 or len(set(search_profile_adapter_ids)) != 2:
     fail("scientific search package must export exactly two unique adapters")
 search_provider_rows = scientific_search_profile.get("providers") or []
@@ -2497,13 +2504,15 @@ for forbidden in [
     if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
         fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
 for token in [
-    "mas_domain_provider_lookup",
-    "mas_provider_lookup_ref",
+    "opl_connect_pubmed_pmc_search",
+    "opl_connect_reference_verification",
+    "opl_connect_search_ref",
+    "opl_connect_reference_verification_ref",
     "pubmed_source_refs",
-    "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth",
+    "opl_connect_read_only_provider_transport_not_citation_acceptance_literature_verdict_or_domain_truth",
 ]:
     if token not in contract_text:
-        fail(f"contract missing MAS domain PubMed token: {token}")
+        fail(f"contract missing unified OPL Connect literature token: {token}")
 for retired_token in [
     "opl scholar-skills",
     "connect_pubmed_search",
@@ -2511,6 +2520,11 @@ for retired_token in [
     "scientific_connector_invocation_refs",
     "candidate_package_ref",
     "execution_receipt_ref",
+    "mas_domain_provider_lookup",
+    "domain_owned_source_lookup",
+    "mas_provider_lookup_ref",
+    "research-integrity-reference-verification",
+    "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth",
 ]:
     if retired_token in contract_text:
         fail(f"contract must not retain retired execution or PubMed token: {retired_token}")
@@ -3123,6 +3137,10 @@ if search_state_machine_contract.get("max_steps") != 1:
     fail("scientific search adapter module must cap provider searches at one step")
 if search_state_machine_contract.get("http_execution_owner") != "opl_connect":
     fail("OPL Connect must remain the scientific search HTTP execution owner")
+if search_state_machine_contract.get("provider_scope") != "crossref_openalex_generic_metadata_coverage_and_citation_graph_fallback_only":
+    fail("scientific search adapter module must remain limited to Crossref/OpenAlex fallback discovery")
+if search_state_machine_contract.get("excluded_primary_biomedical_discovery_route") != "opl_connect_pubmed_pmc_framework_search":
+    fail("scientific search adapter module must route PubMed/PMC discovery to Framework-owned OPL Connect")
 if any(value is not False for value in (search_runtime_adapter_module.get("authority_boundary") or {}).values()):
     fail("scientific search adapter module authority flags must all be false")
 if search_runtime_adapter_module.get("allowed_writes") != []:
@@ -3406,10 +3424,10 @@ for module in professional_modules:
     if any(str(entry.get("command") or "").startswith("opl scholar-skills") for entry in entries):
         fail(f"{module.get('module_id')} must not retain the retired OPL ScholarSkills CLI")
     if module.get("module_id") == "mas-scholar-skills.lit":
-        expected_lookup = {
-            "entry_id": "mas_domain_provider_lookup",
-            "entry_kind": "domain_owned_source_lookup",
-            "command": "research-integrity-reference-verification",
+        expected_search = {
+            "entry_id": "opl_connect_pubmed_pmc_search",
+            "entry_kind": "opl_connect_scientific_search",
+            "command": "opl connect scientific search --provider <pubmed|pmc> --query <query> --limit <n> --json",
             "mutation": False,
             "descriptor_only": False,
             "provider_priority": [
@@ -3417,10 +3435,18 @@ for module in professional_modules:
                 "crossref_metadata_fallback",
                 "openalex_coverage_or_citation_graph_fallback",
             ],
-            "authority_boundary": "mas_domain_owned_read_only_provider_evidence_not_citation_acceptance_literature_verdict_or_domain_truth",
+            "authority_boundary": "opl_connect_read_only_provider_transport_not_citation_acceptance_literature_verdict_or_domain_truth",
         }
-        if entries != [expected_descriptor_entry, expected_lookup]:
-            fail("Lit must expose only the generic package descriptor and MAS domain provider lookup")
+        expected_verification = {
+            "entry_id": "opl_connect_reference_verification",
+            "entry_kind": "opl_connect_reference_verification",
+            "command": "opl connect references verify --references-file <path> --providers pubmed,pmc --json",
+            "mutation": False,
+            "descriptor_only": False,
+            "authority_boundary": "opl_connect_metadata_provider_receipt_only_not_citation_acceptance_literature_verdict_or_domain_truth",
+        }
+        if entries != [expected_descriptor_entry, expected_search, expected_verification]:
+            fail("Lit must expose only the package descriptor and unified OPL Connect search/verification entries")
     elif entries != [expected_descriptor_entry]:
         fail(f"{module.get('module_id')} must not project a module execution surface")
 

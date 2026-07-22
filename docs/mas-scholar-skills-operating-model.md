@@ -61,7 +61,8 @@ For literature work, the provider split is explicit:
 
 ```text
 medical-research-lit strategy
-  -> optional search companion returns Crossref/OpenAlex candidates[]
+  -> OPL Connect PubMed/PMC discovery returns primary biomedical source refs
+  -> optional pure adapter returns Crossref/OpenAlex metadata/coverage/citation-graph fallback candidates[]
   -> domain owner selects a candidate reference
   -> verification companion checks the selected reference through bounded providers
   -> OPL Connect executes HTTP and materializes generic evidence/receipts
@@ -69,14 +70,15 @@ medical-research-lit strategy
   -> MAS citation acceptance and manuscript use
 ```
 
-Search and reference verification are separate companion ABIs. Search accepts
-`provider + query + limit`, performs at most one described HTTP step, and returns
-normalized `candidates[]`. Verification accepts a known reference and may perform
-up to two described provider steps. ScholarSkills owns only provider-specific
-request/response mapping. OPL Connect owns HTTP, retry, cache, strict matching,
-receipts, and connector errors. MAS still decides candidate selection, source
-acceptance, and manuscript use. All provider outputs are read-only inputs, not a
-citation verdict, owner receipt, blocker, or publication claim.
+Search and reference verification are separate surfaces. Framework-owned OPL
+Connect implements PubMed/PMC discovery and executes all HTTP, retry, cache,
+strict matching, receipts, and connector errors. The package's one-step search
+adapter ABI is intentionally limited to Crossref/OpenAlex generic metadata,
+coverage, and citation-graph fallback; it must not implement a second PubMed/PMC
+client. The verification adapter accepts a known reference and may describe up to
+two provider steps. MAS still decides candidate selection, source acceptance, and
+manuscript use. All provider outputs are read-only inputs, not a citation verdict,
+owner receipt, blocker, or publication claim.
 
 ## Package Lifecycle And Discovery
 

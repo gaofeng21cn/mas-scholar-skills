@@ -62,8 +62,8 @@ test('package manifest, profile, registry, and plugin expose the locked referenc
   const manifest = readJson('contracts/opl_capability_package_manifest.json');
   const plugin = readJson('.codex-plugin/plugin.json');
   const binding = manifest.exports.runtime_module_bindings[0];
-  assert.equal(manifest.version, '0.2.15');
-  assert.equal(plugin.version, '0.2.15');
+  assert.equal(manifest.version, '0.2.16');
+  assert.equal(plugin.version, '0.2.16');
   assert.equal(manifest.content_lock.canonicalization, 'ordered_path_length_file_length_bytes');
   assert.equal(binding.module_id, 'mas-scholar-skills.reference-provider-adapters');
   assert.equal(binding.adapter_abi, REFERENCE_PROVIDER_ADAPTER_ABI);
@@ -160,6 +160,7 @@ test('PubMed eSummary adapter parses identifiers and authors without performing 
           pubdate: '2019 Aug 25',
           fulljournalname: 'PubMed Journal',
           authors: [{ name: 'Ada Lovelace' }, { name: 'Grace Hopper' }],
+          pubtype: ['Journal Article', 'Randomized Controlled Trial'],
           articleids: [
             { idtype: 'doi', value: '10.1000/PUBMED' },
             { idtype: 'pmc', value: 'PMC1234' },
@@ -170,6 +171,10 @@ test('PubMed eSummary adapter parses identifiers and authors without performing 
   });
   assert.equal(result.next.kind, 'complete');
   assert.deepEqual(result.next.evidence.metadata.authors, ['Ada Lovelace', 'Grace Hopper']);
+  assert.deepEqual(result.next.evidence.metadata.article_types, [
+    'Journal Article',
+    'Randomized Controlled Trial',
+  ]);
   assert.equal(result.next.evidence.normalized.doi, '10.1000/pubmed');
   assert.equal(result.next.evidence.verification_scope.full_text_available, true);
 });
@@ -189,6 +194,7 @@ test('Europe PMC adapter performs exactly one bounded fullTextXML follow-up', ()
           pubYear: '2022',
           journalTitle: 'PMC Journal',
           authorList: { author: [{ fullName: 'Example Author' }] },
+          pubTypeList: { pubType: ['journal article', 'guideline'] },
           inEPMC: 'Y',
         }],
       },
@@ -198,6 +204,10 @@ test('Europe PMC adapter performs exactly one bounded fullTextXML follow-up', ()
   assert.equal(fullTextRequest.next.state.step, 'full_text_xml');
   assert.equal(fullTextRequest.next.state.step_index, 2);
   assert.equal(fullTextRequest.next.state.max_steps, 2);
+  assert.deepEqual(
+    fullTextRequest.next.state.retained.evidence.metadata.article_types,
+    ['journal article', 'guideline'],
+  );
   assert.match(fullTextRequest.next.request.url, /PMC7654\/fullTextXML$/);
   const completed = parse('pmc', input, fullTextRequest, {
     url: 'https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7654/fullTextXML',
@@ -207,6 +217,27 @@ test('Europe PMC adapter performs exactly one bounded fullTextXML follow-up', ()
   assert.equal(completed.next.kind, 'complete');
   assert.equal(completed.next.evidence.verification_scope.full_text_body_verified, true);
   assert.equal(completed.next.evidence.verification_scope.full_text_probe_status, 'verified');
+});
+
+test('Europe PMC adapter does not misclassify a PMC-only id as a PMID', () => {
+  const input = reference({ pmcid: 'PMC9001' });
+  const metadataRequest = build('pmc', input);
+  const fullTextRequest = parse('pmc', input, metadataRequest, {
+    body: {
+      resultList: {
+        result: [{
+          id: 'PMC9001',
+          source: 'PMC',
+          title: 'PMC-only article',
+          inEPMC: 'Y',
+        }],
+      },
+    },
+  });
+  assert.equal(fullTextRequest.next.kind, 'request');
+  assert.equal(fullTextRequest.next.state.retained.evidence.normalized.pmid, null);
+  assert.equal(fullTextRequest.next.state.retained.evidence.normalized.pmcid, 'PMC9001');
+  assert.match(fullTextRequest.next.request.url, /PMC9001\/fullTextXML$/);
 });
 
 test('Semantic Scholar, Crossmark, and DOI landing adapters preserve provider-specific signals', () => {

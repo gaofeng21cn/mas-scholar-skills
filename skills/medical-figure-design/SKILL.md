@@ -474,11 +474,12 @@ Missing refs are blockers, not styling issues. Do not fill missing evidence
 with template defaults, synthetic labels, or caption prose.
 
 If the caption, methods note, or reviewer handoff needs biomedical literature,
-guideline, PMID, DOI, or citation support, route it to MAS
-`research-integrity-reference-verification`. Record `mas_provider_lookup_ref`
-and `pubmed_source_refs` only as inputs to MAS evidence, citation, and review
-workflows. Do not invent citations, PMIDs, DOIs, guideline requirements, or
-source metadata.
+guideline, PMID, DOI, or citation support, route it to `medical-research-lit`.
+Record `opl_connect_search_ref`, `opl_connect_reference_verification_ref`, and
+`pubmed_source_refs` only as candidate inputs to MAS evidence, citation, and
+review workflows. OPL Connect owns provider transport and receipts; MAS owns
+medical screening and citation acceptance. Do not invent citations, PMIDs,
+DOIs, guideline requirements, or source metadata.
 
 ### 3. Panel Plan
 

@@ -627,15 +627,14 @@ skill.
 Never fabricate citations or infer PMID/DOI metadata from memory.
 
 For biomedical claim support, source verification, guideline lookup, DOI/PMID
-lookup, or citation repair, route the request to MAS
-`research-integrity-reference-verification`. It returns
-`mas_provider_lookup_ref` and `pubmed_source_refs` as non-authoritative
-evidence inputs. If the claim needs DOI/title metadata or citation-graph
-coverage beyond PubMed, route to `medical-research-lit` for Crossref/OpenAlex
-`fallback_source_refs`; do not perform fallback acceptance inside writing.
-Screen sources before manuscript use. MAS still owns citation acceptance,
-citation ledger updates, claim-evidence support, and publication-quality
-judgment.
+lookup, or citation repair, route the request to `medical-research-lit`. It uses
+OPL Connect PubMed/PMC discovery and strict reference verification, returning
+`opl_connect_search_ref`, `opl_connect_reference_verification_ref`, and
+`pubmed_source_refs` as non-authoritative evidence inputs. Crossref/OpenAlex
+coverage stays in `fallback_source_refs`; do not perform source acceptance
+inside writing. OPL Connect owns provider transport and receipts. MAS still
+owns medical screening, citation acceptance, citation-ledger updates,
+claim-evidence support, and publication-quality judgment.
 
 If the connector is unavailable, record a `connector_gap` with the attempted
 query and route the citation repair; do not fill citation gaps from memory.

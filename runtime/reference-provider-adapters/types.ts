@@ -49,6 +49,7 @@ export type ReferenceMetadata = {
   journal?: string;
   authors?: string[];
   abstract?: string;
+  article_types?: string[];
 };
 
 export type AdapterEvidence = {
