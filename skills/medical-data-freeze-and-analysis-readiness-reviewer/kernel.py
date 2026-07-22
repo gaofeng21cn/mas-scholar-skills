@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any, Mapping
 
 
@@ -609,6 +611,162 @@ def _validate_identity_exact_ref(value: object, field: str) -> list[str]:
     return []
 
 
+def validate_recoverable_gap_disposition(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Require a complete reconstruction audit before limitation or human TODO."""
+
+    findings: list[dict[str, object]] = []
+    if candidate.get("surface_kind") != "recoverable_gap_disposition_candidate.v1":
+        findings.append(
+            _identity_finding(
+                "RECOVERABLE_GAP_SURFACE_KIND_INVALID",
+                "surface_kind",
+                "use the recoverable-gap disposition candidate surface",
+            )
+        )
+    gap_id = str(candidate.get("gap_id") or "").strip()
+    if not gap_id:
+        findings.append(
+            _identity_finding(
+                "RECOVERABLE_GAP_ID_MISSING",
+                "gap_id",
+                "bind the disposition to one stable gap id",
+            )
+        )
+    if _validate_identity_exact_ref(
+        candidate.get("reconstruction_audit_ref"), "reconstruction_audit_ref"
+    ):
+        findings.append(
+            _identity_finding(
+                "RECOVERABLE_GAP_AUDIT_EXACT_REF_INVALID",
+                "reconstruction_audit_ref",
+                "bind the consumed reconstruction audit as an exact ref",
+            )
+        )
+
+    audit = candidate.get("reconstruction_audit")
+    outcome = None
+    if not isinstance(audit, Mapping):
+        findings.append(
+            _identity_finding(
+                "RECOVERABLE_GAP_AUDIT_INVALID",
+                "reconstruction_audit",
+                "consume the structured governed-source reconstruction audit",
+            )
+        )
+    else:
+        if audit.get("machine_check_status") != "candidate_complete":
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_AUDIT_INCOMPLETE",
+                    "reconstruction_audit.machine_check_status",
+                    "repair the bounded reconstruction audit before disposition",
+                )
+            )
+        if str(audit.get("gap_id") or "").strip() != gap_id:
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_AUDIT_BINDING_MISMATCH",
+                    "reconstruction_audit.gap_id",
+                    "consume the audit for the same gap id",
+                )
+            )
+        outcome = audit.get("reconstruction_outcome")
+        if outcome not in {"reconstructed", "not_reconstructed"}:
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_AUDIT_OUTCOME_INVALID",
+                    "reconstruction_audit.reconstruction_outcome",
+                    "consume a complete structured reconstruction outcome",
+                )
+            )
+        if audit.get("authority") is not False:
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_AUDIT_AUTHORITY_FORBIDDEN",
+                    "reconstruction_audit.authority",
+                    "consume a refs-only reconstruction audit",
+                )
+            )
+
+    disposition = candidate.get("disposition")
+    limitation_active = candidate.get("limitation_active")
+    human_todo_active = candidate.get("human_todo_active")
+    if not isinstance(limitation_active, bool) or not isinstance(human_todo_active, bool):
+        findings.append(
+            _identity_finding(
+                "RECOVERABLE_GAP_DISPOSITION_FLAGS_INVALID",
+                "limitation_active|human_todo_active",
+                "use explicit boolean limitation and human-TODO flags",
+            )
+        )
+    elif outcome == "reconstructed":
+        if disposition != "closed_from_governed_sources":
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_RECONSTRUCTED_DISPOSITION_INVALID",
+                    "disposition",
+                    "close a recovered gap from governed sources",
+                )
+            )
+        if limitation_active or human_todo_active:
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_STALE_LIMITATION_OR_TODO",
+                    "limitation_active|human_todo_active",
+                    "remove the limitation and human TODO after exact recovery",
+                )
+            )
+    elif outcome == "not_reconstructed":
+        expected_flags = {
+            "limitation": (True, False),
+            "human_input_required": (False, True),
+        }
+        if disposition not in expected_flags:
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_UNRESOLVED_DISPOSITION_INVALID",
+                    "disposition",
+                    "classify the bounded unresolved gap as limitation or human input",
+                )
+            )
+        elif (limitation_active, human_todo_active) != expected_flags[disposition]:
+            findings.append(
+                _identity_finding(
+                    "RECOVERABLE_GAP_UNRESOLVED_FLAGS_MISMATCH",
+                    "limitation_active|human_todo_active",
+                    "align the active flag with the selected unresolved disposition",
+                )
+            )
+    if candidate.get("authority") is not False:
+        findings.append(
+            _identity_finding(
+                "RECOVERABLE_GAP_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep the disposition refs-only with authority=false",
+            )
+        )
+
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "recoverable_gap_disposition_audit_candidate.v1",
+        "gap_id": gap_id,
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "disposition": disposition if complete else None,
+        "findings": findings,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-data-freeze-and-analysis-readiness-reviewer",
+            "reason": "recoverable_gap_disposition_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
 def _self_check() -> None:
     def exact_ref(field: str) -> dict[str, object]:
         digest = (field.encode("utf-8").hex() + "0" * 64)[:64]
@@ -832,7 +990,24 @@ def _self_check() -> None:
     assert "CLINICAL_INPUT_STUDY_CONTEXT_EXACT_REF_INVALID" in {
         item["code"] for item in missing_context_ref["findings"]
     }
-    print({"checks": 18, "ok": True})
+    fixture_path = (
+        Path(__file__).parents[1]
+        / "medical-data-governance"
+        / "fixtures"
+        / "governed-source-reconstruction.json"
+    )
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    disposition_results = {
+        case["case_id"]: validate_recoverable_gap_disposition(case["candidate"])
+        for case in fixture["disposition_cases"]
+    }
+    assert disposition_results["recovered_gap_closes_todo"]["machine_check_status"] == "candidate_complete"
+    stale = disposition_results["recovered_gap_keeps_human_todo"]
+    assert stale["machine_check_status"] == "route_back_required"
+    assert "RECOVERABLE_GAP_STALE_LIMITATION_OR_TODO" in {
+        item["code"] for item in stale["findings"]
+    }
+    print({"checks": 21, "ok": True})
 
 
 if __name__ == "__main__":

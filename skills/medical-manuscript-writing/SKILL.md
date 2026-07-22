@@ -278,13 +278,31 @@ model/performance/claim refs. When paper-facing displays exist, consume
 `clean_rebuild_consistency_ref`, and output fingerprints, then aggregate them
 as `renderer_provenance_ref` for `medical-manuscript-review`.
 
+For final reader outputs, consume `post_csl_reader_semantics_ref` after the
+actual DOCX/PDF citeproc build, and consume `figure_numbering_one_owner_ref`
+after final composition. Bibliography keys, source braces, caption source, or a
+clean image cannot replace these reader-facing checks. Protected names,
+literal group authors, corrections, and official metadata must match the
+canonical semantic inventory; every figure and output surface must have one
+declared numbering owner and exactly one final label.
+
+When a reviewer response discusses an anomaly sensitivity, build
+`anomaly_evidence_parity_ref` before freezing the revision. Manuscript,
+supplement, and reviewer response must repeat the same structured flagged
+count, extreme-value count, threshold status, source-mutation status, and exact
+result deltas. A wording-only response that omits one of these fields is not an
+evidence-parallel revision.
+
 Only after the seven-gate preflight is satisfied and the manuscript,
 structured evidence, claim map, tables, and figures have been generated, run
 `build_authoring_freeze_handoff_candidate()` to produce
 `immutable_candidate_snapshot_ref`. Bind the exact generated candidate plus
-renderer provenance submitted for independent review. A numeric, semantic,
-source, render-request, or output change requires a new authoring candidate
-snapshot. This downstream writing ref is refs-only and no-authority: it
+renderer provenance submitted for independent review and provide an explicit
+`immutable_candidate_snapshot_manifest_locator`. The locator identifies the
+canonical member manifest but is excluded from snapshot content identity, so a
+locator move alone cannot change or prove the frozen bytes. A numeric,
+semantic, source, render-request, member, or output change requires a new
+authoring candidate snapshot. This downstream writing ref is refs-only and no-authority: it
 does not sign an immutable reviewer snapshot, decide review currentness,
 invalidate a prior receipt, accept an artifact, or claim readiness. MAS/OPL and the
 consuming domain owner retain those decisions. Pass the authoring-freeze ref to
@@ -710,6 +728,12 @@ usually needs:
 - `immutable_candidate_snapshot_ref` for an applicable fixed-horizon or
   external-validation authoring freeze; this is not a reviewer-currentness or
   owner-acceptance receipt
+- explicit `immutable_candidate_snapshot_manifest_locator`, excluded from the
+  snapshot content identity
+- `post_csl_reader_semantics_ref` and `figure_numbering_one_owner_ref` for final
+  reader outputs
+- `anomaly_evidence_parity_ref` when a reviewer response discusses an anomaly
+  sensitivity
 
 The exact paths may vary by workspace. Preserve the meaning and make the
 handoff resumable without transient chat.

@@ -1,0 +1,220 @@
+{
+  "fixture_id": "construct_comparability_layered_currentness.v1",
+  "fixture_only": true,
+  "cases": [
+    {
+      "case_id": "recovered_codebook_and_linkage_field_role_open",
+      "candidate": {
+        "surface_kind": "construct_comparability_currentness_candidate.v1",
+        "construct_id": "secondary-attribution-field",
+        "evidence_generation": 2,
+        "layers": {
+          "codebook": {
+            "status": "present",
+            "evidence_ref": {
+              "kind": "codebook_evidence",
+              "ref": "artifact://construct/codebook-v2",
+              "size_bytes": 101,
+              "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+            }
+          },
+          "identity_linkage": {
+            "status": "identity_preserving",
+            "evidence_ref": {
+              "kind": "identity_linkage_evidence",
+              "ref": "artifact://construct/linkage-v2",
+              "size_bytes": 102,
+              "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+            }
+          },
+          "field_role": {
+            "status": "unaccepted",
+            "evidence_ref": {
+              "kind": "field_role_evidence",
+              "ref": "artifact://construct/field-role-v2",
+              "size_bytes": 103,
+              "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+            }
+          },
+          "accepted_mapping": {
+            "status": "accepted",
+            "evidence_ref": {
+              "kind": "mapping_evidence",
+              "ref": "artifact://construct/mapping-v2",
+              "size_bytes": 104,
+              "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+            }
+          },
+          "current_evidence": {
+            "status": "current",
+            "evidence_ref": {
+              "kind": "currentness_evidence",
+              "ref": "artifact://construct/currentness-v2",
+              "size_bytes": 105,
+              "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+            }
+          }
+        },
+        "stop_reasons": [
+          {
+            "reason_id": "codebook-absence-v1",
+            "layer": "codebook",
+            "claim_code": "codebook_absent",
+            "status": "invalidated",
+            "evidence_generation": 1,
+            "evidence_ref": {
+              "kind": "prior_codebook_evidence",
+              "ref": "artifact://construct/codebook-v1",
+              "size_bytes": 91,
+              "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+            },
+            "invalidated_by_ref": {
+              "kind": "codebook_evidence",
+              "ref": "artifact://construct/codebook-v2",
+              "size_bytes": 101,
+              "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+            }
+          },
+          {
+            "reason_id": "linkage-absence-v1",
+            "layer": "identity_linkage",
+            "claim_code": "identity_linkage_absent",
+            "status": "invalidated",
+            "evidence_generation": 1,
+            "evidence_ref": {
+              "kind": "prior_linkage_evidence",
+              "ref": "artifact://construct/linkage-v1",
+              "size_bytes": 92,
+              "sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+            },
+            "invalidated_by_ref": {
+              "kind": "identity_linkage_evidence",
+              "ref": "artifact://construct/linkage-v2",
+              "size_bytes": 102,
+              "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+            }
+          },
+          {
+            "reason_id": "field-role-open-v2",
+            "layer": "field_role",
+            "claim_code": "field_role_unaccepted",
+            "status": "active",
+            "evidence_generation": 2,
+            "evidence_ref": {
+              "kind": "field_role_evidence",
+              "ref": "artifact://construct/field-role-v2",
+              "size_bytes": 103,
+              "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+            },
+            "invalidated_by_ref": null
+          }
+        ],
+        "estimability_status": "not_estimable",
+        "estimation_authorized": false,
+        "authority": false
+      }
+    },
+    {
+      "case_id": "recovered_layers_keep_absence_reasons_active",
+      "candidate": {
+        "surface_kind": "construct_comparability_currentness_candidate.v1",
+        "construct_id": "secondary-attribution-field",
+        "evidence_generation": 2,
+        "layers": {
+          "codebook": {
+            "status": "present",
+            "evidence_ref": {
+              "kind": "codebook_evidence",
+              "ref": "artifact://construct/codebook-v2",
+              "size_bytes": 101,
+              "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+            }
+          },
+          "identity_linkage": {
+            "status": "identity_preserving",
+            "evidence_ref": {
+              "kind": "identity_linkage_evidence",
+              "ref": "artifact://construct/linkage-v2",
+              "size_bytes": 102,
+              "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+            }
+          },
+          "field_role": {
+            "status": "unaccepted",
+            "evidence_ref": {
+              "kind": "field_role_evidence",
+              "ref": "artifact://construct/field-role-v2",
+              "size_bytes": 103,
+              "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+            }
+          },
+          "accepted_mapping": {
+            "status": "accepted",
+            "evidence_ref": {
+              "kind": "mapping_evidence",
+              "ref": "artifact://construct/mapping-v2",
+              "size_bytes": 104,
+              "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+            }
+          },
+          "current_evidence": {
+            "status": "current",
+            "evidence_ref": {
+              "kind": "currentness_evidence",
+              "ref": "artifact://construct/currentness-v2",
+              "size_bytes": 105,
+              "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+            }
+          }
+        },
+        "stop_reasons": [
+          {
+            "reason_id": "codebook-absence-v1",
+            "layer": "codebook",
+            "claim_code": "codebook_absent",
+            "status": "active",
+            "evidence_generation": 2,
+            "evidence_ref": {
+              "kind": "prior_codebook_evidence",
+              "ref": "artifact://construct/codebook-v1",
+              "size_bytes": 91,
+              "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+            },
+            "invalidated_by_ref": null
+          },
+          {
+            "reason_id": "linkage-absence-v1",
+            "layer": "identity_linkage",
+            "claim_code": "identity_linkage_absent",
+            "status": "active",
+            "evidence_generation": 2,
+            "evidence_ref": {
+              "kind": "prior_linkage_evidence",
+              "ref": "artifact://construct/linkage-v1",
+              "size_bytes": 92,
+              "sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+            },
+            "invalidated_by_ref": null
+          },
+          {
+            "reason_id": "field-role-open-v2",
+            "layer": "field_role",
+            "claim_code": "field_role_unaccepted",
+            "status": "active",
+            "evidence_generation": 2,
+            "evidence_ref": {
+              "kind": "field_role_evidence",
+              "ref": "artifact://construct/field-role-v2",
+              "size_bytes": 103,
+              "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+            },
+            "invalidated_by_ref": null
+          }
+        ],
+        "estimability_status": "not_estimable",
+        "estimation_authorized": false,
+        "authority": false
+      }
+    }
+  ]
+}

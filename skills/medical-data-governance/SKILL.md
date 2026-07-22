@@ -98,6 +98,15 @@ unresolved. Do not silently delete, winsorize, recode, or repair observations.
 Route the inventory to `medical-statistical-review`, which owns the
 `anomaly_sensitivity_ref`; this skill does not decide statistical robustness.
 
+Before labeling missing exclusion flow, recoding, identity linkage, or
+derivation provenance as a limitation or human-input gap, run
+`validate_governed_source_reconstruction()` against retained governed sources.
+Inventory every expected member and bind its exact source member, row locator,
+source value, reconstructed value, comparison mode, and numeric tolerance in
+`governed_source_reconstruction_ref`. A reconstructable gap routes to closure;
+it cannot remain an author TODO merely because the frozen analysis table lacks
+the original identifier column.
+
 OpenScience main `f120290` contributes local-first `claimType` +
 `graphWarnings` source traceability patterns, not data authority or a second
 skill catalog. Use refs-only `claim_type_ref` and
@@ -263,13 +272,16 @@ analysis, cleanup, archival, or owner-gate handoff:
    codebook-conflicting values. Preserve both the original value provenance and
    the proposed sensitivity rule; route any correction decision to the data
    owner.
-9. Compare version changes when an update is proposed. Flag impact on cohorts,
+9. Before deferring an exclusion, recoding, identity, or derivation gap, run a
+   bounded governed-source reconstruction and preserve member-level row, value,
+   source, and tolerance evidence.
+10. Compare version changes when an update is proposed. Flag impact on cohorts,
    denominators, derived variables, statistical analysis, tables, figures,
    manuscript claims, and submission data/code availability.
-10. Build `semantic_reproducible_capsule_ref` for any claim-critical dataset,
+11. Build `semantic_reproducible_capsule_ref` for any claim-critical dataset,
    derived variable, table, figure, or manuscript statement whose meaning must
    survive handoff to writing, review, statistics, display, or submission.
-11. Produce a refs-only governance handoff with missing inputs, safe next
+12. Produce a refs-only governance handoff with missing inputs, safe next
     command, owner gate target, and route-back recommendation.
 
 ## Machine Assessment Refs
@@ -358,6 +370,8 @@ Return refs-only candidate output:
 - `cleaning_normalization_readiness_ref`
 - `derived_variable_registry_ref`
 - `source_lineage_ref`
+- `governed_source_reconstruction_ref` when provenance is potentially
+  recoverable from retained governed sources
 - `semantic_reproducible_capsule_ref`
 - `analysis_input_anomaly_inventory_ref` when analysis-input anomalies are material
 - `source_readiness_receipt_ref`

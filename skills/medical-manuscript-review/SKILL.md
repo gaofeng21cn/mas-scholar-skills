@@ -283,7 +283,9 @@ evidence. Reconcile the manuscript, data/statistical/reference/table/display
 members actually present in the snapshot with the candidate, including every
 expected main Figure 1-N and Table 1-N member and the exact composed
 `paper.pdf` when a reader PDF is required. A shared display role cannot stand
-in for a missing member.
+in for a missing member. Require the authoring freeze to expose its explicit
+`immutable_candidate_snapshot_manifest_locator`; use it only to locate the
+canonical member manifest and never include locator text in content identity.
 
 Return an independent review finding and the narrowest route-back when the
 candidate is missing, stale, contradictory, or incompletely bound. Review may
@@ -486,6 +488,19 @@ Cleaner prose, refreshed packaging, repeated cautious caveats, or route-back
 bookkeeping are not substantive revision unless they materially close the hard
 items.
 
+When one receipt supersedes another, run
+`validate_receipt_version_member_delta()`. Bind distinct previous and current
+receipt exact refs, provide both member inventories, and normalize every member
+as added, removed, changed, or unchanged. A package digest, receipt summary, or
+aggregate count cannot replace member ids with previous/current exact refs.
+
+When an anomaly sensitivity is discussed, run
+`validate_anomaly_evidence_parity()` over the exact manuscript, supplement, and
+reviewer-response artifacts. The structured flagged count, extreme-value
+count, threshold status, source-mutation status, and exact result deltas must be
+identical across all three surfaces. Any qualifier or result change routes all
+three surfaces back together.
+
 ## Citation Repair
 
 Review must treat citation quality as part of medical rigor.
@@ -595,6 +610,9 @@ Before leaving review, write or refresh a closeout packet with:
   `epistemic_review_scope_ref` locator when available
 - exact `medical_initial_draft_preflight_candidate_ref` consumed and the
   independent preflight audit/route-back finding
+- `receipt_version_member_delta_ref` for every superseded review receipt
+- `anomaly_evidence_parity_ref` when anomaly sensitivities appear in a reviewer
+  response
 - remaining blockers and blocked readiness label
 - reusable critique lesson, if any
 - route-back recommendation with the narrowest next route

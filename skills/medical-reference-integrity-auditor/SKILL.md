@@ -58,7 +58,15 @@ scaffolds. It is stdlib-only and no-authority.
    Use typed `uncleared`, `cleared`, and `reintroduced` history states; a
    reintroduced source must reopen currentness and claim-edge review with exact
    refs before it legally returns to the active inventory.
-8. Produce `route_back_candidate` for placeholders, fabricated-looking refs,
+8. Build `post_csl_reader_semantics_ref` from the final DOCX and PDF exports,
+   not from bibliography source keys alone. Run
+   `validate_post_csl_reader_semantics()` over a structured inventory of
+   protected proper nouns, corporate/group literal authors, correction status,
+   and exact official-metadata refs. Each semantic id must render exactly once
+   with exact canonical reader text and author/correction mode on both output
+   surfaces. Canonical fixture values drive the comparison; the validator must
+   not depend on one English phrase or one named institution.
+9. Produce `route_back_candidate` for placeholders, fabricated-looking refs,
    identifier mismatch, source mismatch, weak support, or missing primary source.
 
 ## Handoff Shape
@@ -76,6 +84,7 @@ Return:
 - `excluded_reference_ledger_ref`
 - `claim_citation_edge_completeness_ref`
 - `reference_lane_active_inventory_binding_ref`
+- `post_csl_reader_semantics_ref` bound to exact final DOCX/PDF exports
 - optional owner-provided `epistemic_review_scope_ref` locator
 - `candidate_refs`
 - `route_back_candidate`

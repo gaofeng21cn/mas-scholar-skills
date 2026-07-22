@@ -128,7 +128,12 @@ currentness, package identity, a receipt, a verdict, or authority.
 10. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
    figure numbering, duplicated identifiers, and caption payload drift. Confirm
    the figure, caption, and catalog/manifest were driven by the same structured
-   generation source.
+   generation source. For final DOCX/PDF composition, declare exactly one
+   numbering owner for every `figure_id` and output surface, then run
+   `validate_figure_numbering_one_owner()`. Account structurally for numbering
+   emitted by image alt text, structured legend text, and renderer caption
+   prefixes. The declared owner emits one occurrence and every non-owner emits
+   zero; a correct image with duplicate `Figure N` labels fails.
 11. Check `editorial_page_composition_ref` from a structured final-document
     block map. Run `lint_document_layout_inventory()` to catch figure legends
     or table notes split across pages, supplementary displays embedded in the
@@ -179,6 +184,8 @@ Return:
 - `final_scale_visual_qa_ref`
 - `export_integrity_ref`
 - `panel_caption_consistency_ref`
+- `figure_numbering_one_owner_ref` with member-level DOCX/PDF exactly-one
+  invariants
 - `claim_display_alignment_ref`
 - `accessibility_and_size_ref`
 - `editorial_page_composition_ref`

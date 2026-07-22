@@ -227,6 +227,8 @@ INITIAL_DRAFT_PREFLIGHT_AUTHORITY = {
 }
 
 EXACT_REF_FIELDS = frozenset({"kind", "ref", "size_bytes", "sha256"})
+AUTHORING_SNAPSHOT_MANIFEST_LOCATOR_FIELDS = frozenset({"kind", "locator"})
+AUTHORING_SNAPSHOT_MANIFEST_KIND = "authoring_candidate_snapshot_manifest"
 
 REGISTRY_BOUNDARY_TERMS = (
     "gap",
@@ -433,6 +435,7 @@ def build_authoring_freeze_handoff_candidate(
     candidate_refs: Mapping[str, object],
     *,
     preflight_candidate: Mapping[str, object],
+    snapshot_manifest_locator: Mapping[str, object] | None = None,
 ) -> dict[str, Any]:
     """Freeze generated draft inputs for review only after preflight succeeds."""
 
@@ -444,6 +447,17 @@ def build_authoring_freeze_handoff_candidate(
         violations = _validate_exact_ref(candidate_refs[ref_name], ref_name)
         if violations:
             ref_violations[ref_name] = violations
+    manifest_locator_findings = _validate_authoring_snapshot_manifest_locator(
+        snapshot_manifest_locator
+    )
+    normalized_manifest_locator = (
+        {
+            "kind": str(snapshot_manifest_locator["kind"]).strip(),
+            "locator": str(snapshot_manifest_locator["locator"]).strip(),
+        }
+        if not manifest_locator_findings and snapshot_manifest_locator is not None
+        else None
+    )
 
     preflight_audit = validate_medical_initial_draft_preflight_candidate(
         preflight_candidate
@@ -453,14 +467,16 @@ def build_authoring_freeze_handoff_candidate(
         and preflight_candidate.get("status") == "satisfied"
         and not preflight_candidate.get("unresolved_items")
     )
-    if missing or ref_violations or not preflight_satisfied:
+    if missing or ref_violations or manifest_locator_findings or not preflight_satisfied:
         return {
             "surface_kind": "authoring_freeze_handoff_audit_candidate.v1",
             "machine_check_status": "route_back_required",
             "missing_refs": missing,
             "invalid_ref_findings": ref_violations,
+            "snapshot_manifest_locator_findings": manifest_locator_findings,
             "preflight_satisfied": preflight_satisfied,
             "immutable_candidate_snapshot_ref": None,
+            "immutable_candidate_snapshot_manifest_locator": normalized_manifest_locator,
             "producer_consumer_route": dict(AUTHORING_FREEZE_HANDOFF_ROUTE),
             "route_back_candidate": {
                 "route": "medical-manuscript-writing",
@@ -486,6 +502,7 @@ def build_authoring_freeze_handoff_candidate(
         "machine_check_status": "candidate_frozen_for_independent_review",
         "missing_refs": [],
         "invalid_ref_findings": {},
+        "snapshot_manifest_locator_findings": [],
         "preflight_satisfied": True,
         "immutable_candidate_snapshot_ref": {
             "kind": "immutable_candidate_snapshot_ref",
@@ -493,6 +510,7 @@ def build_authoring_freeze_handoff_candidate(
             "size_bytes": len(payload),
             "sha256": f"sha256:{snapshot_sha256}",
         },
+        "immutable_candidate_snapshot_manifest_locator": normalized_manifest_locator,
         "frozen_input_refs": frozen_inputs,
         "producer_consumer_route": dict(AUTHORING_FREEZE_HANDOFF_ROUTE),
         "route_back_candidate": None,
@@ -1117,6 +1135,29 @@ def _validate_exact_ref(value: object, label: str) -> list[dict[str, object]]:
     if not re.fullmatch(r"sha256:[0-9a-f]{64}", str(value.get("sha256") or "")):
         violations.append(_preflight_violation("PREFLIGHT_EXACT_REF_FIELD_INVALID", f"{label}.sha256"))
     return violations
+
+
+def _validate_authoring_snapshot_manifest_locator(
+    value: object,
+) -> list[dict[str, object]]:
+    if not isinstance(value, Mapping) or set(value) != AUTHORING_SNAPSHOT_MANIFEST_LOCATOR_FIELDS:
+        return [
+            _preflight_violation(
+                "AUTHORING_SNAPSHOT_MANIFEST_LOCATOR_INVALID",
+                "snapshot_manifest_locator",
+            )
+        ]
+    if (
+        str(value.get("kind") or "").strip() != AUTHORING_SNAPSHOT_MANIFEST_KIND
+        or not str(value.get("locator") or "").strip()
+    ):
+        return [
+            _preflight_violation(
+                "AUTHORING_SNAPSHOT_MANIFEST_LOCATOR_INVALID",
+                "snapshot_manifest_locator",
+            )
+        ]
+    return []
 
 
 def _validate_applicability_disposition_binding(
@@ -1766,15 +1807,42 @@ def _self_check() -> None:
             strict=True,
         )
     }
+    snapshot_manifest_locator = {
+        "kind": AUTHORING_SNAPSHOT_MANIFEST_KIND,
+        "locator": "paper/review/authoring-candidate-snapshot-manifest.json",
+    }
     freeze_handoff = build_authoring_freeze_handoff_candidate(
         freeze_inputs,
         preflight_candidate=preflight_candidate(),
+        snapshot_manifest_locator=snapshot_manifest_locator,
     )
     assert freeze_handoff["machine_check_status"] == (
         "candidate_frozen_for_independent_review"
     )
     assert freeze_handoff["immutable_candidate_snapshot_ref"]["kind"] == (
         "immutable_candidate_snapshot_ref"
+    )
+    assert freeze_handoff["immutable_candidate_snapshot_manifest_locator"] == (
+        snapshot_manifest_locator
+    )
+    alternate_locator_handoff = build_authoring_freeze_handoff_candidate(
+        freeze_inputs,
+        preflight_candidate=preflight_candidate(),
+        snapshot_manifest_locator={
+            "kind": AUTHORING_SNAPSHOT_MANIFEST_KIND,
+            "locator": "other/authoring-candidate-snapshot-manifest.json",
+        },
+    )
+    assert alternate_locator_handoff["immutable_candidate_snapshot_ref"] == (
+        freeze_handoff["immutable_candidate_snapshot_ref"]
+    )
+    missing_locator_handoff = build_authoring_freeze_handoff_candidate(
+        freeze_inputs,
+        preflight_candidate=preflight_candidate(),
+    )
+    assert missing_locator_handoff["machine_check_status"] == "route_back_required"
+    assert missing_locator_handoff["snapshot_manifest_locator_findings"][0]["code"] == (
+        "AUTHORING_SNAPSHOT_MANIFEST_LOCATOR_INVALID"
     )
     assert freeze_handoff["producer_consumer_route"] == AUTHORING_FREEZE_HANDOFF_ROUTE
     assert freeze_handoff["authority"] is False
@@ -1788,6 +1856,7 @@ def _self_check() -> None:
     unfrozen_handoff = build_authoring_freeze_handoff_candidate(
         freeze_inputs,
         preflight_candidate=preflight_candidate([analysis_gap, authoring_gap]),
+        snapshot_manifest_locator=snapshot_manifest_locator,
     )
     assert unfrozen_handoff["machine_check_status"] == "route_back_required"
     assert unfrozen_handoff["immutable_candidate_snapshot_ref"] is None

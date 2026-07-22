@@ -1,0 +1,116 @@
+{
+  "fixture_id": "anomaly_evidence_three_surface_parity.v1",
+  "fixture_only": true,
+  "candidate": {
+    "surface_kind": "anomaly_evidence_parity_candidate.v1",
+    "anomaly_id": "dbp-extreme-value-sensitivity",
+    "structured_evidence_ref": {
+      "kind": "anomaly_sensitivity_evidence",
+      "ref": "artifact://analysis/dbp-sensitivity.json",
+      "size_bytes": 401,
+      "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "output_surfaces": {
+      "manuscript": {
+        "artifact_ref": {
+          "kind": "final_manuscript",
+          "ref": "artifact://reader/manuscript.docx",
+          "size_bytes": 501,
+          "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "flagged_count": 17,
+        "extreme_value_count": 3,
+        "threshold_status": "three_values_exceed_declared_dbp_threshold",
+        "source_mutation_status": "governed_source_unchanged",
+        "result_deltas": [
+          {
+            "result_id": "primary-estimate",
+            "delta": 0.002,
+            "unit": "estimate"
+          },
+          {
+            "result_id": "confidence-limit-width",
+            "delta": 0.004,
+            "unit": "estimate"
+          }
+        ]
+      },
+      "supplement": {
+        "artifact_ref": {
+          "kind": "final_supplement",
+          "ref": "artifact://reader/supplement.pdf",
+          "size_bytes": 502,
+          "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "flagged_count": 17,
+        "extreme_value_count": 3,
+        "threshold_status": "three_values_exceed_declared_dbp_threshold",
+        "source_mutation_status": "governed_source_unchanged",
+        "result_deltas": [
+          {
+            "result_id": "confidence-limit-width",
+            "delta": 0.004,
+            "unit": "estimate"
+          },
+          {
+            "result_id": "primary-estimate",
+            "delta": 0.002,
+            "unit": "estimate"
+          }
+        ]
+      },
+      "reviewer_response": {
+        "artifact_ref": {
+          "kind": "reviewer_response",
+          "ref": "artifact://reader/reviewer-response.docx",
+          "size_bytes": 503,
+          "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "flagged_count": 17,
+        "extreme_value_count": 3,
+        "threshold_status": "three_values_exceed_declared_dbp_threshold",
+        "source_mutation_status": "governed_source_unchanged",
+        "result_deltas": [
+          {
+            "result_id": "primary-estimate",
+            "delta": 0.002,
+            "unit": "estimate"
+          },
+          {
+            "result_id": "confidence-limit-width",
+            "delta": 0.004,
+            "unit": "estimate"
+          }
+        ]
+      }
+    },
+    "authority": false
+  },
+  "negative_cases": [
+    {
+      "case_id": "reviewer_response_threshold_qualifier_drift",
+      "surface": "reviewer_response",
+      "field": "threshold_status",
+      "replacement": "no_values_exceed_declared_dbp_threshold"
+    },
+    {
+      "case_id": "supplement_flagged_count_drift",
+      "surface": "supplement",
+      "field": "flagged_count",
+      "replacement": 16
+    },
+    {
+      "case_id": "reviewer_response_source_mutation_drift",
+      "surface": "reviewer_response",
+      "field": "source_mutation_status",
+      "replacement": "source_values_changed"
+    },
+    {
+      "case_id": "supplement_result_delta_drift",
+      "surface": "supplement",
+      "field": "result_delta",
+      "result_id": "primary-estimate",
+      "replacement": 0.02
+    }
+  ]
+}

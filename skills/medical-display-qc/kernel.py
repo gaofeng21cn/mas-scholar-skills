@@ -74,6 +74,12 @@ DOCUMENT_DISPLAY_PAGE_EVIDENCE_REFS = (
     "page_hash_evidence_candidate_ref",
 )
 EXACT_REF_FIELDS = frozenset({"kind", "ref", "size_bytes", "sha256"})
+FIGURE_NUMBERING_OUTPUT_SURFACES = ("docx", "pdf")
+FIGURE_NUMBERING_SOURCES = (
+    "image_alt_text",
+    "structured_legend_text",
+    "renderer_caption_prefix",
+)
 
 QC_ROUTE_RULES = (
     ("artifact_owner_repair", ("blank", "missing", "broken", "export", "link")),
@@ -334,6 +340,259 @@ def _display_render_number_sequence(
     ):
         return None
     return [float(item) for item in value]
+
+
+def validate_figure_numbering_one_owner(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Require one numbering owner and one final label per figure and surface."""
+
+    findings: list[dict[str, object]] = []
+    if candidate.get("surface_kind") != "figure_numbering_one_owner_candidate.v1":
+        findings.append(
+            _figure_numbering_finding(
+                "FIGURE_NUMBERING_SURFACE_KIND_INVALID",
+                "surface_kind",
+                "use the figure-numbering one-owner candidate surface",
+            )
+        )
+    artifact_refs_value = candidate.get("output_artifact_refs")
+    artifact_refs = artifact_refs_value if isinstance(artifact_refs_value, Mapping) else {}
+    if set(artifact_refs) != set(FIGURE_NUMBERING_OUTPUT_SURFACES):
+        findings.append(
+            _figure_numbering_finding(
+                "FIGURE_NUMBERING_OUTPUT_REF_SET_INVALID",
+                "output_artifact_refs",
+                "bind exactly the final DOCX and PDF outputs",
+            )
+        )
+    for surface in FIGURE_NUMBERING_OUTPUT_SURFACES:
+        if not _display_render_exact_ref_valid(artifact_refs.get(surface)):
+            findings.append(
+                _figure_numbering_finding(
+                    "FIGURE_NUMBERING_OUTPUT_EXACT_REF_INVALID",
+                    f"output_artifact_refs.{surface}",
+                    "bind the final output as an exact ref",
+                )
+            )
+
+    figures_value = candidate.get("figures")
+    figures = (
+        list(figures_value)
+        if isinstance(figures_value, Sequence)
+        and not isinstance(figures_value, (str, bytes, bytearray))
+        else []
+    )
+    if not figures:
+        findings.append(
+            _figure_numbering_finding(
+                "FIGURE_NUMBERING_INVENTORY_INVALID",
+                "figures",
+                "provide the complete final figure inventory",
+            )
+        )
+    figure_ids: list[str] = []
+    figure_numbers: list[int] = []
+    invariants: list[dict[str, object]] = []
+    for index, figure in enumerate(figures):
+        path = f"figures[{index}]"
+        if not isinstance(figure, Mapping):
+            findings.append(
+                _figure_numbering_finding(
+                    "FIGURE_NUMBERING_ENTRY_INVALID",
+                    path,
+                    "provide a structured figure numbering entry",
+                )
+            )
+            continue
+        figure_id = str(figure.get("figure_id") or "").strip()
+        figure_number = figure.get("figure_number")
+        if not figure_id:
+            findings.append(
+                _figure_numbering_finding(
+                    "FIGURE_NUMBERING_ID_MISSING",
+                    f"{path}.figure_id",
+                    "bind every final figure to a stable member id",
+                )
+            )
+        else:
+            figure_ids.append(figure_id)
+        if (
+            isinstance(figure_number, bool)
+            or not isinstance(figure_number, int)
+            or figure_number < 1
+        ):
+            findings.append(
+                _figure_numbering_finding(
+                    "FIGURE_NUMBER_INVALID",
+                    f"{path}.figure_number",
+                    "use a positive integer final figure number",
+                )
+            )
+        else:
+            figure_numbers.append(figure_number)
+        surfaces_value = figure.get("output_surfaces")
+        surfaces = surfaces_value if isinstance(surfaces_value, Mapping) else {}
+        if set(surfaces) != set(FIGURE_NUMBERING_OUTPUT_SURFACES):
+            findings.append(
+                _figure_numbering_finding(
+                    "FIGURE_NUMBERING_SURFACE_SET_INVALID",
+                    f"{path}.output_surfaces",
+                    "audit the figure on both final DOCX and PDF surfaces",
+                )
+            )
+        for surface in FIGURE_NUMBERING_OUTPUT_SURFACES:
+            surface_value = surfaces.get(surface)
+            surface_path = f"{path}.output_surfaces.{surface}"
+            if not isinstance(surface_value, Mapping):
+                findings.append(
+                    _figure_numbering_finding(
+                        "FIGURE_NUMBERING_SURFACE_INVALID",
+                        surface_path,
+                        "declare one owner and structured occurrence counts",
+                    )
+                )
+                continue
+            declared_owner = str(surface_value.get("declared_numbering_owner") or "")
+            if declared_owner not in FIGURE_NUMBERING_SOURCES:
+                findings.append(
+                    _figure_numbering_finding(
+                        "FIGURE_NUMBERING_OWNER_INVALID",
+                        f"{surface_path}.declared_numbering_owner",
+                        "choose one supported numbering source as owner",
+                    )
+                )
+            occurrences_value = surface_value.get("occurrences")
+            occurrences = (
+                list(occurrences_value)
+                if isinstance(occurrences_value, Sequence)
+                and not isinstance(occurrences_value, (str, bytes, bytearray))
+                else []
+            )
+            counts: dict[str, int] = {}
+            for occurrence_index, occurrence in enumerate(occurrences):
+                occurrence_path = f"{surface_path}.occurrences[{occurrence_index}]"
+                if not isinstance(occurrence, Mapping):
+                    findings.append(
+                        _figure_numbering_finding(
+                            "FIGURE_NUMBERING_OCCURRENCE_INVALID",
+                            occurrence_path,
+                            "provide source and non-negative occurrence_count",
+                        )
+                    )
+                    continue
+                source = str(occurrence.get("source") or "")
+                count = occurrence.get("occurrence_count")
+                if source not in FIGURE_NUMBERING_SOURCES or source in counts:
+                    findings.append(
+                        _figure_numbering_finding(
+                            "FIGURE_NUMBERING_SOURCE_INVALID",
+                            f"{occurrence_path}.source",
+                            "record each supported numbering source exactly once",
+                        )
+                    )
+                    continue
+                if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                    findings.append(
+                        _figure_numbering_finding(
+                            "FIGURE_NUMBERING_COUNT_INVALID",
+                            f"{occurrence_path}.occurrence_count",
+                            "use a non-negative integer final occurrence count",
+                        )
+                    )
+                    continue
+                counts[source] = count
+            if set(counts) != set(FIGURE_NUMBERING_SOURCES):
+                findings.append(
+                    _figure_numbering_finding(
+                        "FIGURE_NUMBERING_SOURCE_SET_INVALID",
+                        f"{surface_path}.occurrences",
+                        "account for alt text, structured legend, and renderer prefix",
+                    )
+                )
+            total = sum(counts.values())
+            owner_count = counts.get(declared_owner, 0)
+            non_owner_count = total - owner_count
+            if total != 1:
+                findings.append(
+                    _figure_numbering_finding(
+                        "FIGURE_NUMBERING_EXACTLY_ONE_VIOLATION",
+                        surface_path,
+                        "compose exactly one final figure-number label",
+                    )
+                )
+            if owner_count != 1 or non_owner_count != 0:
+                findings.append(
+                    _figure_numbering_finding(
+                        "FIGURE_NUMBERING_OWNER_CARDINALITY_INVALID",
+                        surface_path,
+                        "emit the label once from the declared owner and zero times elsewhere",
+                    )
+                )
+            invariants.append(
+                {
+                    "figure_id": figure_id,
+                    "figure_number": figure_number,
+                    "output_surface": surface,
+                    "declared_numbering_owner": declared_owner,
+                    "occurrence_count": total,
+                }
+            )
+    if len(figure_ids) != len(set(figure_ids)):
+        findings.append(
+            _figure_numbering_finding(
+                "FIGURE_NUMBERING_ID_DUPLICATE",
+                "figures",
+                "use one final numbering record per figure id",
+            )
+        )
+    if len(figure_numbers) != len(set(figure_numbers)):
+        findings.append(
+            _figure_numbering_finding(
+                "FIGURE_NUMBER_DUPLICATE",
+                "figures",
+                "assign each final figure number to one figure id",
+            )
+        )
+    if candidate.get("authority") is not False:
+        findings.append(
+            _figure_numbering_finding(
+                "FIGURE_NUMBERING_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep figure-numbering QA refs-only with authority=false",
+            )
+        )
+
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "figure_numbering_one_owner_audit_candidate.v1",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "output_artifact_refs": {
+            surface: dict(artifact_refs[surface])
+            for surface in FIGURE_NUMBERING_OUTPUT_SURFACES
+            if isinstance(artifact_refs.get(surface), Mapping)
+        },
+        "figure_surface_invariants": invariants,
+        "findings": findings,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-display-qc",
+            "reason": "figure_numbering_one_owner_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def _figure_numbering_finding(code: str, field: str, action: str) -> dict[str, object]:
+    return {
+        "code": code,
+        "field": field,
+        "action": action,
+        "writes_authority": False,
+    }
 
 
 def display_artifact_row(
@@ -3449,7 +3708,31 @@ def _self_check() -> None:
         expected_code = "unsupported_format" if pillow_available else "dependency_missing"
         assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
 
-    checks = 93 if fitz_available else 86 if pillow_available else 73
+    numbering_fixture_path = Path(__file__).with_name("fixtures") / "figure-numbering-one-owner.json"
+    numbering_fixture = json.loads(numbering_fixture_path.read_text(encoding="utf-8"))
+    numbering_candidate = numbering_fixture["candidate"]
+    numbering_audit = validate_figure_numbering_one_owner(numbering_candidate)
+    assert numbering_audit["machine_check_status"] == "candidate_complete"
+    assert all(
+        item["occurrence_count"] == 1
+        for item in numbering_audit["figure_surface_invariants"]
+    )
+    for negative in numbering_fixture["negative_cases"]:
+        changed = json.loads(json.dumps(numbering_candidate))
+        figure = next(
+            item for item in changed["figures"]
+            if item["figure_id"] == negative["figure_id"]
+        )
+        occurrences = figure["output_surfaces"][negative["surface"]]["occurrences"]
+        occurrence = next(
+            item for item in occurrences if item["source"] == negative["source"]
+        )
+        occurrence["occurrence_count"] = negative["replacement_count"]
+        changed_audit = validate_figure_numbering_one_owner(changed)
+        assert negative["expected_code"] in {
+            item["code"] for item in changed_audit["findings"]
+        }
+    checks = 96 if fitz_available else 89 if pillow_available else 76
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

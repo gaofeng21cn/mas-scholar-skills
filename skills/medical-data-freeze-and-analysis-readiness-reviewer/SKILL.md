@@ -16,7 +16,8 @@ sign an owner receipt, create a typed blocker, mutate clinical data bodies, or
 claim publication readiness.
 
 Optional skill-local helper: use `kernel.py` for deterministic data-freeze
-review skeletons, lineage rows, and forbidden-authority lint.
+review skeletons, lineage rows, recoverable-gap disposition checks, and
+forbidden-authority lint.
 
 ## Workflow
 
@@ -60,10 +61,16 @@ review skeletons, lineage rows, and forbidden-authority lint.
    Run `validate_clinical_analysis_input_identity_candidate_v2()` for new
    candidates. The unversioned validator preserves the earlier compact-string
    v1 input contract for same-major callers.
-7. Build `analysis_readiness_gap_ref`: missing owner decision, unstable body,
+7. For any exclusion-flow, recoding, identity-linkage, or derivation-provenance
+   gap, consume an exact `governed_source_reconstruction_ref` before choosing a
+   limitation or human TODO. Run `validate_recoverable_gap_disposition()`. A
+   complete reconstructed outcome must close the gap and set both limitation
+   and human-TODO flags false; only a completed not-reconstructed outcome may
+   proceed to a reasoned limitation or human-input candidate.
+8. Build `analysis_readiness_gap_ref`: missing owner decision, unstable body,
    unresolved lineage, variable ambiguity, privacy/access concern, or analysis
    contract gap.
-8. Produce `route_back_candidate` for data owner, analysis owner, or study owner
+9. Produce `route_back_candidate` for data owner, analysis owner, or study owner
    decisions.
 
 ## Handoff Shape
@@ -77,6 +84,8 @@ Return:
 - `missingness_and_exclusion_ref`
 - `analysis_readiness_gap_ref`
 - `clinical_analysis_input_identity_ref`
+- consumed exact `governed_source_reconstruction_ref` and
+  `recoverable_gap_disposition_ref` when a gap might be source-recoverable
 - `candidate_refs`
 - `route_back_candidate`
 - `owner_gate_handoff_ref`

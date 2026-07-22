@@ -36,7 +36,14 @@ review skeletons, predictor mapping normalization, and forbidden-authority lint.
    construct definitions, codebooks, units, time windows, ascertainment, and
    identity-preserving linkage. Missing accepted mapping or linkage is a stop
    condition: mark the comparison not estimable, list prohibited
-   interpretations, and do not substitute a non-isomorphic proxy.
+   interpretations, and do not substitute a non-isomorphic proxy. Track
+   codebook presence, identity-preserving linkage, field-role semantics,
+   accepted mapping, and current evidence as five separate structured layers.
+   Run `validate_construct_comparability_currentness()` whenever evidence is
+   recovered or refreshed. Old absence reasons must become `invalidated` with
+   the exact superseding evidence ref; they cannot remain active. Recovery does
+   not authorize estimation: if only field-role acceptance remains open, keep
+   the verdict not estimable with exactly that current stop layer.
 6. Produce `claim_family_scope_qualifier_ref` with separate rows for ranking or
    discrimination, absolute calibration, risk-scale compression, recalibration,
    clinical utility, and causal or mechanistic transport explanation. Each row
@@ -62,6 +69,8 @@ Return:
 - `predictor_mapping_ref`
 - `fixed_horizon_risk_semantics_ref`
 - `construct_comparability_ref`
+- `construct_comparability_currentness_ref` with active and invalidated
+  member-level stop-reason history
 - `claim_family_scope_qualifier_ref`
 - `transportability_assessment_ref`
 - `calibration_and_performance_ref`

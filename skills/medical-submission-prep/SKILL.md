@@ -188,6 +188,10 @@ produce route-back rather than inventing content.
    sentence-casing may lowercase, such as country/place names, cohort names,
    population labels, tool names, and abbreviations (`{Hong Kong}`,
    `{Nanjing, China}`, `{U.S. adults}`, `{NHANES}`, `{HbA1c}`).
+   Before packaging, consume the exact `post_csl_reader_semantics_ref` for the
+   final DOCX and PDF. Source braces, identifiers, or a clean keyed bibliography
+   do not replace reader-facing verification of protected names, literal group
+   authors, corrections, and official metadata.
 6. Check figures and tables against journal format and manuscript claims. For a
    medical prediction or external-validation paper, absence of supplementary
    tables/figures should be an explicit inventory decision, not a silent
@@ -198,6 +202,10 @@ produce route-back rather than inventing content.
    should expose a readable supplementary PDF and a combined review PDF/DOCX
    when the exporter supports it, rather than leaving only hidden source
    markdown, CSV, or generated image files.
+   Also consume one exact `figure_numbering_one_owner_ref` bound to those final
+   DOCX/PDF bytes and run `validate_submission_figure_numbering_binding()`.
+   Package assembly cannot rely on an unbound digest or a source-only caption
+   check to satisfy the final exactly-one invariant.
 7. Treat
    graphical abstracts or highlights as required only when the venue instruction
    or owner request says so.
@@ -240,6 +248,8 @@ Return refs-only candidate output:
 - `journal_instruction_ref`
 - `journal_instruction_source_ref`
 - `publication_layout_selection_ref`
+- consumed exact `post_csl_reader_semantics_ref`
+- consumed exact `figure_numbering_one_owner_ref` and final DOCX/PDF binding
 - `submission_inventory_ref`
 - `reporting_guideline_ref`
 - `data_code_availability_ref`

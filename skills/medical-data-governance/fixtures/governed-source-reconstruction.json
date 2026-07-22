@@ -1,0 +1,176 @@
+{
+  "fixture_id": "governed_source_reconstruction_before_gap_disposition.v1",
+  "fixture_only": true,
+  "reconstruction_cases": [
+    {
+      "case_id": "recoverable_identity_provenance",
+      "candidate": {
+        "surface_kind": "governed_source_reconstruction_candidate.v1",
+        "gap_id": "analysis-table-row-identity",
+        "reconstruction_kind": "identity_linkage",
+        "attempt_status": "completed",
+        "frozen_target_ref": {
+          "kind": "frozen_analysis_table",
+          "ref": "artifact://analysis/frozen-table.csv",
+          "size_bytes": 240,
+          "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "governed_source_manifest_ref": {
+          "kind": "governed_source_manifest",
+          "ref": "artifact://governance/source-manifest.json",
+          "size_bytes": 320,
+          "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "expected_member_ids": [
+          "cohort-total",
+          "excluded-minor",
+          "included-analysis"
+        ],
+        "members": [
+          {
+            "member_id": "cohort-total",
+            "row_locator": "source-module-a.csv#row=summary-total",
+            "source_ref": {
+              "kind": "governed_source_member",
+              "ref": "artifact://source/module-a.csv",
+              "size_bytes": 100,
+              "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+            },
+            "source_value": 1000,
+            "reconstructed_value": 1000,
+            "comparison": {
+              "mode": "exact",
+              "tolerance": 0
+            }
+          },
+          {
+            "member_id": "excluded-minor",
+            "row_locator": "source-module-b.csv#row=age-under-18",
+            "source_ref": {
+              "kind": "governed_source_member",
+              "ref": "artifact://source/module-b.csv",
+              "size_bytes": 120,
+              "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+            },
+            "source_value": 23,
+            "reconstructed_value": 23,
+            "comparison": {
+              "mode": "exact",
+              "tolerance": 0
+            }
+          },
+          {
+            "member_id": "included-analysis",
+            "row_locator": "source-module-c.csv#row=analysis-count",
+            "source_ref": {
+              "kind": "governed_source_member",
+              "ref": "artifact://source/module-c.csv",
+              "size_bytes": 140,
+              "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+            },
+            "source_value": 977.0,
+            "reconstructed_value": 977.0004,
+            "comparison": {
+              "mode": "numeric_tolerance",
+              "tolerance": 0.001
+            }
+          }
+        ],
+        "reconstruction_outcome": "reconstructed",
+        "authority": false
+      }
+    },
+    {
+      "case_id": "declared_recovery_outside_tolerance",
+      "candidate": {
+        "surface_kind": "governed_source_reconstruction_candidate.v1",
+        "gap_id": "analysis-table-row-identity",
+        "reconstruction_kind": "identity_linkage",
+        "attempt_status": "completed",
+        "frozen_target_ref": {
+          "kind": "frozen_analysis_table",
+          "ref": "artifact://analysis/frozen-table.csv",
+          "size_bytes": 240,
+          "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "governed_source_manifest_ref": {
+          "kind": "governed_source_manifest",
+          "ref": "artifact://governance/source-manifest.json",
+          "size_bytes": 320,
+          "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "expected_member_ids": [
+          "included-analysis"
+        ],
+        "members": [
+          {
+            "member_id": "included-analysis",
+            "row_locator": "source-module-c.csv#row=analysis-count",
+            "source_ref": {
+              "kind": "governed_source_member",
+              "ref": "artifact://source/module-c.csv",
+              "size_bytes": 140,
+              "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+            },
+            "source_value": 977.0,
+            "reconstructed_value": 977.02,
+            "comparison": {
+              "mode": "numeric_tolerance",
+              "tolerance": 0.001
+            }
+          }
+        ],
+        "reconstruction_outcome": "reconstructed",
+        "authority": false
+      }
+    }
+  ],
+  "disposition_cases": [
+    {
+      "case_id": "recovered_gap_closes_todo",
+      "candidate": {
+        "surface_kind": "recoverable_gap_disposition_candidate.v1",
+        "gap_id": "analysis-table-row-identity",
+        "reconstruction_audit_ref": {
+          "kind": "governed_source_reconstruction_audit",
+          "ref": "artifact://audit/reconstruction.json",
+          "size_bytes": 512,
+          "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        },
+        "reconstruction_audit": {
+          "machine_check_status": "candidate_complete",
+          "gap_id": "analysis-table-row-identity",
+          "reconstruction_outcome": "reconstructed",
+          "authority": false
+        },
+        "disposition": "closed_from_governed_sources",
+        "limitation_active": false,
+        "human_todo_active": false,
+        "authority": false
+      }
+    },
+    {
+      "case_id": "recovered_gap_keeps_human_todo",
+      "candidate": {
+        "surface_kind": "recoverable_gap_disposition_candidate.v1",
+        "gap_id": "analysis-table-row-identity",
+        "reconstruction_audit_ref": {
+          "kind": "governed_source_reconstruction_audit",
+          "ref": "artifact://audit/reconstruction.json",
+          "size_bytes": 512,
+          "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        },
+        "reconstruction_audit": {
+          "machine_check_status": "candidate_complete",
+          "gap_id": "analysis-table-row-identity",
+          "reconstruction_outcome": "reconstructed",
+          "authority": false
+        },
+        "disposition": "human_input_required",
+        "limitation_active": false,
+        "human_todo_active": true,
+        "authority": false
+      }
+    }
+  ]
+}

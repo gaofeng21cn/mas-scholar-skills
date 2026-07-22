@@ -5,7 +5,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_capability_map",
-  "updated_at": "2026-07-20",
+  "updated_at": "2026-07-22",
   "purpose": "Canonical OMA-readable mapping from MAS and Agent Lab feedback targets to MAS Scholar Skills professional skill sources.",
   "source_contract_ref": "contracts/scholar-skills-capability-modules.json",
   "failure_token_registry_ref": "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json",
@@ -162,6 +162,167 @@
       "can_claim_quality_verdict": false,
       "can_claim_publication_readiness": false,
       "can_authorize_full_draft": false
+    }
+  },
+  "revision_learning_delta_policy": {
+    "policy_id": "scholarskills_revision_learning_delta.v1",
+    "learning_ids": [
+      "REV-LEARN-009",
+      "REV-LEARN-010",
+      "REV-LEARN-011",
+      "REV-LEARN-012",
+      "REV-LEARN-013"
+    ],
+    "semantic_qa_policy": {
+      "structured_fields_required": true,
+      "fixture_values_define_expected_semantics": true,
+      "single_english_wording_can_satisfy": false
+    },
+    "rules": {
+      "REV-LEARN-009": {
+        "producer_skill_ids": [
+          "medical-data-governance",
+          "medical-data-freeze-and-analysis-readiness-reviewer"
+        ],
+        "validator_functions": [
+          "validate_governed_source_reconstruction",
+          "validate_recoverable_gap_disposition"
+        ],
+        "fixture_ref": "skills/medical-data-governance/fixtures/governed-source-reconstruction.json",
+        "required_member_fields": [
+          "member_id",
+          "row_locator",
+          "source_ref",
+          "source_value",
+          "reconstructed_value",
+          "comparison.mode",
+          "comparison.tolerance"
+        ],
+        "reconstructed_gap_policy": "close_gap_and_remove_limitation_and_human_todo"
+      },
+      "REV-LEARN-010": {
+        "producer_skill_ids": [
+          "medical-risk-model-transportability-reviewer"
+        ],
+        "consumer_skill_ids": [
+          "medical-evidence-integrity-reviewer",
+          "medical-manuscript-writing"
+        ],
+        "validator_functions": [
+          "validate_construct_comparability_currentness"
+        ],
+        "fixture_ref": "skills/medical-risk-model-transportability-reviewer/fixtures/construct-comparability-currentness.json",
+        "evidence_layers": [
+          "codebook",
+          "identity_linkage",
+          "field_role",
+          "accepted_mapping",
+          "current_evidence"
+        ],
+        "recovered_absence_reason_policy": "invalidate_with_exact_superseding_evidence_ref",
+        "source_recovery_can_authorize_estimation": false
+      },
+      "REV-LEARN-011": {
+        "producer_skill_ids": [
+          "medical-reference-integrity-auditor"
+        ],
+        "consumer_skill_ids": [
+          "medical-manuscript-writing",
+          "medical-submission-prep"
+        ],
+        "validator_functions": [
+          "validate_post_csl_reader_semantics"
+        ],
+        "fixture_ref": "skills/medical-reference-integrity-auditor/fixtures/post-csl-reader-semantics.json",
+        "required_output_surfaces": [
+          "docx",
+          "pdf"
+        ],
+        "semantic_kinds": [
+          "protected_proper_noun",
+          "corporate_author",
+          "group_author",
+          "corrected_metadata"
+        ],
+        "official_metadata_exact_ref_required": true
+      },
+      "REV-LEARN-012": {
+        "producer_skill_ids": [
+          "medical-display-qc"
+        ],
+        "consumer_skill_ids": [
+          "medical-manuscript-writing",
+          "medical-submission-prep"
+        ],
+        "validator_functions": [
+          "validate_figure_numbering_one_owner",
+          "validate_submission_figure_numbering_binding"
+        ],
+        "fixture_ref": "skills/medical-display-qc/fixtures/figure-numbering-one-owner.json",
+        "required_output_surfaces": [
+          "docx",
+          "pdf"
+        ],
+        "numbering_sources": [
+          "image_alt_text",
+          "structured_legend_text",
+          "renderer_caption_prefix"
+        ],
+        "final_occurrence_cardinality": 1
+      },
+      "REV-LEARN-013": {
+        "producer_skill_ids": [
+          "medical-manuscript-writing"
+        ],
+        "consumer_skill_ids": [
+          "medical-manuscript-review"
+        ],
+        "validator_functions": [
+          "validate_anomaly_evidence_parity"
+        ],
+        "fixture_ref": "skills/medical-manuscript-review/fixtures/anomaly-evidence-parity.json",
+        "required_output_surfaces": [
+          "manuscript",
+          "supplement",
+          "reviewer_response"
+        ],
+        "parity_fields": [
+          "flagged_count",
+          "extreme_value_count",
+          "threshold_status",
+          "source_mutation_status",
+          "result_deltas"
+        ]
+      }
+    },
+    "authoring_snapshot_manifest_policy": {
+      "builder_function": "build_authoring_freeze_handoff_candidate",
+      "locator_output_field": "immutable_candidate_snapshot_manifest_locator",
+      "locator_kind": "authoring_candidate_snapshot_manifest",
+      "locator_required": true,
+      "locator_in_content_identity": false
+    },
+    "receipt_supersedence_policy": {
+      "validator_function": "validate_receipt_version_member_delta",
+      "fixture_ref": "skills/medical-manuscript-review/fixtures/receipt-version-member-delta.json",
+      "previous_and_current_receipt_exact_refs_required": true,
+      "member_delta_classes": [
+        "added",
+        "removed",
+        "changed",
+        "unchanged"
+      ],
+      "digest_or_summary_can_replace_member_delta": false
+    },
+    "authority_boundary": {
+      "refs_only": true,
+      "can_write_domain_truth": false,
+      "can_mutate_artifact_body": false,
+      "can_sign_owner_receipt": false,
+      "can_create_typed_blocker": false,
+      "can_claim_quality_verdict": false,
+      "can_claim_publication_readiness": false,
+      "can_claim_current_package_authority": false
     }
   },
   "capabilities": [

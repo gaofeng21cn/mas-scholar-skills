@@ -1,0 +1,126 @@
+{
+  "fixture_id": "figure_numbering_one_owner_dual_build.v1",
+  "fixture_only": true,
+  "candidate": {
+    "surface_kind": "figure_numbering_one_owner_candidate.v1",
+    "output_artifact_refs": {
+      "docx": {
+        "kind": "final_docx",
+        "ref": "artifact://reader/manuscript.docx",
+        "size_bytes": 201,
+        "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "pdf": {
+        "kind": "final_pdf",
+        "ref": "artifact://reader/manuscript.pdf",
+        "size_bytes": 202,
+        "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      }
+    },
+    "figures": [
+      {
+        "figure_id": "figure-1",
+        "figure_number": 1,
+        "output_surfaces": {
+          "docx": {
+            "declared_numbering_owner": "renderer_caption_prefix",
+            "occurrences": [
+              {
+                "source": "image_alt_text",
+                "occurrence_count": 0
+              },
+              {
+                "source": "structured_legend_text",
+                "occurrence_count": 0
+              },
+              {
+                "source": "renderer_caption_prefix",
+                "occurrence_count": 1
+              }
+            ]
+          },
+          "pdf": {
+            "declared_numbering_owner": "structured_legend_text",
+            "occurrences": [
+              {
+                "source": "image_alt_text",
+                "occurrence_count": 0
+              },
+              {
+                "source": "structured_legend_text",
+                "occurrence_count": 1
+              },
+              {
+                "source": "renderer_caption_prefix",
+                "occurrence_count": 0
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "authority": false
+  },
+  "negative_cases": [
+    {
+      "case_id": "renderer_prefix_plus_numbered_alt_text",
+      "figure_id": "figure-1",
+      "surface": "docx",
+      "source": "image_alt_text",
+      "replacement_count": 1,
+      "expected_code": "FIGURE_NUMBERING_EXACTLY_ONE_VIOLATION"
+    }
+  ],
+  "submission_binding_candidate": {
+    "surface_kind": "submission_figure_numbering_binding_candidate.v1",
+    "figure_numbering_audit_ref": {
+      "kind": "figure_numbering_one_owner_audit",
+      "ref": "artifact://audit/figure-numbering.json",
+      "size_bytes": 301,
+      "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "final_docx_ref": {
+      "kind": "final_docx",
+      "ref": "artifact://reader/manuscript.docx",
+      "size_bytes": 201,
+      "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "final_pdf_ref": {
+      "kind": "final_pdf",
+      "ref": "artifact://reader/manuscript.pdf",
+      "size_bytes": 202,
+      "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "audit_summary": {
+      "machine_check_status": "candidate_complete",
+      "output_artifact_refs": {
+        "docx": {
+          "kind": "final_docx",
+          "ref": "artifact://reader/manuscript.docx",
+          "size_bytes": 201,
+          "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "pdf": {
+          "kind": "final_pdf",
+          "ref": "artifact://reader/manuscript.pdf",
+          "size_bytes": 202,
+          "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "figure_surface_invariants": [
+        {
+          "figure_id": "figure-1",
+          "output_surface": "docx",
+          "occurrence_count": 1
+        },
+        {
+          "figure_id": "figure-1",
+          "output_surface": "pdf",
+          "occurrence_count": 1
+        }
+      ],
+      "authority": false
+    },
+    "authority": false
+  }
+}

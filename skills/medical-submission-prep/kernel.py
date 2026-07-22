@@ -68,6 +68,7 @@ PUBLICATION_LAYOUT_CATALOG_REF = (
 PUBLICATION_LAYOUT_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / PUBLICATION_LAYOUT_CATALOG_REF
 )
+SUBMISSION_EXACT_REF_FIELDS = frozenset({"kind", "ref", "size_bytes", "sha256"})
 
 
 def submission_manifest_schema() -> dict[str, Any]:
@@ -410,6 +411,184 @@ def lint_submission_artifact_roles(
     return findings
 
 
+def validate_submission_figure_numbering_binding(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Bind the final DOCX/PDF package to one exact numbering audit."""
+
+    findings: list[dict[str, object]] = []
+    if candidate.get("surface_kind") != "submission_figure_numbering_binding_candidate.v1":
+        findings.append(
+            _package_role_finding(
+                "SUBMISSION_FIGURE_NUMBERING_SURFACE_KIND_INVALID",
+                "surface_kind",
+                "use the submission figure-numbering binding surface",
+            )
+        )
+    for field in ("figure_numbering_audit_ref", "final_docx_ref", "final_pdf_ref"):
+        if not _submission_exact_ref_valid(candidate.get(field)):
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_EXACT_REF_INVALID",
+                    field,
+                    "bind the audit and both final outputs as exact refs",
+                )
+            )
+    audit = candidate.get("audit_summary")
+    if not isinstance(audit, Mapping):
+        findings.append(
+            _package_role_finding(
+                "SUBMISSION_FIGURE_NUMBERING_AUDIT_INVALID",
+                "audit_summary",
+                "consume the structured dual-build numbering audit",
+            )
+        )
+        audit = {}
+    else:
+        if audit.get("machine_check_status") != "candidate_complete":
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_AUDIT_INCOMPLETE",
+                    "audit_summary.machine_check_status",
+                    "repair the dual-build numbering audit before package assembly",
+                )
+            )
+        if audit.get("authority") is not False:
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_AUDIT_AUTHORITY_FORBIDDEN",
+                    "audit_summary.authority",
+                    "consume a refs-only numbering audit",
+                )
+            )
+    output_refs = audit.get("output_artifact_refs") if isinstance(audit, Mapping) else None
+    if not isinstance(output_refs, Mapping) or set(output_refs) != {"docx", "pdf"}:
+        findings.append(
+            _package_role_finding(
+                "SUBMISSION_FIGURE_NUMBERING_OUTPUT_BINDING_INVALID",
+                "audit_summary.output_artifact_refs",
+                "bind the audit to exactly the final DOCX and PDF refs",
+            )
+        )
+    else:
+        expected_refs = {
+            "docx": candidate.get("final_docx_ref"),
+            "pdf": candidate.get("final_pdf_ref"),
+        }
+        for surface, expected_ref in expected_refs.items():
+            if not _submission_exact_ref_valid(output_refs.get(surface)) or output_refs.get(surface) != expected_ref:
+                findings.append(
+                    _package_role_finding(
+                        "SUBMISSION_FIGURE_NUMBERING_OUTPUT_BINDING_MISMATCH",
+                        f"audit_summary.output_artifact_refs.{surface}",
+                        "consume the audit for these exact final output bytes",
+                    )
+                )
+    invariants_value = audit.get("figure_surface_invariants") if isinstance(audit, Mapping) else None
+    invariants = (
+        list(invariants_value)
+        if isinstance(invariants_value, Sequence)
+        and not isinstance(invariants_value, (str, bytes, bytearray))
+        else []
+    )
+    coverage: dict[str, set[str]] = defaultdict(set)
+    if not invariants:
+        findings.append(
+            _package_role_finding(
+                "SUBMISSION_FIGURE_NUMBERING_INVARIANTS_MISSING",
+                "audit_summary.figure_surface_invariants",
+                "consume member-level DOCX/PDF exactly-one results",
+            )
+        )
+    for index, invariant in enumerate(invariants):
+        path = f"audit_summary.figure_surface_invariants[{index}]"
+        if not isinstance(invariant, Mapping):
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_INVARIANT_INVALID",
+                    path,
+                    "provide a structured figure and output-surface invariant",
+                )
+            )
+            continue
+        figure_id = str(invariant.get("figure_id") or "").strip()
+        surface = str(invariant.get("output_surface") or "")
+        if not figure_id or surface not in {"docx", "pdf"}:
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_INVARIANT_ID_INVALID",
+                    path,
+                    "bind every invariant to a figure id and final output surface",
+                )
+            )
+            continue
+        if surface in coverage[figure_id]:
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_INVARIANT_DUPLICATE",
+                    path,
+                    "provide one invariant per figure and output surface",
+                )
+            )
+        coverage[figure_id].add(surface)
+        if invariant.get("occurrence_count") != 1:
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_EXACTLY_ONE_VIOLATION",
+                    path,
+                    "require exactly one final figure-number label",
+                )
+            )
+    for figure_id, surfaces in coverage.items():
+        if surfaces != {"docx", "pdf"}:
+            findings.append(
+                _package_role_finding(
+                    "SUBMISSION_FIGURE_NUMBERING_SURFACE_COVERAGE_MISMATCH",
+                    f"audit_summary.figure_surface_invariants.{figure_id}",
+                    "close both final DOCX and PDF for every figure",
+                )
+            )
+    if candidate.get("authority") is not False:
+        findings.append(
+            _package_role_finding(
+                "SUBMISSION_FIGURE_NUMBERING_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep submission numbering QA refs-only with authority=false",
+            )
+        )
+
+    findings.sort(key=lambda item: (str(item["code"]), str(item["file"])))
+    complete = not findings
+    return {
+        "surface_kind": "submission_figure_numbering_binding_audit_candidate.v1",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "figure_ids": sorted(coverage),
+        "findings": findings,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-submission-prep",
+            "reason": "submission_figure_numbering_binding_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
+def _submission_exact_ref_valid(value: object) -> bool:
+    if not isinstance(value, Mapping) or set(value) != SUBMISSION_EXACT_REF_FIELDS:
+        return False
+    size_bytes = value.get("size_bytes")
+    return bool(
+        str(value.get("kind") or "").strip()
+        and str(value.get("ref") or "").strip()
+        and not isinstance(size_bytes, bool)
+        and isinstance(size_bytes, int)
+        and size_bytes > 0
+        and re.fullmatch(r"sha256:[0-9a-f]{64}", str(value.get("sha256") or ""))
+    )
+
+
 def _package_role_finding(code: str, path: str, action: str) -> dict[str, object]:
     return {
         "code": code,
@@ -491,7 +670,23 @@ def _self_check() -> None:
     )
     assert formal_layout["official_refresh_required"] is True
     assert formal_layout["can_claim_journal_compliance"] is False
-    print(json.dumps({"ok": True, "checks": 15}, indent=2, sort_keys=True))
+    numbering_fixture_path = (
+        Path(__file__).parents[1]
+        / "medical-display-qc"
+        / "fixtures"
+        / "figure-numbering-one-owner.json"
+    )
+    numbering_fixture = json.loads(numbering_fixture_path.read_text(encoding="utf-8"))
+    binding_audit = validate_submission_figure_numbering_binding(
+        numbering_fixture["submission_binding_candidate"]
+    )
+    assert binding_audit["machine_check_status"] == "candidate_complete"
+    bad_binding = json.loads(json.dumps(numbering_fixture["submission_binding_candidate"]))
+    bad_binding["audit_summary"]["figure_surface_invariants"][0]["occurrence_count"] = 2
+    assert "SUBMISSION_FIGURE_NUMBERING_EXACTLY_ONE_VIOLATION" in {
+        item["code"] for item in validate_submission_figure_numbering_binding(bad_binding)["findings"]
+    }
+    print(json.dumps({"ok": True, "checks": 17}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

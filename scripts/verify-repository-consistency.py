@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.16":
-    fail("plugin version must be 0.2.16")
+if manifest.get("version") != "0.2.17":
+    fail("plugin version must be 0.2.17")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -77,6 +77,16 @@ professional_figure_workflow_schema = read_json(
 layout_qc_fixture = read_json(
     "skills/medical-display-qc/fixtures/layout_qc_regression.json"
 )
+revision_learning_fixture_refs = [
+    "skills/medical-data-governance/fixtures/governed-source-reconstruction.json",
+    "skills/medical-risk-model-transportability-reviewer/fixtures/construct-comparability-currentness.json",
+    "skills/medical-reference-integrity-auditor/fixtures/post-csl-reader-semantics.json",
+    "skills/medical-display-qc/fixtures/figure-numbering-one-owner.json",
+    "skills/medical-manuscript-review/fixtures/anomaly-evidence-parity.json",
+    "skills/medical-manuscript-review/fixtures/receipt-version-member-delta.json",
+]
+for revision_learning_fixture_ref in revision_learning_fixture_refs:
+    read_json(revision_learning_fixture_ref)
 domain_descriptor = read_json("contracts/domain_descriptor.json")
 capability_map = read_json("contracts/capability_map.json")
 package_manifest = read_json("contracts/opl_capability_package_manifest.json")
@@ -341,6 +351,129 @@ if preflight_authority != {
 }:
     fail("initial-draft preflight policy must remain refs-only and no-authority")
 
+revision_learning_policy = contract.get("revision_learning_delta_policy") or {}
+if capability_map.get("revision_learning_delta_policy") != revision_learning_policy:
+    fail("capability map and canonical contract must expose one revision-learning policy")
+if revision_learning_policy.get("policy_id") != "scholarskills_revision_learning_delta.v1":
+    fail("revision-learning policy id is wrong")
+expected_learning_ids = [
+    "REV-LEARN-009",
+    "REV-LEARN-010",
+    "REV-LEARN-011",
+    "REV-LEARN-012",
+    "REV-LEARN-013",
+]
+if revision_learning_policy.get("learning_ids") != expected_learning_ids:
+    fail("revision-learning policy must expose REV-LEARN-009 through 013 in order")
+if revision_learning_policy.get("semantic_qa_policy") != {
+    "structured_fields_required": True,
+    "fixture_values_define_expected_semantics": True,
+    "single_english_wording_can_satisfy": False,
+}:
+    fail("revision-learning semantic QA must be structured and wording independent")
+revision_learning_rules = revision_learning_policy.get("rules") or {}
+if set(revision_learning_rules) != set(expected_learning_ids):
+    fail("revision-learning policy rule set is incomplete")
+expected_revision_validators_and_fixtures = {
+    "REV-LEARN-009": (
+        [
+            "validate_governed_source_reconstruction",
+            "validate_recoverable_gap_disposition",
+        ],
+        revision_learning_fixture_refs[0],
+    ),
+    "REV-LEARN-010": (
+        ["validate_construct_comparability_currentness"],
+        revision_learning_fixture_refs[1],
+    ),
+    "REV-LEARN-011": (
+        ["validate_post_csl_reader_semantics"],
+        revision_learning_fixture_refs[2],
+    ),
+    "REV-LEARN-012": (
+        [
+            "validate_figure_numbering_one_owner",
+            "validate_submission_figure_numbering_binding",
+        ],
+        revision_learning_fixture_refs[3],
+    ),
+    "REV-LEARN-013": (
+        ["validate_anomaly_evidence_parity"],
+        revision_learning_fixture_refs[4],
+    ),
+}
+for learning_id, (validators, fixture_ref) in expected_revision_validators_and_fixtures.items():
+    rule = revision_learning_rules.get(learning_id) or {}
+    if rule.get("validator_functions") != validators:
+        fail(f"{learning_id} validator functions are wrong")
+    if rule.get("fixture_ref") != fixture_ref:
+        fail(f"{learning_id} fixture ref is wrong")
+if revision_learning_rules["REV-LEARN-009"].get("reconstructed_gap_policy") != "close_gap_and_remove_limitation_and_human_todo":
+    fail("REV-LEARN-009 must close reconstructed gaps and remove stale TODOs")
+if revision_learning_rules["REV-LEARN-010"].get("evidence_layers") != [
+    "codebook",
+    "identity_linkage",
+    "field_role",
+    "accepted_mapping",
+    "current_evidence",
+]:
+    fail("REV-LEARN-010 must preserve five separate construct evidence layers")
+if revision_learning_rules["REV-LEARN-010"].get("source_recovery_can_authorize_estimation") is not False:
+    fail("REV-LEARN-010 source recovery cannot authorize estimation")
+if revision_learning_rules["REV-LEARN-011"].get("required_output_surfaces") != ["docx", "pdf"]:
+    fail("REV-LEARN-011 must audit both final DOCX and PDF")
+if revision_learning_rules["REV-LEARN-011"].get("official_metadata_exact_ref_required") is not True:
+    fail("REV-LEARN-011 must bind official metadata as exact refs")
+if revision_learning_rules["REV-LEARN-012"].get("numbering_sources") != [
+    "image_alt_text",
+    "structured_legend_text",
+    "renderer_caption_prefix",
+]:
+    fail("REV-LEARN-012 must account for all three numbering sources")
+if revision_learning_rules["REV-LEARN-012"].get("final_occurrence_cardinality") != 1:
+    fail("REV-LEARN-012 final figure labels must have cardinality one")
+if revision_learning_rules["REV-LEARN-013"].get("required_output_surfaces") != [
+    "manuscript",
+    "supplement",
+    "reviewer_response",
+]:
+    fail("REV-LEARN-013 must close all three evidence surfaces")
+if revision_learning_rules["REV-LEARN-013"].get("parity_fields") != [
+    "flagged_count",
+    "extreme_value_count",
+    "threshold_status",
+    "source_mutation_status",
+    "result_deltas",
+]:
+    fail("REV-LEARN-013 parity fields are incomplete")
+if revision_learning_policy.get("authoring_snapshot_manifest_policy") != {
+    "builder_function": "build_authoring_freeze_handoff_candidate",
+    "locator_output_field": "immutable_candidate_snapshot_manifest_locator",
+    "locator_kind": "authoring_candidate_snapshot_manifest",
+    "locator_required": True,
+    "locator_in_content_identity": False,
+}:
+    fail("authoring snapshot must expose a locator outside content identity")
+if revision_learning_policy.get("receipt_supersedence_policy") != {
+    "validator_function": "validate_receipt_version_member_delta",
+    "fixture_ref": revision_learning_fixture_refs[5],
+    "previous_and_current_receipt_exact_refs_required": True,
+    "member_delta_classes": ["added", "removed", "changed", "unchanged"],
+    "digest_or_summary_can_replace_member_delta": False,
+}:
+    fail("receipt supersedence must expose exact refs and normalized member delta")
+if revision_learning_policy.get("authority_boundary") != {
+    "refs_only": True,
+    "can_write_domain_truth": False,
+    "can_mutate_artifact_body": False,
+    "can_sign_owner_receipt": False,
+    "can_create_typed_blocker": False,
+    "can_claim_quality_verdict": False,
+    "can_claim_publication_readiness": False,
+    "can_claim_current_package_authority": False,
+}:
+    fail("revision-learning policy must remain refs-only and no-authority")
+
 preflight_defs = initial_draft_preflight_schema.get("$defs") or {}
 if (
     (initial_draft_preflight_schema.get("properties") or {})
@@ -494,8 +627,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.16":
-    fail("capability package version must be 0.2.16")
+if package_manifest.get("version") != "0.2.17":
+    fail("capability package version must be 0.2.17")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 primary_consumer = package_manifest.get("primary_consumer") or {}

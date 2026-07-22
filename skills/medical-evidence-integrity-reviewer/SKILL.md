@@ -38,7 +38,11 @@ surface.
   inside the declared verified scope. For external validation, also consume
   `claim_family_scope_qualifier_ref` and `construct_comparability_ref`; check
   that no claim family borrows evidence from another and that a not-estimable
-  construct stop remains visible. This reviewer aggregates these refs; their producers remain
+  construct stop remains visible. Also consume the exact
+  `construct_comparability_currentness_ref`: reject active codebook, linkage,
+  field-role, mapping, or current-evidence reasons that the current evidence
+  generation has superseded, while preserving every still-current stop. This
+  reviewer aggregates these refs; their producers remain
   `medical-statistical-review` and
   `medical-risk-model-transportability-reviewer`.
 
@@ -78,8 +82,9 @@ or provider-running claims.
    `verification_scope_contract_ref` and reject
    evidence claims about analyses, sensitivities, displays, or reruns outside
    its declared assessed scope. For external validation, consume
-   `claim_family_scope_qualifier_ref` and `construct_comparability_ref` without
-   widening their allowed claims.
+   `claim_family_scope_qualifier_ref`, `construct_comparability_ref`, and
+   `construct_comparability_currentness_ref` without widening their allowed
+   claims or treating recovered source capability as estimation authority.
 6. Produce `route_back_candidate` when the evidence cannot support the claim or
    the next action belongs to a source/domain owner.
 
@@ -94,6 +99,7 @@ Return:
 - consumed `verification_scope_contract_ref` when applicable
 - consumed `claim_family_scope_qualifier_ref` when applicable
 - consumed `construct_comparability_ref` when applicable
+- consumed `construct_comparability_currentness_ref` when applicable
 - `verdict_candidate`
 - `candidate_refs`
 - `route_back_candidate`

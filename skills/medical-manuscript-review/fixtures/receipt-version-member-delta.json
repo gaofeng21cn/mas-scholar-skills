@@ -1,0 +1,121 @@
+{
+  "fixture_id": "receipt_version_member_level_normalized_delta.v1",
+  "fixture_only": true,
+  "candidate": {
+    "surface_kind": "receipt_version_member_delta_candidate.v1",
+    "previous_receipt_ref": {
+      "kind": "review_receipt",
+      "ref": "artifact://review/receipt-v1.json",
+      "size_bytes": 601,
+      "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "current_receipt_ref": {
+      "kind": "review_receipt",
+      "ref": "artifact://review/receipt-v2.json",
+      "size_bytes": 602,
+      "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "previous_members": [
+      {
+        "member_id": "removed-source",
+        "kind": "receipt_member",
+        "ref": "artifact://review/members/removed-v1.json",
+        "size_bytes": 101,
+        "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      {
+        "member_id": "changed-analysis",
+        "kind": "receipt_member",
+        "ref": "artifact://review/members/analysis-v1.json",
+        "size_bytes": 102,
+        "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+      },
+      {
+        "member_id": "unchanged-policy",
+        "kind": "receipt_member",
+        "ref": "artifact://review/members/policy.json",
+        "size_bytes": 103,
+        "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      }
+    ],
+    "current_members": [
+      {
+        "member_id": "changed-analysis",
+        "kind": "receipt_member",
+        "ref": "artifact://review/members/analysis-v2.json",
+        "size_bytes": 112,
+        "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+      },
+      {
+        "member_id": "unchanged-policy",
+        "kind": "receipt_member",
+        "ref": "artifact://review/members/policy.json",
+        "size_bytes": 103,
+        "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      },
+      {
+        "member_id": "added-response",
+        "kind": "receipt_member",
+        "ref": "artifact://review/members/response-v2.json",
+        "size_bytes": 104,
+        "sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+      }
+    ],
+    "member_delta": {
+      "added": [
+        {
+          "member_id": "added-response",
+          "current_ref": {
+            "kind": "receipt_member",
+            "ref": "artifact://review/members/response-v2.json",
+            "size_bytes": 104,
+            "sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+          }
+        }
+      ],
+      "removed": [
+        {
+          "member_id": "removed-source",
+          "previous_ref": {
+            "kind": "receipt_member",
+            "ref": "artifact://review/members/removed-v1.json",
+            "size_bytes": 101,
+            "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        }
+      ],
+      "changed": [
+        {
+          "member_id": "changed-analysis",
+          "previous_ref": {
+            "kind": "receipt_member",
+            "ref": "artifact://review/members/analysis-v1.json",
+            "size_bytes": 102,
+            "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+          },
+          "current_ref": {
+            "kind": "receipt_member",
+            "ref": "artifact://review/members/analysis-v2.json",
+            "size_bytes": 112,
+            "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+          }
+        }
+      ],
+      "unchanged": [
+        {
+          "member_id": "unchanged-policy",
+          "ref": {
+            "kind": "receipt_member",
+            "ref": "artifact://review/members/policy.json",
+            "size_bytes": 103,
+            "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+          }
+        }
+      ]
+    },
+    "authority": false
+  },
+  "digest_only_member_delta": {
+    "summary_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+  }
+}

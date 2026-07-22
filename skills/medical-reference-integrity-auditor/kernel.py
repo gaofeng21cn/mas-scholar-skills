@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
@@ -24,6 +25,13 @@ EXCLUDED_REFERENCE_CLEARANCE_STATUSES = (
     "cleared",
     "reintroduced",
 )
+POST_CSL_SEMANTIC_KINDS = (
+    "protected_proper_noun",
+    "corporate_author",
+    "group_author",
+    "corrected_metadata",
+)
+POST_CSL_OUTPUT_SURFACES = ("docx", "pdf")
 
 
 def normalize_doi(value: object) -> str:
@@ -947,6 +955,278 @@ def audit_reference_lane_active_inventory_binding(
     }
 
 
+def validate_post_csl_reader_semantics(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Audit reader-facing post-CSL semantics on final DOCX and PDF exports."""
+
+    findings: list[dict[str, object]] = []
+    if candidate.get("surface_kind") != "post_csl_reader_semantics_candidate.v1":
+        findings.append(
+            _coverage_finding(
+                "POST_CSL_SURFACE_KIND_INVALID",
+                "surface_kind",
+                "use the post-CSL reader-semantics candidate surface",
+            )
+        )
+
+    semantic_records_value = candidate.get("semantic_records")
+    semantic_records = (
+        list(semantic_records_value)
+        if isinstance(semantic_records_value, Sequence)
+        and not isinstance(semantic_records_value, (str, bytes, bytearray))
+        else []
+    )
+    if not semantic_records:
+        findings.append(
+            _coverage_finding(
+                "POST_CSL_SEMANTIC_RECORDS_INVALID",
+                "semantic_records",
+                "provide the complete reader-facing semantic inventory",
+            )
+        )
+    records_by_id: dict[str, Mapping[str, object]] = {}
+    normalized_records: list[dict[str, object]] = []
+    for index, record in enumerate(semantic_records):
+        path = f"semantic_records[{index}]"
+        if not isinstance(record, Mapping):
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_SEMANTIC_RECORD_INVALID",
+                    path,
+                    "provide a structured semantic record",
+                )
+            )
+            continue
+        semantic_id = str(record.get("semantic_id") or "").strip()
+        semantic_kind = str(record.get("semantic_kind") or "")
+        canonical_text = str(record.get("canonical_text") or "")
+        author_mode = str(record.get("author_mode") or "")
+        correction_status = str(record.get("correction_status") or "")
+        if not semantic_id:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_SEMANTIC_ID_MISSING",
+                    f"{path}.semantic_id",
+                    "bind each reader-facing semantic to a stable id",
+                )
+            )
+        elif semantic_id in records_by_id:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_SEMANTIC_ID_DUPLICATE",
+                    f"{path}.semantic_id",
+                    "use one canonical record per semantic id",
+                )
+            )
+        else:
+            records_by_id[semantic_id] = record
+        if semantic_kind not in POST_CSL_SEMANTIC_KINDS:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_SEMANTIC_KIND_INVALID",
+                    f"{path}.semantic_kind",
+                    "classify the semantic using the supported structured kinds",
+                )
+            )
+        if not canonical_text:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_CANONICAL_TEXT_MISSING",
+                    f"{path}.canonical_text",
+                    "record the exact reader-facing text from official metadata",
+                )
+            )
+        expected_author_mode = (
+            "literal"
+            if semantic_kind in {"corporate_author", "group_author"}
+            else "not_applicable"
+        )
+        if author_mode != expected_author_mode:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_AUTHOR_MODE_INVALID",
+                    f"{path}.author_mode",
+                    "use literal mode for corporate or group authors only",
+                )
+            )
+        expected_correction_status = (
+            "corrected" if semantic_kind == "corrected_metadata" else "not_corrected"
+        )
+        if correction_status != expected_correction_status:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_CORRECTION_STATUS_INVALID",
+                    f"{path}.correction_status",
+                    "align correction status with the semantic record kind",
+                )
+            )
+        _validate_reference_evidence_ref(
+            record.get("official_metadata_ref"),
+            f"{path}.official_metadata_ref",
+            findings,
+            allowed_dispositions=(),
+        )
+        correction_ref = record.get("correction_ref")
+        if correction_status == "corrected":
+            _validate_reference_evidence_ref(
+                correction_ref,
+                f"{path}.correction_ref",
+                findings,
+                allowed_dispositions=(),
+            )
+        elif correction_ref is not None:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_CORRECTION_REF_UNEXPECTED",
+                    f"{path}.correction_ref",
+                    "omit correction evidence when no correction applies",
+                )
+            )
+        normalized_records.append(
+            {
+                "semantic_id": semantic_id,
+                "semantic_kind": semantic_kind,
+                "canonical_text": canonical_text,
+                "author_mode": author_mode,
+                "correction_status": correction_status,
+            }
+        )
+
+    output_surfaces_value = candidate.get("output_surfaces")
+    output_surfaces = output_surfaces_value if isinstance(output_surfaces_value, Mapping) else {}
+    if set(output_surfaces) != set(POST_CSL_OUTPUT_SURFACES):
+        findings.append(
+            _coverage_finding(
+                "POST_CSL_OUTPUT_SURFACE_SET_INVALID",
+                "output_surfaces",
+                "provide exactly the final DOCX and PDF post-CSL exports",
+            )
+        )
+    normalized_surfaces: dict[str, dict[str, object]] = {}
+    expected_ids = set(records_by_id)
+    for surface in POST_CSL_OUTPUT_SURFACES:
+        surface_value = output_surfaces.get(surface)
+        path = f"output_surfaces.{surface}"
+        if not isinstance(surface_value, Mapping):
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_OUTPUT_SURFACE_INVALID",
+                    path,
+                    "provide exact artifact and post-CSL export refs plus rendered entries",
+                )
+            )
+            continue
+        for field in ("artifact_ref", "post_csl_export_ref"):
+            _validate_reference_evidence_ref(
+                surface_value.get(field),
+                f"{path}.{field}",
+                findings,
+                allowed_dispositions=(),
+            )
+        entries_value = surface_value.get("rendered_entries")
+        entries = (
+            list(entries_value)
+            if isinstance(entries_value, Sequence)
+            and not isinstance(entries_value, (str, bytes, bytearray))
+            else []
+        )
+        entries_by_id: dict[str, list[Mapping[str, object]]] = {}
+        for entry_index, entry in enumerate(entries):
+            entry_path = f"{path}.rendered_entries[{entry_index}]"
+            if not isinstance(entry, Mapping):
+                findings.append(
+                    _coverage_finding(
+                        "POST_CSL_RENDERED_ENTRY_INVALID",
+                        entry_path,
+                        "provide a structured reader-facing rendered entry",
+                    )
+                )
+                continue
+            semantic_id = str(entry.get("semantic_id") or "").strip()
+            entries_by_id.setdefault(semantic_id, []).append(entry)
+        if set(entries_by_id) != expected_ids:
+            findings.append(
+                _coverage_finding(
+                    "POST_CSL_RENDERED_SEMANTIC_COVERAGE_MISMATCH",
+                    f"{path}.rendered_entries",
+                    "render every canonical semantic exactly once and no others",
+                )
+            )
+        for semantic_id in sorted(expected_ids | set(entries_by_id)):
+            matching = entries_by_id.get(semantic_id, [])
+            entry_path = f"{path}.rendered_entries.{semantic_id}"
+            if len(matching) != 1:
+                findings.append(
+                    _coverage_finding(
+                        "POST_CSL_RENDERED_SEMANTIC_CARDINALITY_INVALID",
+                        entry_path,
+                        "render each canonical semantic exactly once",
+                    )
+                )
+                continue
+            record = records_by_id.get(semantic_id)
+            if record is None:
+                continue
+            entry = matching[0]
+            if str(entry.get("rendered_text") or "") != str(record.get("canonical_text") or ""):
+                findings.append(
+                    _coverage_finding(
+                        "POST_CSL_READER_TEXT_MISMATCH",
+                        f"{entry_path}.rendered_text",
+                        "preserve the exact official reader-facing text after CSL rendering",
+                    )
+                )
+            if str(entry.get("author_mode") or "") != str(record.get("author_mode") or ""):
+                findings.append(
+                    _coverage_finding(
+                        "POST_CSL_READER_AUTHOR_MODE_MISMATCH",
+                        f"{entry_path}.author_mode",
+                        "preserve literal group or corporate author semantics",
+                    )
+                )
+            if str(entry.get("correction_status") or "") != str(record.get("correction_status") or ""):
+                findings.append(
+                    _coverage_finding(
+                        "POST_CSL_READER_CORRECTION_STATUS_MISMATCH",
+                        f"{entry_path}.correction_status",
+                        "render the current corrected metadata status on every final surface",
+                    )
+                )
+        normalized_surfaces[surface] = {
+            "artifact_ref": dict(surface_value.get("artifact_ref"))
+            if isinstance(surface_value.get("artifact_ref"), Mapping)
+            else None,
+            "rendered_semantic_ids": sorted(entries_by_id),
+        }
+
+    if candidate.get("authority") is not False:
+        findings.append(
+            _coverage_finding(
+                "POST_CSL_AUTHORITY_FORBIDDEN",
+                "authority",
+                "keep reader-semantics QA refs-only with authority=false",
+            )
+        )
+    findings.sort(key=lambda item: (str(item["code"]), str(item["field"])))
+    complete = not findings
+    return {
+        "surface_kind": "post_csl_reader_semantics_audit_candidate.v1",
+        "machine_check_status": "candidate_complete" if complete else "route_back_required",
+        "semantic_records": normalized_records,
+        "output_surfaces": normalized_surfaces,
+        "findings": findings,
+        "route_back_candidate": None
+        if complete
+        else {
+            "route": "medical-reference-integrity-auditor",
+            "reason": "post_csl_reader_semantics_requires_repair",
+            "authority": False,
+        },
+        "authority": False,
+    }
+
+
 def _self_check() -> None:
     def exact_ref(tag: str) -> dict[str, object]:
         return {
@@ -1268,7 +1548,22 @@ def _self_check() -> None:
             )["findings"]
         }
     )
-    print(json.dumps({"ok": True, "checks": 32}, indent=2, sort_keys=True))
+    post_csl_fixture_path = Path(__file__).with_name("fixtures") / "post-csl-reader-semantics.json"
+    post_csl_fixture = json.loads(post_csl_fixture_path.read_text(encoding="utf-8"))
+    post_csl_candidate = post_csl_fixture["candidate"]
+    post_csl_audit = validate_post_csl_reader_semantics(post_csl_candidate)
+    assert post_csl_audit["machine_check_status"] == "candidate_complete"
+    for negative in post_csl_fixture["negative_cases"]:
+        changed = json.loads(json.dumps(post_csl_candidate))
+        entries = changed["output_surfaces"][negative["surface"]]["rendered_entries"]
+        entry = next(item for item in entries if item["semantic_id"] == negative["semantic_id"])
+        entry[negative["field"]] = negative["replacement"]
+        changed_audit = validate_post_csl_reader_semantics(changed)
+        assert changed_audit["machine_check_status"] == "route_back_required"
+        assert negative["expected_code"] in {
+            item["code"] for item in changed_audit["findings"]
+        }
+    print(json.dumps({"ok": True, "checks": 35}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

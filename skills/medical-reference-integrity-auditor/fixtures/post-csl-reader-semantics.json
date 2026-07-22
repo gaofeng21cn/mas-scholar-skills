@@ -1,0 +1,205 @@
+{
+  "fixture_id": "post_csl_reader_facing_reference_semantics.v1",
+  "fixture_only": true,
+  "candidate": {
+    "surface_kind": "post_csl_reader_semantics_candidate.v1",
+    "semantic_records": [
+      {
+        "semantic_id": "place-hong-kong",
+        "semantic_kind": "protected_proper_noun",
+        "canonical_text": "Hong Kong",
+        "author_mode": "not_applicable",
+        "correction_status": "not_corrected",
+        "official_metadata_ref": {
+          "kind": "official_metadata",
+          "ref": "https://example.invalid/official/place/hong-kong",
+          "size_bytes": 101,
+          "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "correction_ref": null
+      },
+      {
+        "semantic_id": "place-shanghai",
+        "semantic_kind": "protected_proper_noun",
+        "canonical_text": "Shanghai",
+        "author_mode": "not_applicable",
+        "correction_status": "not_corrected",
+        "official_metadata_ref": {
+          "kind": "official_metadata",
+          "ref": "https://example.invalid/official/place/shanghai",
+          "size_bytes": 102,
+          "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "correction_ref": null
+      },
+      {
+        "semantic_id": "corporate-nchs",
+        "semantic_kind": "corporate_author",
+        "canonical_text": "National Center for Health Statistics",
+        "author_mode": "literal",
+        "correction_status": "not_corrected",
+        "official_metadata_ref": {
+          "kind": "official_metadata",
+          "ref": "https://example.invalid/official/corporate/nchs",
+          "size_bytes": 103,
+          "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "correction_ref": null
+      },
+      {
+        "semantic_id": "group-consortium",
+        "semantic_kind": "group_author",
+        "canonical_text": "International Clinical Data Consortium",
+        "author_mode": "literal",
+        "correction_status": "not_corrected",
+        "official_metadata_ref": {
+          "kind": "official_metadata",
+          "ref": "https://example.invalid/official/group/consortium",
+          "size_bytes": 104,
+          "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "correction_ref": null
+      },
+      {
+        "semantic_id": "corrected-title",
+        "semantic_kind": "corrected_metadata",
+        "canonical_text": "Corrected Cardiovascular Outcomes Report",
+        "author_mode": "not_applicable",
+        "correction_status": "corrected",
+        "official_metadata_ref": {
+          "kind": "official_metadata",
+          "ref": "https://example.invalid/official/article/current",
+          "size_bytes": 105,
+          "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        },
+        "correction_ref": {
+          "kind": "official_correction",
+          "ref": "https://example.invalid/official/article/correction",
+          "size_bytes": 106,
+          "sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        }
+      }
+    ],
+    "output_surfaces": {
+      "docx": {
+        "artifact_ref": {
+          "kind": "final_docx",
+          "ref": "artifact://reader/manuscript.docx",
+          "size_bytes": 201,
+          "sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+        },
+        "post_csl_export_ref": {
+          "kind": "post_csl_export",
+          "ref": "artifact://reader/manuscript.docx#post-csl",
+          "size_bytes": 211,
+          "sha256": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+        },
+        "rendered_entries": [
+          {
+            "semantic_id": "place-hong-kong",
+            "rendered_text": "Hong Kong",
+            "author_mode": "not_applicable",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "place-shanghai",
+            "rendered_text": "Shanghai",
+            "author_mode": "not_applicable",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "corporate-nchs",
+            "rendered_text": "National Center for Health Statistics",
+            "author_mode": "literal",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "group-consortium",
+            "rendered_text": "International Clinical Data Consortium",
+            "author_mode": "literal",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "corrected-title",
+            "rendered_text": "Corrected Cardiovascular Outcomes Report",
+            "author_mode": "not_applicable",
+            "correction_status": "corrected"
+          }
+        ]
+      },
+      "pdf": {
+        "artifact_ref": {
+          "kind": "final_pdf",
+          "ref": "artifact://reader/manuscript.pdf",
+          "size_bytes": 202,
+          "sha256": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+        },
+        "post_csl_export_ref": {
+          "kind": "post_csl_export",
+          "ref": "artifact://reader/manuscript.pdf#post-csl",
+          "size_bytes": 212,
+          "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "rendered_entries": [
+          {
+            "semantic_id": "place-hong-kong",
+            "rendered_text": "Hong Kong",
+            "author_mode": "not_applicable",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "place-shanghai",
+            "rendered_text": "Shanghai",
+            "author_mode": "not_applicable",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "corporate-nchs",
+            "rendered_text": "National Center for Health Statistics",
+            "author_mode": "literal",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "group-consortium",
+            "rendered_text": "International Clinical Data Consortium",
+            "author_mode": "literal",
+            "correction_status": "not_corrected"
+          },
+          {
+            "semantic_id": "corrected-title",
+            "rendered_text": "Corrected Cardiovascular Outcomes Report",
+            "author_mode": "not_applicable",
+            "correction_status": "corrected"
+          }
+        ]
+      }
+    },
+    "authority": false
+  },
+  "negative_cases": [
+    {
+      "case_id": "protected_case_drift",
+      "surface": "docx",
+      "semantic_id": "place-hong-kong",
+      "field": "rendered_text",
+      "replacement": "Hong kong",
+      "expected_code": "POST_CSL_READER_TEXT_MISMATCH"
+    },
+    {
+      "case_id": "group_author_not_literal",
+      "surface": "pdf",
+      "semantic_id": "group-consortium",
+      "field": "author_mode",
+      "replacement": "person_list",
+      "expected_code": "POST_CSL_READER_AUTHOR_MODE_MISMATCH"
+    },
+    {
+      "case_id": "correction_not_rendered",
+      "surface": "pdf",
+      "semantic_id": "corrected-title",
+      "field": "correction_status",
+      "replacement": "not_corrected",
+      "expected_code": "POST_CSL_READER_CORRECTION_STATUS_MISMATCH"
+    }
+  ]
+}
