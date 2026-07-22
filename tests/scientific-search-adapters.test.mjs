@@ -53,8 +53,8 @@ test('manifest, profile, registry, descriptor, and plugin expose the locked sear
   const binding = manifest.exports.runtime_module_bindings.find(
     (item) => item.module_id === 'mas-scholar-skills.scientific-search-adapters',
   );
-  assert.equal(manifest.version, '0.2.17');
-  assert.equal(plugin.version, '0.2.17');
+  assert.equal(manifest.version, '0.2.18');
+  assert.equal(plugin.version, '0.2.18');
   assert.equal(manifest.content_lock.canonicalization, 'ordered_path_length_file_length_bytes');
   assert.ok(binding);
   assert.equal(binding.adapter_abi, SCIENTIFIC_SEARCH_ADAPTER_ABI);
