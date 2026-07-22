@@ -585,6 +585,9 @@ build_source_layer_accounting_plot <- function(payload) {
   text_colour <- style_color(payload, "flow_body_text", "#111827")
   muted_text <- style_color(payload, "flow_muted_text", "#4B5563")
   guide_colour <- style_color(payload, "flow_connector", "#7B8794")
+  left_heading <- trimws(as.character(payload$left_heading %||% "China development"))
+  right_heading <- trimws(as.character(payload$right_heading %||% "US external validation"))
+  transfer_label <- trimws(as.character(payload$transfer_label %||% "Fixed model transferred\nunchanged"))
 
   if (length(source_layers) == 2 && length(subcohort_coverage) >= 2) {
     endpoint_inventory <- payload$endpoint_inventory %||% list()
@@ -665,7 +668,7 @@ build_source_layer_accounting_plot <- function(payload) {
         "text",
         x = -21,
         y = 96,
-        label = "China development",
+        label = left_heading,
         hjust = 0.5,
         vjust = 1,
         fontface = "bold",
@@ -676,7 +679,7 @@ build_source_layer_accounting_plot <- function(payload) {
         "text",
         x = 21,
         y = 96,
-        label = "US external validation",
+        label = right_heading,
         hjust = 0.5,
         vjust = 1,
         fontface = "bold",
@@ -724,7 +727,7 @@ build_source_layer_accounting_plot <- function(payload) {
         "text",
         x = 0,
         y = 62,
-        label = "Fixed model transferred\nunchanged",
+        label = transfer_label,
         hjust = 0.5,
         vjust = 0.5,
         size = 2.35,
@@ -1106,6 +1109,9 @@ build_source_layer_layout_sidecar <- function(payload, dependency_environment) {
   denominator <- cohort_denominator_step(payload)
   source_layers <- normalize_source_layers(payload)
   subcohort_coverage <- normalize_subcohort_coverage(payload)
+  left_heading <- trimws(as.character(payload$left_heading %||% "China development"))
+  right_heading <- trimws(as.character(payload$right_heading %||% "US external validation"))
+  transfer_label <- trimws(as.character(payload$transfer_label %||% "Fixed model transferred\nunchanged"))
   panel_ids <- declared_panel_ids(payload)
   panel_a_id <- source_accounting_panel_id(panel_ids, "A", 1)
   panel_b_id <- source_accounting_panel_id(panel_ids, "B", 2)
@@ -1232,6 +1238,9 @@ build_source_layer_layout_sidecar <- function(payload, dependency_environment) {
       dependency_profile_ref = "r_ggplot2_ggconsort_reporting_flow_v1",
       mature_dependency_intent = "ggconsort_capable_reporting_flow",
       source_renderer = "MAS/ReportingFlow::cohort_flow_figure",
+      left_heading = left_heading,
+      right_heading = right_heading,
+      transfer_label = transfer_label,
       figure_purpose = "participant_accounting_and_strobe_source_boundary",
       rendered_title_policy = "figure_title_metadata_only_not_drawn_inside_plot",
       uses_ggconsort = TRUE,
