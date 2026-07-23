@@ -62,8 +62,8 @@ test('package manifest, profile, registry, and plugin expose the locked referenc
   const manifest = readJson('contracts/opl_capability_package_manifest.json');
   const plugin = readJson('.codex-plugin/plugin.json');
   const binding = manifest.exports.runtime_module_bindings[0];
-  assert.equal(manifest.version, '0.2.20');
-  assert.equal(plugin.version, '0.2.20');
+  assert.equal(manifest.version, '0.2.21');
+  assert.equal(plugin.version, '0.2.21');
   assert.equal(manifest.content_lock.canonicalization, 'ordered_path_length_file_length_bytes');
   assert.equal(binding.module_id, 'mas-scholar-skills.reference-provider-adapters');
   assert.equal(binding.adapter_abi, REFERENCE_PROVIDER_ADAPTER_ABI);

@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.20":
-    fail("plugin version must be 0.2.20")
+if manifest.get("version") != "0.2.21":
+    fail("plugin version must be 0.2.21")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -630,8 +630,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.20":
-    fail("capability package version must be 0.2.20")
+if package_manifest.get("version") != "0.2.21":
+    fail("capability package version must be 0.2.21")
 if package_manifest.get("package_role") != "framework_capability_package":
     fail("capability package must use the consumer-neutral framework capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
@@ -1186,6 +1186,38 @@ for token in [
 submit_skill = capability_skill_texts["medical-submission-prep"]
 submit_kernel = read_text("skills/medical-submission-prep/kernel.py")
 write_kernel = read_text("skills/medical-manuscript-writing/kernel.py")
+for token in [
+    "Manuscript-Author Stance",
+    "scientific_evidence_gap",
+    "author_supplied_objective_fact",
+    "author_input_registry_ref",
+    "[AUTHOR INPUT: ...]",
+]:
+    if token not in write_skill:
+        fail(f"medical-manuscript-writing missing author-input policy token: {token}")
+for token in [
+    "validate_author_input_registry",
+    "DEFENSIVE_AUTHOR_INPUT_META_PROSE",
+    "AUTHOR_INPUT_ANNOTATION_ORPHANED",
+    "AUTHOR_INPUT_ANNOTATION_CARDINALITY_INVALID",
+    "AUTHOR_INPUT_DECLARED_COUNTS_MISMATCH",
+]:
+    if token not in write_kernel:
+        fail(f"medical-manuscript-writing kernel missing author-input gate token: {token}")
+for token in [
+    "Author-Input Projection Contract",
+    "author_input_registry_ref",
+    "author_input_todo_projection_ref",
+]:
+    if token not in submit_skill:
+        fail(f"medical-submission-prep missing author-input projection token: {token}")
+for token in [
+    "build_author_input_todo_projection",
+    "validate_author_input_todo_projection",
+    "AUTHOR_INPUT_TODO_PROJECTION_MISMATCH",
+]:
+    if token not in submit_kernel:
+        fail(f"medical-submission-prep kernel missing author-input projection gate token: {token}")
 data_governance_skill = capability_skill_texts["medical-data-governance"]
 cohort_phenotyping_skill = read_text("skills/medical-cohort-phenotyping/SKILL.md")
 methodology_planner_skill = read_text("skills/medical-methodology-planner/SKILL.md")

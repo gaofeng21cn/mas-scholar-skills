@@ -32,7 +32,7 @@ The audited source snapshot has the following structural shape:
 
 | Theme | Current source evidence | Boundary |
 | --- | --- | --- |
-| Package | `contracts/opl_capability_package_manifest.json` declares consumer-neutral `framework_capability_package` version `0.2.20` | Bundled resolution and materialized-byte currentness require fresh consumer package readback |
+| Package | `contracts/opl_capability_package_manifest.json` declares consumer-neutral `framework_capability_package` version `0.2.21` | Bundled resolution and materialized-byte currentness require fresh consumer package readback |
 | Consumer profiles | MAS and MAG use `.v1` optional-enhancement profiles with the same boundary fields; `required_*` ids are selected-profile compatibility sets only | Missing or incompatible enhancements continue through consumer core and cannot block install, activation, admission, route, launch, or readiness |
 | Skill exposure | 35 discoverable `SKILL.md` entries: 11 aggregate/core and 24 router or named-specialty skills | Presence does not select a specialty or grant authority |
 | Module catalog | `contracts/scholar-skills-capability-modules.json` declares eight professional modules and two machine adapter modules | The adapters describe or parse bounded requests; OPL Connect owns I/O and receipts |

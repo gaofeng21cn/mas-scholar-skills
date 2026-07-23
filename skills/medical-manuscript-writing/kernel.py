@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections import defaultdict
 from typing import Any, Mapping, Sequence
 
 
@@ -250,6 +251,17 @@ READER_FACING_SURFACES = frozenset(
     }
 )
 
+AUTHOR_INPUT_ANNOTATION_RE = re.compile(r"\[AUTHOR INPUT: [^\[\]\r\n]+\]")
+AUTHOR_INPUT_SURFACES = frozenset(
+    {
+        "manuscript_text",
+        "title_page",
+        "declarations",
+        "cover_letter",
+        "supplement",
+    }
+)
+
 READER_SURFACE_PROHIBITIONS = (
     (
         "INTERNAL_WORKFLOW_LANGUAGE_IN_READER_SURFACE",
@@ -279,6 +291,20 @@ READER_SURFACE_PROHIBITIONS = (
             re.IGNORECASE,
         ),
         "keep review-companion and row-trace language on the internal audit surface",
+    ),
+    (
+        "DEFENSIVE_AUTHOR_INPUT_META_PROSE",
+        re.compile(
+            r"(?:status\s*:\s*(?:author|owner|institutional)[^.\n]{0,40}"
+            r"(?:input|confirmation)\s+required|title page placeholder|"
+            r"(?:frozen|current) candidate (?:does not establish|contains no verified)|"
+            r"(?:manuscript|paper) (?:is|remains) (?:not |un)?ready [^.\n]{0,80}"
+            r"(?:missing|unknown|unavailable)|"
+            r"(?:author|institutional) (?:information|details|facts) "
+            r"(?:are|remain) (?:unknown|unavailable))",
+            re.IGNORECASE,
+        ),
+        "write in the authors' voice and replace the meta-commentary with one local [AUTHOR INPUT: ...] annotation",
     ),
 )
 
@@ -1417,6 +1443,200 @@ def lint_reader_facing_workflow_language(
     return findings
 
 
+def validate_author_input_registry(
+    registry: Mapping[str, object],
+    surfaces: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Validate exact author-input annotation closure without claiming authority."""
+
+    findings: list[dict[str, object]] = []
+    items = registry.get("items")
+    if (
+        registry.get("surface_kind") != "medical_author_input_registry.v1"
+        or registry.get("schema_version") != 1
+        or not isinstance(items, list)
+    ):
+        findings.append(
+            _author_input_finding(
+                "AUTHOR_INPUT_REGISTRY_SHAPE_INVALID",
+                "registry",
+                "use the v1 registry shape with an items array",
+            )
+        )
+        items = []
+
+    surface_index: dict[tuple[str, str], str] = {}
+    for index, surface in enumerate(surfaces, start=1):
+        surface_kind = str(surface.get("surface_kind") or "").strip()
+        surface_ref = str(surface.get("surface_ref") or f"surface_{index}").strip()
+        key = (surface_kind, surface_ref)
+        if key in surface_index:
+            findings.append(
+                _author_input_finding(
+                    "AUTHOR_INPUT_SURFACE_DUPLICATE",
+                    f"{surface_kind}:{surface_ref}",
+                    "provide each reader-facing surface exactly once",
+                )
+            )
+            continue
+        surface_index[key] = str(surface.get("text") or "")
+
+    item_ids: set[str] = set()
+    placement_ids: set[str] = set()
+    registered_by_surface: dict[tuple[str, str], list[str]] = defaultdict(list)
+    item_count = 0
+    placement_count = 0
+    main_count = 0
+    supporting_count = 0
+    for item_index, item in enumerate(items, start=1):
+        item_count += 1
+        if not isinstance(item, Mapping):
+            findings.append(
+                _author_input_finding(
+                    "AUTHOR_INPUT_ITEM_INVALID",
+                    f"items[{item_index}]",
+                    "use an object for every grouped input item",
+                )
+            )
+            continue
+        item_id = str(item.get("id") or "").strip()
+        required_fields = ("category", "required_input", "responsible_owner")
+        if (
+            not item_id
+            or item_id in item_ids
+            or any(not str(item.get(field) or "").strip() for field in required_fields)
+        ):
+            findings.append(
+                _author_input_finding(
+                    "AUTHOR_INPUT_ITEM_ID_OR_FIELD_INVALID",
+                    item_id or f"items[{item_index}]",
+                    "use a unique stable id and complete objective-fact fields",
+                )
+            )
+        item_ids.add(item_id)
+        placements = item.get("placements")
+        if not isinstance(placements, list):
+            findings.append(
+                _author_input_finding(
+                    "AUTHOR_INPUT_PLACEMENTS_INVALID",
+                    item_id or f"items[{item_index}]",
+                    "provide a placements array, which may be empty only for package-only inputs",
+                )
+            )
+            continue
+        for placement_index, placement in enumerate(placements, start=1):
+            placement_count += 1
+            if not isinstance(placement, Mapping):
+                findings.append(
+                    _author_input_finding(
+                        "AUTHOR_INPUT_PLACEMENT_INVALID",
+                        f"{item_id}.placements[{placement_index}]",
+                        "use an object for every placement",
+                    )
+                )
+                continue
+            placement_id = str(placement.get("placement_id") or "").strip()
+            surface_kind = str(placement.get("surface_kind") or "").strip()
+            surface_ref = str(placement.get("surface_ref") or "").strip()
+            annotation = str(placement.get("exact_annotation") or "")
+            if (
+                not placement_id
+                or placement_id in placement_ids
+                or surface_kind not in AUTHOR_INPUT_SURFACES
+                or not surface_ref
+                or AUTHOR_INPUT_ANNOTATION_RE.fullmatch(annotation) is None
+            ):
+                findings.append(
+                    _author_input_finding(
+                        "AUTHOR_INPUT_PLACEMENT_FIELDS_INVALID",
+                        placement_id or f"{item_id}.placements[{placement_index}]",
+                        "bind a unique placement id, supported surface, ref, and exact [AUTHOR INPUT: ...] annotation",
+                    )
+                )
+                continue
+            placement_ids.add(placement_id)
+            key = (surface_kind, surface_ref)
+            registered_by_surface[key].append(annotation)
+            if surface_kind == "manuscript_text":
+                main_count += 1
+            else:
+                supporting_count += 1
+            text = surface_index.get(key)
+            if text is None:
+                findings.append(
+                    _author_input_finding(
+                        "AUTHOR_INPUT_SURFACE_MISSING",
+                        placement_id,
+                        "provide the exact registered surface for validation",
+                    )
+                )
+                continue
+            occurrences = text.count(annotation)
+            if occurrences != 1:
+                findings.append(
+                    _author_input_finding(
+                        "AUTHOR_INPUT_ANNOTATION_CARDINALITY_INVALID",
+                        placement_id,
+                        f"require the exact registered annotation once, observed {occurrences}",
+                    )
+                )
+    for key, text in surface_index.items():
+        actual = AUTHOR_INPUT_ANNOTATION_RE.findall(text)
+        expected = registered_by_surface.get(key, [])
+        for annotation in sorted(set(actual) - set(expected)):
+            findings.append(
+                _author_input_finding(
+                    "AUTHOR_INPUT_ANNOTATION_ORPHANED",
+                    f"{key[0]}:{key[1]}",
+                    f"register or remove orphan annotation {annotation}",
+                )
+            )
+        if len(actual) != len(expected):
+            findings.append(
+                _author_input_finding(
+                    "AUTHOR_INPUT_SURFACE_COUNT_MISMATCH",
+                    f"{key[0]}:{key[1]}",
+                    f"expected {len(expected)} annotations, observed {len(actual)}",
+                )
+            )
+
+    declared_counts = registry.get("counts")
+    expected_counts = {
+        "grouped_item_count": item_count,
+        "placement_count": placement_count,
+        "main_manuscript_annotation_count": main_count,
+        "supporting_document_annotation_count": supporting_count,
+    }
+    if declared_counts != expected_counts:
+        findings.append(
+            _author_input_finding(
+                "AUTHOR_INPUT_DECLARED_COUNTS_MISMATCH",
+                "counts",
+                f"declare exact counts {expected_counts}",
+            )
+        )
+
+    findings.sort(key=lambda item: (str(item["code"]), str(item["surface_ref"])))
+    return {
+        "surface_kind": "medical_author_input_registry_audit_candidate.v1",
+        "machine_check_status": "candidate_complete" if not findings else "route_back_required",
+        "counts": expected_counts,
+        "findings": findings,
+        "authority": False,
+    }
+
+
+def _author_input_finding(
+    code: str, surface_ref: str, action: str
+) -> dict[str, object]:
+    return {
+        "code": code,
+        "surface_ref": surface_ref,
+        "action": action,
+        "writes_authority": False,
+    }
+
+
 def _terminology_finding(
     code: str, surface_kind: str, action: str, *, term: str = ""
 ) -> dict[str, object]:
@@ -2015,7 +2235,102 @@ def _self_check() -> None:
         "INTERNAL_REVIEW_LANGUAGE_IN_READER_SURFACE",
     }
     assert all(item["writes_authority"] is False for item in reader_findings)
-    print(json.dumps({"ok": True, "checks": 39}, indent=2, sort_keys=True))
+    defensive_findings = lint_reader_facing_workflow_language(
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md#funding",
+                "text": "Status: author input required. The frozen candidate contains no verified funding statement.",
+            }
+        ]
+    )
+    assert {item["code"] for item in defensive_findings} == {
+        "DEFENSIVE_AUTHOR_INPUT_META_PROSE"
+    }
+    assert lint_reader_facing_workflow_language(
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md#ethics",
+                "text": "The study was approved by [AUTHOR INPUT: insert committee name and approval identifier.]",
+            }
+        ]
+    ) == []
+    manuscript_annotation = "[AUTHOR INPUT: insert author names and affiliations.]"
+    title_annotation = "[AUTHOR INPUT: insert the corresponding author details.]"
+    author_input_registry = {
+        "surface_kind": "medical_author_input_registry.v1",
+        "schema_version": 1,
+        "counts": {
+            "grouped_item_count": 1,
+            "placement_count": 2,
+            "main_manuscript_annotation_count": 1,
+            "supporting_document_annotation_count": 1,
+        },
+        "items": [
+            {
+                "id": "A01",
+                "category": "author_metadata",
+                "required_input": "Author names, affiliations, and corresponding-author details",
+                "responsible_owner": "author team",
+                "placements": [
+                    {
+                        "placement_id": "A01-M01",
+                        "surface_kind": "manuscript_text",
+                        "surface_ref": "manuscript.md",
+                        "section": "title page",
+                        "exact_annotation": manuscript_annotation,
+                    },
+                    {
+                        "placement_id": "A01-T01",
+                        "surface_kind": "title_page",
+                        "surface_ref": "title_page.md",
+                        "section": "corresponding author",
+                        "exact_annotation": title_annotation,
+                    },
+                ],
+            }
+        ],
+    }
+    author_input_audit = validate_author_input_registry(
+        author_input_registry,
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md",
+                "text": f"Authors: {manuscript_annotation}",
+            },
+            {
+                "surface_kind": "title_page",
+                "surface_ref": "title_page.md",
+                "text": f"Corresponding author: {title_annotation}",
+            },
+        ],
+    )
+    assert author_input_audit["machine_check_status"] == "candidate_complete"
+    orphan_audit = validate_author_input_registry(
+        author_input_registry,
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md",
+                "text": (
+                    f"Authors: {manuscript_annotation}\n"
+                    "[AUTHOR INPUT: insert an unregistered fact.]"
+                ),
+            },
+            {
+                "surface_kind": "title_page",
+                "surface_ref": "title_page.md",
+                "text": f"Corresponding author: {title_annotation}",
+            },
+        ],
+    )
+    assert {
+        "AUTHOR_INPUT_ANNOTATION_ORPHANED",
+        "AUTHOR_INPUT_SURFACE_COUNT_MISMATCH",
+    }.issubset({item["code"] for item in orphan_audit["findings"]})
+    print(json.dumps({"ok": True, "checks": 45}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

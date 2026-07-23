@@ -318,6 +318,95 @@ def lint_required_documents(manifest: Mapping[str, object]) -> list[dict[str, st
     return findings
 
 
+def build_author_input_todo_projection(
+    registry: Mapping[str, object],
+) -> dict[str, object]:
+    """Build a deterministic To-Do projection from an author-input registry."""
+
+    items = registry.get("items")
+    if (
+        registry.get("surface_kind") != "medical_author_input_registry.v1"
+        or registry.get("schema_version") != 1
+        or not isinstance(items, list)
+    ):
+        raise ValueError("author-input registry must use the v1 shape")
+    projected_items: list[dict[str, object]] = []
+    main_count = 0
+    supporting_count = 0
+    placement_count = 0
+    for item in items:
+        if not isinstance(item, Mapping):
+            raise ValueError("author-input registry items must be objects")
+        placements = item.get("placements")
+        if not isinstance(placements, list):
+            raise ValueError("author-input registry placements must be arrays")
+        projected_placements: list[dict[str, str]] = []
+        for placement in placements:
+            if not isinstance(placement, Mapping):
+                raise ValueError("author-input placements must be objects")
+            row = {
+                "placement_id": str(placement.get("placement_id") or ""),
+                "surface_kind": str(placement.get("surface_kind") or ""),
+                "surface_ref": str(placement.get("surface_ref") or ""),
+                "section": str(placement.get("section") or ""),
+                "exact_annotation": str(placement.get("exact_annotation") or ""),
+            }
+            projected_placements.append(row)
+            placement_count += 1
+            if row["surface_kind"] == "manuscript_text":
+                main_count += 1
+            else:
+                supporting_count += 1
+        projected_items.append(
+            {
+                "id": str(item.get("id") or ""),
+                "category": str(item.get("category") or ""),
+                "required_input": str(item.get("required_input") or ""),
+                "responsible_owner": str(item.get("responsible_owner") or ""),
+                "blocks_formal_submission": item.get("blocks_formal_submission") is True,
+                "placements": projected_placements,
+            }
+        )
+    return {
+        "surface_kind": "medical_author_input_todo_projection.v1",
+        "schema_version": 1,
+        "registry_surface_kind": registry.get("surface_kind"),
+        "counts": {
+            "grouped_item_count": len(projected_items),
+            "placement_count": placement_count,
+            "main_manuscript_annotation_count": main_count,
+            "supporting_document_annotation_count": supporting_count,
+        },
+        "items": projected_items,
+        "authority": False,
+    }
+
+
+def validate_author_input_todo_projection(
+    registry: Mapping[str, object],
+    projection: Mapping[str, object],
+) -> dict[str, object]:
+    """Require exact registry-to-To-Do equality without inferring author facts."""
+
+    expected = build_author_input_todo_projection(registry)
+    findings: list[dict[str, object]] = []
+    if projection != expected:
+        findings.append(
+            _package_role_finding(
+                "AUTHOR_INPUT_TODO_PROJECTION_MISMATCH",
+                "AUTHOR_INPUT_TODO.json",
+                "regenerate the complete To-Do projection from the single author-input registry",
+            )
+        )
+    return {
+        "surface_kind": "medical_author_input_todo_projection_audit_candidate.v1",
+        "machine_check_status": "candidate_complete" if not findings else "route_back_required",
+        "expected_counts": expected["counts"],
+        "findings": findings,
+        "authority": False,
+    }
+
+
 def lint_submission_artifact_roles(
     artifacts: Sequence[Mapping[str, object]],
 ) -> list[dict[str, object]]:
@@ -686,7 +775,45 @@ def _self_check() -> None:
     assert "SUBMISSION_FIGURE_NUMBERING_EXACTLY_ONE_VIOLATION" in {
         item["code"] for item in validate_submission_figure_numbering_binding(bad_binding)["findings"]
     }
-    print(json.dumps({"ok": True, "checks": 17}, indent=2, sort_keys=True))
+    registry = {
+        "surface_kind": "medical_author_input_registry.v1",
+        "schema_version": 1,
+        "items": [
+            {
+                "id": "A01",
+                "category": "author_metadata",
+                "required_input": "Author names and affiliations",
+                "responsible_owner": "author team",
+                "blocks_formal_submission": True,
+                "placements": [
+                    {
+                        "placement_id": "A01-M01",
+                        "surface_kind": "manuscript_text",
+                        "surface_ref": "manuscript.md",
+                        "section": "title page",
+                        "exact_annotation": "[AUTHOR INPUT: insert author names and affiliations.]",
+                    }
+                ],
+            }
+        ],
+    }
+    todo_projection = build_author_input_todo_projection(registry)
+    assert todo_projection["counts"]["main_manuscript_annotation_count"] == 1
+    assert (
+        validate_author_input_todo_projection(registry, todo_projection)[
+            "machine_check_status"
+        ]
+        == "candidate_complete"
+    )
+    stale_projection = json.loads(json.dumps(todo_projection))
+    stale_projection["counts"]["main_manuscript_annotation_count"] = 0
+    assert {
+        item["code"]
+        for item in validate_author_input_todo_projection(
+            registry, stale_projection
+        )["findings"]
+    } == {"AUTHOR_INPUT_TODO_PROJECTION_MISMATCH"}
+    print(json.dumps({"ok": True, "checks": 20}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

@@ -164,6 +164,31 @@ Before preparing the package, create or refresh:
 If journal instructions, declarations, or owner-supplied metadata are missing,
 produce route-back rather than inventing content.
 
+### Author-Input Projection Contract
+
+Prepare submission documents in the authors' voice. A missing objective fact
+that the author, institution, data owner, or submission owner can supply is not
+a reason to turn the title page, declaration, cover letter, or manuscript into
+an audit report. Keep the ideal submission document structure and place the
+minimum `[AUTHOR INPUT: ...]` annotation at the exact field or sentence.
+
+Consume one `author_input_registry_ref` shared with
+`medical-manuscript-writing`. Generate `AUTHOR_INPUT_TODO.json` and the
+human-readable To-Do list from that registry. The projection must report:
+
+- grouped author-input item count;
+- exact main-manuscript annotation count;
+- exact supporting-document annotation count;
+- stable item and placement ids with section or field locations.
+
+Require exact set and order equality between the registry and To-Do projection.
+Reject missing, extra, orphaned, or duplicate annotations. Keep scientific
+evidence gaps separate: they may change a claim or route backward, whereas
+author-supplied objective facts do not downgrade an otherwise supported paper.
+Reader-facing files must not contain status prose such as `title page
+placeholder`, `status: author input required`, or `the frozen candidate does
+not establish`.
+
 ## Workflow
 
 1. Identify target journal, article type, submission stage, and whether this is
@@ -258,6 +283,8 @@ Return refs-only candidate output:
 - `cover_letter_candidate_ref`
 - `reviewer_response_candidate_ref`
 - `author_input_needed_ref`
+- `author_input_registry_ref`
+- `author_input_todo_projection_ref`
 - `submission_action_matrix_ref`
 - `claim_type_ref`
 - `graph_warnings_ref`

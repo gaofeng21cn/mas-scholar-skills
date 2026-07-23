@@ -63,6 +63,38 @@ If evidence is incomplete, contradictory, or too weak, produce one of:
 
 Do not polish fiction.
 
+## Manuscript-Author Stance
+
+Write as the manuscript authors, not as an unrelated third-party auditor
+commenting on what the authors do or do not know. When accepted evidence
+supports the scientific content, write the ideal complete medical-journal
+sentence, paragraph, and section in ordinary authorial voice.
+
+Classify an unresolved input before changing prose:
+
+- A `scientific_evidence_gap` can require route-back, claim downgrade, an
+  explicit scientific limitation, or omission.
+- An `author_supplied_objective_fact` is a fact the author, institution,
+  data owner, or submission owner can supply, such as names, affiliations,
+  ethics identifiers, recruitment dates, funding, disclosures, data-access
+  wording, or a journal selection. Keep the ideal manuscript structure and
+  insert the minimum local `[AUTHOR INPUT: ...]` annotation needed to complete
+  it. Do not downgrade the scientific claim, stop ordinary authoring, or add
+  defensive prose because this class of fact is pending.
+
+Do not write statements such as `the frozen candidate does not establish`,
+`status: author input required`, `this manuscript is not ready because`, or
+`the information is unknown` on reader-facing manuscript, title-page,
+declaration, cover-letter, table, figure, or supplement surfaces. Put workflow
+status and responsibility in a derived author-input To-Do surface.
+
+For a substantial draft, maintain one structured `author_input_registry_ref`.
+Each grouped item must have a stable id, category, requested objective fact,
+responsible owner, and every exact inline annotation location. Generate the
+human and machine-readable To-Do lists from that registry, report the exact
+main-manuscript annotation count, and fail review handoff on missing, orphaned,
+or duplicate annotations. A To-Do list is a projection, not independent truth.
+
 ## AI-First Judgment Contract
 
 Default to professional medical judgment before filling module fields. The
@@ -363,8 +395,11 @@ decision artifact that routed into writing.
 Manuscript body, figure titles, captions, and table notes must avoid internal
 engineering terms, internal model names, workspace labels, data-freeze labels,
 runtime labels, and workflow-status language. Put unresolved author,
-affiliation, ethics, consent, funding, conflict, or data-availability gaps in
-submission checklists or handoff notes, not in article-body prose.
+affiliation, ethics, consent, funding, conflict, or data-availability facts in
+concise `[AUTHOR INPUT: ...]` annotations at the exact title-page, Methods, or
+declaration location where the authors will complete them. Keep responsibility,
+status, and formal-submission gating in the registry-derived To-Do or handoff,
+not in article-body prose.
 
 Run `lint_reader_facing_workflow_language()` across manuscript text, table
 titles and notes, figure legends, and supplement text before first-draft
@@ -434,7 +469,7 @@ For a high-impact or SCI-facing draft, also record:
 - reporting guideline family, such as STROBE, CONSORT, PRISMA, TRIPOD, or
   RECORD when relevant;
 - data availability, code availability, ethics/consent, funding, COI, and
-  author contribution placeholders;
+  author contribution annotations driven by `author_input_registry_ref`;
 - figure/table narrative map showing where each display supports a text claim;
 - expected supplementary material when missingness, source heterogeneity, model
   details, or sensitivity analyses need space.
