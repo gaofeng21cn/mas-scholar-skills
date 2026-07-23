@@ -1,6 +1,6 @@
 {
   "contract_id": "mas_scholar_skills_display_pack_receipt_templates",
-  "schema_version": "1.5.0",
+  "schema_version": "1.6.0",
   "owner": "MAS Scholar Skills Display",
   "state": "active_refs_only_template",
   "purpose": "Minimal refs-only handoff shapes for mandatory professional Figure Skill consumption, the medical figure contract, display-pack or paper-local generation receipt, fixed-canvas layout QC receipt, and visual QA receipt loop.",
@@ -68,6 +68,10 @@
       ],
       "connector_and_bracket_segments_require_renderer_path_geometry": true,
       "shared_junction_requires_common_renderer_path_prefix": true,
+      "segmented_band_parent_connector_requires_exact_group_span_contract": true,
+      "segmented_group_requires_full_span_labeled_midpoint_anchor": true,
+      "segmented_group_requires_renderer_bound_actual_path_geometry": true,
+      "unsupported_segmented_group_orientation_or_anchor_mode_fails_closed": true,
       "text_only_bbox_pass_is_sufficient": false,
       "hard_coded_zero_violation_counts_allowed": false
     },
@@ -241,6 +245,8 @@
       "semantic_arrow_budget_met",
       "semantic_incoming_unambiguous",
       "semantic_bracket_spans_exact",
+      "semantic_segmented_group_spans_exact",
+      "semantic_segmented_group_perceptual_anchors_valid",
       "fixed_canvas_export",
       "png_pdf_final_size_and_sha_bound"
     ],

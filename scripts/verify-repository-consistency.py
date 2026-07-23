@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.19":
-    fail("plugin version must be 0.2.19")
+if manifest.get("version") != "0.2.20":
+    fail("plugin version must be 0.2.20")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -630,8 +630,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.19":
-    fail("capability package version must be 0.2.19")
+if package_manifest.get("version") != "0.2.20":
+    fail("capability package version must be 0.2.20")
 if package_manifest.get("package_role") != "framework_capability_package":
     fail("capability package must use the consumer-neutral framework capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
@@ -3181,8 +3181,8 @@ for relative, text in deterministic_figure_closeout_texts.items():
         if token not in text:
             fail(f"{relative} missing measured-layout regression token: {token}")
 
-if display_receipt_templates.get("schema_version") != "1.5.0":
-    fail("display receipt templates must use schema_version 1.5.0")
+if display_receipt_templates.get("schema_version") != "1.6.0":
+    fail("display receipt templates must use schema_version 1.6.0")
 require_all(
     "display receipt chain",
     display_receipt_templates.get("receipt_chain"),
@@ -3230,6 +3230,10 @@ for key in [
     "declared_flow_or_schematic_requires_complete_semantic_artist_registry",
     "connector_and_bracket_segments_require_renderer_path_geometry",
     "shared_junction_requires_common_renderer_path_prefix",
+    "segmented_band_parent_connector_requires_exact_group_span_contract",
+    "segmented_group_requires_full_span_labeled_midpoint_anchor",
+    "segmented_group_requires_renderer_bound_actual_path_geometry",
+    "unsupported_segmented_group_orientation_or_anchor_mode_fails_closed",
 ]:
     if semantic_flow_policy.get(key) is not True:
         fail(f"professional figure workflow semantic-flow policy must require {key}")
@@ -3316,6 +3320,8 @@ require_all(
         "semantic_arrow_budget_met",
         "semantic_incoming_unambiguous",
         "semantic_bracket_spans_exact",
+        "semantic_segmented_group_spans_exact",
+        "semantic_segmented_group_perceptual_anchors_valid",
         "fixed_canvas_export",
         "png_pdf_final_size_and_sha_bound",
     ],
@@ -3455,6 +3461,89 @@ for connector in semantic_fixture_contract.get("connectors") or []:
                 "semantic artist regression connector geometry must bind "
                 "the renderer path endpoints"
             )
+segmented_relations = {
+    str(relation.get("relation_id") or ""): relation
+    for relation in semantic_fixture_contract.get("relations") or []
+    if relation.get("encoding") == "segmented_band"
+}
+segmented_spans = semantic_fixture_contract.get("segmented_group_spans") or []
+if set(segmented_relations) != {"band_partition"} or len(segmented_spans) != 1:
+    fail("semantic artist regression fixture must exercise one segmented group")
+segmented_span = segmented_spans[0]
+segmented_relation = segmented_relations["band_partition"]
+if (
+    segmented_span.get("relation_id") != "band_partition"
+    or segmented_span.get("orientation") != "horizontal"
+    or segmented_span.get("entry_edge") != "top"
+    or segmented_span.get("child_node_ids")
+    != segmented_relation.get("destination_node_ids")
+):
+    fail("semantic artist regression segmented group identity is invalid")
+perceptual_anchor = segmented_span.get("perceptual_anchor") or {}
+if (
+    perceptual_anchor.get("mode") != "labeled_full_span_header"
+    or perceptual_anchor.get("anchor_position") != "midpoint"
+):
+    fail("semantic artist regression segmented group anchor mode is invalid")
+semantic_fixture_nodes = {
+    str(node.get("node_id") or ""): node
+    for node in semantic_fixture_contract.get("nodes") or []
+}
+group_node = semantic_fixture_nodes.get(str(segmented_span.get("group_node_id"))) or {}
+child_nodes = [
+    semantic_fixture_nodes.get(str(node_id)) or {}
+    for node_id in segmented_span.get("child_node_ids") or []
+]
+group_bbox = group_node.get("bbox_px") or []
+child_bboxes = [node.get("bbox_px") or [] for node in child_nodes]
+if (
+    len(group_bbox) != 4
+    or any(len(bbox) != 4 for bbox in child_bboxes)
+    or group_bbox[0] != min(bbox[0] for bbox in child_bboxes)
+    or group_bbox[2] != max(bbox[2] for bbox in child_bboxes)
+    or group_bbox[1] != child_bboxes[0][3]
+    or any(
+        left[2] != right[0]
+        for left, right in zip(child_bboxes[:-1], child_bboxes[1:], strict=True)
+    )
+):
+    fail("semantic artist regression segmented group span must be exact")
+label_artist_id = str(perceptual_anchor.get("label_artist_id") or "")
+semantic_fixture_text = {
+    str(artist.get("artist_id") or ""): str(artist.get("source_text") or "")
+    for panel in semantic_artist_flow_fixture.get("panels") or []
+    for artist in panel.get("text_artists") or []
+}
+if (
+    not str(segmented_span.get("group_label") or "").strip()
+    or label_artist_id not in (group_node.get("text_artist_ids") or [])
+    or semantic_fixture_text.get(label_artist_id) != segmented_span.get("group_label")
+):
+    fail("semantic artist regression segmented group label anchor is invalid")
+segmented_connectors = [
+    connector
+    for connector in semantic_fixture_contract.get("connectors") or []
+    if connector.get("relation_id") == "band_partition"
+]
+if len(segmented_connectors) != 1:
+    fail("semantic artist regression segmented group requires one connector")
+segmented_connector = segmented_connectors[0]
+expected_group_anchor = [
+    (group_bbox[0] + group_bbox[2]) / 2,
+    group_bbox[3],
+]
+if (
+    segmented_connector.get("connector_id") != segmented_span.get("connector_id")
+    or segmented_connector.get("arrow_bearing") is not False
+    or segmented_connector.get("arrowhead_artist_ids") != []
+    or segmented_connector.get("destination_node_id")
+    != segmented_span.get("group_node_id")
+    or (segmented_connector.get("segments_px") or [])[-1][2:]
+    != expected_group_anchor
+    or segmented_span.get("expected_group_anchor_px") != expected_group_anchor
+    or segmented_span.get("actual_connector_terminal_px") != expected_group_anchor
+):
+    fail("semantic artist regression segmented group connector is invalid")
 for bracket in semantic_fixture_contract.get("brackets") or []:
     if not bracket.get("segment_artist_ids"):
         fail("semantic artist regression brackets must bind registered segment artists")
@@ -3493,6 +3582,13 @@ for token in [
     "semantic_arrow_budget_exceeded",
     "semantic_ambiguous_incoming_connectors",
     "semantic_bracket_span_mismatch",
+    "semantic_segmented_group_relation_set_mismatch",
+    "semantic_segmented_group_connector_invalid",
+    "semantic_segmented_group_children_not_contiguous",
+    "semantic_segmented_group_header_not_adjacent",
+    "semantic_segmented_group_anchor_mismatch",
+    "semantic_segmented_group_label_artist_invalid",
+    "semantic_segmented_group_perceptual_anchors_valid",
     "can_claim_quality_verdict",
     "build_page_hash_evidence_candidate",
     "scholarskills_page_hash_evidence_candidate",

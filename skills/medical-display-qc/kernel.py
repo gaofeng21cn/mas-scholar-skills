@@ -1556,6 +1556,15 @@ def _semantic_segment(
     return ((x0, y0), (x1, y1))
 
 
+def _semantic_point(value: object, label: str) -> tuple[float, float]:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        raise ValueError(f"{label} must contain two coordinates")
+    return (
+        _layout_number(value[0], f"{label}[0]"),
+        _layout_number(value[1], f"{label}[1]"),
+    )
+
+
 def _points_close(
     first: tuple[float, float],
     second: tuple[float, float],
@@ -1685,6 +1694,426 @@ def _semantic_scope_text(value: object) -> str:
     return str(value or "").strip()
 
 
+def _audit_segmented_group_spans(
+    flow_contract: Mapping[str, object],
+    *,
+    nodes: Mapping[str, Mapping[str, object]],
+    relations: Mapping[str, Mapping[str, object]],
+    connectors: Sequence[Mapping[str, object]],
+    text_source_by_id: Mapping[str, str],
+) -> dict[str, object]:
+    """Validate non-arrow segmented bands against renderer-bound group geometry."""
+
+    violations: list[dict[str, object]] = []
+    segmented_relation_ids = {
+        relation_id
+        for relation_id, relation in relations.items()
+        if relation.get("encoding") == "segmented_band"
+    }
+    spans_value = flow_contract.get("segmented_group_spans")
+    if spans_value is None:
+        spans: list[Mapping[str, object]] = []
+    elif not isinstance(spans_value, list) or not all(
+        isinstance(item, Mapping) for item in spans_value
+    ):
+        violations.append(
+            _layout_violation("semantic_segmented_group_registry_invalid")
+        )
+        spans = []
+    else:
+        spans = list(spans_value)
+
+    connectors_by_id = {
+        str(connector.get("connector_id") or ""): connector
+        for connector in connectors
+        if str(connector.get("connector_id") or "")
+    }
+    connectors_by_relation: dict[str, list[Mapping[str, object]]] = {}
+    for connector in connectors:
+        relation_id = str(connector.get("relation_id") or "")
+        connectors_by_relation.setdefault(relation_id, []).append(connector)
+
+    observed_relation_ids: list[str] = []
+    seen_group_ids: set[str] = set()
+    seen_connector_ids: set[str] = set()
+    child_group_owner: dict[str, str] = {}
+    valid_span_count = 0
+    for index, span in enumerate(spans):
+        span_violation_count = len(violations)
+        relation_id = str(span.get("relation_id") or "").strip()
+        group_node_id = str(span.get("group_node_id") or "").strip()
+        connector_id = str(span.get("connector_id") or "").strip()
+        child_node_ids_value = span.get("child_node_ids")
+        child_node_ids = (
+            [str(item).strip() for item in child_node_ids_value]
+            if isinstance(child_node_ids_value, list)
+            else []
+        )
+        if (
+            not relation_id
+            or not group_node_id
+            or not connector_id
+            or len(child_node_ids) < 2
+            or any(not item for item in child_node_ids)
+            or len(set(child_node_ids)) != len(child_node_ids)
+            or group_node_id in child_node_ids
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_record_invalid",
+                    group_index=index,
+                )
+            )
+            continue
+
+        observed_relation_ids.append(relation_id)
+        duplicate_identifiers: list[str] = []
+        if group_node_id in seen_group_ids:
+            duplicate_identifiers.append(group_node_id)
+        if connector_id in seen_connector_ids:
+            duplicate_identifiers.append(connector_id)
+        for child_node_id in child_node_ids:
+            prior_group = child_group_owner.get(child_node_id)
+            if prior_group is not None and prior_group != group_node_id:
+                duplicate_identifiers.append(child_node_id)
+            child_group_owner[child_node_id] = group_node_id
+        seen_group_ids.add(group_node_id)
+        seen_connector_ids.add(connector_id)
+        if duplicate_identifiers:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_identifier_not_unique",
+                    relation_id=relation_id,
+                    duplicate_ids=sorted(set(duplicate_identifiers)),
+                )
+            )
+
+        relation = relations.get(relation_id)
+        if relation is None or relation_id not in segmented_relation_ids:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_relation_invalid",
+                    relation_id=relation_id,
+                )
+            )
+            continue
+        relation_destinations = list(relation.get("destination_node_ids") or [])
+        if relation_destinations != child_node_ids:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_relation_children_mismatch",
+                    relation_id=relation_id,
+                    relation_destination_node_ids=relation_destinations,
+                    group_child_node_ids=child_node_ids,
+                )
+            )
+        if (
+            not str(span.get("width_encoding") or "").strip()
+            or span.get("width_encoding") != relation.get("width_encoding")
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_width_encoding_mismatch",
+                    relation_id=relation_id,
+                )
+            )
+
+        group_node = nodes.get(group_node_id)
+        child_nodes = [nodes.get(child_node_id) for child_node_id in child_node_ids]
+        if group_node is None or any(child is None for child in child_nodes):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_node_missing",
+                    relation_id=relation_id,
+                    group_node_id=group_node_id,
+                    missing_child_node_ids=[
+                        child_node_id
+                        for child_node_id, child in zip(
+                            child_node_ids, child_nodes, strict=True
+                        )
+                        if child is None
+                    ],
+                )
+            )
+            continue
+
+        relation_connectors = connectors_by_relation.get(relation_id, [])
+        connector = connectors_by_id.get(connector_id)
+        if (
+            len(relation_connectors) != 1
+            or connector is None
+            or relation_connectors[0].get("connector_id") != connector_id
+            or connector.get("destination_node_id") != group_node_id
+            or connector.get("source_node_id") != relation.get("source_node_id")
+            or connector.get("arrow_bearing") is True
+            or bool(connector.get("arrowhead_artist_ids"))
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_connector_invalid",
+                    relation_id=relation_id,
+                    connector_id=connector_id,
+                    relation_connector_ids=[
+                        str(item.get("connector_id") or "")
+                        for item in relation_connectors
+                    ],
+                )
+            )
+            continue
+
+        tolerance = float(connector.get("geometry_tolerance_px") or 0.5)
+        group_bbox = tuple(group_node["bbox"])
+        child_bboxes = [tuple(child["bbox"]) for child in child_nodes if child]
+        sorted_children = sorted(
+            zip(child_node_ids, child_bboxes, strict=True),
+            key=lambda item: (item[1][0], item[1][2], item[0]),
+        )
+        if [item[0] for item in sorted_children] != child_node_ids:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_child_order_invalid",
+                    relation_id=relation_id,
+                )
+            )
+        child_union = (
+            min(bbox[0] for bbox in child_bboxes),
+            min(bbox[1] for bbox in child_bboxes),
+            max(bbox[2] for bbox in child_bboxes),
+            max(bbox[3] for bbox in child_bboxes),
+        )
+        if not (
+            math.isclose(group_bbox[0], child_union[0], abs_tol=tolerance)
+            and math.isclose(group_bbox[2], child_union[2], abs_tol=tolerance)
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_span_mismatch",
+                    relation_id=relation_id,
+                    group_span_px=[group_bbox[0], group_bbox[2]],
+                    child_union_span_px=[child_union[0], child_union[2]],
+                    tolerance_px=tolerance,
+                )
+            )
+
+        reference_y0 = child_bboxes[0][1]
+        reference_y1 = child_bboxes[0][3]
+        same_y_band = all(
+            math.isclose(bbox[1], reference_y0, abs_tol=tolerance)
+            and math.isclose(bbox[3], reference_y1, abs_tol=tolerance)
+            for bbox in child_bboxes
+        )
+        contiguous = same_y_band and all(
+            math.isclose(
+                sorted_children[position][1][2],
+                sorted_children[position + 1][1][0],
+                abs_tol=tolerance,
+            )
+            for position in range(len(sorted_children) - 1)
+        )
+        if not contiguous:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_children_not_contiguous",
+                    relation_id=relation_id,
+                    child_node_ids=child_node_ids,
+                    tolerance_px=tolerance,
+                )
+            )
+        if not math.isclose(group_bbox[1], reference_y1, abs_tol=tolerance):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_header_not_adjacent",
+                    relation_id=relation_id,
+                    group_bottom_px=group_bbox[1],
+                    child_top_px=reference_y1,
+                    tolerance_px=tolerance,
+                )
+            )
+
+        try:
+            declared_group_bbox = _layout_bbox(
+                span.get("group_header_bbox_px"),
+                (
+                    "semantic_flow_contract.segmented_group_spans"
+                    f"[{index}].group_header_bbox_px"
+                ),
+            )
+            declared_child_union = _layout_bbox(
+                span.get("child_union_bbox_px"),
+                (
+                    "semantic_flow_contract.segmented_group_spans"
+                    f"[{index}].child_union_bbox_px"
+                ),
+            )
+        except ValueError as exc:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_declared_geometry_invalid",
+                    relation_id=relation_id,
+                    reason=str(exc),
+                )
+            )
+        else:
+            if not (
+                _bboxes_close(declared_group_bbox, group_bbox, tolerance)
+                and _bboxes_close(declared_child_union, child_union, tolerance)
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_segmented_group_declared_geometry_mismatch",
+                        relation_id=relation_id,
+                        tolerance_px=tolerance,
+                    )
+                )
+
+        orientation = str(span.get("orientation") or "")
+        entry_edge = str(span.get("entry_edge") or "")
+        perceptual_anchor = span.get("perceptual_anchor")
+        if orientation != "horizontal":
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_orientation_invalid",
+                    relation_id=relation_id,
+                    orientation=orientation,
+                )
+            )
+        if entry_edge != "top":
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_entry_edge_invalid",
+                    relation_id=relation_id,
+                    entry_edge=entry_edge,
+                )
+            )
+        if not isinstance(perceptual_anchor, Mapping):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_perceptual_anchor_invalid",
+                    relation_id=relation_id,
+                )
+            )
+            perceptual_anchor = {}
+        if (
+            perceptual_anchor.get("mode") != "labeled_full_span_header"
+            or perceptual_anchor.get("anchor_position") != "midpoint"
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_perceptual_anchor_invalid",
+                    relation_id=relation_id,
+                    mode=perceptual_anchor.get("mode"),
+                    anchor_position=perceptual_anchor.get("anchor_position"),
+                )
+            )
+
+        group_label = str(span.get("group_label") or "")
+        label_artist_id = str(
+            perceptual_anchor.get("label_artist_id") or ""
+        ).strip()
+        group_text_artist_ids = list(group_node.get("text_artist_ids") or [])
+        if not group_label.strip():
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_label_empty",
+                    relation_id=relation_id,
+                )
+            )
+        if (
+            not label_artist_id
+            or label_artist_id not in group_text_artist_ids
+            or text_source_by_id.get(label_artist_id) != group_label
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_label_artist_invalid",
+                    relation_id=relation_id,
+                    label_artist_id=label_artist_id or None,
+                )
+            )
+
+        segments = list(connector.get("segments") or [])
+        if not segments:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_connector_invalid",
+                    relation_id=relation_id,
+                    connector_id=connector_id,
+                )
+            )
+            continue
+        actual_terminal = tuple(segments[-1][1])
+        expected_anchor = (
+            (group_bbox[0] + group_bbox[2]) / 2,
+            group_bbox[3],
+        )
+        try:
+            declared_expected_anchor = _semantic_point(
+                span.get("expected_group_anchor_px"),
+                (
+                    "semantic_flow_contract.segmented_group_spans"
+                    f"[{index}].expected_group_anchor_px"
+                ),
+            )
+            declared_actual_terminal = _semantic_point(
+                span.get("actual_connector_terminal_px"),
+                (
+                    "semantic_flow_contract.segmented_group_spans"
+                    f"[{index}].actual_connector_terminal_px"
+                ),
+            )
+        except ValueError as exc:
+            violations.append(
+                _layout_violation(
+                    "semantic_segmented_group_anchor_geometry_invalid",
+                    relation_id=relation_id,
+                    reason=str(exc),
+                )
+            )
+        else:
+            if not (
+                _points_close(
+                    actual_terminal, expected_anchor, tolerance=tolerance
+                )
+                and _points_close(
+                    declared_expected_anchor,
+                    expected_anchor,
+                    tolerance=tolerance,
+                )
+                and _points_close(
+                    declared_actual_terminal,
+                    actual_terminal,
+                    tolerance=tolerance,
+                )
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_segmented_group_anchor_mismatch",
+                        relation_id=relation_id,
+                        expected_top_midpoint_px=list(expected_anchor),
+                        actual_connector_terminal_px=list(actual_terminal),
+                        tolerance_px=tolerance,
+                    )
+                )
+        if len(violations) == span_violation_count:
+            valid_span_count += 1
+
+    if Counter(observed_relation_ids) != Counter(
+        {relation_id: 1 for relation_id in segmented_relation_ids}
+    ):
+        violations.append(
+            _layout_violation(
+                "semantic_segmented_group_relation_set_mismatch",
+                expected_relation_ids=sorted(segmented_relation_ids),
+                observed_relation_ids=sorted(observed_relation_ids),
+            )
+        )
+    return {
+        "segmented_group_span_count": len(spans),
+        "validated_segmented_group_span_count": valid_span_count,
+        "violations": violations,
+    }
+
+
 def _audit_semantic_artist_registry(
     registry: Mapping[str, object],
     *,
@@ -1738,6 +2167,8 @@ def _audit_semantic_artist_registry(
                 "semantic_arrow_budget_met": passed,
                 "semantic_incoming_unambiguous": passed,
                 "semantic_bracket_spans_exact": passed,
+                "semantic_segmented_group_spans_exact": passed,
+                "semantic_segmented_group_perceptual_anchors_valid": passed,
             },
             "violation_counts": dict(sorted(counts.items())),
             "violations": violations,
@@ -1880,6 +2311,7 @@ def _audit_semantic_artist_registry(
         )
 
     text_by_id: dict[str, tuple[float, float, float, float]] = {}
+    text_source_by_id: dict[str, str] = {}
     for panel in panels:
         for artist in panel.get("text_artists") or []:
             if not isinstance(artist, Mapping):
@@ -1891,6 +2323,7 @@ def _audit_semantic_artist_registry(
                 text_by_id[artist_id] = _layout_bbox(
                     artist.get("bbox_px"), f"text_artists.{artist_id}.bbox_px"
                 )
+                text_source_by_id[artist_id] = str(artist.get("source_text") or "")
             except ValueError:
                 continue
 
@@ -2046,6 +2479,21 @@ def _audit_semantic_artist_registry(
         relations[relation_id] = {
             "relation": relation_kind,
             "encoding": encoding,
+            "source_node_id": str(relation.get("source_node_id") or "").strip(),
+            "source_node_ids": [
+                str(item)
+                for item in (relation.get("source_node_ids") or [])
+                if isinstance(item, str) and item
+            ],
+            "destination_node_id": str(
+                relation.get("destination_node_id") or ""
+            ).strip(),
+            "destination_node_ids": [
+                str(item)
+                for item in (relation.get("destination_node_ids") or [])
+                if isinstance(item, str) and item
+            ],
+            "width_encoding": relation.get("width_encoding"),
         }
         if encoding not in grammar.get(relation_kind, set()):
             violations.append(
@@ -2301,6 +2749,7 @@ def _audit_semantic_artist_registry(
                 "arrowhead_artist_ids": list(arrowhead_ids),
                 "arrow_bearing": connector.get("arrow_bearing") is True
                 or bool(arrowhead_ids),
+                "geometry_tolerance_px": geometry_tolerance,
             }
         )
 
@@ -2323,13 +2772,26 @@ def _audit_semantic_artist_registry(
                     relation_id=relation_id,
                 )
             )
-        if not is_arrow_encoding and connector_count > 0:
+        if (
+            not is_arrow_encoding
+            and relation["encoding"] != "segmented_band"
+            and connector_count > 0
+        ):
             violations.append(
                 _layout_violation(
                     "semantic_non_arrow_relation_has_connector",
                     relation_id=relation_id,
                 )
             )
+
+    segmented_group_audit = _audit_segmented_group_spans(
+        flow_contract,
+        nodes=nodes,
+        relations=relations,
+        connectors=connector_records,
+        text_source_by_id=text_source_by_id,
+    )
+    violations.extend(segmented_group_audit["violations"])
 
     for connector in connector_records:
         for segment in connector["segments"]:
@@ -2763,6 +3225,32 @@ def _audit_semantic_artist_registry(
             "semantic_bracket_span_tolerance_invalid",
             "semantic_bracket_span_mismatch",
         },
+        "semantic_segmented_group_spans_exact": {
+            "semantic_segmented_group_registry_invalid",
+            "semantic_segmented_group_record_invalid",
+            "semantic_segmented_group_identifier_not_unique",
+            "semantic_segmented_group_relation_invalid",
+            "semantic_segmented_group_relation_children_mismatch",
+            "semantic_segmented_group_width_encoding_mismatch",
+            "semantic_segmented_group_node_missing",
+            "semantic_segmented_group_connector_invalid",
+            "semantic_segmented_group_child_order_invalid",
+            "semantic_segmented_group_span_mismatch",
+            "semantic_segmented_group_children_not_contiguous",
+            "semantic_segmented_group_header_not_adjacent",
+            "semantic_segmented_group_declared_geometry_invalid",
+            "semantic_segmented_group_declared_geometry_mismatch",
+            "semantic_segmented_group_relation_set_mismatch",
+        },
+        "semantic_segmented_group_perceptual_anchors_valid": {
+            "semantic_segmented_group_orientation_invalid",
+            "semantic_segmented_group_entry_edge_invalid",
+            "semantic_segmented_group_perceptual_anchor_invalid",
+            "semantic_segmented_group_label_empty",
+            "semantic_segmented_group_label_artist_invalid",
+            "semantic_segmented_group_anchor_geometry_invalid",
+            "semantic_segmented_group_anchor_mismatch",
+        },
     }
     checks = {
         check_name: not any(counts[code] for code in failure_codes)
@@ -2781,6 +3269,12 @@ def _audit_semantic_artist_registry(
         "arrow_count": arrow_count,
         "arrow_budget": arrow_budget,
         "ambiguous_incoming_node_count": len(ambiguous_incoming),
+        "segmented_group_span_count": segmented_group_audit[
+            "segmented_group_span_count"
+        ],
+        "validated_segmented_group_span_count": segmented_group_audit[
+            "validated_segmented_group_span_count"
+        ],
         "checks": checks,
         "violation_counts": dict(sorted(counts.items())),
         "violations": violations,
@@ -3355,6 +3849,12 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
         "semantic_ambiguous_incoming_node_count": semantic_audit.get(
             "ambiguous_incoming_node_count", 0
         ),
+        "semantic_segmented_group_span_count": semantic_audit.get(
+            "segmented_group_span_count", 0
+        ),
+        "semantic_validated_segmented_group_span_count": semantic_audit.get(
+            "validated_segmented_group_span_count", 0
+        ),
         "checks": checks,
         "violation_counts": dict(sorted(counts.items())),
         "violations": violations,
@@ -3586,6 +4086,12 @@ def build_layout_qc_receipt(
             "arrow_budget": layout_audit["semantic_arrow_budget"],
             "ambiguous_incoming_node_count": layout_audit[
                 "semantic_ambiguous_incoming_node_count"
+            ],
+            "segmented_group_span_count": layout_audit[
+                "semantic_segmented_group_span_count"
+            ],
+            "validated_segmented_group_span_count": layout_audit[
+                "semantic_validated_segmented_group_span_count"
             ],
         },
         "checks": checks,
@@ -4858,8 +5364,10 @@ def _self_check() -> None:
     semantic_audit = audit_layout_registry(semantic_fixture)
     assert semantic_audit["machine_check_status"] == "geometry_checks_passed"
     assert semantic_audit["semantic_flow_contract_required"] is True
-    assert semantic_audit["registered_semantic_artist_count"] == 17
+    assert semantic_audit["registered_semantic_artist_count"] == 26
     assert semantic_audit["semantic_arrow_count"] == 2
+    assert semantic_audit["semantic_segmented_group_span_count"] == 1
+    assert semantic_audit["semantic_validated_segmented_group_span_count"] == 1
     for semantic_check in (
         "semantic_artist_applicability_valid",
         "semantic_artist_registry_complete",
@@ -4876,8 +5384,241 @@ def _self_check() -> None:
         "semantic_arrow_budget_met",
         "semantic_incoming_unambiguous",
         "semantic_bracket_spans_exact",
+        "semantic_segmented_group_spans_exact",
+        "semantic_segmented_group_perceptual_anchors_valid",
     ):
         assert semantic_audit["checks"][semantic_check] is True
+
+    def semantic_violation_codes(candidate: Mapping[str, object]) -> set[str]:
+        return {
+            str(item["code"])
+            for item in audit_layout_registry(candidate)["violations"]
+        }
+
+    def semantic_flow_item(
+        candidate: Mapping[str, object],
+        collection: str,
+        identity_key: str,
+        identity_value: str,
+    ) -> dict[str, object]:
+        return next(
+            item
+            for item in candidate["semantic_flow_contract"][collection]
+            if item[identity_key] == identity_value
+        )
+
+    def semantic_artist_item(
+        candidate: Mapping[str, object], artist_id: str
+    ) -> dict[str, object]:
+        return next(
+            item
+            for item in candidate["semantic_artist_registry"]["artists"]
+            if item["artist_id"] == artist_id
+        )
+
+    missing_segmented_group = json.loads(json.dumps(semantic_fixture))
+    missing_segmented_group["semantic_flow_contract"].pop("segmented_group_spans")
+    assert "semantic_segmented_group_relation_set_mismatch" in (
+        semantic_violation_codes(missing_segmented_group)
+    )
+
+    segmented_connector_to_child = json.loads(json.dumps(semantic_fixture))
+    child_connector = semantic_flow_item(
+        segmented_connector_to_child,
+        "connectors",
+        "connector_id",
+        "band_source_to_group",
+    )
+    child_connector["destination_node_id"] = "band_child_a"
+    child_connector["segments_px"][0] = [900, 420, 870, 280]
+    child_segment_artist = semantic_artist_item(
+        segmented_connector_to_child,
+        "relation.band_partition.segment.1",
+    )
+    child_segment_artist["bbox_px"] = [870, 280, 900, 420]
+    child_segment_artist["geometry_px"] = [900, 420, 870, 280]
+    assert "semantic_segmented_group_connector_invalid" in (
+        semantic_violation_codes(segmented_connector_to_child)
+    )
+
+    segmented_connector_arrowed = json.loads(json.dumps(semantic_fixture))
+    semantic_flow_item(
+        segmented_connector_arrowed,
+        "connectors",
+        "connector_id",
+        "band_source_to_group",
+    )["arrow_bearing"] = True
+    assert "semantic_segmented_group_connector_invalid" in (
+        semantic_violation_codes(segmented_connector_arrowed)
+    )
+
+    segmented_header_narrow = json.loads(json.dumps(semantic_fixture))
+    narrow_group_node = semantic_flow_item(
+        segmented_header_narrow, "nodes", "node_id", "band_group"
+    )
+    narrow_group_node["bbox_px"] = [850, 280, 950, 320]
+    semantic_artist_item(
+        segmented_header_narrow, "node.band_group.patch"
+    )["bbox_px"] = [850, 280, 950, 320]
+    semantic_flow_item(
+        segmented_header_narrow,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["group_header_bbox_px"] = [850, 280, 950, 320]
+    assert "semantic_segmented_group_span_mismatch" in (
+        semantic_violation_codes(segmented_header_narrow)
+    )
+
+    segmented_children_gap = json.loads(json.dumps(semantic_fixture))
+    gap_child_node = semantic_flow_item(
+        segmented_children_gap, "nodes", "node_id", "band_child_b"
+    )
+    gap_child_node["bbox_px"] = [910, 180, 960, 280]
+    semantic_artist_item(
+        segmented_children_gap, "node.band_child_b.patch"
+    )["bbox_px"] = [910, 180, 960, 280]
+    assert "semantic_segmented_group_children_not_contiguous" in (
+        semantic_violation_codes(segmented_children_gap)
+    )
+
+    segmented_children_overlap = json.loads(json.dumps(semantic_fixture))
+    overlap_child_node = semantic_flow_item(
+        segmented_children_overlap, "nodes", "node_id", "band_child_b"
+    )
+    overlap_child_node["bbox_px"] = [890, 180, 960, 280]
+    semantic_artist_item(
+        segmented_children_overlap, "node.band_child_b.patch"
+    )["bbox_px"] = [890, 180, 960, 280]
+    assert "semantic_segmented_group_children_not_contiguous" in (
+        semantic_violation_codes(segmented_children_overlap)
+    )
+
+    segmented_header_detached = json.loads(json.dumps(semantic_fixture))
+    detached_group_node = semantic_flow_item(
+        segmented_header_detached, "nodes", "node_id", "band_group"
+    )
+    detached_group_node["bbox_px"] = [840, 300, 960, 340]
+    semantic_artist_item(
+        segmented_header_detached, "node.band_group.patch"
+    )["bbox_px"] = [840, 300, 960, 340]
+    semantic_flow_item(
+        segmented_header_detached,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["group_header_bbox_px"] = [840, 300, 960, 340]
+    assert "semantic_segmented_group_header_not_adjacent" in (
+        semantic_violation_codes(segmented_header_detached)
+    )
+
+    segmented_side_anchor = json.loads(json.dumps(semantic_fixture))
+    side_connector = semantic_flow_item(
+        segmented_side_anchor,
+        "connectors",
+        "connector_id",
+        "band_source_to_group",
+    )
+    side_connector["segments_px"][0] = [900, 420, 840, 300]
+    side_artist = semantic_artist_item(
+        segmented_side_anchor, "relation.band_partition.segment.1"
+    )
+    side_artist["bbox_px"] = [840, 300, 900, 420]
+    side_artist["geometry_px"] = [900, 420, 840, 300]
+    semantic_flow_item(
+        segmented_side_anchor,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["actual_connector_terminal_px"] = [840, 300]
+    assert "semantic_segmented_group_anchor_mismatch" in (
+        semantic_violation_codes(segmented_side_anchor)
+    )
+
+    segmented_first_child_anchor = json.loads(json.dumps(semantic_fixture))
+    first_child_connector = semantic_flow_item(
+        segmented_first_child_anchor,
+        "connectors",
+        "connector_id",
+        "band_source_to_group",
+    )
+    first_child_connector["segments_px"][0] = [900, 420, 870, 320]
+    first_child_artist = semantic_artist_item(
+        segmented_first_child_anchor, "relation.band_partition.segment.1"
+    )
+    first_child_artist["bbox_px"] = [870, 320, 900, 420]
+    first_child_artist["geometry_px"] = [900, 420, 870, 320]
+    semantic_flow_item(
+        segmented_first_child_anchor,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["actual_connector_terminal_px"] = [870, 320]
+    assert "semantic_segmented_group_anchor_mismatch" in (
+        semantic_violation_codes(segmented_first_child_anchor)
+    )
+    assert (
+        audit_layout_registry(segmented_first_child_anchor)[
+            "semantic_validated_segmented_group_span_count"
+        ]
+        == 0
+    )
+
+    segmented_empty_label = json.loads(json.dumps(semantic_fixture))
+    semantic_flow_item(
+        segmented_empty_label,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["group_label"] = ""
+    assert "semantic_segmented_group_label_empty" in (
+        semantic_violation_codes(segmented_empty_label)
+    )
+
+    segmented_child_label = json.loads(json.dumps(semantic_fixture))
+    child_label_span = semantic_flow_item(
+        segmented_child_label,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )
+    child_label_span["group_label"] = "Alive n=70"
+    child_label_span["perceptual_anchor"][
+        "label_artist_id"
+    ] = "node.band_child_a.label"
+    assert "semantic_segmented_group_label_artist_invalid" in (
+        semantic_violation_codes(segmented_child_label)
+    )
+
+    segmented_orientation = json.loads(json.dumps(semantic_fixture))
+    semantic_flow_item(
+        segmented_orientation,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["orientation"] = "vertical"
+    assert "semantic_segmented_group_orientation_invalid" in (
+        semantic_violation_codes(segmented_orientation)
+    )
+
+    segmented_anchor_mode = json.loads(json.dumps(semantic_fixture))
+    semantic_flow_item(
+        segmented_anchor_mode,
+        "segmented_group_spans",
+        "relation_id",
+        "band_partition",
+    )["perceptual_anchor"]["mode"] = "first_child"
+    assert "semantic_segmented_group_perceptual_anchor_invalid" in (
+        semantic_violation_codes(segmented_anchor_mode)
+    )
+
+    segmented_renderer_geometry = json.loads(json.dumps(semantic_fixture))
+    semantic_artist_item(
+        segmented_renderer_geometry, "relation.band_partition.segment.1"
+    )["geometry_px"] = [900, 420, 880, 320]
+    assert "semantic_connector_geometry_mismatch" in (
+        semantic_violation_codes(segmented_renderer_geometry)
+    )
 
     missing_semantic_registry = json.loads(json.dumps(semantic_fixture))
     missing_semantic_registry.pop("semantic_artist_registry")
@@ -5082,9 +5823,13 @@ def _self_check() -> None:
     }
 
     semantic_relation_encoding = json.loads(json.dumps(semantic_fixture))
-    semantic_relation_encoding["semantic_flow_contract"]["relations"][0][
-        "encoding"
-    ] = "arrow_split"
+    next(
+        relation
+        for relation in semantic_relation_encoding["semantic_flow_contract"][
+            "relations"
+        ]
+        if relation["relation_id"] == "children_identity"
+    )["encoding"] = "arrow_split"
     semantic_relation_encoding_audit = audit_layout_registry(
         semantic_relation_encoding
     )

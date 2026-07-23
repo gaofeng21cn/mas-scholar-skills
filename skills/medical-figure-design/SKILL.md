@@ -437,6 +437,18 @@ registered renderer-path segments so a second unrendered geometry declaration
 or bbox-only proxy cannot substitute for the visible artists. A declared
 shared junction must prove a common path prefix and branch point; it may not
 silence crossings elsewhere in the grouped connectors.
+When a partition is encoded as a segmented band, declare one
+`segmented_group_spans` row rather than treating its parent connector as an
+ordinary arrow or an unbound line. Bind the relation, source node, one
+non-arrow connector, one full-span labeled group header, and the ordered child
+nodes. For a horizontal band, require the header span to equal the child union,
+children to share one contiguous y-band without gap or overlap, the header
+bottom to touch the child top, and the renderer-bound connector terminal to
+land on the header top midpoint. The parent label must be non-empty, owned by
+the header node, and declared through
+`perceptual_anchor.mode=labeled_full_span_header` with
+`anchor_position=midpoint`; a first-child, side, bottom, empty, or child-label
+anchor is not an acceptable perceptual grouping.
 
 ## MAS Authority Boundary
 

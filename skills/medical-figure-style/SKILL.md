@@ -72,8 +72,10 @@ unsupported, stale, circular, missing-source, or visible-payload drift. Consume
    is full width or the figure does not look dense. For a declared flow or
    schematic, also require the complete semantic-artist registry and computed
    connector/node/arrowhead/bracket geometry checks from `medical-display-qc`;
-   a text-only bbox pass cannot support style acceptance. A tight crop cannot
-   repair a failure.
+   for a segmented group, confirm the full-span parent label is the perceptual
+   anchor and the renderer-bound non-arrow connector enters its top midpoint,
+   not a child or side edge. A text-only bbox pass cannot support style
+   acceptance. A tight crop cannot repair a failure.
 4. Check `label_economy_ref`, `color_vision_check_ref`,
    `final_size_grayscale_preview_ref`, `export_lint_ref`, and
    `visual_qa_preview_ref` on the actual rendered output. Add

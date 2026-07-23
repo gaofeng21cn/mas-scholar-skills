@@ -114,8 +114,8 @@ def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
         fail("display-pack receipt templates contract has wrong contract_id")
-    if contract.get("schema_version") != "1.5.0":
-        fail("display-pack receipt templates contract must use schema_version 1.5.0")
+    if contract.get("schema_version") != "1.6.0":
+        fail("display-pack receipt templates contract must use schema_version 1.6.0")
     if contract.get("state") != "active_refs_only_template":
         fail("display-pack receipt templates contract must stay refs-only")
     require_false_flags(
@@ -184,12 +184,19 @@ def verify_receipt_templates() -> dict:
     if text_policy.get("graphical_abstract_exempt") is not True:
         fail("graphical abstracts must remain explicitly exempt")
     semantic_flow_policy = workflow.get("semantic_flow_policy") or {}
+    for field in (
+        "declared_flow_or_schematic_requires_complete_semantic_artist_registry",
+        "connector_and_bracket_segments_require_renderer_path_geometry",
+        "shared_junction_requires_common_renderer_path_prefix",
+        "segmented_band_parent_connector_requires_exact_group_span_contract",
+        "segmented_group_requires_full_span_labeled_midpoint_anchor",
+        "segmented_group_requires_renderer_bound_actual_path_geometry",
+        "unsupported_segmented_group_orientation_or_anchor_mode_fails_closed",
+    ):
+        if semantic_flow_policy.get(field) is not True:
+            fail(f"professional figure semantic-flow policy must require {field}")
     if (
-        semantic_flow_policy.get(
-            "declared_flow_or_schematic_requires_complete_semantic_artist_registry"
-        )
-        is not True
-        or semantic_flow_policy.get("text_only_bbox_pass_is_sufficient") is not False
+        semantic_flow_policy.get("text_only_bbox_pass_is_sufficient") is not False
         or semantic_flow_policy.get("hard_coded_zero_violation_counts_allowed")
         is not False
     ):
@@ -356,6 +363,8 @@ def verify_receipt_templates() -> dict:
         "semantic_arrow_budget_met",
         "semantic_incoming_unambiguous",
         "semantic_bracket_spans_exact",
+        "semantic_segmented_group_spans_exact",
+        "semantic_segmented_group_perceptual_anchors_valid",
     }
     if not semantic_geometry_checks.issubset(
         set(layout_qc_receipt.get("required_geometry_checks") or [])

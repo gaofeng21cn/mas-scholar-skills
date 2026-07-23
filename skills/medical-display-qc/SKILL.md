@@ -106,6 +106,17 @@ currentness, package identity, a receipt, a verdict, or authority.
    endpoints, not only an outer bbox. A shared junction must have a common
    renderer-path prefix and a common branch point; its metadata cannot exempt
    unrelated crossings.
+   A `segmented_band` may carry exactly one non-arrow connector only when
+   `segmented_group_spans` binds the relation, source, full-span labeled group
+   header, ordered child nodes, connector, and renderer geometry one-to-one.
+   Require a horizontal group whose x-span equals the child union, children in
+   one contiguous y-band with no gap or overlap, the group bottom touching the
+   child top, and the actual connector terminal at the group top midpoint.
+   Require `perceptual_anchor.mode=labeled_full_span_header`,
+   `anchor_position=midpoint`, and a non-empty label artist owned by that group
+   node. Reject a side/bottom or first-child terminal, an arrowhead, a child
+   label used as the parent anchor, unsupported orientation/mode, or declared
+   geometry that differs from the registered renderer path.
    Reject hard-coded zero counts, a second unbound geometry declaration, or a
    pass derived only from text bboxes.
 6. Produce `layout_qc_receipt_ref` from the complete bbox registry and actual

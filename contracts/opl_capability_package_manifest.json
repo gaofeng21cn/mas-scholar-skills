@@ -3,7 +3,7 @@
   "package_id": "mas-scholar-skills",
   "display_name": "MAS Scholar Skills",
   "publisher": "one-person-lab",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "source": "first_party_repo_local",
   "package_role": "framework_capability_package",
   "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
@@ -452,7 +452,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:64adb3b7f8bbb8f5e55b41249898dcbe245ee191e33e06a30789170b3a786c97"
+    "digest": "sha256:6bf87d19b508c9ec2d5fd2cf16112c82151d2c1797392d17bd72b874029c8141"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
