@@ -6,7 +6,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_target_descriptor",
-  "updated_at": "2026-07-06",
+  "updated_at": "2026-07-23",
   "purpose": "OMA-readable target descriptor for the MAS Scholar Skills professional capability pack.",
   "source_of_truth_refs": [
     {
@@ -60,6 +60,7 @@
     ],
     "default_consumers": [
       "med-autoscience",
+      "med-autogrant",
       "opl-meta-agent",
       "one-person-lab.agent_lab"
     ],
@@ -105,7 +106,7 @@
       "medical-owner-gate-handoff-reviewer",
       "medical-publication-strategy-memory-curator"
     ],
-    "optional_router_policy": "default exposure remains false; optional named specialty installs preserve named specialist SKILL.md playbooks and may use router/reviewer skills to select one.",
+    "optional_router_policy": "all exported skills are materialized by default; default_exposure=false means no automatic routing or global exposure, and router/reviewer skills select named specialists only for matching tasks.",
     "advanced_specialist_router_skills": [
       "medical-advanced-biomed-router"
     ],

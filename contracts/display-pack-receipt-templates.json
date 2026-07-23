@@ -1,6 +1,6 @@
 {
   "contract_id": "mas_scholar_skills_display_pack_receipt_templates",
-  "schema_version": "1.4.0",
+  "schema_version": "1.5.0",
   "owner": "MAS Scholar Skills Display",
   "state": "active_refs_only_template",
   "purpose": "Minimal refs-only handoff shapes for mandatory professional Figure Skill consumption, the medical figure contract, display-pack or paper-local generation receipt, fixed-canvas layout QC receipt, and visual QA receipt loop.",
@@ -54,6 +54,22 @@
         "necessary_statistical_annotation"
       ],
       "graphical_abstract_exempt": true
+    },
+    "semantic_flow_policy": {
+      "pure_statistical_plot_may_declare_not_applicable": true,
+      "declared_flow_or_schematic_requires_complete_semantic_artist_registry": true,
+      "required_visible_artist_families": [
+        "nodes",
+        "bands",
+        "brackets",
+        "connector_segments",
+        "arrowheads",
+        "text"
+      ],
+      "connector_and_bracket_segments_require_renderer_path_geometry": true,
+      "shared_junction_requires_common_renderer_path_prefix": true,
+      "text_only_bbox_pass_is_sufficient": false,
+      "hard_coded_zero_violation_counts_allowed": false
     },
     "missing_or_stale_receipt_behavior": {
       "blocks_stage_liveness": false,
@@ -186,7 +202,9 @@
       "final_canvas",
       "safe_inset_px",
       "lane_bounds_px",
+      "semantic_artist_scope",
       "bbox_registry_summary",
+      "semantic_flow_summary",
       "checks",
       "violations",
       "regression_fixture_refs",
@@ -208,6 +226,21 @@
       "no_canvas_overflow",
       "no_clipping",
       "safe_inset_met",
+      "semantic_artist_applicability_valid",
+      "semantic_artist_registry_complete",
+      "semantic_artist_kinds_complete",
+      "semantic_artists_inside_canvas",
+      "semantic_artists_inside_safe_inset",
+      "semantic_node_text_contained",
+      "semantic_contract_geometry_bound",
+      "semantic_lines_clear_of_text",
+      "semantic_lines_clear_of_unrelated_nodes",
+      "semantic_connectors_non_crossing",
+      "semantic_arrowheads_clear_of_text",
+      "semantic_relation_encoding_valid",
+      "semantic_arrow_budget_met",
+      "semantic_incoming_unambiguous",
+      "semantic_bracket_spans_exact",
       "fixed_canvas_export",
       "png_pdf_final_size_and_sha_bound"
     ],

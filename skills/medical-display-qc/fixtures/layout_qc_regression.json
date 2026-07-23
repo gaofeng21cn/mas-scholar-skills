@@ -2,6 +2,7 @@
   "fixture_id": "medical_display_layout_qc_long_label_extreme_value_full_width.v1",
   "fixture_only": true,
   "generation_source_ref": "examples/not-rendered",
+  "semantic_artist_scope": "not_applicable:statistical_layout_regression",
   "regression_cases": [
     "long_category_label",
     "extreme_numeric_annotation",

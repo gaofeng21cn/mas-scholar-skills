@@ -77,6 +77,9 @@ professional_figure_workflow_schema = read_json(
 layout_qc_fixture = read_json(
     "skills/medical-display-qc/fixtures/layout_qc_regression.json"
 )
+semantic_artist_flow_fixture = read_json(
+    "skills/medical-display-qc/fixtures/semantic_artist_flow_regression.json"
+)
 revision_learning_fixture_refs = [
     "skills/medical-data-governance/fixtures/governed-source-reconstruction.json",
     "skills/medical-risk-model-transportability-reviewer/fixtures/construct-comparability-currentness.json",
@@ -1742,6 +1745,13 @@ if domain_descriptor.get("delivery_domain") != "capability_pack":
 if domain_descriptor.get("oma_consumption_policy", {}).get("capability_map_ref") != "contracts/capability_map.json":
     fail("domain descriptor must point OMA to contracts/capability_map.json")
 descriptor_pack = domain_descriptor.get("capability_pack", {})
+if descriptor_pack.get("default_consumers") != [
+    "med-autoscience",
+    "med-autogrant",
+    "opl-meta-agent",
+    "one-person-lab.agent_lab",
+]:
+    fail("domain descriptor default consumers must include MAS and MAG")
 if descriptor_pack.get("syncable_real_skills") != expected_capability_skills:
     fail("domain descriptor syncable real skills must match the canonical Skill catalog")
 if domain_descriptor.get("capability_pack", {}).get("runtime_module_ids") != runtime_module_ids:
@@ -1774,6 +1784,8 @@ if capability_map.get("domain_id") != "mas-scholar-skills":
     fail("capability map domain_id must be mas-scholar-skills")
 if capability_map.get("delivery_domain") != "capability_pack":
     fail("capability map delivery_domain must be capability_pack")
+if "MAS, MAG, and Agent Lab" not in capability_map.get("purpose", ""):
+    fail("capability map purpose must describe MAS and MAG consumers")
 if capability_map.get("source_contract_ref") != "contracts/scholar-skills-capability-modules.json":
     fail("capability map must point to the canonical module contract")
 if capability_map.get("skill_exposure_policy_ref") != "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy":
@@ -2209,6 +2221,59 @@ if exposure_policy.get("optional_skills_installed_by_default") is not True:
     fail("codex skill exposure must install specialty skills by default")
 if exposure_policy.get("specialty_routing_policy") != "materialized_by_default_selected_only_for_matching_tasks":
     fail("codex skill exposure must separate materialization from specialty routing")
+for policy_name, policy_value in [
+    (
+        "optional_external_specialist_policy",
+        classification_policy.get("optional_external_specialist_policy"),
+    ),
+    (
+        "optional_medical_method_specialist_policy",
+        classification_policy.get("optional_medical_method_specialist_policy"),
+    ),
+    (
+        "advanced_specialist_pack_policy.codex_discovery_policy",
+        contract.get("advanced_specialist_pack_policy", {}).get(
+            "codex_discovery_policy"
+        ),
+    ),
+    (
+        "medical_method_specialist_pack_policy.codex_discovery_policy",
+        contract.get("medical_method_specialist_pack_policy", {}).get(
+            "codex_discovery_policy"
+        ),
+    ),
+]:
+    if (
+        "materialized_by_default" not in (policy_value or "")
+        or "selected_only_for_matching_tasks" not in (policy_value or "")
+    ):
+        fail(
+            f"{policy_name} must separate default materialization from task routing"
+        )
+for policy_name, policy_value in [
+    (
+        "capability_module_classification_policy.optional_specialist_router_policy",
+        classification_policy.get("optional_specialist_router_policy"),
+    ),
+    (
+        "domain_descriptor.capability_pack.optional_router_policy",
+        descriptor_pack.get("optional_router_policy"),
+    ),
+]:
+    normalized_policy = str(policy_value or "").lower()
+    if not all(
+        token in normalized_policy
+        for token in (
+            "materialized by default",
+            "default_exposure=false",
+            "matching tasks",
+        )
+    ):
+        fail(
+            f"{policy_name} must distinguish default materialization from automatic routing"
+        )
+    if "sync one" in normalized_policy or "installs preserve" in normalized_policy:
+        fail(f"{policy_name} retains a stale named-scope materialization policy")
 if exposure_policy.get("optional_skill_ids") != expected_optional_skill_ids:
     fail("codex skill exposure optional skill ids must match optional specialist policies")
 if exposure_policy.get("optional_router_skill_ids") != optional_router_skill_ids:
@@ -3116,8 +3181,8 @@ for relative, text in deterministic_figure_closeout_texts.items():
         if token not in text:
             fail(f"{relative} missing measured-layout regression token: {token}")
 
-if display_receipt_templates.get("schema_version") != "1.4.0":
-    fail("display receipt templates must use schema_version 1.4.0")
+if display_receipt_templates.get("schema_version") != "1.5.0":
+    fail("display receipt templates must use schema_version 1.5.0")
 require_all(
     "display receipt chain",
     display_receipt_templates.get("receipt_chain"),
@@ -3159,6 +3224,21 @@ if template_policy.get("template_use_is_optional") is not True:
     fail("professional figure templates must remain optional")
 if template_policy.get("record_provenance_only_when_template_used") is not True:
     fail("template provenance must be conditional on actual template use")
+semantic_flow_policy = workflow_template.get("semantic_flow_policy") or {}
+for key in [
+    "pure_statistical_plot_may_declare_not_applicable",
+    "declared_flow_or_schematic_requires_complete_semantic_artist_registry",
+    "connector_and_bracket_segments_require_renderer_path_geometry",
+    "shared_junction_requires_common_renderer_path_prefix",
+]:
+    if semantic_flow_policy.get(key) is not True:
+        fail(f"professional figure workflow semantic-flow policy must require {key}")
+for key in [
+    "text_only_bbox_pass_is_sufficient",
+    "hard_coded_zero_violation_counts_allowed",
+]:
+    if semantic_flow_policy.get(key) is not False:
+        fail(f"professional figure workflow semantic-flow policy must forbid {key}")
 missing_receipt_policy = workflow_template.get("missing_or_stale_receipt_behavior") or {}
 if missing_receipt_policy.get("blocks_stage_liveness") is not False:
     fail("missing professional Figure Skill evidence must remain progress-first")
@@ -3197,7 +3277,9 @@ require_all(
         "final_canvas",
         "safe_inset_px",
         "lane_bounds_px",
+        "semantic_artist_scope",
         "bbox_registry_summary",
+        "semantic_flow_summary",
         "checks",
         "violations",
         "regression_fixture_refs",
@@ -3219,6 +3301,21 @@ require_all(
         "no_canvas_overflow",
         "no_clipping",
         "safe_inset_met",
+        "semantic_artist_applicability_valid",
+        "semantic_artist_registry_complete",
+        "semantic_artist_kinds_complete",
+        "semantic_artists_inside_canvas",
+        "semantic_artists_inside_safe_inset",
+        "semantic_node_text_contained",
+        "semantic_contract_geometry_bound",
+        "semantic_lines_clear_of_text",
+        "semantic_lines_clear_of_unrelated_nodes",
+        "semantic_connectors_non_crossing",
+        "semantic_arrowheads_clear_of_text",
+        "semantic_relation_encoding_valid",
+        "semantic_arrow_budget_met",
+        "semantic_incoming_unambiguous",
+        "semantic_bracket_spans_exact",
         "fixed_canvas_export",
         "png_pdf_final_size_and_sha_bound",
     ],
@@ -3253,6 +3350,10 @@ if "layout_qc_receipt_ref" not in (
 
 if layout_qc_fixture.get("fixture_only") is not True:
     fail("layout QC regression fixture must remain non-issued")
+if not str(layout_qc_fixture.get("semantic_artist_scope") or "").startswith(
+    "not_applicable:"
+):
+    fail("statistical layout regression fixture must declare semantic artists not applicable")
 require_all(
     "layout QC regression fixture cases",
     layout_qc_fixture.get("regression_cases"),
@@ -3301,6 +3402,70 @@ if not (
 ):
     fail("layout QC regression fixture must exercise an extreme right annotation")
 
+if semantic_artist_flow_fixture.get("semantic_fixture_only") is not True:
+    fail("semantic artist flow regression fixture must remain non-issued")
+if not any(
+    token in str(semantic_artist_flow_fixture.get("figure_archetype") or "").lower()
+    for token in ("flow", "schematic")
+):
+    fail("semantic artist regression fixture must declare a flow or schematic")
+semantic_fixture_registry = (
+    semantic_artist_flow_fixture.get("semantic_artist_registry") or {}
+)
+semantic_fixture_contract = (
+    semantic_artist_flow_fixture.get("semantic_flow_contract") or {}
+)
+if not semantic_fixture_registry.get("expected_prefixes"):
+    fail("semantic artist regression fixture must declare expected prefixes")
+if not semantic_fixture_registry.get("artists"):
+    fail("semantic artist regression fixture must register visible artists")
+semantic_fixture_artists = {
+    str(artist.get("artist_id") or ""): artist
+    for artist in semantic_fixture_registry.get("artists") or []
+}
+require_all(
+    "semantic artist regression fixture kinds",
+    semantic_fixture_contract.get("expected_artist_kinds"),
+    ["FancyArrowPatch", "FancyBboxPatch", "Line2D", "Text"],
+)
+semantic_fixture_grammar = (
+    semantic_fixture_contract.get("relation_encoding_grammar") or {}
+)
+if semantic_fixture_grammar.get("analysis_set_identity") != ["span_bracket"]:
+    fail("semantic artist regression fixture must encode identity with a bracket")
+if "arrow_split" not in (semantic_fixture_grammar.get("partition") or []):
+    fail("semantic artist regression fixture must encode partition as an arrow split")
+if semantic_fixture_contract.get("arrow_budget") != 2:
+    fail("semantic artist regression fixture must exercise an explicit arrow budget")
+for node in semantic_fixture_contract.get("nodes") or []:
+    if not node.get("patch_artist_id") or not node.get("text_artist_ids"):
+        fail("semantic artist regression nodes must bind patch and text artists")
+for connector in semantic_fixture_contract.get("connectors") or []:
+    if len(connector.get("segments_px") or []) != len(
+        connector.get("segment_artist_ids") or []
+    ):
+        fail("semantic artist regression connectors must bind every segment artist")
+    for segment, segment_artist_id in zip(
+        connector.get("segments_px") or [],
+        connector.get("segment_artist_ids") or [],
+    ):
+        artist = semantic_fixture_artists.get(str(segment_artist_id)) or {}
+        if artist.get("geometry_px") != segment:
+            fail(
+                "semantic artist regression connector geometry must bind "
+                "the renderer path endpoints"
+            )
+for bracket in semantic_fixture_contract.get("brackets") or []:
+    if not bracket.get("segment_artist_ids"):
+        fail("semantic artist regression brackets must bind registered segment artists")
+    for segment_artist_id in bracket.get("segment_artist_ids") or []:
+        artist = semantic_fixture_artists.get(str(segment_artist_id)) or {}
+        if not artist.get("geometry_px"):
+            fail(
+                "semantic artist regression bracket geometry must bind "
+                "renderer path endpoints"
+            )
+
 figure_style_kernel = read_text("skills/medical-figure-style/kernel.py")
 display_qc_kernel = read_text("skills/medical-display-qc/kernel.py")
 if '"savefig.bbox": None' not in figure_style_kernel:
@@ -3311,6 +3476,23 @@ for token in [
     "audit_layout_registry",
     "build_layout_qc_receipt",
     "layout_qc_receipt_candidate.v1",
+    "_audit_semantic_artist_registry",
+    "semantic_artist_registry_missing",
+    "semantic_line_text_intersection",
+    "semantic_line_unrelated_node_intersection",
+    "semantic_connector_crossing_unauthorized",
+    "semantic_arrowhead_text_intersection",
+    "semantic_node_text_outside_node",
+    "semantic_connector_artist_geometry_invalid",
+    "semantic_connector_geometry_mismatch",
+    "semantic_connector_source_not_anchored",
+    "semantic_connector_destination_not_anchored",
+    "semantic_junction_group_invalid",
+    "semantic_bracket_geometry_invalid",
+    "semantic_relation_encoding_invalid",
+    "semantic_arrow_budget_exceeded",
+    "semantic_ambiguous_incoming_connectors",
+    "semantic_bracket_span_mismatch",
     "can_claim_quality_verdict",
     "build_page_hash_evidence_candidate",
     "scholarskills_page_hash_evidence_candidate",

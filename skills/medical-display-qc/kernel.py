@@ -59,6 +59,12 @@ REQUIRED_LAYOUT_REGRESSION_CASES = {
     "extreme_numeric_annotation",
     "full_width_layout",
 }
+SEMANTIC_FLOW_ARCHETYPE_TOKENS = (
+    "accounting",
+    "diagram",
+    "flow",
+    "schematic",
+)
 SEMANTIC_WRAP_ALGORITHM = "renderer_measured_greedy_word_boundary.v1"
 DOCUMENT_DISPLAY_REQUIRED_EXACT_REFS = (
     "canonical_manuscript_ref",
@@ -1451,6 +1457,1336 @@ def _bbox_gap(
     return math.hypot(dx, dy)
 
 
+def _semantic_bbox(
+    value: object, label: str
+) -> tuple[float, float, float, float]:
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        raise ValueError(f"{label} must contain four coordinates")
+    x0, y0, x1, y1 = (
+        _layout_number(item, f"{label}[{index}]") for index, item in enumerate(value)
+    )
+    if x1 < x0 or y1 < y0 or (x1 == x0 and y1 == y0):
+        raise ValueError(f"{label} must describe a non-empty extent")
+    return (x0, y0, x1, y1)
+
+
+def _bbox_inside_tolerance(
+    inner: tuple[float, float, float, float],
+    outer: tuple[float, float, float, float],
+    tolerance: float = 0.5,
+) -> bool:
+    return (
+        inner[0] >= outer[0] - tolerance
+        and inner[1] >= outer[1] - tolerance
+        and inner[2] <= outer[2] + tolerance
+        and inner[3] <= outer[3] + tolerance
+    )
+
+
+def _bboxes_close(
+    first: tuple[float, float, float, float],
+    second: tuple[float, float, float, float],
+    tolerance: float = 0.5,
+) -> bool:
+    return all(
+        math.isclose(observed, expected, abs_tol=tolerance)
+        for observed, expected in zip(first, second, strict=True)
+    )
+
+
+def _segment_bbox(
+    segment: tuple[tuple[float, float], tuple[float, float]]
+) -> tuple[float, float, float, float]:
+    start, end = segment
+    return (
+        min(start[0], end[0]),
+        min(start[1], end[1]),
+        max(start[0], end[0]),
+        max(start[1], end[1]),
+    )
+
+
+def _point_on_bbox_boundary(
+    point: tuple[float, float],
+    bbox: tuple[float, float, float, float],
+    tolerance: float = 0.5,
+) -> bool:
+    x_value, y_value = point
+    x0, y0, x1, y1 = bbox
+    inside_extended = (
+        x0 - tolerance <= x_value <= x1 + tolerance
+        and y0 - tolerance <= y_value <= y1 + tolerance
+    )
+    on_edge = any(
+        math.isclose(observed, edge, abs_tol=tolerance)
+        for observed, edge in (
+            (x_value, x0),
+            (x_value, x1),
+            (y_value, y0),
+            (y_value, y1),
+        )
+    )
+    return inside_extended and on_edge
+
+
+def _semantic_segment(
+    value: object, label: str
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    if not isinstance(value, (list, tuple)):
+        raise ValueError(f"{label} must be an array")
+    if len(value) == 4:
+        x0, y0, x1, y1 = (
+            _layout_number(item, f"{label}[{index}]")
+            for index, item in enumerate(value)
+        )
+    elif (
+        len(value) == 2
+        and all(isinstance(point, (list, tuple)) and len(point) == 2 for point in value)
+    ):
+        x0 = _layout_number(value[0][0], f"{label}[0][0]")
+        y0 = _layout_number(value[0][1], f"{label}[0][1]")
+        x1 = _layout_number(value[1][0], f"{label}[1][0]")
+        y1 = _layout_number(value[1][1], f"{label}[1][1]")
+    else:
+        raise ValueError(f"{label} must contain four coordinates or two points")
+    if math.isclose(x0, x1, abs_tol=1e-12) and math.isclose(
+        y0, y1, abs_tol=1e-12
+    ):
+        raise ValueError(f"{label} must have non-zero length")
+    return ((x0, y0), (x1, y1))
+
+
+def _points_close(
+    first: tuple[float, float],
+    second: tuple[float, float],
+    tolerance: float = 1e-6,
+) -> bool:
+    return math.isclose(first[0], second[0], abs_tol=tolerance) and math.isclose(
+        first[1], second[1], abs_tol=tolerance
+    )
+
+
+def _segments_share_endpoint(
+    first: tuple[tuple[float, float], tuple[float, float]],
+    second: tuple[tuple[float, float], tuple[float, float]],
+) -> bool:
+    return any(
+        _points_close(first_point, second_point)
+        for first_point in first
+        for second_point in second
+    )
+
+
+def _segments_close(
+    first: tuple[tuple[float, float], tuple[float, float]],
+    second: tuple[tuple[float, float], tuple[float, float]],
+    *,
+    tolerance: float = 0.5,
+) -> bool:
+    return _points_close(first[0], second[0], tolerance) and _points_close(
+        first[1], second[1], tolerance
+    )
+
+
+def _segment_orientation(
+    first: tuple[float, float],
+    second: tuple[float, float],
+    third: tuple[float, float],
+) -> float:
+    return (second[0] - first[0]) * (third[1] - first[1]) - (
+        second[1] - first[1]
+    ) * (third[0] - first[0])
+
+
+def _point_on_segment(
+    point: tuple[float, float],
+    segment: tuple[tuple[float, float], tuple[float, float]],
+    tolerance: float = 1e-6,
+) -> bool:
+    start, end = segment
+    return (
+        abs(_segment_orientation(start, end, point)) <= tolerance
+        and min(start[0], end[0]) - tolerance
+        <= point[0]
+        <= max(start[0], end[0]) + tolerance
+        and min(start[1], end[1]) - tolerance
+        <= point[1]
+        <= max(start[1], end[1]) + tolerance
+    )
+
+
+def _segments_intersect(
+    first: tuple[tuple[float, float], tuple[float, float]],
+    second: tuple[tuple[float, float], tuple[float, float]],
+    tolerance: float = 1e-6,
+) -> bool:
+    first_start, first_end = first
+    second_start, second_end = second
+    orientations = (
+        _segment_orientation(first_start, first_end, second_start),
+        _segment_orientation(first_start, first_end, second_end),
+        _segment_orientation(second_start, second_end, first_start),
+        _segment_orientation(second_start, second_end, first_end),
+    )
+    if (
+        orientations[0] * orientations[1] < -(tolerance**2)
+        and orientations[2] * orientations[3] < -(tolerance**2)
+    ):
+        return True
+    return any(
+        abs(orientation) <= tolerance and _point_on_segment(point, segment, tolerance)
+        for orientation, point, segment in (
+            (orientations[0], second_start, first),
+            (orientations[1], second_end, first),
+            (orientations[2], first_start, second),
+            (orientations[3], first_end, second),
+        )
+    )
+
+
+def _segment_intersects_bbox_interior(
+    segment: tuple[tuple[float, float], tuple[float, float]],
+    bbox: tuple[float, float, float, float],
+    inset: float = 0.5,
+) -> bool:
+    x0, y0, x1, y1 = bbox
+    if x1 - x0 <= 2 * inset or y1 - y0 <= 2 * inset:
+        inset = 0.0
+    left, bottom, right, top = x0 + inset, y0 + inset, x1 - inset, y1 - inset
+    start, end = segment
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    lower, upper = 0.0, 1.0
+    for p_value, q_value in (
+        (-dx, start[0] - left),
+        (dx, right - start[0]),
+        (-dy, start[1] - bottom),
+        (dy, top - start[1]),
+    ):
+        if abs(p_value) <= 1e-12:
+            if q_value < 0:
+                return False
+            continue
+        ratio = q_value / p_value
+        if p_value < 0:
+            lower = max(lower, ratio)
+        else:
+            upper = min(upper, ratio)
+        if lower > upper:
+            return False
+    return lower <= upper
+
+
+def _semantic_scope_text(value: object) -> str:
+    if isinstance(value, Mapping):
+        return " ".join(
+            str(value.get(key) or "") for key in ("applicability", "archetype", "scope")
+        ).strip()
+    return str(value or "").strip()
+
+
+def _audit_semantic_artist_registry(
+    registry: Mapping[str, object],
+    *,
+    canvas_bbox: tuple[float, float, float, float],
+    safe_bbox: tuple[float, float, float, float],
+    panels: Sequence[Mapping[str, object]],
+) -> dict[str, Any]:
+    violations: list[dict[str, object]] = []
+    scope_text = _semantic_scope_text(registry.get("semantic_artist_scope"))
+    archetype = str(registry.get("figure_archetype") or "")
+    combined_scope = f"{scope_text} {archetype}".lower()
+    flow_declared = any(
+        token in combined_scope for token in SEMANTIC_FLOW_ARCHETYPE_TOKENS
+    )
+    not_applicable = scope_text.lower().startswith("not_applicable")
+    if flow_declared and not_applicable:
+        violations.append(_layout_violation("semantic_artist_scope_conflict"))
+
+    semantic_registry = registry.get("semantic_artist_registry")
+    if not isinstance(semantic_registry, Mapping):
+        if flow_declared:
+            violations.append(_layout_violation("semantic_artist_registry_missing"))
+        counts = Counter(str(item["code"]) for item in violations)
+        passed = not violations
+        return {
+            "applicability": (
+                "required_for_declared_flow_or_schematic"
+                if flow_declared
+                else (
+                    "not_applicable"
+                    if not_applicable
+                    else "not_declared_non_flow"
+                )
+            ),
+            "flow_contract_required": flow_declared,
+            "registered_semantic_artist_count": 0,
+            "expected_semantic_artist_kind_count": 0,
+            "checks": {
+                "semantic_artist_applicability_valid": passed,
+                "semantic_artist_registry_complete": passed,
+                "semantic_artist_kinds_complete": passed,
+                "semantic_artists_inside_canvas": passed,
+                "semantic_artists_inside_safe_inset": passed,
+                "semantic_node_text_contained": passed,
+                "semantic_contract_geometry_bound": passed,
+                "semantic_lines_clear_of_text": passed,
+                "semantic_lines_clear_of_unrelated_nodes": passed,
+                "semantic_connectors_non_crossing": passed,
+                "semantic_arrowheads_clear_of_text": passed,
+                "semantic_relation_encoding_valid": passed,
+                "semantic_arrow_budget_met": passed,
+                "semantic_incoming_unambiguous": passed,
+                "semantic_bracket_spans_exact": passed,
+            },
+            "violation_counts": dict(sorted(counts.items())),
+            "violations": violations,
+        }
+
+    expected_prefixes_value = semantic_registry.get("expected_prefixes")
+    expected_prefixes = (
+        sorted(set(str(item) for item in expected_prefixes_value if str(item)))
+        if isinstance(expected_prefixes_value, list)
+        else []
+    )
+    if isinstance(expected_prefixes_value, list) and len(expected_prefixes) != len(
+        expected_prefixes_value
+    ):
+        violations.append(
+            _layout_violation("semantic_expected_prefixes_duplicate_or_invalid")
+        )
+    artists_value = semantic_registry.get("artists")
+    bindings_value = semantic_registry.get("prefix_bindings")
+    if not expected_prefixes:
+        violations.append(_layout_violation("semantic_expected_prefixes_missing"))
+    if not isinstance(artists_value, list) or not all(
+        isinstance(item, Mapping) for item in artists_value
+    ):
+        violations.append(_layout_violation("semantic_artist_records_invalid"))
+        artists_value = []
+    if not isinstance(bindings_value, list) or not all(
+        isinstance(item, Mapping) for item in bindings_value
+    ):
+        violations.append(_layout_violation("semantic_prefix_bindings_invalid"))
+        bindings_value = []
+
+    semantic_by_id: dict[str, dict[str, object]] = {}
+    actual_by_prefix: dict[str, list[str]] = {
+        prefix: [] for prefix in expected_prefixes
+    }
+    for index, artist in enumerate(artists_value):
+        artist_id = str(artist.get("artist_id") or "").strip()
+        owner_prefix = str(artist.get("owner_prefix") or "").strip()
+        artist_kind = str(artist.get("artist_kind") or "").strip()
+        if not artist_id or not owner_prefix or not artist_kind:
+            violations.append(
+                _layout_violation(
+                    "semantic_artist_identity_invalid", artist_index=index
+                )
+            )
+            continue
+        if artist_id in semantic_by_id:
+            violations.append(
+                _layout_violation(
+                    "duplicate_semantic_artist_id", artist_id=artist_id
+                )
+            )
+            continue
+        try:
+            bbox = _semantic_bbox(
+                artist.get("bbox_px"), f"semantic_artists.{artist_id}.bbox_px"
+            )
+        except ValueError as exc:
+            violations.append(
+                _layout_violation(
+                    "semantic_artist_bbox_invalid",
+                    artist_id=artist_id,
+                    reason=str(exc),
+                )
+            )
+            continue
+        record = {
+            "artist_id": artist_id,
+            "owner_prefix": owner_prefix,
+            "artist_kind": artist_kind,
+            "bbox": bbox,
+            "geometry_px": artist.get("geometry_px"),
+        }
+        semantic_by_id[artist_id] = record
+        if owner_prefix not in actual_by_prefix or not (
+            artist_id == owner_prefix or artist_id.startswith(f"{owner_prefix}.")
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_artist_prefix_invalid",
+                    artist_id=artist_id,
+                    owner_prefix=owner_prefix,
+                )
+            )
+        else:
+            actual_by_prefix[owner_prefix].append(artist_id)
+        if not _bbox_inside_tolerance(bbox, canvas_bbox):
+            violations.append(
+                _layout_violation(
+                    "semantic_artist_canvas_overflow", artist_id=artist_id
+                )
+            )
+        if not _bbox_inside_tolerance(bbox, safe_bbox):
+            violations.append(
+                _layout_violation(
+                    "semantic_artist_safe_inset_violation", artist_id=artist_id
+                )
+            )
+
+    declared_bindings: dict[str, list[str]] = {}
+    for binding in bindings_value:
+        prefix = str(binding.get("prefix") or "").strip()
+        artist_ids = binding.get("artist_ids")
+        if (
+            not prefix
+            or not isinstance(artist_ids, list)
+            or not all(isinstance(item, str) and item for item in artist_ids)
+            or prefix in declared_bindings
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_prefix_binding_invalid", prefix=prefix or None
+                )
+            )
+            continue
+        declared_bindings[prefix] = sorted(artist_ids)
+    for prefix in expected_prefixes:
+        actual_ids = sorted(actual_by_prefix.get(prefix, []))
+        if not actual_ids:
+            violations.append(
+                _layout_violation(
+                    "semantic_artist_prefix_missing", artist_prefix=prefix
+                )
+            )
+        if declared_bindings.get(prefix) != actual_ids:
+            violations.append(
+                _layout_violation(
+                    "semantic_prefix_binding_stale",
+                    artist_prefix=prefix,
+                    declared_artist_ids=declared_bindings.get(prefix, []),
+                    actual_artist_ids=actual_ids,
+                )
+            )
+    for prefix in sorted(set(declared_bindings) - set(expected_prefixes)):
+        violations.append(
+            _layout_violation(
+                "semantic_prefix_binding_unexpected", artist_prefix=prefix
+            )
+        )
+
+    text_by_id: dict[str, tuple[float, float, float, float]] = {}
+    for panel in panels:
+        for artist in panel.get("text_artists") or []:
+            if not isinstance(artist, Mapping):
+                continue
+            artist_id = str(artist.get("artist_id") or "").strip()
+            if not artist_id:
+                continue
+            try:
+                text_by_id[artist_id] = _layout_bbox(
+                    artist.get("bbox_px"), f"text_artists.{artist_id}.bbox_px"
+                )
+            except ValueError:
+                continue
+
+    flow_contract = registry.get("semantic_flow_contract")
+    if flow_declared and not isinstance(flow_contract, Mapping):
+        violations.append(_layout_violation("semantic_flow_contract_missing"))
+        flow_contract = {}
+    elif not isinstance(flow_contract, Mapping):
+        flow_contract = {}
+
+    expected_kinds_value = flow_contract.get("expected_artist_kinds")
+    expected_kinds = (
+        sorted(set(str(item) for item in expected_kinds_value if str(item)))
+        if isinstance(expected_kinds_value, list)
+        else []
+    )
+    actual_kinds = {str(item["artist_kind"]) for item in semantic_by_id.values()}
+    if flow_declared and not expected_kinds:
+        violations.append(_layout_violation("semantic_expected_artist_kinds_missing"))
+    missing_kinds = sorted(set(expected_kinds) - actual_kinds)
+    if missing_kinds:
+        violations.append(
+            _layout_violation(
+                "semantic_artist_kinds_missing", missing_artist_kinds=missing_kinds
+            )
+        )
+
+    nodes_value = flow_contract.get("nodes")
+    nodes: dict[str, dict[str, object]] = {}
+    if flow_declared and (
+        not isinstance(nodes_value, list)
+        or not all(isinstance(item, Mapping) for item in nodes_value)
+    ):
+        violations.append(_layout_violation("semantic_flow_nodes_invalid"))
+        nodes_value = []
+    elif not isinstance(nodes_value, list):
+        nodes_value = []
+    for index, node in enumerate(nodes_value):
+        node_id = str(node.get("node_id") or "").strip()
+        if not node_id or node_id in nodes:
+            violations.append(
+                _layout_violation(
+                    "semantic_flow_node_identity_invalid", node_index=index
+                )
+            )
+            continue
+        try:
+            node_bbox = _layout_bbox(
+                node.get("bbox_px"), f"semantic_flow.nodes.{node_id}.bbox_px"
+            )
+        except ValueError as exc:
+            violations.append(
+                _layout_violation(
+                    "semantic_flow_node_bbox_invalid",
+                    node_id=node_id,
+                    reason=str(exc),
+                )
+            )
+            continue
+        text_ids = node.get("text_artist_ids")
+        if not isinstance(text_ids, list) or not all(
+            isinstance(item, str) and item for item in text_ids
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_node_text_registry_invalid", node_id=node_id
+                )
+            )
+            text_ids = []
+        patch_artist_id = str(node.get("patch_artist_id") or "").strip()
+        patch_artist = semantic_by_id.get(patch_artist_id)
+        if not patch_artist_id or patch_artist is None:
+            violations.append(
+                _layout_violation(
+                    "semantic_node_patch_artist_missing",
+                    node_id=node_id,
+                    patch_artist_id=patch_artist_id or None,
+                )
+            )
+        elif not _bboxes_close(patch_artist["bbox"], node_bbox):
+            violations.append(
+                _layout_violation(
+                    "semantic_node_patch_bbox_mismatch",
+                    node_id=node_id,
+                    patch_artist_id=patch_artist_id,
+                    contract_bbox_px=list(node_bbox),
+                    artist_bbox_px=list(patch_artist["bbox"]),
+                )
+            )
+        nodes[node_id] = {
+            "bbox": node_bbox,
+            "text_artist_ids": list(text_ids),
+            "patch_artist_id": patch_artist_id,
+        }
+        for text_id in text_ids:
+            text_bbox = text_by_id.get(text_id)
+            if text_bbox is None:
+                violations.append(
+                    _layout_violation(
+                        "semantic_node_text_artist_missing",
+                        node_id=node_id,
+                        text_artist_id=text_id,
+                    )
+                )
+            elif not _bbox_inside_tolerance(text_bbox, node_bbox):
+                violations.append(
+                    _layout_violation(
+                        "semantic_node_text_outside_node",
+                        node_id=node_id,
+                        text_artist_id=text_id,
+                    )
+                )
+
+    grammar_value = flow_contract.get("relation_encoding_grammar")
+    grammar: dict[str, set[str]] = {}
+    if flow_declared and not isinstance(grammar_value, Mapping):
+        violations.append(_layout_violation("semantic_relation_grammar_missing"))
+    elif isinstance(grammar_value, Mapping):
+        for relation_kind, encodings in grammar_value.items():
+            if not isinstance(encodings, list) or not all(
+                isinstance(item, str) and item for item in encodings
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_relation_grammar_invalid",
+                        relation=str(relation_kind),
+                    )
+                )
+                continue
+            grammar[str(relation_kind)] = set(encodings)
+
+    relations_value = flow_contract.get("relations")
+    relations: dict[str, dict[str, object]] = {}
+    if flow_declared and (
+        not isinstance(relations_value, list)
+        or not all(isinstance(item, Mapping) for item in relations_value)
+    ):
+        violations.append(_layout_violation("semantic_flow_relations_invalid"))
+        relations_value = []
+    elif not isinstance(relations_value, list):
+        relations_value = []
+    for index, relation in enumerate(relations_value):
+        relation_id = str(relation.get("relation_id") or "").strip()
+        relation_kind = str(relation.get("relation") or "").strip()
+        encoding = str(relation.get("encoding") or "").strip()
+        if not relation_id or relation_id in relations or not relation_kind or not encoding:
+            violations.append(
+                _layout_violation(
+                    "semantic_relation_identity_invalid", relation_index=index
+                )
+            )
+            continue
+        relations[relation_id] = {
+            "relation": relation_kind,
+            "encoding": encoding,
+        }
+        if encoding not in grammar.get(relation_kind, set()):
+            violations.append(
+                _layout_violation(
+                    "semantic_relation_encoding_invalid",
+                    relation_id=relation_id,
+                    relation=relation_kind,
+                    encoding=encoding,
+                )
+            )
+        prefixes = relation.get("artist_prefixes")
+        if not isinstance(prefixes, list) or not prefixes:
+            violations.append(
+                _layout_violation(
+                    "semantic_relation_artist_prefixes_missing",
+                    relation_id=relation_id,
+                )
+            )
+        else:
+            for prefix in prefixes:
+                if not actual_by_prefix.get(str(prefix)):
+                    violations.append(
+                        _layout_violation(
+                            "semantic_relation_artist_prefix_missing",
+                            relation_id=relation_id,
+                            artist_prefix=str(prefix),
+                        )
+                    )
+
+    connectors_value = flow_contract.get("connectors")
+    connector_records: list[dict[str, object]] = []
+    if flow_declared and (
+        not isinstance(connectors_value, list)
+        or not all(isinstance(item, Mapping) for item in connectors_value)
+    ):
+        violations.append(_layout_violation("semantic_flow_connectors_invalid"))
+        connectors_value = []
+    elif not isinstance(connectors_value, list):
+        connectors_value = []
+    connector_ids: set[str] = set()
+    incoming: Counter[str] = Counter()
+    for index, connector in enumerate(connectors_value):
+        connector_id = str(connector.get("connector_id") or "").strip()
+        relation_id = str(connector.get("relation_id") or "").strip()
+        source_node_id = str(connector.get("source_node_id") or "").strip()
+        destination_node_id = str(
+            connector.get("destination_node_id") or ""
+        ).strip()
+        if not connector_id or connector_id in connector_ids:
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_identity_invalid", connector_index=index
+                )
+            )
+            continue
+        connector_ids.add(connector_id)
+        if relation_id not in relations:
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_relation_missing",
+                    connector_id=connector_id,
+                    relation_id=relation_id,
+                )
+            )
+        if source_node_id not in nodes or destination_node_id not in nodes:
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_node_missing",
+                    connector_id=connector_id,
+                    source_node_id=source_node_id,
+                    destination_node_id=destination_node_id,
+                )
+            )
+        segments_value = connector.get("segments_px")
+        segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
+        if not isinstance(segments_value, list) or not segments_value:
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_segments_missing", connector_id=connector_id
+                )
+            )
+        else:
+            for segment_index, segment_value in enumerate(segments_value):
+                try:
+                    segments.append(
+                        _semantic_segment(
+                            segment_value,
+                            f"semantic_connectors.{connector_id}.segments_px[{segment_index}]",
+                        )
+                    )
+                except ValueError as exc:
+                    violations.append(
+                        _layout_violation(
+                            "semantic_connector_segment_invalid",
+                            connector_id=connector_id,
+                            segment_index=segment_index,
+                            reason=str(exc),
+                        )
+                    )
+        for segment_index in range(len(segments) - 1):
+            if not _points_close(
+                segments[segment_index][1], segments[segment_index + 1][0]
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_connector_segments_disconnected",
+                        connector_id=connector_id,
+                        first_segment_index=segment_index,
+                        second_segment_index=segment_index + 1,
+                    )
+                )
+        if segments and source_node_id in nodes and destination_node_id in nodes:
+            if not _point_on_bbox_boundary(
+                segments[0][0], nodes[source_node_id]["bbox"]
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_connector_source_not_anchored",
+                        connector_id=connector_id,
+                        source_node_id=source_node_id,
+                    )
+                )
+            if not _point_on_bbox_boundary(
+                segments[-1][1], nodes[destination_node_id]["bbox"]
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_connector_destination_not_anchored",
+                        connector_id=connector_id,
+                        destination_node_id=destination_node_id,
+                    )
+                )
+        arrowhead_ids = connector.get("arrowhead_artist_ids")
+        if not isinstance(arrowhead_ids, list) or not all(
+            isinstance(item, str) and item for item in arrowhead_ids
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_arrowhead_registry_invalid",
+                    connector_id=connector_id,
+                )
+            )
+            arrowhead_ids = []
+        for arrowhead_id in arrowhead_ids:
+            if arrowhead_id not in semantic_by_id:
+                violations.append(
+                    _layout_violation(
+                        "semantic_arrowhead_artist_missing",
+                        connector_id=connector_id,
+                        arrowhead_artist_id=arrowhead_id,
+                    )
+                )
+        segment_artist_ids = connector.get("segment_artist_ids")
+        if (
+            not isinstance(segment_artist_ids, list)
+            or len(segment_artist_ids) != len(segments)
+            or not all(isinstance(item, str) and item for item in segment_artist_ids)
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_geometry_registry_invalid",
+                    connector_id=connector_id,
+                )
+            )
+            segment_artist_ids = []
+        geometry_tolerance = _layout_number(
+            connector.get("geometry_tolerance_px", 0.5),
+            f"semantic_connectors.{connector_id}.geometry_tolerance_px",
+        )
+        if geometry_tolerance < 0 or geometry_tolerance > 12:
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_geometry_tolerance_invalid",
+                    connector_id=connector_id,
+                    geometry_tolerance_px=geometry_tolerance,
+                )
+            )
+        for segment_index, (segment, segment_artist_id) in enumerate(
+            zip(segments, segment_artist_ids)
+        ):
+            segment_artist = semantic_by_id.get(segment_artist_id)
+            if segment_artist is None:
+                violations.append(
+                    _layout_violation(
+                        "semantic_connector_geometry_artist_missing",
+                        connector_id=connector_id,
+                        segment_index=segment_index,
+                        segment_artist_id=segment_artist_id,
+                    )
+                )
+                continue
+            try:
+                artist_segment = _semantic_segment(
+                    segment_artist.get("geometry_px"),
+                    (
+                        "semantic_artists."
+                        f"{segment_artist_id}.geometry_px"
+                    ),
+                )
+            except ValueError as exc:
+                violations.append(
+                    _layout_violation(
+                        "semantic_connector_artist_geometry_invalid",
+                        connector_id=connector_id,
+                        segment_index=segment_index,
+                        segment_artist_id=segment_artist_id,
+                        reason=str(exc),
+                    )
+                )
+                continue
+            expected_segment_bbox = _segment_bbox(segment)
+            if not (
+                _segments_close(
+                    artist_segment,
+                    segment,
+                    tolerance=geometry_tolerance,
+                )
+                and _bboxes_close(
+                    segment_artist["bbox"],
+                    expected_segment_bbox,
+                    tolerance=geometry_tolerance,
+                )
+            ):
+                violations.append(
+                    _layout_violation(
+                        "semantic_connector_geometry_mismatch",
+                        connector_id=connector_id,
+                        segment_index=segment_index,
+                        segment_artist_id=segment_artist_id,
+                        contract_segment_px=[
+                            *segment[0],
+                            *segment[1],
+                        ],
+                        artist_segment_px=[
+                            *artist_segment[0],
+                            *artist_segment[1],
+                        ],
+                        contract_segment_bbox_px=list(expected_segment_bbox),
+                        artist_bbox_px=list(segment_artist["bbox"]),
+                        tolerance_px=geometry_tolerance,
+                    )
+                )
+        incoming[destination_node_id] += 1
+        connector_records.append(
+            {
+                "connector_id": connector_id,
+                "relation_id": relation_id,
+                "source_node_id": source_node_id,
+                "destination_node_id": destination_node_id,
+                "junction_group": str(connector.get("junction_group") or ""),
+                "segments": segments,
+                "segment_artist_ids": list(segment_artist_ids),
+                "arrowhead_artist_ids": list(arrowhead_ids),
+                "arrow_bearing": connector.get("arrow_bearing") is True
+                or bool(arrowhead_ids),
+            }
+        )
+
+    arrow_encodings_value = flow_contract.get("arrow_encodings")
+    arrow_encodings = (
+        set(str(item) for item in arrow_encodings_value)
+        if isinstance(arrow_encodings_value, list)
+        else set()
+    )
+    connectors_by_relation = Counter(
+        str(item["relation_id"]) for item in connector_records
+    )
+    for relation_id, relation in relations.items():
+        is_arrow_encoding = relation["encoding"] in arrow_encodings
+        connector_count = connectors_by_relation[relation_id]
+        if is_arrow_encoding and connector_count == 0:
+            violations.append(
+                _layout_violation(
+                    "semantic_arrow_relation_connector_missing",
+                    relation_id=relation_id,
+                )
+            )
+        if not is_arrow_encoding and connector_count > 0:
+            violations.append(
+                _layout_violation(
+                    "semantic_non_arrow_relation_has_connector",
+                    relation_id=relation_id,
+                )
+            )
+
+    for connector in connector_records:
+        for segment in connector["segments"]:
+            for text_id, text_bbox in text_by_id.items():
+                if _segment_intersects_bbox_interior(segment, text_bbox):
+                    violations.append(
+                        _layout_violation(
+                            "semantic_line_text_intersection",
+                            connector_id=connector["connector_id"],
+                            text_artist_id=text_id,
+                        )
+                    )
+            for node_id, node in nodes.items():
+                if node_id in {
+                    connector["source_node_id"],
+                    connector["destination_node_id"],
+                }:
+                    continue
+                if _segment_intersects_bbox_interior(segment, node["bbox"]):
+                    violations.append(
+                        _layout_violation(
+                            "semantic_line_unrelated_node_intersection",
+                            connector_id=connector["connector_id"],
+                            node_id=node_id,
+                        )
+                    )
+        for arrowhead_id in connector["arrowhead_artist_ids"]:
+            arrowhead = semantic_by_id.get(str(arrowhead_id))
+            if arrowhead is None:
+                continue
+            for text_id, text_bbox in text_by_id.items():
+                if _bbox_overlap_area(arrowhead["bbox"], text_bbox) > 0:
+                    violations.append(
+                        _layout_violation(
+                            "semantic_arrowhead_text_intersection",
+                            connector_id=connector["connector_id"],
+                            arrowhead_artist_id=arrowhead_id,
+                            text_artist_id=text_id,
+                        )
+                    )
+
+    allowed_crossings_value = flow_contract.get("allowed_connector_crossing_pairs")
+    if allowed_crossings_value is not None and (
+        not isinstance(allowed_crossings_value, list)
+        or not all(
+            isinstance(pair, list)
+            and len(pair) == 2
+            and all(isinstance(item, str) and item for item in pair)
+            for pair in allowed_crossings_value
+        )
+    ):
+        violations.append(_layout_violation("semantic_allowed_crossings_invalid"))
+        allowed_crossings_value = []
+    allowed_crossings = {
+        tuple(sorted(str(item) for item in pair))
+        for pair in (allowed_crossings_value or [])
+        if isinstance(pair, list) and len(pair) == 2
+    }
+    shared_junction_relations_value = flow_contract.get(
+        "shared_junction_relations", ["partition"]
+    )
+    shared_junction_relations = (
+        set(str(item) for item in shared_junction_relations_value)
+        if isinstance(shared_junction_relations_value, list)
+        else {"partition"}
+    )
+    junction_groups: dict[str, list[dict[str, object]]] = {}
+    for connector in connector_records:
+        junction_group = str(connector["junction_group"])
+        if junction_group:
+            junction_groups.setdefault(junction_group, []).append(connector)
+    for junction_group, grouped_connectors in sorted(junction_groups.items()):
+        relation_ids = {
+            str(connector["relation_id"]) for connector in grouped_connectors
+        }
+        source_node_ids = {
+            str(connector["source_node_id"]) for connector in grouped_connectors
+        }
+        relation_kinds = {
+            str(relations.get(relation_id, {}).get("relation") or "")
+            for relation_id in relation_ids
+        }
+        metadata_valid = (
+            len(relation_ids) == 1
+            and len(source_node_ids) == 1
+            and len(relation_kinds) == 1
+            and relation_kinds.issubset(shared_junction_relations)
+        )
+        common_prefix_count = 0
+        if metadata_valid and len(grouped_connectors) > 1:
+            minimum_segment_count = min(
+                len(connector["segments"]) for connector in grouped_connectors
+            )
+            for segment_index in range(minimum_segment_count):
+                reference_segment = grouped_connectors[0]["segments"][segment_index]
+                if all(
+                    _segments_close(
+                        connector["segments"][segment_index],
+                        reference_segment,
+                    )
+                    for connector in grouped_connectors[1:]
+                ):
+                    common_prefix_count += 1
+                else:
+                    break
+        geometry_valid = (
+            common_prefix_count > 0
+            and all(
+                len(connector["segments"]) > common_prefix_count
+                for connector in grouped_connectors
+            )
+        )
+        if geometry_valid:
+            junction_point = grouped_connectors[0]["segments"][
+                common_prefix_count - 1
+            ][1]
+            geometry_valid = all(
+                _points_close(
+                    connector["segments"][common_prefix_count][0],
+                    junction_point,
+                )
+                for connector in grouped_connectors
+            )
+        if not (metadata_valid and geometry_valid) and len(grouped_connectors) > 1:
+            violations.append(
+                _layout_violation(
+                    "semantic_junction_group_invalid",
+                    junction_group=junction_group,
+                    relation_ids=sorted(relation_ids),
+                    source_node_ids=sorted(source_node_ids),
+                    relation_kinds=sorted(relation_kinds),
+                    common_prefix_segment_count=common_prefix_count,
+                )
+            )
+    for first, second in combinations(connector_records, 2):
+        connector_pair = tuple(
+            sorted((str(first["connector_id"]), str(second["connector_id"])))
+        )
+        if connector_pair in allowed_crossings:
+            continue
+        crossing_found = False
+        for first_segment in first["segments"]:
+            for second_segment in second["segments"]:
+                if _segments_share_endpoint(first_segment, second_segment):
+                    continue
+                if _segments_intersect(first_segment, second_segment):
+                    crossing_found = True
+                    break
+            if crossing_found:
+                break
+        if crossing_found:
+            violations.append(
+                _layout_violation(
+                    "semantic_connector_crossing_unauthorized",
+                    connector_ids=list(connector_pair),
+                )
+            )
+
+    arrow_budget = flow_contract.get("arrow_budget")
+    arrow_count = sum(1 for item in connector_records if item["arrow_bearing"])
+    if (
+        isinstance(arrow_budget, bool)
+        or not isinstance(arrow_budget, int)
+        or arrow_budget < 0
+    ):
+        if flow_declared:
+            violations.append(_layout_violation("semantic_arrow_budget_invalid"))
+        arrow_budget = None
+    elif arrow_count > arrow_budget:
+        violations.append(
+            _layout_violation(
+                "semantic_arrow_budget_exceeded",
+                arrow_count=arrow_count,
+                arrow_budget=arrow_budget,
+            )
+        )
+    ambiguous_incoming = {
+        node_id: count
+        for node_id, count in sorted(incoming.items())
+        if node_id and count > 1
+    }
+    if ambiguous_incoming:
+        violations.append(
+            _layout_violation(
+                "semantic_ambiguous_incoming_connectors",
+                node_counts=ambiguous_incoming,
+            )
+        )
+
+    brackets_value = flow_contract.get("brackets")
+    if flow_declared and not isinstance(brackets_value, list):
+        violations.append(_layout_violation("semantic_bracket_registry_invalid"))
+        brackets_value = []
+    elif not isinstance(brackets_value, list):
+        brackets_value = []
+    span_tolerance = _layout_number(
+        flow_contract.get("bracket_span_tolerance_px", 0.5),
+        "semantic_flow_contract.bracket_span_tolerance_px",
+    )
+    if span_tolerance < 0 or span_tolerance > 5:
+        violations.append(
+            _layout_violation(
+                "semantic_bracket_span_tolerance_invalid",
+                tolerance_px=span_tolerance,
+            )
+        )
+        span_tolerance = 0.5
+    for index, bracket in enumerate(brackets_value):
+        if not isinstance(bracket, Mapping):
+            violations.append(
+                _layout_violation(
+                    "semantic_bracket_record_invalid", bracket_index=index
+                )
+            )
+            continue
+        bracket_id = str(bracket.get("bracket_id") or "").strip()
+        relation_id = str(bracket.get("relation_id") or "").strip()
+        artist_prefix = str(bracket.get("artist_prefix") or "").strip()
+        covered_node_ids = bracket.get("covered_node_ids")
+        observed_span = bracket.get("observed_span_px")
+        segment_artist_ids = bracket.get("segment_artist_ids")
+        if (
+            not bracket_id
+            or relation_id not in relations
+            or "bracket" not in str(
+                relations.get(relation_id, {}).get("encoding") or ""
+            )
+            or not actual_by_prefix.get(artist_prefix)
+            or not isinstance(covered_node_ids, list)
+            or not covered_node_ids
+            or not isinstance(observed_span, (list, tuple))
+            or len(observed_span) != 2
+            or not isinstance(segment_artist_ids, list)
+            or not segment_artist_ids
+            or not all(
+                isinstance(item, str) and item for item in segment_artist_ids
+            )
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_bracket_record_invalid", bracket_index=index
+                )
+            )
+            continue
+        covered_nodes = [nodes.get(str(node_id)) for node_id in covered_node_ids]
+        if any(node is None for node in covered_nodes):
+            violations.append(
+                _layout_violation(
+                    "semantic_bracket_node_missing",
+                    bracket_id=bracket_id,
+                    covered_node_ids=[str(item) for item in covered_node_ids],
+                )
+            )
+            continue
+        bracket_artists = [
+            semantic_by_id.get(segment_artist_id)
+            for segment_artist_id in segment_artist_ids
+        ]
+        if any(artist is None for artist in bracket_artists):
+            violations.append(
+                _layout_violation(
+                    "semantic_bracket_artist_missing",
+                    bracket_id=bracket_id,
+                    segment_artist_ids=list(segment_artist_ids),
+                )
+            )
+            continue
+        bracket_segments = []
+        for segment_artist_id, bracket_artist in zip(
+            segment_artist_ids, bracket_artists, strict=True
+        ):
+            try:
+                bracket_segments.append(
+                    _semantic_segment(
+                        bracket_artist.get("geometry_px"),
+                        (
+                            "semantic_artists."
+                            f"{segment_artist_id}.geometry_px"
+                        ),
+                    )
+                )
+            except ValueError as exc:
+                violations.append(
+                    _layout_violation(
+                        "semantic_bracket_geometry_invalid",
+                        bracket_id=bracket_id,
+                        segment_artist_id=segment_artist_id,
+                        reason=str(exc),
+                    )
+                )
+        if len(bracket_segments) != len(bracket_artists):
+            continue
+        expected_x0 = min(node["bbox"][0] for node in covered_nodes if node)
+        expected_x1 = max(node["bbox"][2] for node in covered_nodes if node)
+        registered_x0 = min(
+            point[0] for segment in bracket_segments for point in segment
+        )
+        registered_x1 = max(
+            point[0] for segment in bracket_segments for point in segment
+        )
+        observed_x0 = _layout_number(
+            observed_span[0], f"semantic_brackets.{bracket_id}.observed_span_px[0]"
+        )
+        observed_x1 = _layout_number(
+            observed_span[1], f"semantic_brackets.{bracket_id}.observed_span_px[1]"
+        )
+        if not (
+            math.isclose(observed_x0, registered_x0, abs_tol=span_tolerance)
+            and math.isclose(observed_x1, registered_x1, abs_tol=span_tolerance)
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_bracket_observed_span_mismatch",
+                    bracket_id=bracket_id,
+                    observed_span_px=[observed_x0, observed_x1],
+                    registered_artist_span_px=[registered_x0, registered_x1],
+                    tolerance_px=span_tolerance,
+                )
+            )
+        if not (
+            math.isclose(observed_x0, expected_x0, abs_tol=span_tolerance)
+            and math.isclose(observed_x1, expected_x1, abs_tol=span_tolerance)
+        ):
+            violations.append(
+                _layout_violation(
+                    "semantic_bracket_span_mismatch",
+                    bracket_id=bracket_id,
+                    observed_span_px=[observed_x0, observed_x1],
+                    expected_span_px=[expected_x0, expected_x1],
+                    tolerance_px=span_tolerance,
+                )
+            )
+
+    violations.sort(
+        key=lambda item: json.dumps(item, ensure_ascii=True, sort_keys=True)
+    )
+    counts = Counter(str(item["code"]) for item in violations)
+    check_failures = {
+        "semantic_artist_applicability_valid": {
+            "semantic_artist_scope_conflict",
+            "semantic_artist_registry_missing",
+            "semantic_flow_contract_missing",
+        },
+        "semantic_artist_registry_complete": {
+            "semantic_expected_prefixes_missing",
+            "semantic_artist_records_invalid",
+            "semantic_prefix_bindings_invalid",
+            "semantic_artist_identity_invalid",
+            "duplicate_semantic_artist_id",
+            "semantic_artist_bbox_invalid",
+            "semantic_artist_prefix_invalid",
+            "semantic_expected_prefixes_duplicate_or_invalid",
+            "semantic_artist_prefix_missing",
+            "semantic_prefix_binding_stale",
+            "semantic_prefix_binding_invalid",
+            "semantic_prefix_binding_unexpected",
+        },
+        "semantic_artist_kinds_complete": {
+            "semantic_expected_artist_kinds_missing",
+            "semantic_artist_kinds_missing",
+        },
+        "semantic_artists_inside_canvas": {"semantic_artist_canvas_overflow"},
+        "semantic_artists_inside_safe_inset": {
+            "semantic_artist_safe_inset_violation"
+        },
+        "semantic_node_text_contained": {
+            "semantic_flow_nodes_invalid",
+            "semantic_flow_node_identity_invalid",
+            "semantic_flow_node_bbox_invalid",
+            "semantic_node_text_registry_invalid",
+            "semantic_node_text_artist_missing",
+            "semantic_node_text_outside_node",
+        },
+        "semantic_contract_geometry_bound": {
+            "semantic_node_patch_artist_missing",
+            "semantic_node_patch_bbox_mismatch",
+            "semantic_connector_geometry_registry_invalid",
+            "semantic_connector_geometry_tolerance_invalid",
+            "semantic_connector_geometry_artist_missing",
+            "semantic_connector_artist_geometry_invalid",
+            "semantic_connector_geometry_mismatch",
+            "semantic_connector_segments_disconnected",
+            "semantic_connector_source_not_anchored",
+            "semantic_connector_destination_not_anchored",
+            "semantic_allowed_crossings_invalid",
+            "semantic_junction_group_invalid",
+            "semantic_bracket_artist_missing",
+            "semantic_bracket_geometry_invalid",
+            "semantic_bracket_observed_span_mismatch",
+        },
+        "semantic_lines_clear_of_text": {"semantic_line_text_intersection"},
+        "semantic_lines_clear_of_unrelated_nodes": {
+            "semantic_line_unrelated_node_intersection"
+        },
+        "semantic_connectors_non_crossing": {
+            "semantic_connector_crossing_unauthorized"
+        },
+        "semantic_arrowheads_clear_of_text": {
+            "semantic_arrowhead_text_intersection"
+        },
+        "semantic_relation_encoding_valid": {
+            "semantic_relation_grammar_missing",
+            "semantic_relation_grammar_invalid",
+            "semantic_flow_relations_invalid",
+            "semantic_relation_identity_invalid",
+            "semantic_relation_encoding_invalid",
+            "semantic_relation_artist_prefixes_missing",
+            "semantic_relation_artist_prefix_missing",
+            "semantic_flow_connectors_invalid",
+            "semantic_connector_identity_invalid",
+            "semantic_connector_relation_missing",
+            "semantic_connector_node_missing",
+            "semantic_connector_segments_missing",
+            "semantic_connector_segment_invalid",
+            "semantic_arrowhead_registry_invalid",
+            "semantic_arrowhead_artist_missing",
+            "semantic_arrow_relation_connector_missing",
+            "semantic_non_arrow_relation_has_connector",
+        },
+        "semantic_arrow_budget_met": {
+            "semantic_arrow_budget_invalid",
+            "semantic_arrow_budget_exceeded",
+        },
+        "semantic_incoming_unambiguous": {
+            "semantic_ambiguous_incoming_connectors"
+        },
+        "semantic_bracket_spans_exact": {
+            "semantic_bracket_registry_invalid",
+            "semantic_bracket_record_invalid",
+            "semantic_bracket_node_missing",
+            "semantic_bracket_span_tolerance_invalid",
+            "semantic_bracket_span_mismatch",
+        },
+    }
+    checks = {
+        check_name: not any(counts[code] for code in failure_codes)
+        for check_name, failure_codes in check_failures.items()
+    }
+    return {
+        "applicability": (
+            "required_for_declared_flow_or_schematic"
+            if flow_declared
+            else ("not_applicable" if not_applicable else "registered_non_flow")
+        ),
+        "flow_contract_required": flow_declared,
+        "registered_semantic_artist_count": len(semantic_by_id),
+        "expected_semantic_artist_kind_count": len(expected_kinds),
+        "actual_semantic_artist_kinds": sorted(actual_kinds),
+        "arrow_count": arrow_count,
+        "arrow_budget": arrow_budget,
+        "ambiguous_incoming_node_count": len(ambiguous_incoming),
+        "checks": checks,
+        "violation_counts": dict(sorted(counts.items())),
+        "violations": violations,
+    }
+
+
 def _layout_violation(code: str, **details: object) -> dict[str, object]:
     return {"code": code, "writes_authority": False, **details}
 
@@ -1921,6 +3257,14 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
                 )
             )
 
+    semantic_audit = _audit_semantic_artist_registry(
+        registry,
+        canvas_bbox=canvas_bbox,
+        safe_bbox=safe_bbox,
+        panels=panels,
+    )
+    violations.extend(semantic_audit["violations"])
+
     regression_cases = set(registry.get("regression_cases") or [])
     if registry.get("fixture_only") is True:
         for missing_case in sorted(REQUIRED_LAYOUT_REGRESSION_CASES - regression_cases):
@@ -1984,6 +3328,7 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
         ),
         "regression_fixture_coverage": counts["regression_fixture_case_missing"] == 0,
     }
+    checks.update(semantic_audit["checks"])
     return {
         "surface_kind": "layout_bbox_registry_audit_candidate.v1",
         "registry_sha256": _canonical_json_sha256(registry),
@@ -1992,6 +3337,24 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
         ),
         "panel_count": len(panels),
         "registered_text_artist_count": registered_artist_count,
+        "semantic_artist_applicability": semantic_audit["applicability"],
+        "semantic_flow_contract_required": semantic_audit[
+            "flow_contract_required"
+        ],
+        "registered_semantic_artist_count": semantic_audit[
+            "registered_semantic_artist_count"
+        ],
+        "expected_semantic_artist_kind_count": semantic_audit[
+            "expected_semantic_artist_kind_count"
+        ],
+        "actual_semantic_artist_kinds": semantic_audit.get(
+            "actual_semantic_artist_kinds", []
+        ),
+        "semantic_arrow_count": semantic_audit.get("arrow_count", 0),
+        "semantic_arrow_budget": semantic_audit.get("arrow_budget"),
+        "semantic_ambiguous_incoming_node_count": semantic_audit.get(
+            "ambiguous_incoming_node_count", 0
+        ),
         "checks": checks,
         "violation_counts": dict(sorted(counts.items())),
         "violations": violations,
@@ -2194,10 +3557,35 @@ def build_layout_qc_receipt(
             lane: registry["lanes"][lane]
             for lane in ("plotting_data", "annotation")
         },
+        "semantic_artist_scope": registry.get(
+            "semantic_artist_scope", "not_declared_non_flow"
+        ),
         "bbox_registry_summary": {
             "panel_count": layout_audit["panel_count"],
             "registered_text_artist_count": layout_audit[
                 "registered_text_artist_count"
+            ],
+            "semantic_artist_applicability": layout_audit[
+                "semantic_artist_applicability"
+            ],
+            "registered_semantic_artist_count": layout_audit[
+                "registered_semantic_artist_count"
+            ],
+            "expected_semantic_artist_kind_count": layout_audit[
+                "expected_semantic_artist_kind_count"
+            ],
+            "actual_semantic_artist_kinds": layout_audit[
+                "actual_semantic_artist_kinds"
+            ],
+        },
+        "semantic_flow_summary": {
+            "flow_contract_required": layout_audit[
+                "semantic_flow_contract_required"
+            ],
+            "arrow_count": layout_audit["semantic_arrow_count"],
+            "arrow_budget": layout_audit["semantic_arrow_budget"],
+            "ambiguous_incoming_node_count": layout_audit[
+                "semantic_ambiguous_incoming_node_count"
             ],
         },
         "checks": checks,
@@ -3460,6 +4848,290 @@ def _self_check() -> None:
     assert layout_audit["registered_text_artist_count"] == 6
     assert layout_audit["checks"]["annotation_lane_separate"] is True
     assert layout_audit["checks"]["measured_wrap_valid"] is True
+    assert layout_audit["semantic_artist_applicability"] == "not_applicable"
+
+    semantic_fixture_path = (
+        Path(__file__).with_name("fixtures")
+        / "semantic_artist_flow_regression.json"
+    )
+    semantic_fixture = json.loads(semantic_fixture_path.read_text(encoding="utf-8"))
+    semantic_audit = audit_layout_registry(semantic_fixture)
+    assert semantic_audit["machine_check_status"] == "geometry_checks_passed"
+    assert semantic_audit["semantic_flow_contract_required"] is True
+    assert semantic_audit["registered_semantic_artist_count"] == 17
+    assert semantic_audit["semantic_arrow_count"] == 2
+    for semantic_check in (
+        "semantic_artist_applicability_valid",
+        "semantic_artist_registry_complete",
+        "semantic_artist_kinds_complete",
+        "semantic_artists_inside_canvas",
+        "semantic_artists_inside_safe_inset",
+        "semantic_node_text_contained",
+        "semantic_contract_geometry_bound",
+        "semantic_lines_clear_of_text",
+        "semantic_lines_clear_of_unrelated_nodes",
+        "semantic_connectors_non_crossing",
+        "semantic_arrowheads_clear_of_text",
+        "semantic_relation_encoding_valid",
+        "semantic_arrow_budget_met",
+        "semantic_incoming_unambiguous",
+        "semantic_bracket_spans_exact",
+    ):
+        assert semantic_audit["checks"][semantic_check] is True
+
+    missing_semantic_registry = json.loads(json.dumps(semantic_fixture))
+    missing_semantic_registry.pop("semantic_artist_registry")
+    missing_semantic_registry_audit = audit_layout_registry(
+        missing_semantic_registry
+    )
+    assert "semantic_artist_registry_missing" in {
+        item["code"] for item in missing_semantic_registry_audit["violations"]
+    }
+
+    missing_semantic_prefix = json.loads(json.dumps(semantic_fixture))
+    missing_semantic_prefix["semantic_artist_registry"]["artists"] = [
+        item
+        for item in missing_semantic_prefix["semantic_artist_registry"]["artists"]
+        if item["owner_prefix"] != "node.child_b"
+    ]
+    missing_semantic_prefix_audit = audit_layout_registry(missing_semantic_prefix)
+    assert "semantic_artist_prefix_missing" in {
+        item["code"] for item in missing_semantic_prefix_audit["violations"]
+    }
+
+    missing_semantic_kind = json.loads(json.dumps(semantic_fixture))
+    missing_semantic_kind["semantic_flow_contract"]["expected_artist_kinds"].append(
+        "ConnectionPatch"
+    )
+    missing_semantic_kind_audit = audit_layout_registry(missing_semantic_kind)
+    assert "semantic_artist_kinds_missing" in {
+        item["code"] for item in missing_semantic_kind_audit["violations"]
+    }
+
+    semantic_canvas_overflow = json.loads(json.dumps(semantic_fixture))
+    semantic_canvas_overflow["semantic_artist_registry"]["artists"][1][
+        "bbox_px"
+    ] = [100, 180, 1020, 280]
+    semantic_canvas_overflow_audit = audit_layout_registry(
+        semantic_canvas_overflow
+    )
+    assert "semantic_artist_canvas_overflow" in {
+        item["code"] for item in semantic_canvas_overflow_audit["violations"]
+    }
+
+    semantic_safe_inset = json.loads(json.dumps(semantic_fixture))
+    semantic_safe_inset["semantic_artist_registry"]["artists"][1]["bbox_px"] = [
+        10,
+        180,
+        300,
+        280,
+    ]
+    semantic_safe_inset_audit = audit_layout_registry(semantic_safe_inset)
+    assert "semantic_artist_safe_inset_violation" in {
+        item["code"] for item in semantic_safe_inset_audit["violations"]
+    }
+
+    node_text_outside = json.loads(json.dumps(semantic_fixture))
+    node_text_outside["semantic_flow_contract"]["nodes"][0]["text_artist_ids"] = [
+        "node.child_b.label"
+    ]
+    node_text_outside_audit = audit_layout_registry(node_text_outside)
+    assert "semantic_node_text_outside_node" in {
+        item["code"] for item in node_text_outside_audit["violations"]
+    }
+
+    semantic_line_text = json.loads(json.dumps(semantic_fixture))
+    semantic_line_text["semantic_flow_contract"]["connectors"][0]["segments_px"][
+        0
+    ] = [200, 485, 200, 350]
+    semantic_line_text_audit = audit_layout_registry(semantic_line_text)
+    assert "semantic_line_text_intersection" in {
+        item["code"] for item in semantic_line_text_audit["violations"]
+    }
+
+    semantic_geometry_mismatch = json.loads(json.dumps(semantic_fixture))
+    semantic_geometry_mismatch["semantic_flow_contract"]["connectors"][0][
+        "segments_px"
+    ][0] = [220, 420, 220, 350]
+    semantic_geometry_mismatch_audit = audit_layout_registry(
+        semantic_geometry_mismatch
+    )
+    assert "semantic_connector_geometry_mismatch" in {
+        item["code"] for item in semantic_geometry_mismatch_audit["violations"]
+    }
+
+    semantic_artist_direction_mismatch = json.loads(json.dumps(semantic_fixture))
+    direction_mismatch_artist = next(
+        item
+        for item in semantic_artist_direction_mismatch[
+            "semantic_artist_registry"
+        ]["artists"]
+        if item["artist_id"] == "relation.root_partition.child_a.segment.1"
+    )
+    direction_mismatch_artist["geometry_px"] = [200, 350, 200, 420]
+    semantic_artist_direction_mismatch_audit = audit_layout_registry(
+        semantic_artist_direction_mismatch
+    )
+    assert "semantic_connector_geometry_mismatch" in {
+        item["code"]
+        for item in semantic_artist_direction_mismatch_audit["violations"]
+    }
+
+    semantic_source_anchor = json.loads(json.dumps(semantic_fixture))
+    semantic_source_anchor["semantic_flow_contract"]["connectors"][0][
+        "segments_px"
+    ][0] = [200, 410, 200, 350]
+    source_anchor_artist = next(
+        item
+        for item in semantic_source_anchor["semantic_artist_registry"]["artists"]
+        if item["artist_id"] == "relation.root_partition.child_a.segment.1"
+    )
+    source_anchor_artist["bbox_px"] = [200, 350, 200, 410]
+    source_anchor_artist["geometry_px"] = [200, 410, 200, 350]
+    semantic_source_anchor_audit = audit_layout_registry(semantic_source_anchor)
+    assert "semantic_connector_source_not_anchored" in {
+        item["code"] for item in semantic_source_anchor_audit["violations"]
+    }
+
+    semantic_destination_anchor = json.loads(json.dumps(semantic_fixture))
+    semantic_destination_anchor["semantic_flow_contract"]["connectors"][0][
+        "segments_px"
+    ][1] = [200, 350, 200, 250]
+    destination_anchor_artist = next(
+        item
+        for item in semantic_destination_anchor["semantic_artist_registry"][
+            "artists"
+        ]
+        if item["artist_id"] == "relation.root_partition.child_a.segment.2"
+    )
+    destination_anchor_artist["bbox_px"] = [200, 250, 200, 350]
+    destination_anchor_artist["geometry_px"] = [200, 350, 200, 250]
+    semantic_destination_anchor_audit = audit_layout_registry(
+        semantic_destination_anchor
+    )
+    assert "semantic_connector_destination_not_anchored" in {
+        item["code"] for item in semantic_destination_anchor_audit["violations"]
+    }
+
+    semantic_false_junction = json.loads(json.dumps(semantic_fixture))
+    false_junction_connector = semantic_false_junction["semantic_flow_contract"][
+        "connectors"
+    ][0]
+    false_junction_connector["segments_px"] = [
+        [250, 420, 250, 350],
+        [250, 350, 200, 280],
+    ]
+    for artist_id, bbox_px, geometry_px in (
+        (
+            "relation.root_partition.child_a.segment.1",
+            [250, 350, 250, 420],
+            [250, 420, 250, 350],
+        ),
+        (
+            "relation.root_partition.child_a.segment.2",
+            [200, 280, 250, 350],
+            [250, 350, 200, 280],
+        ),
+    ):
+        artist = next(
+            item
+            for item in semantic_false_junction["semantic_artist_registry"][
+                "artists"
+            ]
+            if item["artist_id"] == artist_id
+        )
+        artist["bbox_px"] = bbox_px
+        artist["geometry_px"] = geometry_px
+    semantic_false_junction_audit = audit_layout_registry(
+        semantic_false_junction
+    )
+    assert "semantic_junction_group_invalid" in {
+        item["code"] for item in semantic_false_junction_audit["violations"]
+    }
+
+    semantic_line_node = json.loads(json.dumps(semantic_fixture))
+    semantic_line_node["semantic_flow_contract"]["connectors"][0]["segments_px"][
+        0
+    ] = [600, 500, 600, 200]
+    semantic_line_node_audit = audit_layout_registry(semantic_line_node)
+    assert "semantic_line_unrelated_node_intersection" in {
+        item["code"] for item in semantic_line_node_audit["violations"]
+    }
+
+    semantic_crossing = json.loads(json.dumps(semantic_fixture))
+    semantic_crossing["semantic_flow_contract"]["connectors"][1][
+        "junction_group"
+    ] = "independent_connector"
+    semantic_crossing["semantic_flow_contract"]["connectors"][1]["segments_px"][
+        0
+    ] = [100, 385, 300, 385]
+    semantic_crossing_audit = audit_layout_registry(semantic_crossing)
+    assert "semantic_connector_crossing_unauthorized" in {
+        item["code"] for item in semantic_crossing_audit["violations"]
+    }
+
+    semantic_arrowhead_text = json.loads(json.dumps(semantic_fixture))
+    semantic_arrowhead_text["semantic_artist_registry"]["artists"][10][
+        "bbox_px"
+    ] = [150, 455, 250, 485]
+    semantic_arrowhead_text_audit = audit_layout_registry(
+        semantic_arrowhead_text
+    )
+    assert "semantic_arrowhead_text_intersection" in {
+        item["code"] for item in semantic_arrowhead_text_audit["violations"]
+    }
+
+    semantic_relation_encoding = json.loads(json.dumps(semantic_fixture))
+    semantic_relation_encoding["semantic_flow_contract"]["relations"][0][
+        "encoding"
+    ] = "arrow_split"
+    semantic_relation_encoding_audit = audit_layout_registry(
+        semantic_relation_encoding
+    )
+    assert "semantic_relation_encoding_invalid" in {
+        item["code"] for item in semantic_relation_encoding_audit["violations"]
+    }
+
+    semantic_arrow_budget = json.loads(json.dumps(semantic_fixture))
+    semantic_arrow_budget["semantic_flow_contract"]["arrow_budget"] = 1
+    semantic_arrow_budget_audit = audit_layout_registry(semantic_arrow_budget)
+    assert "semantic_arrow_budget_exceeded" in {
+        item["code"] for item in semantic_arrow_budget_audit["violations"]
+    }
+
+    semantic_ambiguous_incoming = json.loads(json.dumps(semantic_fixture))
+    semantic_ambiguous_incoming["semantic_flow_contract"]["connectors"][1][
+        "destination_node_id"
+    ] = "child_a"
+    semantic_ambiguous_incoming_audit = audit_layout_registry(
+        semantic_ambiguous_incoming
+    )
+    assert "semantic_ambiguous_incoming_connectors" in {
+        item["code"] for item in semantic_ambiguous_incoming_audit["violations"]
+    }
+
+    semantic_bracket_span = json.loads(json.dumps(semantic_fixture))
+    semantic_bracket_span["semantic_flow_contract"]["brackets"][0][
+        "observed_span_px"
+    ] = [100, 690]
+    semantic_bracket_span_audit = audit_layout_registry(semantic_bracket_span)
+    assert "semantic_bracket_span_mismatch" in {
+        item["code"] for item in semantic_bracket_span_audit["violations"]
+    }
+
+    semantic_bracket_geometry = json.loads(json.dumps(semantic_fixture))
+    bracket_artist = next(
+        item
+        for item in semantic_bracket_geometry["semantic_artist_registry"]["artists"]
+        if item["artist_id"] == "relation.children_identity.segment.1"
+    )
+    bracket_artist.pop("geometry_px")
+    semantic_bracket_geometry_audit = audit_layout_registry(
+        semantic_bracket_geometry
+    )
+    assert "semantic_bracket_geometry_invalid" in {
+        item["code"] for item in semantic_bracket_geometry_audit["violations"]
+    }
 
     fake_png = {
         "display_artifact_inventory_ref": {
@@ -3497,6 +5169,10 @@ def _self_check() -> None:
     assert receipt["artifact_bindings"][1]["sha256"] == "1" * 64
     assert receipt["authority"] is False
     assert receipt["authority_boundary"]["can_claim_quality_verdict"] is False
+    assert (
+        receipt["semantic_artist_scope"]
+        == "not_applicable:statistical_layout_regression"
+    )
     assert receipt == build_layout_qc_receipt(fixture, [fake_pdf, fake_png])
     wrong_size_pdf = json.loads(json.dumps(fake_pdf))
     wrong_size_pdf["display_artifact_inventory_ref"]["dimensions"]["variants"][0][
@@ -3732,7 +5408,7 @@ def _self_check() -> None:
         assert negative["expected_code"] in {
             item["code"] for item in changed_audit["findings"]
         }
-    checks = 96 if fitz_available else 89 if pillow_available else 76
+    checks = 132 if fitz_available else 125 if pillow_available else 112
     print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
 
 

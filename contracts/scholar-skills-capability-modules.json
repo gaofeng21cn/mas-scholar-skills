@@ -783,7 +783,7 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner"
     ],
-    "optional_external_specialist_policy": "optional_external_router_and_named_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress; default exposure remains false and named specialists are synced only for named_specialty scope",
+    "optional_external_specialist_policy": "optional_external_router_and_named_specialist_skills_are_real_codex_skills_not_active_professional_modules_do_not_block_default_core_progress_materialized_by_default_selected_only_for_matching_tasks",
     "optional_medical_method_specialist_skills": [
       "medical-methodology-planner",
       "medical-evidence-integrity-reviewer",
@@ -802,7 +802,7 @@
       "medical-data-freeze-and-analysis-readiness-reviewer",
       "medical-research-portfolio-memory-curator"
     ],
-    "optional_medical_method_specialist_policy": "optional_medical_method_router_and_named_specialist_skills_are_real_codex_skills_but_not_active_professional_skill_modules_and_do_not_block_default_core_progress; default exposure remains false and named specialists are synced only for named_specialty scope",
+    "optional_medical_method_specialist_policy": "optional_medical_method_router_and_named_specialist_skills_are_real_codex_skills_not_active_professional_modules_do_not_block_default_core_progress_materialized_by_default_selected_only_for_matching_tasks",
     "optional_external_redirect_tombstone_skills": [],
     "optional_medical_method_redirect_tombstone_skills": [
       "medical-evidence-gap-triage-reviewer",
@@ -810,7 +810,7 @@
       "medical-owner-gate-handoff-reviewer",
       "medical-publication-strategy-memory-curator"
     ],
-    "optional_specialist_router_policy": "default exposure remains false; optional named specialty installs may sync one router/reviewer skill plus the named specialist skill selected for the task; retired narrow professional metadata is represented only by redirect tombstones because the capability now lives as modes inside broader router/reviewer skills.",
+    "optional_specialist_router_policy": "all exported skills are materialized by default; default_exposure=false means no automatic routing or global exposure, router/reviewer skills select named specialists only for matching tasks, and retired narrow professional metadata is represented only by redirect tombstones because the capability now lives as modes inside broader router/reviewer skills.",
     "optional_external_router_skill_ids": [
       "medical-advanced-biomed-router"
     ],
@@ -4115,7 +4115,7 @@
     "policy_id": "mas_scholar_skills_medical_method_specialist_pack.v1",
     "classification": "optional_medical_method_router_and_named_specialist_skills_refs_only_no_authority",
     "relationship_to_active_modules": "medical-method router/reviewer and named specialist skills are optional; they do not add active professional modules, do not replace the eight default medical-paper skills, and their absence does not block MAS ordinary progress",
-    "codex_discovery_policy": "the module-level router/reviewer skills and each named medical-method specialist are real Codex skills with SKILL.md frontmatter under skills/<skill_id>/SKILL.md; none is part of default workspace or quest exposure",
+    "codex_discovery_policy": "all_router_reviewer_and_named_medical_method_specialist_SKILL_md_exports_are_materialized_by_default_for_workspace_or_quest_discovery_but_selected_only_for_matching_tasks_and_never_define_consumer_readiness",
     "candidate_role": "refs_only_medical_method_router_candidate_helper",
     "required_handoff_refs": [
       "candidate_refs",
@@ -4942,7 +4942,7 @@
     "source_head_commit": "54a2f333973147a1fd703caea6f12252e1f227d6",
     "classification": "optional_external_router_and_named_specialist_skills_refs_only_no_authority",
     "relationship_to_active_modules": "advanced router and named specialist skills are optional; they do not add active professional modules, do not replace the eight default medical-paper skills, and their absence does not block MAS ordinary progress",
-    "codex_discovery_policy": "the advanced biomedical router and each named advanced specialist are real Codex skills with SKILL.md frontmatter under skills/<skill_id>/SKILL.md; none is part of default workspace or quest exposure",
+    "codex_discovery_policy": "all_advanced_router_and_named_specialist_SKILL_md_exports_are_materialized_by_default_for_workspace_or_quest_discovery_but_selected_only_for_matching_tasks_and_never_define_consumer_readiness",
     "runtime_substrate_owner_policy": "OPL_Runway_Connect_Fabric_or_consuming_workspace_compute_owner_owns_substrate_credentials_execution_and_harvest; optional skills own AI diagnostic playbooks and refs_only_candidate_handoff",
     "optional_specialist_skills": [
       {

@@ -88,7 +88,27 @@ currentness, package identity, a receipt, a verdict, or authority.
    complete `artist_extent_report`, zero overlap,
    canvas overflow, clipping, minimum-spacing and safe-inset violations, and
    `overflow_count=0`.
-5. Produce `layout_qc_receipt_ref` from the complete bbox registry and actual
+   For a declared flow, schematic, diagram, or accounting display, additionally
+   require a semantic artist registry covering every visible node, band,
+   bracket, connector segment, arrowhead, and text artist. Require exact
+   prefix/kind completeness and renderer-derived canvas/safe-inset geometry.
+   Pure statistical figures may declare this registry `not_applicable`; a
+   declared flow or schematic without it fails closed.
+5. For an applicable semantic registry, recompute node-text containment,
+   connector-text and connector-unrelated-node intersections, unauthorized
+   connector crossings, arrowhead-text overlap, relation-to-encoding grammar,
+   arrow budget, ambiguous incoming connectors, and bracket spans from the
+   registered geometry. Arrows are reserved for directional operations such
+   as partition/filter or model transfer; identity, union, membership, and
+   horizon support use brackets or bands. Require node, connector, and bracket
+   contract coordinates to match their registered patch/line/path artists.
+   Connector and bracket segment records must carry renderer-derived path
+   endpoints, not only an outer bbox. A shared junction must have a common
+   renderer-path prefix and a common branch point; its metadata cannot exempt
+   unrelated crossings.
+   Reject hard-coded zero counts, a second unbound geometry declaration, or a
+   pass derived only from text bboxes.
+6. Produce `layout_qc_receipt_ref` from the complete bbox registry and actual
    final PNG/PDF pair. Require one fixed canvas at final size,
    `bbox_inches=None` or the backend-equivalent no-tight-crop policy, both file
    SHA-256 values and dimensions, safe inset, lane bounds, registry hash, and
@@ -97,7 +117,7 @@ currentness, package identity, a receipt, a verdict, or authority.
    `skills/medical-display-qc/fixtures/layout_qc_regression.json`. Repeat the
    page check for the embedded DOCX/PDF and record it in `composed_page_check`.
    `tight_layout`, `bbox_inches=tight`, and `clip_on` are not proof.
-6. Check `paired_export_qa_ref`: both outputs exist and come from the same
+7. Check `paired_export_qa_ref`: both outputs exist and come from the same
    `single_generation_source_ref`; dimensions, visible data, labels,
    annotations, crop bounds, and panel order agree. Inspect PDF font embedding
    and subtype as well as raster dimensions/DPI. For Matplotlib, an explicit
@@ -112,20 +132,20 @@ currentness, package identity, a receipt, a verdict, or authority.
    physical dimensions, and normalized crop. Never compare PNG pixels directly
    with PDF points. A filename or arbitrary artifact string is not
    paired-export evidence.
-7. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
+8. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
    the same SHA-256 `source_fingerprint` and identical per-format
    `output_fingerprints`. Any difference routes back to the source/render owner
    before owner review.
-8. Keep `programmatic_figure_audit_ref` separate from
+9. Keep `programmatic_figure_audit_ref` separate from
    `final_scale_visual_qa_ref`. The former checks deterministic properties and
    geometry; the latter reviews the actual raster output and a rasterized
    final-size vector output. Neither lane can be inferred from or replace the
    other.
-9. In both lanes where applicable, check `annotation_headroom`,
+10. In both lanes where applicable, check `annotation_headroom`,
    `boundary_clipping`, `line_text_intersection`, and `tick_label_overlap`,
    including crop edges, error bars, brackets, grid/connector lines, rotated
    labels, legends, and axis-title collisions.
-10. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
+11. Check `panel_caption_consistency_ref`: panel letters, legends, table titles,
    figure numbering, duplicated identifiers, and caption payload drift. Confirm
    the figure, caption, and catalog/manifest were driven by the same structured
    generation source. For final DOCX/PDF composition, declare exactly one
@@ -134,12 +154,12 @@ currentness, package identity, a receipt, a verdict, or authority.
    emitted by image alt text, structured legend text, and renderer caption
    prefixes. The declared owner emits one occurrence and every non-owner emits
    zero; a correct image with duplicate `Figure N` labels fails.
-11. Check `editorial_page_composition_ref` from a structured final-document
+12. Check `editorial_page_composition_ref` from a structured final-document
     block map. Run `lint_document_layout_inventory()` to catch figure legends
     or table notes split across pages, supplementary displays embedded in the
     main manuscript, and display/reference collisions. Nonblank pages and zero
     clipping are necessary but do not establish publication-quality pagination.
-12. When a reader PDF is required, build
+13. When a reader PDF is required, build
     `document_display_scope_coverage_ref` with `requires_reader_pdf=true` and
     exact refs for the canonical manuscript, table catalog, figure catalog,
     caption/legend manifest, render environment, font inventory, composed
@@ -147,7 +167,7 @@ currentness, package identity, a receipt, a verdict, or authority.
     validator handles applicable reader-PDF candidates only; use the upper
     preflight disposition for a genuinely inapplicable reader PDF. An audit
     inventory cannot substitute for page-render/page-hash evidence.
-13. Represent expected main displays as an inventory of `member_id` plus
+14. Represent expected main displays as an inventory of `member_id` plus
     `role`, not as a set of roles. Require every Figure 1-N and Table 1-N member
     in both the immutable snapshot and the audit inventory with member id, role,
     ref, byte size, and SHA-256. A present `main_figure` role cannot hide a
@@ -157,14 +177,14 @@ currentness, package identity, a receipt, a verdict, or authority.
     pair `paper_with_supplementary.pdf` +
     `reader_combined_main_and_supplementary` with the same member bytes in both
     inventories.
-14. Check `claim_display_alignment_ref`: displayed denominator, estimates,
+15. Check `claim_display_alignment_ref`: displayed denominator, estimates,
     uncertainty, colors, groups, ordering, and manuscript claim consistency.
-15. Check `accessibility_and_size_ref`: final-size readability, overlap,
+16. Check `accessibility_and_size_ref`: final-size readability, overlap,
     color-vision robustness, grayscale contrast, and journal size constraints.
-16. Check `export_integrity_ref`: distinguish hard artifact failures from
+17. Check `export_integrity_ref`: distinguish hard artifact failures from
     non-blocking review warnings; never promote an inspector result into a
     visual quality verdict.
-17. Produce `route_back_candidate` for artifact owner repair, display redesign,
+18. Produce `route_back_candidate` for artifact owner repair, display redesign,
     source-data mismatch, deterministic rebuild drift, export failure, or owner
     visual-audit decision.
 

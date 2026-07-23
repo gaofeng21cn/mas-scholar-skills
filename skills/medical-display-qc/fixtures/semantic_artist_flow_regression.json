@@ -1,0 +1,397 @@
+{
+  "fixture_id": "medical_display_semantic_artist_flow_regression.v1",
+  "semantic_fixture_only": true,
+  "generation_source_ref": "examples/not-rendered-semantic-flow",
+  "figure_archetype": "accounting_flow_schematic",
+  "semantic_artist_scope": "declared_flow_nodes_brackets_connectors_and_arrowheads",
+  "final_canvas": {
+    "width": 100,
+    "height": 60,
+    "unit": "mm",
+    "width_px": 1000,
+    "height_px": 600
+  },
+  "safe_inset_px": {
+    "left": 20,
+    "right": 20,
+    "top": 20,
+    "bottom": 20
+  },
+  "minimum_spacing_px": 10,
+  "wrap_policy": "automatic_semantic_wrap",
+  "measurement_basis": "renderer_drawn_text_width",
+  "export_policy": {
+    "canvas_mode": "fixed",
+    "bbox_inches": null,
+    "tight_crop": false
+  },
+  "lanes": {
+    "plotting_data": {
+      "bbox_px": [20, 20, 800, 580]
+    },
+    "annotation": {
+      "bbox_px": [820, 20, 980, 580]
+    }
+  },
+  "panels": [
+    {
+      "panel_id": "A",
+      "expected_text_artist_ids": [
+        "node.child_a.label",
+        "node.child_b.label",
+        "node.root.label",
+        "relation.children_identity.label"
+      ],
+      "text_artists": [
+        {
+          "artist_id": "node.child_a.label",
+          "artist_kind": "text_label",
+          "lane": "plotting_data",
+          "source_text": "Included n=70",
+          "bbox_px": [145, 215, 255, 245],
+          "clip_bbox_px": [20, 20, 800, 580]
+        },
+        {
+          "artist_id": "node.child_b.label",
+          "artist_kind": "text_label",
+          "lane": "plotting_data",
+          "source_text": "Excluded n=30",
+          "bbox_px": [540, 215, 660, 245],
+          "clip_bbox_px": [20, 20, 800, 580]
+        },
+        {
+          "artist_id": "node.root.label",
+          "artist_kind": "text_label",
+          "lane": "plotting_data",
+          "source_text": "Eligible n=100",
+          "bbox_px": [145, 455, 255, 485],
+          "clip_bbox_px": [20, 20, 800, 580]
+        },
+        {
+          "artist_id": "relation.children_identity.label",
+          "artist_kind": "text_label",
+          "lane": "plotting_data",
+          "source_text": "Complete partition",
+          "bbox_px": [325, 60, 475, 90],
+          "clip_bbox_px": [20, 20, 800, 580]
+        }
+      ]
+    }
+  ],
+  "semantic_artist_registry": {
+    "expected_prefixes": [
+      "node.child_a",
+      "node.child_b",
+      "node.root",
+      "relation.children_identity",
+      "relation.root_partition"
+    ],
+    "prefix_bindings": [
+      {
+        "prefix": "node.child_a",
+        "artist_ids": [
+          "node.child_a.label",
+          "node.child_a.patch"
+        ]
+      },
+      {
+        "prefix": "node.child_b",
+        "artist_ids": [
+          "node.child_b.label",
+          "node.child_b.patch"
+        ]
+      },
+      {
+        "prefix": "node.root",
+        "artist_ids": [
+          "node.root.label",
+          "node.root.patch"
+        ]
+      },
+      {
+        "prefix": "relation.children_identity",
+        "artist_ids": [
+          "relation.children_identity.label",
+          "relation.children_identity.segment.1",
+          "relation.children_identity.segment.2",
+          "relation.children_identity.segment.3"
+        ]
+      },
+      {
+        "prefix": "relation.root_partition",
+        "artist_ids": [
+          "relation.root_partition.child_a.arrowhead",
+          "relation.root_partition.child_a.segment.1",
+          "relation.root_partition.child_a.segment.2",
+          "relation.root_partition.child_b.arrowhead",
+          "relation.root_partition.child_b.segment.1",
+          "relation.root_partition.child_b.segment.2",
+          "relation.root_partition.child_b.segment.3"
+        ]
+      }
+    ],
+    "artists": [
+      {
+        "artist_id": "node.child_a.label",
+        "artist_kind": "Text",
+        "owner_prefix": "node.child_a",
+        "panel_id": "A",
+        "bbox_px": [145, 215, 255, 245]
+      },
+      {
+        "artist_id": "node.child_a.patch",
+        "artist_kind": "FancyBboxPatch",
+        "owner_prefix": "node.child_a",
+        "panel_id": "A",
+        "bbox_px": [100, 180, 300, 280]
+      },
+      {
+        "artist_id": "node.child_b.label",
+        "artist_kind": "Text",
+        "owner_prefix": "node.child_b",
+        "panel_id": "A",
+        "bbox_px": [540, 215, 660, 245]
+      },
+      {
+        "artist_id": "node.child_b.patch",
+        "artist_kind": "FancyBboxPatch",
+        "owner_prefix": "node.child_b",
+        "panel_id": "A",
+        "bbox_px": [500, 180, 700, 280]
+      },
+      {
+        "artist_id": "node.root.label",
+        "artist_kind": "Text",
+        "owner_prefix": "node.root",
+        "panel_id": "A",
+        "bbox_px": [145, 455, 255, 485]
+      },
+      {
+        "artist_id": "node.root.patch",
+        "artist_kind": "FancyBboxPatch",
+        "owner_prefix": "node.root",
+        "panel_id": "A",
+        "bbox_px": [100, 420, 300, 520]
+      },
+      {
+        "artist_id": "relation.children_identity.label",
+        "artist_kind": "Text",
+        "owner_prefix": "relation.children_identity",
+        "panel_id": "A",
+        "bbox_px": [325, 60, 475, 90]
+      },
+      {
+        "artist_id": "relation.children_identity.segment.1",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.children_identity",
+        "panel_id": "A",
+        "bbox_px": [100, 120, 700, 120],
+        "geometry_px": [100, 120, 700, 120]
+      },
+      {
+        "artist_id": "relation.children_identity.segment.2",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.children_identity",
+        "panel_id": "A",
+        "bbox_px": [100, 120, 100, 135],
+        "geometry_px": [100, 120, 100, 135]
+      },
+      {
+        "artist_id": "relation.children_identity.segment.3",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.children_identity",
+        "panel_id": "A",
+        "bbox_px": [700, 120, 700, 135],
+        "geometry_px": [700, 120, 700, 135]
+      },
+      {
+        "artist_id": "relation.root_partition.child_a.arrowhead",
+        "artist_kind": "FancyArrowPatch",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [194, 274, 206, 286]
+      },
+      {
+        "artist_id": "relation.root_partition.child_a.segment.1",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [200, 350, 200, 420],
+        "geometry_px": [200, 420, 200, 350]
+      },
+      {
+        "artist_id": "relation.root_partition.child_a.segment.2",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [200, 280, 200, 350],
+        "geometry_px": [200, 350, 200, 280]
+      },
+      {
+        "artist_id": "relation.root_partition.child_b.arrowhead",
+        "artist_kind": "FancyArrowPatch",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [594, 274, 606, 286]
+      },
+      {
+        "artist_id": "relation.root_partition.child_b.segment.1",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [200, 350, 200, 420],
+        "geometry_px": [200, 420, 200, 350]
+      },
+      {
+        "artist_id": "relation.root_partition.child_b.segment.2",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [200, 350, 600, 350],
+        "geometry_px": [200, 350, 600, 350]
+      },
+      {
+        "artist_id": "relation.root_partition.child_b.segment.3",
+        "artist_kind": "Line2D",
+        "owner_prefix": "relation.root_partition",
+        "panel_id": "A",
+        "bbox_px": [600, 280, 600, 350],
+        "geometry_px": [600, 350, 600, 280]
+      }
+    ]
+  },
+  "semantic_flow_contract": {
+    "expected_artist_kinds": [
+      "FancyArrowPatch",
+      "FancyBboxPatch",
+      "Line2D",
+      "Text"
+    ],
+    "relation_encoding_grammar": {
+      "analysis_set_identity": [
+        "span_bracket"
+      ],
+      "filter": [
+        "filter_arrow"
+      ],
+      "model_transfer": [
+        "dashed_arrow"
+      ],
+      "partition": [
+        "arrow_split",
+        "segmented_band"
+      ]
+    },
+    "arrow_encodings": [
+      "arrow_split",
+      "dashed_arrow",
+      "filter_arrow"
+    ],
+    "arrow_budget": 2,
+    "allowed_connector_crossing_pairs": [],
+    "bracket_span_tolerance_px": 0.5,
+    "nodes": [
+      {
+        "node_id": "child_a",
+        "bbox_px": [100, 180, 300, 280],
+        "patch_artist_id": "node.child_a.patch",
+        "text_artist_ids": [
+          "node.child_a.label"
+        ]
+      },
+      {
+        "node_id": "child_b",
+        "bbox_px": [500, 180, 700, 280],
+        "patch_artist_id": "node.child_b.patch",
+        "text_artist_ids": [
+          "node.child_b.label"
+        ]
+      },
+      {
+        "node_id": "root",
+        "bbox_px": [100, 420, 300, 520],
+        "patch_artist_id": "node.root.patch",
+        "text_artist_ids": [
+          "node.root.label"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "relation_id": "children_identity",
+        "relation": "analysis_set_identity",
+        "encoding": "span_bracket",
+        "artist_prefixes": [
+          "relation.children_identity"
+        ]
+      },
+      {
+        "relation_id": "root_partition",
+        "relation": "partition",
+        "encoding": "arrow_split",
+        "artist_prefixes": [
+          "relation.root_partition"
+        ]
+      }
+    ],
+    "connectors": [
+      {
+        "connector_id": "root_to_child_a",
+        "relation_id": "root_partition",
+        "source_node_id": "root",
+        "destination_node_id": "child_a",
+        "junction_group": "root_partition",
+        "segments_px": [
+          [200, 420, 200, 350],
+          [200, 350, 200, 280]
+        ],
+        "segment_artist_ids": [
+          "relation.root_partition.child_a.segment.1",
+          "relation.root_partition.child_a.segment.2"
+        ],
+        "arrowhead_artist_ids": [
+          "relation.root_partition.child_a.arrowhead"
+        ],
+        "arrow_bearing": true
+      },
+      {
+        "connector_id": "root_to_child_b",
+        "relation_id": "root_partition",
+        "source_node_id": "root",
+        "destination_node_id": "child_b",
+        "junction_group": "root_partition",
+        "segments_px": [
+          [200, 420, 200, 350],
+          [200, 350, 600, 350],
+          [600, 350, 600, 280]
+        ],
+        "segment_artist_ids": [
+          "relation.root_partition.child_b.segment.1",
+          "relation.root_partition.child_b.segment.2",
+          "relation.root_partition.child_b.segment.3"
+        ],
+        "arrowhead_artist_ids": [
+          "relation.root_partition.child_b.arrowhead"
+        ],
+        "arrow_bearing": true
+      }
+    ],
+    "brackets": [
+      {
+        "bracket_id": "children_identity",
+        "relation_id": "children_identity",
+        "covered_node_ids": [
+          "child_a",
+          "child_b"
+        ],
+        "observed_span_px": [100, 700],
+        "segment_artist_ids": [
+          "relation.children_identity.segment.1",
+          "relation.children_identity.segment.2",
+          "relation.children_identity.segment.3"
+        ],
+        "artist_prefix": "relation.children_identity"
+      }
+    ]
+  }
+}

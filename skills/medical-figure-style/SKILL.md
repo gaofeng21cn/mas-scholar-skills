@@ -69,8 +69,11 @@ unsupported, stale, circular, missing-source, or visible-payload drift. Consume
    fixed canvas. Consume `final_scale_projection_ref` for every main and
    supplementary figure and verify its font and safe-inset projection at the
    narrowest permitted manuscript embedding width, even when the source export
-   is full width or the figure does not look dense. A tight crop cannot repair a
-   failure.
+   is full width or the figure does not look dense. For a declared flow or
+   schematic, also require the complete semantic-artist registry and computed
+   connector/node/arrowhead/bracket geometry checks from `medical-display-qc`;
+   a text-only bbox pass cannot support style acceptance. A tight crop cannot
+   repair a failure.
 4. Check `label_economy_ref`, `color_vision_check_ref`,
    `final_size_grayscale_preview_ref`, `export_lint_ref`, and
    `visual_qa_preview_ref` on the actual rendered output. Add

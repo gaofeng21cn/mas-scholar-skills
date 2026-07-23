@@ -114,8 +114,8 @@ def verify_receipt_templates() -> dict:
     contract = read_json(ROOT / "contracts" / "display-pack-receipt-templates.json")
     if contract.get("contract_id") != "mas_scholar_skills_display_pack_receipt_templates":
         fail("display-pack receipt templates contract has wrong contract_id")
-    if contract.get("schema_version") != "1.4.0":
-        fail("display-pack receipt templates contract must use schema_version 1.4.0")
+    if contract.get("schema_version") != "1.5.0":
+        fail("display-pack receipt templates contract must use schema_version 1.5.0")
     if contract.get("state") != "active_refs_only_template":
         fail("display-pack receipt templates contract must stay refs-only")
     require_false_flags(
@@ -183,6 +183,17 @@ def verify_receipt_templates() -> dict:
         fail("evidence figure text policy has invalid allowed text roles")
     if text_policy.get("graphical_abstract_exempt") is not True:
         fail("graphical abstracts must remain explicitly exempt")
+    semantic_flow_policy = workflow.get("semantic_flow_policy") or {}
+    if (
+        semantic_flow_policy.get(
+            "declared_flow_or_schematic_requires_complete_semantic_artist_registry"
+        )
+        is not True
+        or semantic_flow_policy.get("text_only_bbox_pass_is_sufficient") is not False
+        or semantic_flow_policy.get("hard_coded_zero_violation_counts_allowed")
+        is not False
+    ):
+        fail("professional figure workflow must fail closed on semantic flow geometry")
     missing_receipt = workflow.get("missing_or_stale_receipt_behavior") or {}
     if missing_receipt.get("blocks_stage_liveness") is not False:
         fail("missing professional Figure Skill receipt must not block stage liveness")
@@ -315,7 +326,9 @@ def verify_receipt_templates() -> dict:
             "final_canvas",
             "safe_inset_px",
             "lane_bounds_px",
+            "semantic_artist_scope",
             "bbox_registry_summary",
+            "semantic_flow_summary",
             "checks",
             "violations",
             "regression_fixture_refs",
@@ -327,6 +340,27 @@ def verify_receipt_templates() -> dict:
     )
     if layout_qc_receipt.get("required_artifact_formats") != ["PNG", "PDF"]:
         fail("layout_qc_receipt_ref must bind the final PNG/PDF pair")
+    semantic_geometry_checks = {
+        "semantic_artist_applicability_valid",
+        "semantic_artist_registry_complete",
+        "semantic_artist_kinds_complete",
+        "semantic_artists_inside_canvas",
+        "semantic_artists_inside_safe_inset",
+        "semantic_node_text_contained",
+        "semantic_contract_geometry_bound",
+        "semantic_lines_clear_of_text",
+        "semantic_lines_clear_of_unrelated_nodes",
+        "semantic_connectors_non_crossing",
+        "semantic_arrowheads_clear_of_text",
+        "semantic_relation_encoding_valid",
+        "semantic_arrow_budget_met",
+        "semantic_incoming_unambiguous",
+        "semantic_bracket_spans_exact",
+    }
+    if not semantic_geometry_checks.issubset(
+        set(layout_qc_receipt.get("required_geometry_checks") or [])
+    ):
+        fail("layout_qc_receipt_ref must require semantic artist geometry checks")
     if (layout_qc_receipt.get("export_policy") or {}) != {
         "canvas_mode": "fixed",
         "matplotlib_bbox_inches": None,

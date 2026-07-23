@@ -253,6 +253,12 @@ Before writing plotting code, produce or refresh a compact contract:
   including a per-panel bbox registry for all text artists, separate
   plotting/data and right `annotation_lane` bounds, overlap, clipping, minimum
   spacing, canvas-overflow and safe-inset checks, and `overflow_count=0`.
+- `semantic_artist_registry_ref`: for a declared flow, schematic, diagram, or
+  connected accounting display, register every visible node, band, bracket,
+  connector segment, arrowhead, and associated text artist after the final
+  renderer draw. Bind each relation to its encoding and exact artist prefixes.
+  Pure statistical plots may record `not_applicable`; a declared flow or
+  schematic may not omit this registry.
 - `layout_qc_receipt_ref`: deterministic machine-readable geometry evidence
   bound to the final PNG/PDF SHA-256 values, dimensions, safe inset, lane
   bounds, bbox-registry hash, and regression fixture refs. It is not a MAS
@@ -409,6 +415,28 @@ to the validation question:
   supplementary context; if retained, it must show a real design boundary such
   as fixed-model derivation, harmonization, no-refit validation, endpoint
   accounting, or analysis-set construction.
+
+For every retained flow or schematic, define a relation-to-encoding grammar
+before rendering. Use arrows only for directional operations such as
+partition/filter or model transfer. Use brackets or segmented bands for
+identity, union, membership, and horizon-support relations so an arrow cannot
+silently imply temporal order or filtering. Declare an arrow budget, require
+zero ambiguous incoming arrows, and derive bracket spans from the exact node
+bounds they cover.
+
+The deterministic audit must compute, rather than assert, semantic registry
+completeness, artist-kind coverage, canvas and safe-inset containment,
+node-text containment, connector-text and connector-unrelated-node
+intersections, unauthorized connector crossings, arrowhead-text overlap,
+relation-encoding validity, arrow-budget compliance, incoming-arrow
+ambiguity, and bracket-span equality. A text-only bbox pass is insufficient,
+and fixed zero counts without renderer-derived geometry are invalid evidence.
+Bind every node bbox to its registered patch artist, every connector segment
+to renderer-derived line/path endpoints, and every bracket span to its
+registered renderer-path segments so a second unrendered geometry declaration
+or bbox-only proxy cannot substitute for the visible artists. A declared
+shared junction must prove a common path prefix and branch point; it may not
+silence crossings elsewhere in the grouped connectors.
 
 ## MAS Authority Boundary
 
@@ -764,6 +792,11 @@ Check:
   bars, labels, legends, and crop boxes
 - line, curve, gridline, or connector intersections that cross text or
   annotations and make them ambiguous
+- complete semantic-artist registration for every declared flow or schematic,
+  including nodes, bands, brackets, connector segments, arrowheads, and text;
+  zero line-text, line-unrelated-node, unauthorized connector-crossing,
+  arrowhead-text, node-text-containment, relation-encoding, arrow-budget,
+  ambiguous-incoming, or bracket-span violations
 - tick-label overlap, truncation, collision with axis titles, or overlap created
   by rotation at final manuscript size
 - complete renderer-drawn text extents for all axis-inside and axis-outside text,
