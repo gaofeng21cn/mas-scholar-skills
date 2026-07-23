@@ -629,23 +629,24 @@ if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
 if package_manifest.get("version") != "0.2.19":
     fail("capability package version must be 0.2.19")
+if package_manifest.get("package_role") != "framework_capability_package":
+    fail("capability package must use the consumer-neutral framework capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
-primary_consumer = package_manifest.get("primary_consumer") or {}
-if primary_consumer.get("agent_id") != "mas" or primary_consumer.get("required") is not True:
-    fail("capability package manifest must declare MAS as its required primary consumer")
-if primary_consumer.get("dependency_kind") != "hard_runtime_dependency":
-    fail("MAS Scholar Skills must remain a hard runtime dependency of MAS")
+if "primary_consumer" in package_manifest:
+    fail("framework capability provider must not declare a required primary consumer")
 capability_abi = package_manifest.get("capability_abi") or {}
-if capability_abi.get("id") != primary_consumer.get("capability_abi"):
-    fail("provider and primary-consumer capability ABI declarations must match")
+if capability_abi.get("id") != "mas-scholar-skills.v1":
+    fail("capability package must expose the canonical provider ABI")
 consumer_policy = package_manifest.get("consumer_policy") or {}
-if consumer_policy.get("compatibility_commitment") != "declared_consumer_profiles":
-    fail("consumer compatibility must be bound to declared profiles")
-if consumer_policy.get("supported_required_by") != ["mas", "mag"]:
-    fail("MAS and MAG must be the supported required consumers")
-if consumer_policy.get("non_primary_runtime_dependency_supported") is not True:
-    fail("declared non-primary consumer profiles must receive runtime compatibility")
+if consumer_policy.get("compatibility_commitment") != "declared_optional_consumer_profiles":
+    fail("provider compatibility must be bound to declared optional consumer profiles")
+if consumer_policy.get("supported_required_by") != []:
+    fail("framework capability provider must not declare a required consumer")
+if consumer_policy.get("supported_optional_consumer_agent_ids") != ["mas", "mag"]:
+    fail("MAS and MAG must be declared as optional enhancement consumers")
+if consumer_policy.get("non_primary_runtime_dependency_supported") is not False:
+    fail("consumer profiles must not receive a runtime dependency promise")
 package_exports = package_manifest.get("exports") or {}
 if package_exports.get("core_skill_ids") != expected_default_exposure_skill_ids:
     fail("capability package core skills must match the canonical default exposure policy")
@@ -656,46 +657,82 @@ if package_exports.get("all_skill_ids") != expected_all_skill_ids:
 expected_module_ids = [module.get("module_id") for module in contract.get("modules") or []]
 if package_exports.get("core_module_ids") != expected_module_ids:
     fail("capability package core modules must match the canonical module catalog order")
+mag_optional_skill_ids = [
+    "medical-research-lit",
+    "medical-statistical-review",
+    "medical-methodology-planner",
+    "medical-evidence-integrity-reviewer",
+    "medical-evidence-synthesis-and-claim-map",
+    "medical-reference-integrity-auditor",
+]
+mag_compatibility_module_ids = [
+    "mas-scholar-skills.lit",
+    "mas-scholar-skills.stats",
+    "mas-scholar-skills.review",
+    "mas-scholar-skills.data",
+    "mas-scholar-skills.reference-provider-adapters",
+    "mas-scholar-skills.scientific-search-adapters",
+]
+optional_profile_common = {
+    "profile_kind": "optional_refs_only_enhancement",
+    "required": False,
+    "dependency_kind": "optional_enhancement",
+    "required_ids_semantics": "selected_profile_compatibility_set_not_consumer_readiness",
+    "missing_or_incompatible_behavior": "consumer_fail_open",
+    "diagnostic_role": "consumer_owned_non_blocking_diagnostic",
+    "distribution_behavior": "consumer_may_bundle_or_materialize_without_dependency_or_readiness_effect",
+    "blocks_install": False,
+    "blocks_activation": False,
+    "blocks_admission": False,
+    "blocks_route": False,
+    "blocks_launch": False,
+    "blocks_readiness": False,
+    "authority_boundary": {
+        "can_write_consumer_domain_truth": False,
+        "can_claim_consumer_fundability": False,
+        "can_claim_consumer_quality_verdict": False,
+        "can_claim_consumer_export_or_publication_readiness": False,
+        "can_sign_consumer_owner_receipt": False,
+        "can_create_consumer_typed_blocker": False,
+        "can_write_consumer_strategy_memory": False,
+        "can_claim_consumer_owner_authority": False,
+    },
+}
 expected_consumer_profiles = [
     {
         "profile_id": "mas-medical-paper.v1",
         "consumer_agent_id": "mas",
         "required_export_ids": expected_default_exposure_skill_ids,
         "required_module_ids": expected_module_ids,
+        **optional_profile_common,
     },
     {
         "profile_id": "mag-medical-grant.v1",
         "consumer_agent_id": "mag",
-        "required_export_ids": [
-            "medical-research-lit",
-            "medical-statistical-review",
-            "medical-methodology-planner",
-            "medical-evidence-integrity-reviewer",
-            "medical-evidence-synthesis-and-claim-map",
-            "medical-reference-integrity-auditor",
-        ],
-        "required_module_ids": [
-            "mas-scholar-skills.lit",
-            "mas-scholar-skills.stats",
-            "mas-scholar-skills.review",
-            "mas-scholar-skills.data",
-            "mas-scholar-skills.reference-provider-adapters",
-            "mas-scholar-skills.scientific-search-adapters",
-        ],
+        "required_export_ids": mag_optional_skill_ids,
+        "required_module_ids": mag_compatibility_module_ids,
+        **optional_profile_common,
     },
 ]
 if package_manifest.get("consumer_profiles") != expected_consumer_profiles:
-    fail("capability package consumer profiles must preserve the MAS floor and declare the MAG grant floor")
+    fail("MAS and MAG profiles must share optional, refs-only, authority-false, fail-open semantics")
+if "optional_refs_only_consumer_profiles" in package_manifest:
+    fail("optional consumer profiles must use the single canonical consumer_profiles surface")
+if any(skill_id not in expected_all_skill_ids for skill_id in mag_optional_skill_ids):
+    fail("MAG optional consumer profile may reference only real exported Skills")
 profile_policy = contract.get("consumer_profile_policy") or {}
 if profile_policy.get("profile_source_ref") != "contracts/opl_capability_package_manifest.json#/consumer_profiles":
-    fail("capability catalog must reference the package consumer profiles")
+    fail("capability catalog must reference the canonical optional consumer profiles")
 for key in [
+    "all_profiles_are_optional_enhancements",
     "global_core_and_specialty_classification_is_not_consumer_readiness",
-    "selected_profile_defines_consumer_readiness_floor",
-    "all_exports_materialized_for_native_discovery",
+    "required_ids_are_selected_profile_compatibility_sets_not_readiness_floors",
+    "no_profile_defines_consumer_admission_route_launch_or_readiness",
     "consumer_stage_overlay_required",
     "outputs_are_refs_only_candidates",
     "consuming_domain_owner_retains_authority",
+    "consumer_missing_or_incompatible_fail_open",
+    "consumer_may_bundle_or_materialize_without_dependency_or_readiness_effect",
 ]:
     if profile_policy.get(key) is not True:
         fail(f"capability catalog consumer profile policy {key} must be true")
@@ -1074,51 +1111,24 @@ if package_exports.get("default_materialization_policy") != "all_exported_skills
     fail("capability package must use all-exported-skills materialization")
 if package_exports.get("specialty_routing_policy") != "materialized_by_default_selected_only_for_matching_tasks":
     fail("capability package must keep specialty routing task-selective")
-lifecycle = package_manifest.get("lifecycle") or {}
-if lifecycle.get("default_install_trigger") != "dependency_of_declared_consumer_profile":
-    fail("capability package default install trigger must use a declared consumer profile")
-if lifecycle.get("disable_or_uninstall_when_required_by_installed_consumer") != "forbidden":
-    fail("capability package removal must be forbidden while MAS depends on it")
-expected_status_commands = {
-    consumer_id: {
-        "workspace": f"opl packages status --package-id {consumer_id} --scope workspace --target-workspace <workspace-root> --json",
-        "quest": f"opl packages status --package-id {consumer_id} --scope quest --target-quest <quest-root> --json",
-    }
-    for consumer_id in ["mas", "mag"]
-}
-expected_repair_commands = {
-    consumer_id: {
-        "workspace": f"opl packages repair --package-id {consumer_id} --scope workspace --target-workspace <workspace-root> --json",
-        "quest": f"opl packages repair --package-id {consumer_id} --scope quest --target-quest <quest-root> --json",
-    }
-    for consumer_id in ["mas", "mag"]
-}
-if lifecycle.get("status_command_templates") != expected_status_commands:
-    fail("capability package status must use the unified scoped OPL packages surface")
-if lifecycle.get("repair_command_templates") != expected_repair_commands:
-    fail("capability package repair must use the unified scoped OPL packages surface")
-activation_materialization = lifecycle.get("activation_materialization") or {}
-if activation_materialization.get("required") is not True:
-    fail("MAS workspace or quest activation must require core Skill materialization")
-if activation_materialization.get("scopes") != ["workspace", "quest"]:
-    fail("capability package must materialize core Skills for workspace and quest scopes")
-if activation_materialization.get("skill_ids_ref") != "#/exports/all_skill_ids":
-    fail("activation materialization must consume all exported Skills")
-if activation_materialization.get("readiness_skill_ids_ref") != "#/consumer_profiles/<selected-profile>/required_export_ids":
-    fail("activation readiness must be anchored to the selected consumer profile")
-if activation_materialization.get("materialization_policy") != "all_exported_skills":
-    fail("activation must materialize all exported Skills")
-if activation_materialization.get("receipt_required") is not True:
-    fail("workspace or quest Skill materialization must emit a receipt")
+if "lifecycle" in package_manifest:
+    fail("framework capability provider must not own consumer install, repair, activation, or readiness lifecycle")
+codex_surface = package_manifest.get("codex_surface") or {}
+if codex_surface.get("consumer_profiles_ref") != "#/consumer_profiles":
+    fail("Codex package surface must reference the canonical optional consumer profiles")
+if "required_skill_ids_ref" in codex_surface:
+    fail("Codex package surface must not expose a provider-owned required Skill floor")
 plugin_package_ref = plugin_exposure.get("capabilityPackageManifestRef")
 if plugin_package_ref != "contracts/opl_capability_package_manifest.json":
     fail("plugin manifest must point to the capability package manifest")
 if plugin_exposure.get("capabilityAbi") != capability_abi.get("id"):
     fail("plugin manifest capability ABI must match the capability package manifest")
-if plugin_exposure.get("requiredBy") != ["mas", "mag"]:
-    fail("plugin manifest must declare MAS and MAG as required consumers")
+if plugin_exposure.get("requiredBy") != []:
+    fail("plugin manifest must not declare a required consumer")
 if plugin_exposure.get("consumerProfilesRef") != "contracts/opl_capability_package_manifest.json#/consumer_profiles":
-    fail("plugin manifest must reference the package consumer profiles")
+    fail("plugin manifest must reference the canonical optional consumer profiles")
+if "optionalRefsOnlyConsumerProfilesRef" in plugin_exposure:
+    fail("plugin manifest must not create a second optional consumer profile surface")
 
 
 def without_redirect_tombstones(skill_ids):
@@ -1731,29 +1741,31 @@ if domain_descriptor.get("delivery_domain") != "capability_pack":
     fail("domain descriptor delivery_domain must be capability_pack")
 if domain_descriptor.get("oma_consumption_policy", {}).get("capability_map_ref") != "contracts/capability_map.json":
     fail("domain descriptor must point OMA to contracts/capability_map.json")
-require_all(
-    "domain descriptor syncable real skills",
-    domain_descriptor.get("capability_pack", {}).get("syncable_real_skills"),
-    expected_capability_skills,
-)
+descriptor_pack = domain_descriptor.get("capability_pack", {})
+if descriptor_pack.get("syncable_real_skills") != expected_capability_skills:
+    fail("domain descriptor syncable real skills must match the canonical Skill catalog")
 if domain_descriptor.get("capability_pack", {}).get("runtime_module_ids") != runtime_module_ids:
     fail("domain descriptor must expose both package runtime modules")
 if domain_descriptor.get("capability_pack", {}).get("runtime_module_bindings_ref") != "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings":
     fail("domain descriptor must point to the package runtime module bindings")
 if domain_descriptor.get("capability_pack", {}).get("runtime_module_consumption_mode") != "opl_connect_executes_http_package_adapter_builds_and_parses_bounded_steps":
     fail("domain descriptor must preserve the provider adapter execution split")
-require_all(
-    "domain descriptor advanced specialist skills",
-    domain_descriptor.get("capability_pack", {}).get("advanced_specialist_skills"),
-    advanced_specialist_skill_ids,
-)
+if descriptor_pack.get("advanced_specialist_skills") != advanced_specialist_skill_ids:
+    fail("domain descriptor advanced specialist skills must match the canonical Skill catalog")
 if domain_descriptor.get("capability_pack", {}).get("advanced_specialists_block_core_progress_when_missing") is not False:
     fail("advanced specialists must not block core progress when missing")
-require_all(
-    "domain descriptor medical-method specialist skills",
-    domain_descriptor.get("capability_pack", {}).get("medical_method_specialist_skills"),
-    medical_method_specialist_skill_ids,
-)
+if descriptor_pack.get("medical_method_specialist_skills") != medical_method_specialist_skill_ids:
+    fail("domain descriptor medical-method specialist skills must exclude redirect tombstones")
+if descriptor_pack.get("advanced_specialist_redirect_tombstones") != advanced_redirect_tombstone_skill_ids:
+    fail("domain descriptor advanced redirect tombstones must match the canonical classification")
+if descriptor_pack.get("medical_method_specialist_redirect_tombstones") != medical_method_redirect_tombstone_skill_ids:
+    fail("domain descriptor medical-method redirect tombstones must match the canonical classification")
+if descriptor_pack.get("advanced_named_specialist_skills") != classification_policy.get("optional_external_named_specialist_skills"):
+    fail("domain descriptor advanced named specialists must match the canonical classification")
+if descriptor_pack.get("medical_method_named_specialist_skills") != classification_policy.get("optional_medical_method_named_specialist_skills"):
+    fail("domain descriptor medical-method named specialists must exclude redirect tombstones")
+if descriptor_pack.get("optional_named_specialty_skill_ids") != optional_named_specialty_skill_ids:
+    fail("domain descriptor optional named specialties must exclude redirect tombstones")
 if domain_descriptor.get("capability_pack", {}).get("medical_method_specialists_block_core_progress_when_missing") is not False:
     fail("medical-method specialists must not block core progress when missing")
 if capability_map.get("surface_kind") != "oma_capability_pack_map":
@@ -1856,6 +1868,26 @@ advanced_capability_by_id = {
     item.get("skill_id"): item
     for item in capability_map.get("optional_specialist_skills", [])
 }
+capability_map_optional_skill_ids = [
+    item.get("skill_id")
+    for item in capability_map.get("optional_specialist_skills", [])
+]
+if capability_map_optional_skill_ids != expected_optional_skill_ids:
+    fail("capability map optional specialist Skills must match discoverable exports exactly")
+if capability_map.get("optional_named_specialty_skill_ids") != optional_named_specialty_skill_ids:
+    fail("capability map optional named specialties must exclude redirect tombstones")
+capability_map_no_regression_ids = [
+    item.get("skill_id")
+    for item in capability_map.get("optional_specialist_no_regression_map", [])
+]
+if capability_map_no_regression_ids != optional_named_specialty_skill_ids:
+    fail("capability map no-regression rows must describe only real named specialty Skills")
+expected_redirect_tombstones = [
+    *(contract.get("advanced_specialist_pack_policy", {}).get("redirect_tombstone_skills", [])),
+    *(contract.get("medical_method_specialist_pack_policy", {}).get("redirect_tombstone_skills", [])),
+]
+if capability_map.get("optional_specialist_redirect_tombstones") != expected_redirect_tombstones:
+    fail("capability map redirect tombstones must match the canonical contract rows")
 advanced_expected = {
     "medical-advanced-biomed-router": {
         "sources": ["alphafold2", "proteinmpnn", "borzoi", "scgpt", "indication-dossier", "compute-env-setup"],
@@ -2036,7 +2068,7 @@ positioning_policy = contract.get("positioning_policy") or {}
 expected_positioning = {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
-    "role": "opl_owned_external_enhancement_pack_for_mas_medical_paper_capabilities",
+    "role": "framework_capability_provider_for_optional_mas_paper_and_mag_grant_enhancements",
     "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
     "canonical_mas_stage_source_policy": "MAS_domain_agent_repo_agent_stages_and_agent_prompts_are_the_canonical_stage_prompt_source",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",
@@ -2044,8 +2076,8 @@ expected_positioning = {
     "professional_skill_location_policy": "professional_specialist_skills_default_to_the_consuming_domain_agent_repo; heavy_cross_workspace_or_independently_released_skills_may_be_externalized_to_pack_repos_such_as_mas_scholar_skills",
     "tool_connector_policy": "OPL_Connect_or_Fabric_owns_tool_invocation_normalized_read_receipts_and_connector_errors_not_stage_policy_specialist_judgment_owner_receipts_typed_blockers_human_gates_publication_readiness_or_artifact_authority",
     "sync_owner": "OPL Connect",
-    "required_or_default_pack_owner": "MAS_profile_or_overlay",
-    "ledger_and_owner_receipt_owner": "MAS_or_relevant_OPL_domain_owner",
+    "bundled_or_materialized_pack_owner": "consumer_distribution_profile",
+    "ledger_and_owner_receipt_owner": "MAS_MAG_or_relevant_OPL_domain_owner",
 }
 for key, expected in expected_positioning.items():
     if positioning_policy.get(key) != expected:

@@ -5,11 +5,12 @@ Purpose: `docs_index`
 State: `active_index`
 Machine boundary: Human-readable navigation. Package identity, exports, module ids, authority flags, skill bodies, gallery bytes, installed currentness, and consuming-domain decisions remain in contracts, source, manifests, OPL readback, repo-native verification, and MAS/domain owner surfaces.
 
-MAS Scholar Skills is the required professional capability package for MAS
-medical-paper work. It owns reusable specialist playbooks, refs, packs, module
-contracts, and compact gallery review material. It does not own study truth,
-artifacts, owner receipts, typed blockers, current-package state, runtime state,
-or publication readiness.
+MAS Scholar Skills is a consumer-neutral framework capability provider with
+optional refs-only profiles for MAS medical-paper and MAG medical-grant work. It
+owns reusable specialist playbooks, refs, packs, module contracts, and compact
+gallery review material. It does not own study or grant truth, artifacts, owner
+receipts, typed blockers, current-package state, strategy memory, runtime state,
+fundability, quality/export verdicts, or publication readiness.
 
 ## Active Truth
 
@@ -25,7 +26,7 @@ existing owners instead of creating empty parallel files:
 
 | OPL role | Current owner | What it owns |
 | --- | --- | --- |
-| Project and architecture | [Operating model](./mas-scholar-skills-operating-model.md) | Product role, stage/skill/provider/owner split, package lifecycle, and discovery path |
+| Project and architecture | [Operating model](./mas-scholar-skills-operating-model.md) | Product role, stage/skill/provider/owner split, package distribution, and discovery path |
 | Invariants | [No-Authority Boundary](./no-authority-boundary.md) | Refs-only handoff and forbidden authority claims |
 | Capability catalog | [Capability modules](./capability-modules.md) | Human-readable module and skill mapping; machine truth remains in contracts |
 | Active progress and gaps | [Active Truth](./active/mas-scholar-skills-ideal-state-gap-plan.md) | Current audited shape, remaining evidence gaps, and next baton |

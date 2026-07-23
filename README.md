@@ -23,14 +23,17 @@ Machine boundary: Human-readable public entry. Package identity, exports, module
 </p>
 
 MAS Scholar Skills gives MAS reusable, task-focused expertise for producing and
-reviewing medical-paper work. It helps Codex choose an appropriate specialist,
-work from explicit evidence, prepare inspectable candidate material, and route
-the result back to the owning MAS stage.
+reviewing medical-paper work. MAG may also consume a narrow set of these Skills
+as an optional refs-only grant enhancement. In both cases, the package helps
+Codex choose an appropriate specialist, work from explicit evidence, prepare
+inspectable candidate material, and route the result back to the consuming
+domain owner.
 
-The package is required by MAS but released separately so its skills, quality
-references, display pack, and specialist catalog can evolve independently. The
-historical `opl-scholarskills` name is provenance only and is not an active
-skill.
+The package is a consumer-neutral framework capability provider released
+separately so its skills, quality references, display pack, and specialist
+catalog can evolve independently. Both MAS and MAG profiles are optional
+enhancements. The historical `opl-scholarskills` name is provenance only and is
+not an active skill.
 
 ## What It Covers
 
@@ -63,23 +66,27 @@ without creating a parallel validity judgment.
 
 ## Use With MAS
 
-Install MAS through the unified package lifecycle. OPL resolves MAS Scholar
-Skills as a required dependency and materializes the exported skills into the
-selected workspace or quest:
+MAS may list this package under `bundled_capability_package_ids` so the Skills
+are available by default. Bundling and materialization are distribution
+conveniences, not dependency or readiness semantics. Installing MAS may
+therefore materialize the exported Skills into the selected workspace or quest:
 
 ```bash
 opl packages install mas --scope workspace --target-workspace <workspace_root> --json
 opl packages install mas --scope quest --target-quest <quest_root> --json
 ```
 
-Read the installed state from OPL rather than inferring it from this checkout:
+Read the bundled state from the MAS package surface rather than inferring it
+from this checkout:
 
 ```bash
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-Cloning this repository alone does not install MAS or prove that an installed
-package is current.
+Cloning this repository alone does not install MAS or prove that bundled bytes
+are current. Missing or incompatible Scholar Skills must not block MAS
+admission, route, launch, or native paper work; MAS may record a non-blocking
+diagnostic and continue.
 
 Inside a MAS task, the normal path is:
 
@@ -94,6 +101,29 @@ The aggregate `mas-scholar-skills` skill is a discovery and routing entry. The
 selected `medical-*` skill carries the detailed professional workflow; MAS stage
 prompts remain the owner of stage validity, evidence thresholds, and acceptance.
 
+## Optional Use With MAG
+
+MAG keeps its native grant workflow as the only stage and authority owner. When
+that workflow selects a matching enhancement, it may use
+`medical-research-lit`, `medical-statistical-review`,
+`medical-methodology-planner`, `medical-evidence-integrity-reviewer`,
+`medical-evidence-synthesis-and-claim-map`, or
+`medical-reference-integrity-auditor`.
+
+```text
+MAG grant prompt
+  -> optional matching medical-* Skill when available
+  -> refs-only candidate handoff
+  -> MAG accepts, rejects, or routes back through its own authority surface
+```
+
+Like the MAS profile, this profile is not an install, activation, admission,
+route, launch, or readiness dependency. MAG may bundle it under the same
+consumer field for default availability. A missing or incompatible Skill
+returns control to the MAG native workflow and may record only a non-blocking
+diagnostic. It cannot create a typed blocker or change grant truth, fundability,
+quality/export verdicts, strategy memory, receipts, or owner authority.
+
 `medical-submission-prep` includes an offline-first publication-layout catalog.
 Named journals use a matching local adaptation profile; an unspecified journal
 uses the publication-grade `general-medical-reader.v1` template. The core reader
@@ -105,10 +135,11 @@ network lookup during ordinary authoring.
 
 ## Authority Boundary
 
-This package prepares candidate material. It does not write study truth or
-artifact bodies, sign owner or reviewer receipts, create typed blockers, mutate
-runtime state, choose the current package, or claim publication readiness.
-Those decisions remain with MAS or the consuming domain owner.
+This package prepares candidate material. It does not write study or grant
+truth or artifact bodies, sign owner or reviewer receipts, create typed
+blockers, mutate runtime state or strategy memory, choose the current package,
+or claim fundability, quality/export, or publication readiness. Those decisions
+remain with MAS, MAG, or the consuming domain owner.
 
 Use [No-Authority Boundary](./docs/no-authority-boundary.md) for the durable rule
 and machine references.

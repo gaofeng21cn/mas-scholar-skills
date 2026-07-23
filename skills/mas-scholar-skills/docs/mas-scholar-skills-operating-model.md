@@ -1,24 +1,45 @@
 # MAS Scholar Skills Operating Model
 
 Owner: `One Person Lab`
-Purpose: Explain how `mas-scholar-skills` supplies professional skill capability without becoming MAS domain truth.
+Purpose: Explain how `mas-scholar-skills` supplies optional professional capability without becoming MAS or MAG domain truth.
 State: `active_operating_model`
-Machine boundary: Human-readable operating model. Package identity, ABI, core exports, and content digest live in `contracts/opl_capability_package_manifest.json`; module and Skill truth remain in `contracts/scholar-skills-capability-modules.json`, `.codex-plugin/plugin.json`, the selected `skills/medical-*/SKILL.md`, OPL package readback, and MAS owner surfaces.
+Machine boundary: Human-readable operating model. Package identity, ABI, exports, profiles, and content digest live in `contracts/opl_capability_package_manifest.json`; module and Skill truth remain in `contracts/scholar-skills-capability-modules.json`, `.codex-plugin/plugin.json`, the selected `skills/medical-*/SKILL.md`, OPL package readback, and MAS/MAG owner surfaces.
 
 ## Role
 
-MAS Scholar Skills is the required capability package for MAS medical-paper
-work. The separate repository is a development, versioning, and release boundary,
-not an optional product boundary. It owns maintained professional playbooks, source packs, quality floors,
-route-back hints, and candidate-ref vocabulary. It does not own study truth,
+MAS Scholar Skills is a consumer-neutral framework capability provider. The
+separate repository is a development, versioning, and release boundary. It owns
+maintained professional playbooks, source packs, quality floors, route-back
+hints, and candidate-ref vocabulary. It does not own study or grant truth,
 publication truth, runtime attempts, provider attempts, ledgers, owner receipts,
-typed blockers, human gates, current-package authority, or publication readiness.
+typed blockers, human gates, current-package authority, or readiness. MAS and
+MAG consume it only through optional refs-only enhancement profiles.
 
 The aggregate `mas-scholar-skills` skill is only a discovery and routing entry.
 The selected `medical-*` skills carry professional medical reasoning. Contracts
 record package identity, skill mapping, ref vocabulary, exposure policy, and
 false-authority flags. These layers do not replace MAS stage prompts or owner
 surfaces.
+
+## Consumer Model
+
+| Profile | Relationship | Failure semantics |
+| --- | --- | --- |
+| `mas-medical-paper.v1` | Optional refs-only enhancement; 11 exports describe selected-profile compatibility, not MAS readiness | Missing or incompatible Skills fail open to MAS core and may produce only a MAS-owned non-blocking diagnostic |
+| `mag-medical-grant.v1` | Optional refs-only enhancement over the MAG native grant workflow | Missing or incompatible Skills fail open to MAG core and may produce only a MAG-owned non-blocking diagnostic |
+
+Both profiles use `required=false`, `dependency_kind=optional_enhancement`, and
+the same no-authority and fail-open fields. Their `.v1` ids are versioned
+consistently; only the compatibility sets differ. The MAG profile selects only
+`medical-research-lit`,
+`medical-statistical-review`, `medical-methodology-planner`,
+`medical-evidence-integrity-reviewer`,
+`medical-evidence-synthesis-and-claim-map`, and
+`medical-reference-integrity-auditor`. These Skills can prepare candidate refs;
+neither profile can change consumer install or activation, block admission,
+route, or launch, define readiness, create a consumer typed blocker, write
+domain truth or strategy memory, sign a receipt, or claim fundability,
+quality/export, publication, or owner authority.
 
 ## AI-First Boundary
 
@@ -38,7 +59,7 @@ there is no pack-specific medical module execution surface.
 | --- | --- | --- |
 | Active professional modules | `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, `data` | Contract ids and candidate-ref vocabulary backed by real skills |
 | Default professional skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance` | AI-first playbooks that can be selectively synchronized for Codex discovery |
-| Optional specialist skills | Advanced and medical-method specialist skills | Named-task helpers; refs-only and never part of the MAS hard-dependency readiness floor |
+| Optional specialist skills | Advanced and medical-method specialist skills | Named-task helpers; refs-only and never part of consumer readiness |
 
 The quality floor belongs in the relevant professional skill. Change a module
 contract only for an id, mapping, ref vocabulary, exposure policy, or boundary
@@ -55,6 +76,15 @@ MAS stage prompt
   -> selected medical-* professional skill
   -> candidate_refs and route-back hint
   -> MAS owner gate consume, reject, or route back
+```
+
+For optional grant enhancement, MAG remains the route owner:
+
+```text
+MAG native grant prompt
+  -> selected medical-* Skill when available and compatible
+  -> refs-only candidate handoff
+  -> MAG owner surface consumes, rejects, or routes back
 ```
 
 For literature work, the provider split is explicit:
@@ -80,18 +110,18 @@ two provider steps. MAS still decides candidate selection, source acceptance, an
 manuscript use. All provider outputs are read-only inputs, not a citation verdict,
 owner receipt, blocker, or publication claim.
 
-## Package Lifecycle And Discovery
+## Distribution And Discovery
 
 ```bash
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
-opl packages repair --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-Installing MAS is the single user action. OPL resolves and installs this package
-inside the MAS dependency closure, records compatible version and content locks,
-and prevents disabling or uninstalling it while MAS remains installed. Missing or
-incompatible core exports make MAS operationally unavailable and route to the
-repair command above; there is no partial or silent-degradation mode.
+Consumers may include this package under `bundled_capability_package_ids` and
+materialize all exports for native discovery. Bundling is a distribution
+convenience, not a required dependency, activation condition, or readiness gate.
+The provider owns no consumer status, repair, admission, route, launch, or
+readiness lifecycle. If an enhancement is absent or incompatible, MAS or MAG
+continues its native workflow and owns any non-blocking diagnostic.
 
 Framework development and diagnostics may still inspect the provider source:
 
@@ -120,6 +150,7 @@ The display gallery is a compact human-review reference. It can anchor a templat
 or visual-audit candidate ref, but does not prove a live renderer, visual parity,
 publication readiness, or owner acceptance.
 
-MAS or the consuming domain owner owns all ledger entries, receipts, blockers,
-current-package updates, artifact mutations, and publication decisions. Any such
-ref named by the pack is only a downstream destination for owner consumption.
+MAS, MAG, or the consuming domain owner owns all ledger entries, receipts,
+blockers, current-package updates, artifact mutations, grant decisions, and
+publication decisions. Any such ref named by the pack is only a downstream
+destination for owner consumption.

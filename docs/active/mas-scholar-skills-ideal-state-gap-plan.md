@@ -7,9 +7,11 @@ Machine boundary: Human-readable current-state and next-audit baton. Package ide
 
 ## Ideal-State Reference
 
-The target is a required, independently released MAS capability package that:
+The target is an independently released framework capability provider that:
 
 - keeps one aggregate discovery skill and focused `medical-*` specialist skills;
+- exposes MAS paper and MAG grant profiles only as fail-open refs-only
+  enhancements;
 - exposes eight professional modules and two pure provider adapter modules;
 - returns refs-only candidate material without owning domain truth, artifacts,
   receipts, blockers, runtime state, current-package state, or readiness;
@@ -30,7 +32,8 @@ The audited source snapshot has the following structural shape:
 
 | Theme | Current source evidence | Boundary |
 | --- | --- | --- |
-| Package | `contracts/opl_capability_package_manifest.json` declares `mas-scholar-skills` version `0.2.19` | Installed resolution and lifecycle currentness require fresh `opl packages` readback |
+| Package | `contracts/opl_capability_package_manifest.json` declares consumer-neutral `framework_capability_package` version `0.2.19` | Bundled resolution and materialized-byte currentness require fresh consumer package readback |
+| Consumer profiles | MAS and MAG use `.v1` optional-enhancement profiles with the same boundary fields; `required_*` ids are selected-profile compatibility sets only | Missing or incompatible enhancements continue through consumer core and cannot block install, activation, admission, route, launch, or readiness |
 | Skill exposure | 35 discoverable `SKILL.md` entries: 11 aggregate/core and 24 router or named-specialty skills | Presence does not select a specialty or grant authority |
 | Module catalog | `contracts/scholar-skills-capability-modules.json` declares eight professional modules and two machine adapter modules | The adapters describe or parse bounded requests; OPL Connect owns I/O and receipts |
 | Authority | Contract authority flags are false for domain truth, owner receipts, typed blockers, artifact mutation, current-package authority, and publication readiness | MAS or the consuming domain owner remains authoritative |
@@ -49,8 +52,9 @@ not retain completed implementation ledgers in this file.
 
 ### Test / Evidence Gaps
 
-- Installed version, content lock, activation, and repair status are unknown
-  until read from the target workspace or quest with `opl packages`.
+- Bundled version, content lock, and materialized-byte currentness are unknown
+  until read from the target workspace or quest with `opl packages`; this
+  provider owns no consumer activation or repair gate.
 - Any new renderer or gallery-currentness claim requires a fresh `render` or
   `full` lane in an environment with the declared dependencies.
 - Paper artifact quality, owner acceptance, submission readiness, and

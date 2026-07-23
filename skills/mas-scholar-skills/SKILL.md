@@ -1,32 +1,40 @@
 ---
 name: mas-scholar-skills
-description: "Route profiled MAS medical-paper or MAG medical-grant tasks to maintained MAS Scholar Skills specialists and inspect their refs-only, owner-gated boundaries. Use for pack-level discovery, consumer-profile routing, specialist selection, or no-authority guidance. Invoke the routed medical-* skill rather than keeping this aggregate active."
+description: "Route optional MAS medical-paper or MAG medical-grant enhancements to maintained MAS Scholar Skills specialists. Use for pack-level discovery, consumer-profile routing, specialist selection, or refs-only no-authority guidance. Invoke the routed medical-* skill rather than keeping this aggregate active."
 ---
 
 # MAS Scholar Skills
 
-Use this skill as the thin discovery and routing entry for the OPL-owned
-medical research capability pack. Route the task through the declared consumer
-profile to a concrete `medical-*` skill, then follow that skill's playbook. Do
-not copy specialist checklists, CLI instructions, gallery details, or
-data-governance rules into this aggregate.
+Use this skill as the thin discovery and routing entry for an OPL-owned
+framework capability pack with optional MAS paper and MAG grant profiles. Route
+the task through the consuming Agent's own stage overlay to a concrete
+`medical-*` skill, then follow that skill's playbook. Do not copy specialist
+checklists, CLI instructions, gallery details, or data-governance rules into
+this aggregate.
 
 `opl-scholarskills` and `opl.scholarskills.*` are legacy provenance aliases,
 not active discovery or authority surfaces.
 
 ## Consumer Profiles
 
-- `mas-medical-paper.v1` preserves the existing 11-Skill MAS paper readiness
-  floor and all current paper workflows.
-- `mag-medical-grant.v1` requires `medical-research-lit`,
+- `mas-medical-paper.v1` declares the 11-Skill compatibility set used when MAS
+  selects this optional enhancement. It is not a MAS readiness floor.
+- `mag-medical-grant.v1` is an optional refs-only enhancement that may use
+  `medical-research-lit`,
   `medical-statistical-review`, `medical-methodology-planner`,
   `medical-evidence-integrity-reviewer`,
   `medical-evidence-synthesis-and-claim-map`, and
   `medical-reference-integrity-auditor`.
 
-The consuming Agent owns stage routing and domain acceptance. This pack never
-calls MAS on MAG's behalf and never converts a candidate into grant truth,
-fundability, quality, export readiness, a receipt, or a blocker.
+Both profiles are `required=false` optional enhancements. Missing or
+incompatible Skills must fail open to the consuming Agent's native workflow and
+may produce only a consumer-owned non-blocking diagnostic. Bundling or
+materializing the pack for discovery is allowed, but it must not create an
+install, activation, admission, route, launch, or readiness gate. The consuming
+Agent owns stage routing and domain acceptance. This pack never calls MAS on
+MAG's behalf and never converts a candidate into study or grant truth,
+fundability, quality, export/publication readiness, strategy memory, a receipt,
+a blocker, or owner authority.
 
 ## Core Routing
 
@@ -41,9 +49,11 @@ fundability, quality, export readiness, a receipt, or a blocker.
 | `mas-scholar-skills.submit` (Scholar Submit) | `medical-submission-prep` |
 | `mas-scholar-skills.data` (Medical Data Governance) | `medical-data-governance` |
 
-Start from the MAS overlay or stage operating prompt when one exists. It owns
-stage validity, evidence thresholds, route-back, and acceptance. Use the routed
-specialist for professional judgment and candidate handoff preparation.
+Start from the consuming Agent's overlay or stage operating prompt. For MAS,
+that is the paper stage prompt; for optional MAG use, it is the native grant
+prompt. The consuming prompt owns stage validity, evidence thresholds,
+route-back, and acceptance. Use the routed specialist only for professional
+judgment and candidate handoff preparation.
 
 For a new or materially repaired paper-facing figure, routing is not complete
 until `medical-figure-design` has been consumed and the final export has a
@@ -55,21 +65,19 @@ identity instead of bypassing the professional workflow.
 
 ## Optional Routing
 
-All exported specialty skills are already discoverable in an active MAS
-workspace or quest. Use them only when a named specialty is not covered by the
-core skills. Start from the closest router/reviewer:
+When the pack is bundled or materialized, all exported specialty Skills are
+available for native discovery. Use them only when a named specialty is not
+covered by the core skills. Start from the closest router/reviewer:
 
 - `medical-methodology-planner`
 - `medical-evidence-integrity-reviewer`
 - `medical-publication-routeback-reviewer`
 - `medical-advanced-biomed-router`
 
-Let that router select one narrow specialty skill. Specialty skills stay
-outside the MAS 11-Skill readiness floor even though they are materialized by
-default. A declared consumer profile may promote selected specialties into
-that consumer's own readiness floor. OPL Framework owns installation, refresh,
-scope materialization, CLI, connector access, and runtime bridge behavior; this
-aggregate only identifies the route.
+Let that router select one narrow specialty skill. Neither a profile
+compatibility set nor a materialized specialty defines consumer readiness.
+OPL Framework owns distribution, refresh, scope materialization, CLI, connector
+access, and runtime bridge behavior; this aggregate only identifies the route.
 
 ## Handoff And Authority
 
@@ -82,8 +90,8 @@ packages, and route-back recommendations. It must not write domain or study
 truth, mutate authoritative artifacts or clinical data bodies, sign owner
 receipts, create typed blockers, accept citations, update current packages, or
 claim runtime, quality, artifact, publication, owner, or production readiness.
-MAS, MAG, or another declared consuming domain owner must consume, reject, or
-route back the candidate through its own authority surface.
+MAS, MAG, or another consuming domain owner must consume, reject, or route back
+the candidate through its own authority surface.
 
 ## Owner References
 

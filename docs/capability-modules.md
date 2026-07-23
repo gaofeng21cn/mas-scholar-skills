@@ -7,14 +7,15 @@ Machine boundary: This is human-readable navigation. Module truth, exposure poli
 
 ## Positioning
 
-`MAS Scholar Skills` is the required capability package for MAS medical-paper
-capabilities. Its external repository is a maintenance boundary, not an optional
-product boundary. It is not an OPL runtime base, an additional brand module, or a MAS
-domain-truth owner. It supplies professional Codex skills, source packs, quality
-floors, candidate-ref vocabulary, and external-learning references.
+`MAS Scholar Skills` is a consumer-neutral framework capability provider. Its
+external repository is a maintenance boundary. It is not an OPL runtime base,
+an additional brand module, or a MAS/MAG domain-truth owner. It supplies
+professional Codex skills, source packs, quality floors, candidate-ref
+vocabulary, and external-learning references through optional MAS paper and MAG
+grant profiles.
 
 OPL consumes this repository as a generic capability pack. Its public surface
-validates the descriptor, installs or syncs selected skills, and returns
+validates the descriptor, distributes or syncs selected skills, and returns
 provenance. OPL Connect may also load the package's two read-only provider
 companion modules: one verifies a known reference, while the other searches
 Crossref or OpenAlex for generic metadata, coverage, or citation-graph fallback
@@ -26,6 +27,22 @@ It does not execute a medical stage, materialize
 candidate artifacts, or issue verdicts or receipts. Stage policy, domain actions,
 candidate acceptance, owner receipts, typed blockers, and artifact authority
 remain with MAS or another consuming domain owner.
+
+## Consumer Profiles
+
+`mas-medical-paper.v1` and `mag-medical-grant.v1` are both
+`required=false`, `dependency_kind=optional_enhancement` profiles. Their `.v1`
+ids and boundary fields are aligned. MAS lists an 11-Skill compatibility set;
+MAG lists six Skills for literature, statistics, methodology, evidence
+integrity, claim mapping, and reference integrity. In both profiles,
+`required_export_ids` and `required_module_ids` mean “needed for this selected
+profile to be compatible,” not “needed for the consumer to be ready.”
+
+Missing or incompatible enhancement Skills fail open to the native MAS or MAG
+workflow and may yield only a consumer-owned non-blocking diagnostic. Neither
+profile can block install, activation, admission, route, launch, or readiness,
+and neither grants truth, fundability, quality/export, strategy-memory, receipt,
+blocker, publication, or owner authority.
 
 ## Active Catalog
 
@@ -82,22 +99,22 @@ mapping for reference verification across Crossref, OpenAlex, PubMed eSummary,
 Europe PMC, Semantic Scholar, Crossmark, and DOI landing metadata, plus independent
 Crossref/OpenAlex fallback search mapping. Framework-owned OPL Connect implements
 PubMed/PMC discovery and owns all network execution, retry, cache, strict
-comparison, normalized receipts, and connector errors. MAS owns candidate
-acceptance, citation acceptance, and manuscript use.
+comparison, normalized receipts, and connector errors. MAS or MAG owns candidate
+acceptance, citation acceptance, and domain use.
 Provider evidence and search candidates are never literature verdicts or
 publication decisions.
 
-## OPL Package Readback
+## Distribution Readback
 
 ```bash
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
-opl packages repair --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-The package is installed, updated, locked, and rolled back as part of the MAS
-dependency closure. Missing or incompatible core exports make MAS
-`operational_ready=false`; OPL must not silently continue with a reduced product.
-Optional named-specialty Skills remain outside this readiness floor.
+MAS and MAG may list this package under `bundled_capability_package_ids` so all
+exports are available for native discovery. Bundling or materialization does not
+create a dependency or readiness gate. This provider owns no consumer status,
+repair, activation, admission, route, launch, or readiness lifecycle; absence
+or incompatibility returns control to consumer core.
 
 Provider-source development may additionally use the internal discovery surfaces:
 

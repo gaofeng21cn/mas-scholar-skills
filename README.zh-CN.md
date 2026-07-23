@@ -22,13 +22,14 @@ Machine boundary: Human-readable public entry. Package identity, exports, module
   <img src="assets/branding/mas-scholar-skills-overview-v2.png" alt="MAS Scholar Skills 覆盖医学研究全程的专业能力" width="100%" />
 </p>
 
-MAS Scholar Skills 为 MAS 提供可复用、面向具体任务的医学论文专业能力。它帮助
-Codex 选择合适的专科 Skill，依据明确证据完成工作，形成可检查的候选材料，并把
-结果路由回对应的 MAS Stage owner。
+MAS Scholar Skills 为 MAS 提供可复用、面向具体任务的医学论文专业能力。MAG 也
+可以把其中一组窄范围 Skill 作为可选、refs-only 的基金增强能力。两种场景都由
+Codex 选择合适的专科 Skill，依据明确证据形成可检查的候选材料，再把结果路由回
+consuming domain owner。
 
-本包是 MAS 的必需依赖，但独立发布，因此专业 Skill、质量参考、Display Pack 和
-专科目录可以独立演进。历史名称 `opl-scholarskills` 只保留 provenance，不是当前
-可发现的 Skill。
+本包是 consumer-neutral 的 framework capability provider，并独立发布，因此专业
+Skill、质量参考、Display Pack 和专科目录可以独立演进。MAS 与 MAG profile 都只是
+可选增强。历史名称 `opl-scholarskills` 只保留 provenance，不是当前可发现的 Skill。
 
 ## 能力范围
 
@@ -56,21 +57,24 @@ router 或具名专科 Skill。专科 Skill 默认可发现，但只在任务确
 
 ## 与 MAS 一起使用
 
-通过统一 package lifecycle 安装 MAS。OPL 会把 MAS Scholar Skills 作为硬依赖解析，
-并将 exported Skill 物化到指定 workspace 或 quest：
+MAS 可以通过 `bundled_capability_package_ids` 默认携带本包，使 Skill 开箱可用。
+bundled/materialized 只表示分发便利，不表示 dependency 或 readiness。安装 MAS 时
+可以把 exported Skill 物化到指定 workspace 或 quest：
 
 ```bash
 opl packages install mas --scope workspace --target-workspace <workspace_root> --json
 opl packages install mas --scope quest --target-quest <quest_root> --json
 ```
 
-安装状态必须从 OPL fresh readback，不能从本 checkout 反推：
+bundled 状态必须从 MAS package surface fresh readback，不能从本 checkout 反推：
 
 ```bash
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-单独 clone 本仓不会安装 MAS，也不能证明已安装包 current。
+单独 clone 本仓不会安装 MAS，也不能证明 bundled bytes current。本包缺失或不兼容
+不得阻断 MAS admission、route、launch 或原生论文流程；MAS 最多记录非阻断诊断并
+继续。
 
 在 MAS 任务中的常规链路是：
 
@@ -84,6 +88,28 @@ MAS Stage 目标与证据
 aggregate `mas-scholar-skills` Skill 只负责发现和路由；被选中的 `medical-*` Skill
 承载具体专业工作。Stage 是否有效、证据阈值和最终接受仍由 MAS Stage prompt 持有。
 
+## MAG 可选增强
+
+MAG 原生 grant workflow 始终是唯一的 Stage 与 authority owner。只有在该流程明确
+选择匹配增强时，才可使用 `medical-research-lit`、
+`medical-statistical-review`、`medical-methodology-planner`、
+`medical-evidence-integrity-reviewer`、
+`medical-evidence-synthesis-and-claim-map` 或
+`medical-reference-integrity-auditor`。
+
+```text
+MAG grant prompt
+  -> 可用时选择匹配的 medical-* Skill
+  -> refs-only candidate handoff
+  -> MAG 通过自己的 authority surface 接受、拒绝或 route back
+```
+
+与 MAS profile 相同，该 profile 不是 install、activation、admission、route、
+launch 或 readiness 依赖。MAG 也可以通过同一 consumer 字段默认 bundle 本包。
+Skill 缺失或不兼容时必须回到 MAG 原生流程，最多记录非阻断诊断；不能创建 typed
+blocker，也不能改变 grant truth、fundability、quality/export verdict、strategy
+memory、receipt 或 owner authority。
+
 `medical-submission-prep` 内置 offline-first 出版版式目录。指定期刊时选择对应的本地
 适配 profile；未指定期刊时使用出版级 `general-medical-reader.v1`。核心阅读输出固定为
 `paper.pdf` 和 `paper_with_supplementary.pdf`。正式投稿前必须刷新 profile 链接的官方
@@ -92,9 +118,10 @@ aggregate `mas-scholar-skills` Skill 只负责发现和路由；被选中的 `me
 
 ## Authority 边界
 
-本包只准备候选材料。它不写 study truth 或 artifact body，不签发 owner/reviewer
-receipt，不创建 typed blocker，不改变 runtime state，不选择 current package，也不
-声明 publication ready。这些判断始终归 MAS 或 consuming domain owner。
+本包只准备候选材料。它不写 study/grant truth 或 artifact body，不签发
+owner/reviewer receipt，不创建 typed blocker，不改变 runtime state 或 strategy
+memory，不选择 current package，也不声明 fundability、quality/export 或
+publication ready。这些判断始终归 MAS、MAG 或 consuming domain owner。
 
 稳定规则和机器引用见 [No-Authority Boundary](./docs/no-authority-boundary.md)。
 

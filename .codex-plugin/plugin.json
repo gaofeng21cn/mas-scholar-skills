@@ -1,7 +1,7 @@
 {
   "name": "mas-scholar-skills",
   "version": "0.2.19",
-  "description": "Repo-tracked Codex plugin for profiled MAS medical-paper and MAG medical-grant specialist Skills.",
+  "description": "Repo-tracked framework capability plugin with optional refs-only medical-paper and medical-grant enhancement profiles.",
   "author": {
     "name": "One Person Lab"
   },
@@ -24,10 +24,7 @@
   "masScholarSkillsExposure": {
     "capabilityPackageManifestRef": "contracts/opl_capability_package_manifest.json",
     "capabilityAbi": "mas-scholar-skills.v1",
-    "requiredBy": [
-      "mas",
-      "mag"
-    ],
+    "requiredBy": [],
     "consumerProfilesRef": "contracts/opl_capability_package_manifest.json#/consumer_profiles",
     "policyRef": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy",
     "codexDefaultExposure": false,
@@ -79,7 +76,12 @@
       "medical-evidence-integrity-reviewer",
       "medical-publication-routeback-reviewer"
     ],
-    "optionalRedirectTombstoneSkillIds": [],
+    "optionalRedirectTombstoneSkillIds": [
+      "medical-evidence-gap-triage-reviewer",
+      "medical-methodology-routeback-reviewer",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-publication-strategy-memory-curator"
+    ],
     "optionalNamedSpecialtySkillIds": [
       "medical-structural-biology",
       "medical-protein-design",
@@ -131,8 +133,8 @@
   },
   "interface": {
     "displayName": "MAS Scholar Skills",
-    "shortDescription": "Profiled MAS paper and MAG grant specialist Skills.",
-    "longDescription": "Provides maintained medical research specialist Skills through explicit MAS paper and MAG grant consumer profiles. All 35 exports are materialized for native discovery; each consumer profile defines its own hard readiness floor. Outputs remain refs-only candidate handoffs, and the consuming domain owner retains truth, verdict, receipt, blocker, and readiness authority.",
+    "shortDescription": "Optional MAS paper and MAG grant Skills.",
+    "longDescription": "Provides optional refs-only MAS medical-paper and MAG medical-grant enhancement profiles. All 35 exports may be bundled or materialized for native discovery, but distribution does not create a dependency or readiness gate. Missing or incompatible profile Skills return control to the consuming Agent's native workflow.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -141,9 +143,9 @@
       "Research"
     ],
     "defaultPrompt": [
-      "Use the declared MAS paper or MAG grant consumer profile.",
+      "Use the optional MAS paper or MAG grant enhancement profile.",
       "Route to the concrete medical specialist Skill selected by the owner stage.",
-      "Materialize all exports while enforcing only the selected profile readiness floor.",
+      "Fail open to the consuming Agent's native workflow when a Skill is unavailable.",
       "Return refs-only candidates to the consuming domain owner.",
       "Never treat a Skill candidate as domain truth, a verdict, a receipt, or readiness."
     ],

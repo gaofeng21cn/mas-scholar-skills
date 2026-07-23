@@ -91,19 +91,20 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "medical_method_specialist_policy_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
     "medical_method_specialist_consumption_mode": "optional_refs_only_medical_method_candidate_handoff",
     "medical_method_specialists_block_core_progress_when_missing": false,
     "advanced_specialist_redirect_tombstones": [],
-    "medical_method_specialist_redirect_tombstones": [],
+    "medical_method_specialist_redirect_tombstones": [
+      "medical-evidence-gap-triage-reviewer",
+      "medical-methodology-routeback-reviewer",
+      "medical-owner-gate-handoff-reviewer",
+      "medical-publication-strategy-memory-curator"
+    ],
     "optional_router_policy": "default exposure remains false; optional named specialty installs preserve named specialist SKILL.md playbooks and may use router/reviewer skills to select one.",
     "advanced_specialist_router_skills": [
       "medical-advanced-biomed-router"
@@ -133,13 +134,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "optional_named_specialty_skill_ids": [
       "medical-structural-biology",
@@ -159,13 +156,9 @@
       "medical-survival-analysis-plan",
       "medical-risk-model-transportability-reviewer",
       "medical-registry-atlas-story-architect",
-      "medical-owner-gate-handoff-reviewer",
       "medical-display-regression-debugger",
       "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-publication-strategy-memory-curator",
-      "medical-evidence-gap-triage-reviewer",
-      "medical-research-portfolio-memory-curator",
-      "medical-methodology-routeback-reviewer"
+      "medical-research-portfolio-memory-curator"
     ],
     "optional_router_skill_ids": [
       "medical-advanced-biomed-router",

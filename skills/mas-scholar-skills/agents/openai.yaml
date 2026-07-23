@@ -1,7 +1,7 @@
 interface:
   display_name: "MAS Scholar Skills"
-  short_description: "Route MAS medical-paper specialist skills"
-  default_prompt: "Use $mas-scholar-skills to route this MAS medical-paper task to the right specialist skill and preserve its owner-gated boundary."
+  short_description: "Route optional MAS paper or MAG grant Skills"
+  default_prompt: "Use $mas-scholar-skills for an optional MAS paper or MAG grant enhancement, preserving fail-open refs-only owner boundaries."
 
 policy:
   allow_implicit_invocation: true

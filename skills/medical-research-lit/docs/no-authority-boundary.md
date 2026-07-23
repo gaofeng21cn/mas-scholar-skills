@@ -9,8 +9,8 @@ Machine boundary: Machine truth remains in `contracts/capability_map.json#/autho
 
 MAS Scholar Skills is a refs-only, authority-false capability pack. It may prepare
 `candidate_refs`, quality hints, `verdict_candidate`, `route_back_candidate`,
-`stop_or_continue_recommendation`, and `owner_gate_handoff_ref` for a MAS owner
-gate.
+`stop_or_continue_recommendation`, and `owner_gate_handoff_ref` for a consuming
+domain owner gate.
 
 It must not write domain truth, runtime state, artifact bodies, ledgers, current
 packages, owner receipts, typed blockers, human gates, quality verdicts, owner
@@ -20,6 +20,12 @@ Connect may run the package's pure reference-provider state machine, but Connect
 itself performs every HTTP request and materializes any strict match or receipt;
 the package cannot perform I/O, materialize a candidate artifact, or create a
 verdict or receipt.
+
+For MAS and MAG, this boundary also forbids study/grant truth, fundability,
+quality/export verdicts, strategy-memory writes, consumer typed blockers, and
+owner authority. Both profiles are optional: missing or incompatible
+enhancement Skills must fail open to the native consumer workflow and cannot
+become an install, activation, admission, route, launch, or readiness failure.
 
 ## Active Skills
 
@@ -55,9 +61,10 @@ domain-authority flags false.
 
 Any `owner_receipt_ref`, `typed_blocker_ref`, `reviewer_receipt_ref`,
 `route_back_evidence_ref`, or current-package ref named by this pack is a
-downstream owner-consumption target only. MAS or the consuming domain owner must
-consume candidate refs and issue any receipt, blocker, route-back, package update,
-artifact mutation, or publication decision from its own authority surface.
+downstream owner-consumption target only. MAS, MAG, or the consuming domain owner
+must consume candidate refs and issue any receipt, blocker, route-back, package
+update, artifact mutation, grant decision, or publication decision from its own
+authority surface.
 
 MAS `agent/stages/` and `agent/prompts/` own stage policy, evidence thresholds,
 route-back, owner gates, and acceptance. A `medical-*` skill owns its AI-first
