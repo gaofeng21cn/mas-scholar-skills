@@ -1,7 +1,7 @@
 {
   "name": "mas-scholar-skills",
-  "version": "0.2.18",
-  "description": "Repo-tracked Codex plugin for MAS Scholar Skills active medical-paper professional specialist skills and optional module-level router/reviewer skills.",
+  "version": "0.2.19",
+  "description": "Repo-tracked Codex plugin for profiled MAS medical-paper and MAG medical-grant specialist Skills.",
   "author": {
     "name": "One Person Lab"
   },
@@ -25,8 +25,10 @@
     "capabilityPackageManifestRef": "contracts/opl_capability_package_manifest.json",
     "capabilityAbi": "mas-scholar-skills.v1",
     "requiredBy": [
-      "mas"
+      "mas",
+      "mag"
     ],
+    "consumerProfilesRef": "contracts/opl_capability_package_manifest.json#/consumer_profiles",
     "policyRef": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy",
     "codexDefaultExposure": false,
     "defaultWorkspaceOrQuestInstall": [
@@ -129,8 +131,8 @@
   },
   "interface": {
     "displayName": "MAS Scholar Skills",
-    "shortDescription": "MAS medical-paper specialist skills and refs.",
-    "longDescription": "Provides all maintained professional Codex skills for MAS medical writing, review, figures, literature, statistics, tables, submission, clinical data governance, advanced biomedical routing, methodology, evidence integrity, publication route-back, and named specialties. All 35 exported skills are materialized into an active MAS workspace or quest for native Codex discovery; specialty skills remain task-routed and outside the 11-skill hard readiness floor. All outputs stay refs-only candidate handoffs under MAS owner-gated authority boundaries.",
+    "shortDescription": "Profiled MAS paper and MAG grant specialist Skills.",
+    "longDescription": "Provides maintained medical research specialist Skills through explicit MAS paper and MAG grant consumer profiles. All 35 exports are materialized for native discovery; each consumer profile defines its own hard readiness floor. Outputs remain refs-only candidate handoffs, and the consuming domain owner retains truth, verdict, receipt, blocker, and readiness authority.",
     "developerName": "One Person Lab",
     "category": "Productivity",
     "capabilities": [
@@ -139,12 +141,11 @@
       "Research"
     ],
     "defaultPrompt": [
-      "Use MAS Scholar Skills to inspect active medical-paper professional skills.",
-      "Use the writing, review, figure, statistics, table, submission, or governance skill that matches the MAS paper task.",
-      "Use medical-research-lit to plan PubMed-backed literature discovery.",
-      "Materialize all exported skills in each active MAS workspace or quest for native Codex discovery.",
-      "Use specialty routers, reviewers, and playbooks only when task semantics match; they remain outside the hard readiness floor.",
-      "Check MAS Scholar Skills authority boundaries before a MAS handoff."
+      "Use the declared MAS paper or MAG grant consumer profile.",
+      "Route to the concrete medical specialist Skill selected by the owner stage.",
+      "Materialize all exports while enforcing only the selected profile readiness floor.",
+      "Return refs-only candidates to the consuming domain owner.",
+      "Never treat a Skill candidate as domain truth, a verdict, a receipt, or readiness."
     ],
     "brandColor": "#2563EB"
   }

@@ -4,8 +4,17 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical active professional-skill catalog and read-only scientific reference-provider adapter catalog for the OPL-owned MAS Scholar Skills capability package. The package covers medical-paper writing, review, figure design, figure style, figure composition, literature, statistics, tables, submission, medical data governance, optional advanced or medical-method specialist workflows, and pure provider response normalization. MAS can discover the skill-backed capabilities through stage operating prompts; OPL Connect may execute adapter-declared HTTP requests outside the package sandbox and return response bytes for pure parsing.",
-  "machine_boundary": "This contract describes MAS Scholar Skills professional modules, optional specialist discovery skills, and one read-only reference-provider adapter runtime module. It is not a generic OPL runtime base, not a MAS domain truth owner, and not a parallel stage entry. MAS remains the study-truth, clinical data body, source-readiness verdict, artifact-authority, owner-receipt, typed-blocker, current-package, and publication-readiness authority. OPL Connect owns HTTP execution, retry, cache, strict matching, receipts, and errors; the adapter module only builds bounded request descriptions, parses supplied responses, and selects a bounded next step. It cannot perform network I/O, read environment state, write files, spawn processes, issue receipts or verdicts, schedule runtime attempts, write domain truth, mutate artifact bodies, or claim readiness.",
+  "purpose": "Canonical active professional-Skill catalog and read-only scientific reference-provider adapter catalog for the OPL-owned MAS Scholar Skills capability package. MAS paper and MAG grant consumers select explicit profiles from the package manifest; all outputs remain refs-only candidates for the consuming domain owner.",
+  "machine_boundary": "This contract describes professional modules, optional specialist discovery Skills, and read-only provider adapter runtime modules. It is not a generic OPL runtime base, a MAS or MAG domain-truth owner, or a parallel stage entry. The consuming Agent retains truth, verdict, receipt, blocker, artifact, and readiness authority. OPL Connect owns HTTP execution, retry, cache, strict matching, transport receipts, and errors; adapters only build bounded request descriptions, parse supplied responses, and select bounded next steps.",
+  "consumer_profile_policy": {
+    "profile_source_ref": "contracts/opl_capability_package_manifest.json#/consumer_profiles",
+    "global_core_and_specialty_classification_is_not_consumer_readiness": true,
+    "selected_profile_defines_consumer_readiness_floor": true,
+    "all_exports_materialized_for_native_discovery": true,
+    "consumer_stage_overlay_required": true,
+    "outputs_are_refs_only_candidates": true,
+    "consuming_domain_owner_retains_authority": true
+  },
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",

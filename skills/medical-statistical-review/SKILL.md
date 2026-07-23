@@ -1,12 +1,13 @@
 ---
 name: medical-statistical-review
-description: "Use when a MAS medical-paper task needs professional statistical review before writing, review, figure, table, or submission handoff. Covers analysis-plan fit, estimand/outcome clarity, denominator and missingness checks, assumption diagnostics, effect-size and uncertainty reporting, multiplicity/sensitivity review, statistical prose repair, and refs-only route-back. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps study truth, analysis authority, owner receipts, typed blockers, artifact authority, and publication readiness."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs statistical review of design fit, estimands, outcomes, denominators, missingness, assumptions, effect sizes, uncertainty, multiplicity, sensitivity, and claim strength. Outputs are refs-only candidates; the consuming Agent retains analysis and domain authority."
 ---
 
 # Medical Statistical Review
 
-Use this skill when a MAS paper task needs an expert statistical pressure test
-over a methods plan, result package, table, figure, or manuscript claim.
+Use this skill when a profiled MAS paper or MAG grant task needs an expert
+statistical pressure test over a methods plan, result package, table, figure,
+manuscript claim, preliminary-study claim, or proposed analysis.
 
 This professional specialist skill is maintained in `mas-scholar-skills` /
 MAS Scholar Skills. MAS stage operating prompts may sync and consume it, while
@@ -18,7 +19,25 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
-For every fresh review, consume the MAS `review_input_snapshot_binding` and read
+
+## Consumer Modes
+
+- MAS paper mode preserves the existing immutable reviewer snapshot, manuscript,
+  journal-family, display, submission, and publication workflow.
+- MAG grant mode consumes only owner-supplied grant artifact refs,
+  `source_pack_ref`, and any owner-provided epistemic scope. Ignore MAS-only
+  reviewer snapshots, manuscript/display inventories, journal packs, and
+  publication refs when absent. Review proposed design, power or precision,
+  endpoints, analysis feasibility, preliminary evidence, bias, missingness,
+  sensitivity, and claim calibration in grant context.
+
+In MAG grant mode, return `grant_statistical_review_candidate_ref` through
+`candidate_refs` with `route_back_candidate` and
+`owner_gate_handoff_ref`. It cannot write grant truth or claim fundability, a
+quality verdict, export readiness, analysis approval, a receipt, or a blocker.
+
+For every fresh MAS paper review, consume the MAS
+`review_input_snapshot_binding` and read
 only the exact `opl_reviewer_input_snapshot_manifest` immutable members. Do not
 reopen live analysis, data, manuscript, table, figure, workspace, or checkout
 locators during judgment. Snapshot gaps produce lane-specific refs-only

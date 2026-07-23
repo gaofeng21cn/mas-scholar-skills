@@ -1,6 +1,6 @@
 ---
 name: medical-reference-integrity-auditor
-description: "Use when a MAS medical-paper task needs refs-only reference integrity audit: PMID/DOI/title/year checks, citation-source fit, retraction/version checks, placeholder detection, claim-citation support maps, route-back, and owner-gate handoff. This optional specialist does not accept references, write MAS truth, sign owner receipts, create typed blockers, or claim readiness."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs refs-only reference-integrity audit: PMID/DOI/title/year checks, citation-source fit, retraction/version checks, placeholder detection, support maps, route-back, and owner-gate handoff. The consuming Agent retains reference acceptance and domain authority."
 ---
 
 # Medical Reference Integrity Auditor
@@ -13,7 +13,24 @@ support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it cannot
 accept a reference into a manuscript, write MAS truth, sign owner receipts,
 create typed blockers, or claim publication readiness.
 
-For every fresh audit, consume the MAS `review_input_snapshot_binding` and read
+## Consumer Modes
+
+- MAS paper mode preserves the existing immutable bibliography snapshot,
+  manuscript citation, final DOCX/PDF, CSL, and publication routes.
+- MAG grant mode consumes only owner-supplied grant artifact refs,
+  `source_pack_ref`, and any owner-provided epistemic scope. Ignore MAS-only
+  reviewer snapshots, manuscript bibliography, CSL, final DOCX/PDF, journal,
+  and publication refs when absent. Audit the references actually cited by the
+  grant and the claim-source links in the declared grant scope.
+
+In MAG grant mode, return `grant_reference_integrity_candidate_ref` through
+`candidate_refs` with `route_back_candidate` and
+`owner_gate_handoff_ref`. It cannot write grant truth or claim fundability, a
+quality verdict, export readiness, reference acceptance, a receipt, or a
+blocker.
+
+For every fresh MAS paper audit, consume the MAS
+`review_input_snapshot_binding` and read
 only the exact `opl_reviewer_input_snapshot_manifest` immutable bibliography,
 cited-text, lookup-receipt, and support-map members. Never fall through to live
 workspace or checkout locators. Snapshot gaps are lane-specific refs-only

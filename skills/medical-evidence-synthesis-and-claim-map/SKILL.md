@@ -1,6 +1,6 @@
 ---
 name: medical-evidence-synthesis-and-claim-map
-description: "Use when a MAS medical-paper task needs refs-only evidence synthesis and claim mapping: claim inventory, source support grading, evidence gaps, contradiction handling, support maps, route-back, and owner-gate handoff. This optional specialist does not accept citations, write MAS truth, sign owner receipts, create typed blockers, or claim publication/readiness."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs refs-only evidence synthesis and claim mapping: claim inventory, support grading, gaps, contradictions, route-back, and owner-gate handoff. The consuming Agent retains truth, verdict, receipt, blocker, and readiness authority."
 ---
 
 # Medical Evidence Synthesis And Claim Map
@@ -13,6 +13,22 @@ This skill is refs-only and no-authority. It can prepare claim-map candidate
 refs, support grading, `route_back_candidate`, and `owner_gate_handoff_ref`; it
 cannot accept citations, write MAS truth, issue quality verdicts, sign owner
 receipts, create typed blockers, or claim publication readiness.
+
+## Consumer Modes
+
+- MAS paper mode preserves manuscript claim families, result/table/figure
+  support, citation integration, limitations, and publication routes.
+- MAG grant mode consumes only owner-supplied grant artifact refs,
+  `source_pack_ref`, and any owner-provided epistemic scope. Ignore MAS-only
+  manuscript, journal, publication, and reviewer-snapshot refs when absent.
+  Map significance, innovation, aims, approach, feasibility, preliminary
+  evidence, alternatives, and risk claims to their actual support.
+
+In MAG grant mode, return `grant_claim_map_candidate_ref` through
+`candidate_refs` with `route_back_candidate` and
+`owner_gate_handoff_ref`. It cannot write grant truth or claim fundability, a
+quality verdict, export readiness, evidence acceptance, a receipt, or a
+blocker. The consuming Agent alone may issue an owner receipt.
 
 Optional helper: use `kernel.py` for deterministic claim/evidence matrix
 scaffolds, support-strength vocabulary lint, and claim-map handoff skeletons.

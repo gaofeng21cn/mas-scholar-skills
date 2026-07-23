@@ -1,6 +1,6 @@
 ---
 name: medical-methodology-planner
-description: "Use when a MAS medical-paper task needs refs-only methodology planning across protocol/SAP, cohort phenotyping, causal design, survival/time-to-event analysis, risk-model transportability, registry-atlas story design, or data-freeze analysis readiness. This optional router does not write MAS truth, sign owner receipts, create typed blockers, or claim readiness."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs refs-only methodology planning across protocol/SAP, cohort phenotyping, causal design, survival analysis, risk-model transportability, registry design, or data readiness. The consuming Agent retains truth, verdict, receipt, blocker, and readiness authority."
 ---
 
 # Medical Methodology Planner
@@ -13,6 +13,22 @@ refs, support maps, `route_back_candidate`, and `owner_gate_handoff_ref`; it
 cannot write MAS truth, approve an analysis, sign an owner receipt, create a
 typed blocker, mutate artifacts or data bodies, or claim source, runtime,
 publication, production, or current-package readiness.
+
+## Consumer Modes
+
+- MAS paper mode preserves the current paper question, protocol/SAP, analysis,
+  reporting, and publication-oriented routes.
+- MAG grant mode consumes only owner-supplied grant artifact refs,
+  `source_pack_ref`, and any owner-provided epistemic scope. Ignore MAS-only
+  manuscript, journal, publication, and reviewer-snapshot refs when absent.
+  Plan the proposed aims, design, population, endpoints, feasibility,
+  assumptions, alternatives, milestones, and risk mitigations in grant scope.
+
+In MAG grant mode, return `grant_methodology_plan_candidate_ref` through
+`candidate_refs` with `route_back_candidate` and
+`owner_gate_handoff_ref`. It cannot write grant truth or claim fundability, a
+quality verdict, export readiness, methodology approval, a receipt, or a
+blocker.
 
 When MAS supplies `registry_signal_validity_pack` or an
 `ehr_registry_signal_validity_ref`, use

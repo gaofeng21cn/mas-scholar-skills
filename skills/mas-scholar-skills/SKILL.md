@@ -1,17 +1,32 @@
 ---
 name: mas-scholar-skills
-description: "Route MAS medical-paper tasks to the maintained MAS Scholar Skills specialist skills and inspect their refs-only, owner-gated boundaries. Use when Codex needs pack-level capability discovery, module-to-skill routing, optional specialist selection, or no-authority/owner-surface guidance. For a named writing, review, figure, literature, statistics, table, submission, data-governance, or specialty task, invoke the routed medical-* skill rather than keeping the aggregate skill active."
+description: "Route profiled MAS medical-paper or MAG medical-grant tasks to maintained MAS Scholar Skills specialists and inspect their refs-only, owner-gated boundaries. Use for pack-level discovery, consumer-profile routing, specialist selection, or no-authority guidance. Invoke the routed medical-* skill rather than keeping this aggregate active."
 ---
 
 # MAS Scholar Skills
 
-Use this skill as the thin discovery and routing entry for the OPL-owned MAS
-medical-paper enhancement pack. Route the task to a concrete `medical-*` skill,
-then follow that skill's playbook. Do not copy specialist checklists, CLI
-instructions, gallery details, or data-governance rules into this aggregate.
+Use this skill as the thin discovery and routing entry for the OPL-owned
+medical research capability pack. Route the task through the declared consumer
+profile to a concrete `medical-*` skill, then follow that skill's playbook. Do
+not copy specialist checklists, CLI instructions, gallery details, or
+data-governance rules into this aggregate.
 
 `opl-scholarskills` and `opl.scholarskills.*` are legacy provenance aliases,
 not active discovery or authority surfaces.
+
+## Consumer Profiles
+
+- `mas-medical-paper.v1` preserves the existing 11-Skill MAS paper readiness
+  floor and all current paper workflows.
+- `mag-medical-grant.v1` requires `medical-research-lit`,
+  `medical-statistical-review`, `medical-methodology-planner`,
+  `medical-evidence-integrity-reviewer`,
+  `medical-evidence-synthesis-and-claim-map`, and
+  `medical-reference-integrity-auditor`.
+
+The consuming Agent owns stage routing and domain acceptance. This pack never
+calls MAS on MAG's behalf and never converts a candidate into grant truth,
+fundability, quality, export readiness, a receipt, or a blocker.
 
 ## Core Routing
 
@@ -50,10 +65,11 @@ core skills. Start from the closest router/reviewer:
 - `medical-advanced-biomed-router`
 
 Let that router select one narrow specialty skill. Specialty skills stay
-outside the 11-skill hard readiness floor even though they are materialized by
-default. OPL Framework owns installation, refresh, scope materialization, CLI,
-connector access, and runtime bridge behavior; this aggregate only identifies
-the route.
+outside the MAS 11-Skill readiness floor even though they are materialized by
+default. A declared consumer profile may promote selected specialties into
+that consumer's own readiness floor. OPL Framework owns installation, refresh,
+scope materialization, CLI, connector access, and runtime bridge behavior; this
+aggregate only identifies the route.
 
 ## Handoff And Authority
 
@@ -66,8 +82,8 @@ packages, and route-back recommendations. It must not write domain or study
 truth, mutate authoritative artifacts or clinical data bodies, sign owner
 receipts, create typed blockers, accept citations, update current packages, or
 claim runtime, quality, artifact, publication, owner, or production readiness.
-MAS or the consuming domain owner must consume, reject, or route back the
-candidate through its own authority surface.
+MAS, MAG, or another declared consuming domain owner must consume, reject, or
+route back the candidate through its own authority surface.
 
 ## Owner References
 

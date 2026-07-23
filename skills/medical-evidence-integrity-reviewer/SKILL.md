@@ -1,6 +1,6 @@
 ---
 name: medical-evidence-integrity-reviewer
-description: "Use when a MAS medical-paper task needs refs-only evidence integrity review across claim maps, citation/reference integrity, evidence-gap triage, source support, or PDF evidence exploration. This optional reviewer does not accept citations, write MAS truth, sign owner receipts, create typed blockers, or claim readiness."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs refs-only evidence-integrity review across claim maps, citation/reference integrity, evidence gaps, source support, or PDF evidence locations. The consuming Agent retains evidence acceptance and domain authority."
 ---
 
 # Medical Evidence Integrity Reviewer
@@ -14,6 +14,23 @@ refs, `verdict_candidate`, `route_back_candidate`, and
 `owner_gate_handoff_ref`; it cannot accept references, write MAS truth, sign an
 owner receipt, create a typed blocker, mutate manuscript/source artifacts, or
 claim source, runtime, publication, production, or current-package readiness.
+
+## Consumer Modes
+
+- MAS paper mode preserves the existing manuscript claim, citation, reviewer,
+  verification-scope, and publication-oriented routes.
+- MAG grant mode consumes only owner-supplied grant artifact refs,
+  `source_pack_ref`, and any owner-provided epistemic scope. Ignore MAS-only
+  manuscript, journal, publication, and reviewer-snapshot refs when absent.
+  Review support for significance, innovation, approach, feasibility,
+  preliminary evidence, and risk claims without turning grant rhetoric into
+  evidence.
+
+In MAG grant mode, return `grant_evidence_integrity_candidate_ref` through
+`candidate_refs` with `route_back_candidate` and
+`owner_gate_handoff_ref`. Do not return a fundability or quality verdict. This
+Skill cannot write grant truth, claim export readiness, accept evidence, issue
+a receipt, or create a blocker.
 
 Use this reviewer as a narrow evidence-integrity aggregator. Claim/evidence,
 source-support, citation, PDF, and evidence-gap judgment should normally land in

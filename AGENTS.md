@@ -2,7 +2,7 @@
 
 本仓是 MAS 的专业能力包与发布载体，不持有 study、publication、artifact 或 owner authority。
 
-- package identity、exports 和 MAS 依赖关系以 `contracts/opl_capability_package_manifest.json` 为准。
+- package identity、exports 和 MAS/MAG consumer profiles 以 `contracts/opl_capability_package_manifest.json` 为准。
 - capability catalog 以 `contracts/scholar-skills-capability-modules.json` 为准；可执行 Framework surface 归 `one-person-lab`。
 - 安装、更新、修复和回滚走统一 `opl packages` lifecycle。
 - `gallery/medical-display/` 承载最终人审发布包。

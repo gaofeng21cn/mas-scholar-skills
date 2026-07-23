@@ -1,11 +1,12 @@
 ---
 name: medical-research-lit
-description: "Use when a MAS medical-paper task needs professional AI-first literature discovery, especially PubMed/PMC-oriented search planning, query refinement, source screening, fallback reason capture, PMID/DOI verification, citation-support checks, claim-support maps, and refs-only handoff back to MAS scout/write/review. This professional specialist skill is maintained in mas-scholar-skills; OPL Connect owns provider search, verification, normalization, and receipt transport, while MAS owns medical screening, claim support, and citation acceptance."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs AI-first literature discovery, PubMed/PMC search planning, source screening, PMID/DOI verification, claim-support maps, and refs-only owner handoff. OPL Connect owns provider transport; the consuming Agent owns evidence acceptance and domain authority."
 ---
 
 # Medical Research Literature
 
-Use this skill when a MAS paper task needs external literature evidence instead of memory-only citation guesses.
+Use this skill when a profiled MAS paper or MAG grant task needs external
+literature evidence instead of memory-only citation guesses.
 
 This is a real Codex specialist skill in the MAS Scholar Skills pack. It owns
 the AI query strategy, source-screening rationale, fallback reason, claim
@@ -18,6 +19,23 @@ Shared refs: use `docs/no-authority-boundary.md` for owner-boundary limits and
 `references/professional-quality-ref-templates.md` for reusable refs-only
 quality-floor handoff shapes. Keep specialty details in this skill; do not copy
 long boundary or checklist text here.
+
+## Consumer Modes
+
+- MAS paper mode keeps the existing manuscript, journal-family, scout/write/
+  review, citation-ledger, and publication-oriented workflow.
+- MAG grant mode consumes only owner-supplied grant artifact refs,
+  `source_pack_ref`, and any owner-provided epistemic scope. Ignore MAS-only
+  manuscript, journal, publication, or snapshot refs when they are not
+  provided. Frame evidence around significance, innovation, approach,
+  feasibility, preliminary support, and risk rather than manuscript sections.
+
+In MAG grant mode, return `grant_literature_evidence_candidate_ref` through
+`candidate_refs` with `route_back_candidate` and
+`owner_gate_handoff_ref`. It is candidate evidence only: this Skill cannot
+write grant truth or claim fundability, a quality verdict, export readiness, a
+receipt, or a blocker.
+
 When MAS supplies `citation_integrity_pack`, consume
 `references/professional-quality-ref-templates.md#mas-journal-family-pack-foldback`.
 This skill owns the AI source-screening and claim-support handoff. OPL Connect
