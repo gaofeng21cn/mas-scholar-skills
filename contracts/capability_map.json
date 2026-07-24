@@ -35,14 +35,15 @@
     "closeout_refs_are_downstream_owner_targets_only": true
   },
   "medical_initial_draft_preflight_policy": {
-    "policy_id": "scholarskills_medical_initial_draft_preflight.v2",
+    "policy_id": "scholarskills_medical_initial_draft_preflight.v3",
     "schema_ref": "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
     "schema_version": 1,
     "surface_kind": "medical_initial_draft_preflight_candidate_ref",
     "stable_v1_compatibility": {
       "structural_schema_unchanged": true,
       "legacy_validator": "validate_medical_initial_draft_preflight_candidate",
-      "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2"
+      "prior_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2",
+      "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v3"
     },
     "statuses": [
       "satisfied",
@@ -109,7 +110,8 @@
         "display_render_integrity_ref"
       ],
       "story_contract": [
-        "first_draft_story_contract_ref"
+        "first_draft_story_contract_ref",
+        "author_stance_integrity_ref"
       ]
     },
     "conditional_gate_ref_families": {
@@ -148,7 +150,7 @@
     "semantic_family_validation": {
       "mandatory": true,
       "kernel": "skills/medical-manuscript-writing/kernel.py",
-      "function": "validate_medical_initial_draft_preflight_candidate_v2"
+      "function": "validate_medical_initial_draft_preflight_candidate_v3"
     },
     "producer_skill_id": "medical-manuscript-writing",
     "independent_review_consumer_skill_id": "medical-manuscript-review",

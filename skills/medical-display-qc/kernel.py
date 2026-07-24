@@ -751,6 +751,15 @@ def lint_document_layout_inventory(
                 "artifact_role": artifact_role,
                 "page_start": page_start,
                 "page_end": page_end,
+                "text": str(
+                    block.get("text")
+                    or block.get("title_text")
+                    or block.get("visible_title")
+                    or ""
+                ),
+                "panel_count": block.get("panel_count"),
+                "continuation": block.get("continuation") is True
+                or "continuation" in block_kind,
             }
         )
         supplementary = artifact_role.startswith("supplementary_") or block_kind.startswith(
@@ -788,6 +797,54 @@ def lint_document_layout_inventory(
                     block_id=block_id,
                     page_start=page_start,
                     page_end=page_end,
+                )
+            )
+        if block_kind in {"heading", "section_heading", "section_title"}:
+            next_index = index
+            if next_index < len(blocks):
+                next_block = blocks[next_index]
+                next_page_start = next_block.get("page_start")
+                if (
+                    isinstance(next_page_start, int)
+                    and not isinstance(next_page_start, bool)
+                    and next_page_start > page_end
+                ):
+                    findings.append(
+                        _finding(
+                            "ORPHAN_SECTION_HEADING_AT_PAGE_END",
+                            "quality_debt",
+                            "A section heading is stranded at the end of a page without its next content block",
+                            "display_redesign",
+                            block_id=block_id,
+                            page_start=page_start,
+                            page_end=page_end,
+                            next_block_id=str(
+                                next_block.get("block_id") or f"block_{next_index + 1}"
+                            ),
+                        )
+                    )
+        panel_count = block.get("panel_count")
+        title_text = str(
+            block.get("title_text")
+            or block.get("visible_title")
+            or block.get("text")
+            or ""
+        )
+        if (
+            normalized[-1]["continuation"]
+            and isinstance(panel_count, int)
+            and not isinstance(panel_count, bool)
+            and panel_count == 1
+            and re.search(r"\bpanel\s+1\s+of\s+1\b", title_text, flags=re.I)
+        ):
+            findings.append(
+                _finding(
+                    "SINGLETON_PANEL_LABEL_IN_CONTINUATION_TITLE",
+                    "quality_debt",
+                    "A singleton panel must not carry a continuation title formatted as panel 1 of 1",
+                    "display_redesign",
+                    block_id=block_id,
+                    panel_count=panel_count,
                 )
             )
 
@@ -5027,12 +5084,41 @@ def _self_check() -> None:
                 "page_start": 25,
                 "page_end": 26,
             },
+            {
+                "block_id": "discussion-heading",
+                "block_kind": "section_heading",
+                "document_role": "main_document",
+                "artifact_role": "section_heading",
+                "page_start": 30,
+                "page_end": 30,
+                "text": "Discussion",
+            },
+            {
+                "block_id": "discussion-body",
+                "block_kind": "paragraph",
+                "document_role": "main_document",
+                "artifact_role": "text",
+                "page_start": 31,
+                "page_end": 31,
+            },
+            {
+                "block_id": "ts25-continuation-title",
+                "block_kind": "continuation_title",
+                "document_role": "supplement",
+                "artifact_role": "supplementary_table",
+                "page_start": 32,
+                "page_end": 32,
+                "panel_count": 1,
+                "title_text": "TS25, panel 1 of 1",
+            },
         ]
     )
     assert {item["code"] for item in layout_findings} == {
         "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
         "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
         "DISPLAY_AND_REFERENCES_SHARE_PAGE",
+        "ORPHAN_SECTION_HEADING_AT_PAGE_END",
+        "SINGLETON_PANEL_LABEL_IN_CONTINUATION_TITLE",
     }
     assert all(item["writes_authority"] is False for item in layout_findings)
     def exact_ref(kind: str, ref: str, digest: str, size_bytes: int = 100) -> dict[str, object]:

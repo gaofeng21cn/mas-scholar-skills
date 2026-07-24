@@ -168,8 +168,10 @@ currentness, package identity, a receipt, a verdict, or authority.
 12. Check `editorial_page_composition_ref` from a structured final-document
     block map. Run `lint_document_layout_inventory()` to catch figure legends
     or table notes split across pages, supplementary displays embedded in the
-    main manuscript, and display/reference collisions. Nonblank pages and zero
-    clipping are necessary but do not establish publication-quality pagination.
+    main manuscript, display/reference collisions, orphan section headings at
+    page ends, and singleton `panel 1 of 1` continuation titles. Nonblank pages
+    and zero clipping are necessary but do not establish publication-quality
+    pagination.
 13. When a reader PDF is required, build
     `document_display_scope_coverage_ref` with `requires_reader_pdf=true` and
     exact refs for the canonical manuscript, table catalog, figure catalog,

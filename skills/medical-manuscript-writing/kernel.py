@@ -158,7 +158,7 @@ INITIAL_DRAFT_PREFLIGHT_GATES = (
     "story_contract",
 )
 
-INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES = {
+INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2 = {
     "study_identity": ("study_charter_ref", "paper_identity_ref"),
     "data_freeze": ("clinical_analysis_input_identity_ref",),
     "statistical_integrity": (
@@ -180,6 +180,13 @@ INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES = {
         "display_render_integrity_ref",
     ),
     "story_contract": ("first_draft_story_contract_ref",),
+}
+INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES = {
+    **INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2,
+    "story_contract": (
+        *INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2["story_contract"],
+        "author_stance_integrity_ref",
+    ),
 }
 
 INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES = {
@@ -731,6 +738,23 @@ def medical_initial_draft_preflight_candidate_schema_v2() -> dict[str, Any]:
         "semantic_policy_id": "scholarskills_medical_initial_draft_preflight.v2",
         "required_gate_ref_families": {
             gate: list(refs)
+            for gate, refs in INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2.items()
+        },
+        "conditional_gate_ref_alternatives": {
+            gate: [list(group) for group in groups]
+            for gate, groups in INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES.items()
+        },
+    }
+
+
+def medical_initial_draft_preflight_candidate_schema_v3() -> dict[str, Any]:
+    """Return the current semantic policy with author-stance integrity."""
+
+    return {
+        **medical_initial_draft_preflight_candidate_schema(),
+        "semantic_policy_id": "scholarskills_medical_initial_draft_preflight.v3",
+        "required_gate_ref_families": {
+            gate: list(refs)
             for gate, refs in INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES.items()
         },
         "conditional_gate_ref_alternatives": {
@@ -746,7 +770,11 @@ def validate_medical_initial_draft_preflight_candidate(
     """Validate the stable v1 preflight semantics for same-major callers."""
 
     return _validate_medical_initial_draft_preflight_candidate(
-        candidate, strict_v2=False, applicability_disposition_candidates=None
+        candidate,
+        strict_v2=False,
+        audit_version=1,
+        required_gate_ref_families=INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2,
+        applicability_disposition_candidates=None,
     )
 
 
@@ -762,6 +790,26 @@ def validate_medical_initial_draft_preflight_candidate_v2(
     return _validate_medical_initial_draft_preflight_candidate(
         candidate,
         strict_v2=True,
+        audit_version=2,
+        required_gate_ref_families=INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2,
+        applicability_disposition_candidates=applicability_disposition_candidates,
+    )
+
+
+def validate_medical_initial_draft_preflight_candidate_v3(
+    candidate: Mapping[str, object],
+    *,
+    applicability_disposition_candidates: Mapping[
+        str, Mapping[str, object]
+    ] | None = None,
+) -> dict[str, Any]:
+    """Validate current ref families, including author-stance integrity."""
+
+    return _validate_medical_initial_draft_preflight_candidate(
+        candidate,
+        strict_v2=True,
+        audit_version=3,
+        required_gate_ref_families=INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES,
         applicability_disposition_candidates=applicability_disposition_candidates,
     )
 
@@ -770,6 +818,8 @@ def _validate_medical_initial_draft_preflight_candidate(
     candidate: Mapping[str, object],
     *,
     strict_v2: bool,
+    audit_version: int,
+    required_gate_ref_families: Mapping[str, Sequence[str]],
     applicability_disposition_candidates: Mapping[
         str, Mapping[str, object]
     ] | None,
@@ -967,7 +1017,7 @@ def _validate_medical_initial_draft_preflight_candidate(
                     for ref in refs
                     if isinstance(ref, Mapping)
                 }
-                for required_kind in INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES.get(
+                for required_kind in required_gate_ref_families.get(
                     gate_name, ()
                 ):
                     if required_kind not in ref_kinds:
@@ -1112,9 +1162,7 @@ def _validate_medical_initial_draft_preflight_candidate(
     complete = not violations
     return {
         "surface_kind": (
-            "medical_initial_draft_preflight_kernel_audit_candidate.v2"
-            if strict_v2
-            else "medical_initial_draft_preflight_kernel_audit_candidate.v1"
+            f"medical_initial_draft_preflight_kernel_audit_candidate.v{audit_version}"
         ),
         "machine_check_status": (
             "candidate_ref_shape_complete" if complete else "candidate_ref_shape_incomplete"
@@ -1626,6 +1674,45 @@ def validate_author_input_registry(
     }
 
 
+def validate_author_stance_integrity_candidate(
+    registry: Mapping[str, object],
+    surfaces: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Validate authorial voice and objective-fact annotation closure."""
+
+    workflow_findings = lint_reader_facing_workflow_language(surfaces)
+    registry_audit = validate_author_input_registry(registry, surfaces)
+    findings: list[dict[str, object]] = [
+        {
+            **finding,
+            "source": "reader_facing_workflow_language",
+        }
+        for finding in workflow_findings
+    ]
+    findings.extend(
+        {
+            **finding,
+            "source": "author_input_registry",
+        }
+        for finding in registry_audit["findings"]
+    )
+    findings.sort(
+        key=lambda item: (
+            str(item.get("source") or ""),
+            str(item.get("code") or ""),
+            str(item.get("surface_ref") or ""),
+        )
+    )
+    return {
+        "surface_kind": "medical_author_stance_integrity_candidate.v1",
+        "machine_check_status": "candidate_complete" if not findings else "route_back_required",
+        "reader_facing_workflow_language_findings": workflow_findings,
+        "author_input_registry_audit": registry_audit,
+        "findings": findings,
+        "authority": False,
+    }
+
+
 def _author_input_finding(
     code: str, surface_ref: str, action: str
 ) -> dict[str, object]:
@@ -1823,7 +1910,7 @@ def _self_check() -> None:
     assert terminology_surface_ledger_schema()["properties"]["authority"] == {
         "const": False
     }
-    preflight_schema = medical_initial_draft_preflight_candidate_schema_v2()
+    preflight_schema = medical_initial_draft_preflight_candidate_schema_v3()
     assert preflight_schema["dependency_tiers"] == {
         "baseline_data_citation": 10,
         "analysis": 20,
@@ -1836,7 +1923,7 @@ def _self_check() -> None:
         "authoring_display": "manuscript_authoring",
         "review": "review_and_quality_gate",
     }
-    satisfied_preflight = validate_medical_initial_draft_preflight_candidate_v2(
+    satisfied_preflight = validate_medical_initial_draft_preflight_candidate_v3(
         preflight_candidate()
     )
     assert satisfied_preflight["machine_check_status"] == "candidate_ref_shape_complete"
@@ -1855,6 +1942,21 @@ def _self_check() -> None:
     assert legacy_v2_audit["machine_check_status"] == "candidate_ref_shape_incomplete"
     assert "PREFLIGHT_MANUSCRIPT_MODE_INVALID" in {
         item["code"] for item in legacy_v2_audit["violations"]
+    }
+    prior_v2_candidate = preflight_candidate()
+    prior_v2_candidate["gate_items"]["story_contract"]["refs"] = [
+        ref
+        for ref in prior_v2_candidate["gate_items"]["story_contract"]["refs"]
+        if ref["kind"] != "author_stance_integrity_ref"
+    ]
+    assert validate_medical_initial_draft_preflight_candidate_v2(
+        prior_v2_candidate
+    )["machine_check_status"] == "candidate_ref_shape_complete"
+    prior_v2_under_v3 = validate_medical_initial_draft_preflight_candidate_v3(
+        prior_v2_candidate
+    )
+    assert "PREFLIGHT_REQUIRED_REF_FAMILY_MISSING" in {
+        item["code"] for item in prior_v2_under_v3["violations"]
     }
     fixed_horizon_disposition = (
         build_medical_initial_draft_applicability_disposition(
@@ -2330,7 +2432,42 @@ def _self_check() -> None:
         "AUTHOR_INPUT_ANNOTATION_ORPHANED",
         "AUTHOR_INPUT_SURFACE_COUNT_MISMATCH",
     }.issubset({item["code"] for item in orphan_audit["findings"]})
-    print(json.dumps({"ok": True, "checks": 45}, indent=2, sort_keys=True))
+    author_stance_audit = validate_author_stance_integrity_candidate(
+        author_input_registry,
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md",
+                "text": f"Authors: {manuscript_annotation}",
+            },
+            {
+                "surface_kind": "title_page",
+                "surface_ref": "title_page.md",
+                "text": f"Corresponding author: {title_annotation}",
+            },
+        ],
+    )
+    assert author_stance_audit["machine_check_status"] == "candidate_complete"
+    defensive_author_stance_audit = validate_author_stance_integrity_candidate(
+        author_input_registry,
+        [
+            {
+                "surface_kind": "manuscript_text",
+                "surface_ref": "manuscript.md",
+                "text": "This manuscript is not ready because author information is unknown.",
+            },
+            {
+                "surface_kind": "title_page",
+                "surface_ref": "title_page.md",
+                "text": f"Corresponding author: {title_annotation}",
+            },
+        ],
+    )
+    assert defensive_author_stance_audit["machine_check_status"] == "route_back_required"
+    assert "DEFENSIVE_AUTHOR_INPUT_META_PROSE" in {
+        item["code"] for item in defensive_author_stance_audit["findings"]
+    }
+    print(json.dumps({"ok": True, "checks": 47}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

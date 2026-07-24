@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.21":
-    fail("plugin version must be 0.2.21")
+if manifest.get("version") != "0.2.22":
+    fail("plugin version must be 0.2.22")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -251,7 +251,7 @@ expected_preflight_dependency_order = [
 preflight_policy = contract.get("medical_initial_draft_preflight_policy") or {}
 if capability_map.get("medical_initial_draft_preflight_policy") != preflight_policy:
     fail("capability map and canonical module contract must expose one identical initial-draft preflight policy")
-if preflight_policy.get("policy_id") != "scholarskills_medical_initial_draft_preflight.v2":
+if preflight_policy.get("policy_id") != "scholarskills_medical_initial_draft_preflight.v3":
     fail("initial-draft preflight policy id is missing")
 if preflight_policy.get("schema_ref") != "contracts/scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json":
     fail("initial-draft preflight policy must point to the owner schema")
@@ -262,7 +262,8 @@ if preflight_policy.get("surface_kind") != "medical_initial_draft_preflight_cand
 if preflight_policy.get("stable_v1_compatibility") != {
     "structural_schema_unchanged": True,
     "legacy_validator": "validate_medical_initial_draft_preflight_candidate",
-    "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2",
+    "prior_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v2",
+    "current_semantic_validator": "validate_medical_initial_draft_preflight_candidate_v3",
 }:
     fail("initial-draft preflight policy must preserve the stable v1 validator")
 if preflight_policy.get("statuses") != expected_preflight_statuses:
@@ -292,7 +293,10 @@ if preflight_policy.get("gate_ref_families") != {
         "document_display_scope_coverage_ref",
         "display_render_integrity_ref",
     ],
-    "story_contract": ["first_draft_story_contract_ref"],
+    "story_contract": [
+        "first_draft_story_contract_ref",
+        "author_stance_integrity_ref",
+    ],
 }:
     fail("initial-draft preflight policy gate ref families are wrong")
 if preflight_policy.get("conditional_gate_ref_families") != {
@@ -313,7 +317,7 @@ if preflight_policy.get("schema_validation_scope") != "structural_shape_and_exac
 if preflight_policy.get("semantic_family_validation") != {
     "mandatory": True,
     "kernel": "skills/medical-manuscript-writing/kernel.py",
-    "function": "validate_medical_initial_draft_preflight_candidate_v2",
+    "function": "validate_medical_initial_draft_preflight_candidate_v3",
 }:
     fail("initial-draft preflight semantic family kernel must be mandatory")
 if preflight_policy.get("producer_skill_id") != "medical-manuscript-writing":
@@ -630,8 +634,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.21":
-    fail("capability package version must be 0.2.21")
+if package_manifest.get("version") != "0.2.22":
+    fail("capability package version must be 0.2.22")
 if package_manifest.get("package_role") != "framework_capability_package":
     fail("capability package must use the consumer-neutral framework capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
@@ -1197,6 +1201,7 @@ for token in [
         fail(f"medical-manuscript-writing missing author-input policy token: {token}")
 for token in [
     "validate_author_input_registry",
+    "validate_author_stance_integrity_candidate",
     "DEFENSIVE_AUTHOR_INPUT_META_PROSE",
     "AUTHOR_INPUT_ANNOTATION_ORPHANED",
     "AUTHOR_INPUT_ANNOTATION_CARDINALITY_INVALID",
@@ -1702,6 +1707,8 @@ for source_label, source_text, tokens in [
             "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
             "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
             "DISPLAY_AND_REFERENCES_SHARE_PAGE",
+            "ORPHAN_SECTION_HEADING_AT_PAGE_END",
+            "SINGLETON_PANEL_LABEL_IN_CONTINUATION_TITLE",
         ],
     ),
 ]:
