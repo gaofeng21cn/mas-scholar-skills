@@ -452,7 +452,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:2cba91e64253db15136728d3ccb676d3cbdb472a2b4dfd9f6d15764662c2428f"
+    "digest": "sha256:ab7cd24b41ff61a4a37ea9427a12cd4766c733299a7c47da8ebe6307a200da72"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",

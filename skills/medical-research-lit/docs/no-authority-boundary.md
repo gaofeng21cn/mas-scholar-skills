@@ -23,9 +23,11 @@ verdict or receipt.
 
 For MAS and MAG, this boundary also forbids study/grant truth, fundability,
 quality/export verdicts, strategy-memory writes, consumer typed blockers, and
-owner authority. Both profiles are optional: missing or incompatible
-enhancement Skills must fail open to the native consumer workflow and cannot
-become an install, activation, admission, route, launch, or readiness failure.
+owner authority. Both consumers require the ScholarSkills Package identity and
+their declared capability set to be callable. Missing capability blocks only
+the affected consumer and routes to managed install/repair; it does not grant
+ScholarSkills blocker authority or affect unrelated Packages. Individual named
+specialty Skills remain task-selected.
 
 ## Active Skills
 

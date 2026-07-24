@@ -1,7 +1,7 @@
 # MAS Scholar Skills Operating Model
 
 Owner: `One Person Lab`
-Purpose: Explain how `mas-scholar-skills` supplies optional professional capability without becoming MAS or MAG domain truth.
+Purpose: Explain how `mas-scholar-skills` supplies required Package capability without becoming MAS or MAG domain truth.
 State: `active_operating_model`
 Machine boundary: Human-readable operating model. Package identity, ABI, exports, profiles, and content digest live in `contracts/opl_capability_package_manifest.json`; module and Skill truth remain in `contracts/scholar-skills-capability-modules.json`, `.codex-plugin/plugin.json`, the selected `skills/medical-*/SKILL.md`, OPL package readback, and MAS/MAG owner surfaces.
 
@@ -13,7 +13,8 @@ maintained professional playbooks, source packs, quality floors, route-back
 hints, and candidate-ref vocabulary. It does not own study or grant truth,
 publication truth, runtime attempts, provider attempts, ledgers, owner receipts,
 typed blockers, human gates, current-package authority, or readiness. MAS and
-MAG consume it only through optional refs-only enhancement profiles.
+MAG consume it through required Package presence/callability edges and
+refs-only professional handoffs.
 
 The aggregate `mas-scholar-skills` skill is only a discovery and routing entry.
 The selected `medical-*` skills carry professional medical reasoning. Contracts
@@ -25,21 +26,24 @@ surfaces.
 
 | Profile | Relationship | Failure semantics |
 | --- | --- | --- |
-| `mas-medical-paper.v1` | Optional refs-only enhancement; 11 exports describe selected-profile compatibility, not MAS readiness | Missing or incompatible Skills fail open to MAS core and may produce only a MAS-owned non-blocking diagnostic |
-| `mag-medical-grant.v1` | Optional refs-only enhancement over the MAG native grant workflow | Missing or incompatible Skills fail open to MAG core and may produce only a MAG-owned non-blocking diagnostic |
+| `mas-medical-paper.v1` | Required Package dependency; 11 exports describe the callable capability set MAS expects | Missing Package identity or required capability callability blocks MAS only and routes to managed install/repair |
+| `mag-medical-grant.v1` | Required Package dependency for the MAG native grant workflow | Missing Package identity or required capability callability blocks MAG only and routes to managed install/repair |
 
-Both profiles use `required=false`, `dependency_kind=optional_enhancement`, and
-the same no-authority and fail-open fields. Their `.v1` ids are versioned
-consistently; only the compatibility sets differ. The MAG profile selects only
+Current machine profiles still use `required=false`,
+`dependency_kind=optional_enhancement`, and fail-open fields. Those fields are a
+known migration mismatch, not the target composition rule. The target checks
+identity presence and required capability callability without provider version,
+ABI, lock, payload, digest, Release Set, or atomic-closure solving. The MAG
+profile selects only
 `medical-research-lit`,
 `medical-statistical-review`, `medical-methodology-planner`,
 `medical-evidence-integrity-reviewer`,
 `medical-evidence-synthesis-and-claim-map`, and
 `medical-reference-integrity-auditor`. These Skills can prepare candidate refs;
-neither profile can change consumer install or activation, block admission,
-route, or launch, define readiness, create a consumer typed blocker, write
-domain truth or strategy memory, sign a receipt, or claim fundability,
-quality/export, publication, or owner authority.
+the Package cannot change consumer domain truth or strategy memory, sign a
+consumer owner receipt, or claim fundability, quality/export, publication, or
+owner authority. A missing required edge is reported by the consumer/platform
+readiness surface, never forged as a ScholarSkills domain blocker.
 
 ## AI-First Boundary
 
@@ -78,11 +82,12 @@ MAS stage prompt
   -> MAS owner gate consume, reject, or route back
 ```
 
-For optional grant enhancement, MAG remains the route owner:
+For grant work, MAG remains the route owner:
 
 ```text
 MAG native grant prompt
-  -> selected medical-* Skill when available and compatible
+  -> required ScholarSkills Package and callable grant capability set
+  -> selected medical-* Skill for the task
   -> refs-only candidate handoff
   -> MAG owner surface consumes, rejects, or routes back
 ```
@@ -116,12 +121,13 @@ owner receipt, blocker, or publication claim.
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-Consumers may include this package under `bundled_capability_package_ids` and
-materialize all exports for native discovery. Bundling is a distribution
-convenience, not a required dependency, activation condition, or readiness gate.
-The provider owns no consumer status, repair, admission, route, launch, or
-readiness lifecycle. If an enhancement is absent or incompatible, MAS or MAG
-continues its native workflow and owns any non-blocking diagnostic.
+The target distribution is complete, independently owner-published Package
+bytes in the ScholarSkills GHCR `latest-stable`. Codex Skill materialization is
+one carrier projection, not Package identity or complete installed truth.
+Current consumers may still use `bundled_capability_package_ids`; that is a
+compatibility carrier input. The provider owns no consumer status, repair,
+admission, route, launch, or readiness authority. The consumer/platform reports
+a missing required presence/callability edge and blocks only MAS or MAG.
 
 Framework development and diagnostics may still inspect the provider source:
 

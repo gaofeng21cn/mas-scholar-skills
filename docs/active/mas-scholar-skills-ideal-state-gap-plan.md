@@ -10,13 +10,14 @@ Machine boundary: Human-readable current-state and next-audit baton. Package ide
 The target is an independently released framework capability provider that:
 
 - keeps one aggregate discovery skill and focused `medical-*` specialist skills;
-- exposes MAS paper and MAG grant profiles only as fail-open refs-only
-  enhancements;
+- exposes MAS paper and MAG grant profiles as required Package
+  presence/callability edges with refs-only professional handoffs;
 - exposes eight professional modules and two pure provider adapter modules;
 - returns refs-only candidate material without owning domain truth, artifacts,
   receipts, blockers, runtime state, current-package state, or readiness;
-- leaves installation, activation, update, rollback, network execution, and
-  receipts to OPL Framework; and
+- independently publishes complete bytes to the owner GHCR `latest-stable`,
+  leaves physical lifecycle to the actual carrier, and leaves network/runtime
+  execution and receipts to their existing platform owners; and
 - keeps public narrative, operating model, invariants, catalog, gallery, and
   active work in separate document roles.
 
@@ -32,8 +33,8 @@ The audited source snapshot has the following structural shape:
 
 | Theme | Current source evidence | Boundary |
 | --- | --- | --- |
-| Package | `contracts/opl_capability_package_manifest.json` declares consumer-neutral `framework_capability_package` version `0.2.21` | Bundled resolution and materialized-byte currentness require fresh consumer package readback |
-| Consumer profiles | MAS and MAG use `.v1` optional-enhancement profiles with the same boundary fields; `required_*` ids are selected-profile compatibility sets only | Missing or incompatible enhancements continue through consumer core and cannot block install, activation, admission, route, launch, or readiness |
+| Package | `contracts/opl_capability_package_manifest.json` declares consumer-neutral `framework_capability_package` version `0.2.21` | Owner GHCR publication and complete carrier readback remain unproven; Codex Skill projection is not complete installed truth |
+| Consumer profiles | Current `.v1` profiles still declare optional/fail-open fields | Target requires Package identity presence and capability callability for MAS/MAG, with local failure only and no version/ABI/lock/payload solving |
 | Skill exposure | 35 discoverable `SKILL.md` entries: 11 aggregate/core and 24 router or named-specialty skills | Presence does not select a specialty or grant authority |
 | Module catalog | `contracts/scholar-skills-capability-modules.json` declares eight professional modules and two machine adapter modules | The adapters describe or parse bounded requests; OPL Connect owns I/O and receipts |
 | Authority | Contract authority flags are false for domain truth, owner receipts, typed blockers, artifact mutation, current-package authority, and publication readiness | MAS or the consuming domain owner remains authoritative |
@@ -43,18 +44,20 @@ The audited source snapshot has the following structural shape:
 
 ### Functional / Structural Gaps
 
-State: `none_selected`
+State: `package_composition_migration_required`
 
-No source-level structural gap is selected from this audit. Future changes must
-start from a concrete mismatch between the ideal-state references and current
-contracts, skills, pack source, gallery manifests, or OPL consumption ABI. Do
-not retain completed implementation ledgers in this file.
+The current optional/fail-open profiles conflict with the accepted required
+presence/callability target. The owner contract and consumers need a dual-read
+migration before old fields can be removed. The owner GHCR `latest-stable`,
+complete carrier readback, and Plugin-only distinction also need fresh terminal
+proof. This document change does not implement or prove those surfaces.
 
 ### Test / Evidence Gaps
 
-- Bundled version, content lock, and materialized-byte currentness are unknown
-  until read from the target workspace or quest with `opl packages`; this
-  provider owns no consumer activation or repair gate.
+- Owner GHCR `latest-stable` and complete installed/callable bytes are unknown
+  until a fresh owner publication and actual-carrier readback exists; version,
+  lock, payload, digest, or Release Set output is not ordinary composition
+  currentness.
 - Any new renderer or gallery-currentness claim requires a fresh `render` or
   `full` lane in an environment with the declared dependencies.
 - Paper artifact quality, owner acceptance, submission readiness, and

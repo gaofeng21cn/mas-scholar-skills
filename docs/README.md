@@ -6,7 +6,7 @@ State: `active_index`
 Machine boundary: Human-readable navigation. Package identity, exports, module ids, authority flags, skill bodies, gallery bytes, installed currentness, and consuming-domain decisions remain in contracts, source, manifests, OPL readback, repo-native verification, and MAS/domain owner surfaces.
 
 MAS Scholar Skills is a consumer-neutral framework capability provider with
-optional refs-only profiles for MAS medical-paper and MAG medical-grant work. It
+required Package profiles with refs-only handoffs for MAS medical-paper and MAG medical-grant work. It
 owns reusable specialist playbooks, refs, packs, module contracts, and compact
 gallery review material. It does not own study or grant truth, artifacts, owner
 receipts, typed blockers, current-package state, strategy memory, runtime state,

@@ -11,8 +11,9 @@ Machine boundary: This is human-readable navigation. Module truth, exposure poli
 external repository is a maintenance boundary. It is not an OPL runtime base,
 an additional brand module, or a MAS/MAG domain-truth owner. It supplies
 professional Codex skills, source packs, quality floors, candidate-ref
-vocabulary, and external-learning references through optional MAS paper and MAG
-grant profiles.
+vocabulary, and external-learning references through required MAS paper and MAG
+grant Package dependency profiles. Individual named specialty Skills remain
+task-selected; that exposure choice does not make the whole Package optional.
 
 OPL consumes this repository as a generic capability pack. Its public surface
 validates the descriptor, distributes or syncs selected skills, and returns
@@ -30,19 +31,23 @@ remain with MAS or another consuming domain owner.
 
 ## Consumer Profiles
 
-`mas-medical-paper.v1` and `mag-medical-grant.v1` are both
-`required=false`, `dependency_kind=optional_enhancement` profiles. Their `.v1`
-ids and boundary fields are aligned. MAS lists an 11-Skill compatibility set;
+The accepted target treats `mas-medical-paper.v1` and
+`mag-medical-grant.v1` as required Package presence/callability profiles. The
+current manifest still records `required=false` and
+`dependency_kind=optional_enhancement`; this is migration truth and must not be
+read as the long-term rule. MAS lists an 11-Skill capability set;
 MAG lists six Skills for literature, statistics, methodology, evidence
 integrity, claim mapping, and reference integrity. In both profiles,
-`required_export_ids` and `required_module_ids` mean “needed for this selected
-profile to be compatible,” not “needed for the consumer to be ready.”
+`required_export_ids` and `required_module_ids` identify the capability set each
+consumer requires to be callable. They do not impose provider-version equality
+or make unrelated Packages part of the same readiness gate.
 
-Missing or incompatible enhancement Skills fail open to the native MAS or MAG
-workflow and may yield only a consumer-owned non-blocking diagnostic. Neither
-profile can block install, activation, admission, route, launch, or readiness,
-and neither grants truth, fundability, quality/export, strategy-memory, receipt,
-blocker, publication, or owner authority.
+Missing Package identity or required capability callability blocks only the
+affected MAS or MAG consumer and routes to managed install/repair. It does not
+block unrelated Packages, compare provider versions/ABIs, or require a lock,
+payload, digest, Release Set, or atomic closure. The dependency grants no truth,
+fundability, quality/export, strategy-memory, receipt, blocker, publication, or
+owner authority to ScholarSkills.
 
 ## Active Catalog
 
@@ -110,11 +115,13 @@ publication decisions.
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-MAS and MAG may list this package under `bundled_capability_package_ids` so all
-exports are available for native discovery. Bundling or materialization does not
-create a dependency or readiness gate. This provider owns no consumer status,
-repair, activation, admission, route, launch, or readiness lifecycle; absence
-or incompatibility returns control to consumer core.
+MAS and MAG may currently list this package under
+`bundled_capability_package_ids` so exports are available for native discovery.
+That is a compatibility carrier projection, not the target dependency model or
+complete installed truth. The provider owns no consumer status, repair,
+activation, admission, route, launch, or readiness authority; the
+consumer/platform reports a missing presence/callability edge and blocks only
+that consumer.
 
 Provider-source development may additionally use the internal discovery surfaces:
 

@@ -23,17 +23,22 @@ Machine boundary: Human-readable public entry. Package identity, exports, module
 </p>
 
 MAS Scholar Skills gives MAS reusable, task-focused expertise for producing and
-reviewing medical-paper work. MAG may also consume a narrow set of these Skills
-as an optional refs-only grant enhancement. In both cases, the package helps
+reviewing medical-paper work. MAG consumes a narrower required capability set
+for grant work. In both cases, the package helps
 Codex choose an appropriate specialist, work from explicit evidence, prepare
 inspectable candidate material, and route the result back to the consuming
 domain owner.
 
 The package is a consumer-neutral framework capability provider released
 separately so its skills, quality references, display pack, and specialist
-catalog can evolve independently. Both MAS and MAG profiles are optional
-enhancements. The historical `opl-scholarskills` name is provenance only and is
-not an active skill.
+catalog can evolve independently. Its owner independently publishes complete
+Package bytes to its own GHCR `latest-stable`; Codex Plugin/Skill
+materialization is only a carrier projection. The target MAS and MAG dependency
+edge requires Package identity presence and required capability callability,
+not cross-Package version/ABI solving, lock, payload, digest, Release Set, or
+atomic closure. The current manifest still models both profiles as optional and
+fail-open; that is migration truth, not the accepted target. The historical
+`opl-scholarskills` name is provenance only and is not an active skill.
 
 ## What It Covers
 
@@ -66,10 +71,13 @@ without creating a parallel validity judgment.
 
 ## Use With MAS
 
-MAS may list this package under `bundled_capability_package_ids` so the Skills
-are available by default. Bundling and materialization are distribution
-conveniences, not dependency or readiness semantics. Installing MAS may
-therefore materialize the exported Skills into the selected workspace or quest:
+MAS requires this Package, while individual named specialty Skills remain
+task-selected. Installing MAS must therefore ensure the ScholarSkills Package
+identity and the required MAS capability set are present and callable; missing
+capability blocks MAS only and routes to managed install/repair. It does not
+block unrelated Packages or introduce a version/ABI/lock/payload gate. Current
+`bundled_capability_package_ids` and optional/fail-open profile fields remain
+compatibility inputs while that dependency contract migrates:
 
 ```bash
 opl packages install mas --scope workspace --target-workspace <workspace_root> --json
@@ -83,10 +91,10 @@ from this checkout:
 opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
 ```
 
-Cloning this repository alone does not install MAS or prove that bundled bytes
-are current. Missing or incompatible Scholar Skills must not block MAS
-admission, route, launch, or native paper work; MAS may record a non-blocking
-diagnostic and continue.
+Cloning this repository alone does not install MAS or prove that complete
+ScholarSkills bytes are installed. A Codex Skill projection alone is also
+insufficient. Missing required Package identity or capability callability
+blocks MAS, while unrelated Packages remain available.
 
 Inside a MAS task, the normal path is:
 
@@ -101,10 +109,10 @@ The aggregate `mas-scholar-skills` skill is a discovery and routing entry. The
 selected `medical-*` skill carries the detailed professional workflow; MAS stage
 prompts remain the owner of stage validity, evidence thresholds, and acceptance.
 
-## Optional Use With MAG
+## Use With MAG
 
-MAG keeps its native grant workflow as the only stage and authority owner. When
-that workflow selects a matching enhancement, it may use
+MAG keeps its native grant workflow as the only stage and authority owner. Its
+required ScholarSkills capability set includes
 `medical-research-lit`, `medical-statistical-review`,
 `medical-methodology-planner`, `medical-evidence-integrity-reviewer`,
 `medical-evidence-synthesis-and-claim-map`, or
@@ -112,17 +120,17 @@ that workflow selects a matching enhancement, it may use
 
 ```text
 MAG grant prompt
-  -> optional matching medical-* Skill when available
+  -> required ScholarSkills Package and callable grant capability set
+  -> matching medical-* Skill selected for the task
   -> refs-only candidate handoff
   -> MAG accepts, rejects, or routes back through its own authority surface
 ```
 
-Like the MAS profile, this profile is not an install, activation, admission,
-route, launch, or readiness dependency. MAG may bundle it under the same
-consumer field for default availability. A missing or incompatible Skill
-returns control to the MAG native workflow and may record only a non-blocking
-diagnostic. It cannot create a typed blocker or change grant truth, fundability,
-quality/export verdicts, strategy memory, receipts, or owner authority.
+Missing Package identity or required capability callability blocks MAG only and
+routes to managed install/repair; it does not block unrelated Packages or grant
+ScholarSkills any domain authority. Named specialty exposure remains
+task-selected. The current optional/fail-open machine profile is retained only
+as migration input until the owner contracts and consumers are updated.
 
 `medical-submission-prep` includes an offline-first publication-layout catalog.
 Named journals use a matching local adaptation profile; an unspecified journal
