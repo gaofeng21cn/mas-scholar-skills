@@ -51,17 +51,12 @@ if manifest.get("skills") != "./skills/":
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
     fail("plugin displayName must be MAS Scholar Skills")
 default_prompts = manifest.get("interface", {}).get("defaultPrompt") or []
-if not default_prompts or any(not isinstance(prompt, str) or len(prompt) > 128 for prompt in default_prompts):
+if (
+    not default_prompts
+    or len(default_prompts) > 3
+    or any(not isinstance(prompt, str) or len(prompt) > 128 for prompt in default_prompts)
+):
     fail("plugin defaultPrompt entries must be non-empty strings of at most 128 characters")
-plugin_exposure = manifest.get("masScholarSkillsExposure") or {}
-if plugin_exposure.get("policyRef") != "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy":
-    fail("plugin manifest must point to codex skill exposure policy")
-if plugin_exposure.get("codexDefaultExposure") is not False:
-    fail("plugin manifest codex default exposure must be false")
-if plugin_exposure.get("optionalInstallPolicy") != "all_exported_skills":
-    fail("plugin manifest must materialize all exported skills by default")
-if plugin_exposure.get("specialtyRoutingPolicy") != "materialized_by_default_selected_only_for_matching_tasks":
-    fail("plugin manifest must separate specialty discovery from task routing")
 
 contract = read_json("contracts/scholar-skills-capability-modules.json")
 page_hash_evidence_schema = read_json(
@@ -809,12 +804,8 @@ if search_runtime_binding.get("sandbox") != expected_runtime_sandbox:
     fail("scientific search runtime binding sandbox must forbid direct I/O and process access")
 if any(value is not False for value in (search_runtime_binding.get("authority_boundary") or {}).values()):
     fail("scientific search runtime binding authority flags must all be false")
-plugin_runtime_modules = manifest.get("oplRuntimeModules") or {}
-if plugin_runtime_modules != {
-    "manifestRef": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
-    "moduleIds": runtime_module_ids,
-}:
-    fail("plugin runtime module projection must point to both package runtime bindings")
+if package_manifest.get("exports", {}).get("runtime_module_bindings") != runtime_bindings:
+    fail("capability package manifest must own the runtime module bindings")
 runtime_contract_paths = [
     "contracts/reference-provider-adapters/scientific-metadata.json",
     "contracts/reference-provider-adapters/reference-provider-profile.schema.json",
@@ -1125,26 +1116,6 @@ if codex_surface.get("consumer_profiles_ref") != "#/consumer_profiles":
     fail("Codex package surface must reference the canonical optional consumer profiles")
 if "required_skill_ids_ref" in codex_surface:
     fail("Codex package surface must not expose a provider-owned required Skill floor")
-plugin_package_ref = plugin_exposure.get("capabilityPackageManifestRef")
-if plugin_package_ref != "contracts/opl_capability_package_manifest.json":
-    fail("plugin manifest must point to the capability package manifest")
-if plugin_exposure.get("capabilityAbi") != capability_abi.get("id"):
-    fail("plugin manifest capability ABI must match the capability package manifest")
-if plugin_exposure.get("requiredBy") != []:
-    fail("plugin manifest must not declare a required consumer")
-if plugin_exposure.get("consumerProfilesRef") != "contracts/opl_capability_package_manifest.json#/consumer_profiles":
-    fail("plugin manifest must reference the canonical optional consumer profiles")
-if "optionalRefsOnlyConsumerProfilesRef" in plugin_exposure:
-    fail("plugin manifest must not create a second optional consumer profile surface")
-
-
-def without_redirect_tombstones(skill_ids):
-    return [
-        skill_id
-        for skill_id in (skill_ids or [])
-        if skill_id not in redirect_tombstone_skill_ids
-    ]
-
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")
@@ -1716,7 +1687,7 @@ for source_label, source_text, tokens in [
         if token not in source_text:
             fail(f"{source_label} missing publication-surface quality token: {token}")
 redirect_tombstone_skills = {
-    skill_id: read_text(f"skills/{skill_id}/TOMBSTONE.md")
+    skill_id: read_text(f"tombstones/skills/{skill_id}/TOMBSTONE.md")
     for skill_id in redirect_tombstone_skill_ids
 }
 actual_discoverable_skill_ids = sorted(
@@ -1733,7 +1704,9 @@ if (root / "skills/opl-scholarskills/SKILL.md").exists():
 for skill_id in redirect_tombstone_skill_ids:
     if (root / f"skills/{skill_id}/SKILL.md").exists():
         fail(f"{skill_id} is a tombstone and must not expose SKILL.md metadata")
-    if not (root / f"skills/{skill_id}/TOMBSTONE.md").exists():
+    if (root / f"skills/{skill_id}").exists():
+        fail(f"{skill_id} tombstone must stay outside the active skills tree")
+    if not (root / f"tombstones/skills/{skill_id}/TOMBSTONE.md").exists():
         fail(f"{skill_id} tombstone must keep non-discoverable TOMBSTONE.md")
 for skill_id, text in {
     **capability_skill_texts,
@@ -2345,19 +2318,6 @@ if "Retired optional professional skill metadata" not in redirect_policy or "cap
     fail("codex skill exposure redirect policy must describe retired optional professional skill redirects")
 if "Only opl-scholarskills" not in exposure_policy.get("tombstone_policy", ""):
     fail("codex skill exposure tombstone policy must tombstone only opl-scholarskills")
-if plugin_exposure.get("defaultWorkspaceOrQuestInstall") != expected_all_skill_ids:
-    fail("plugin manifest default workspace/quest install must match exposure policy")
-if plugin_exposure.get("optionalRouterSkillIds") != optional_router_skill_ids:
-    fail("plugin manifest optional router skill ids must match exposure policy")
-if without_redirect_tombstones(plugin_exposure.get("optionalNamedSpecialtySkillIds")) != optional_named_specialty_skill_ids:
-    fail("plugin manifest optional named specialty skill ids must match exposure policy after retired redirects are filtered")
-if without_redirect_tombstones(plugin_exposure.get("optionalSkillIds")) != expected_optional_skill_ids:
-    fail("plugin manifest optional skill ids must match exposure policy after retired redirects are filtered")
-plugin_redirect_ids = plugin_exposure.get("optionalRedirectTombstoneSkillIds") or []
-if plugin_redirect_ids and sorted(plugin_redirect_ids) != sorted(redirect_tombstone_skill_ids):
-    fail("plugin manifest optional redirect tombstone skill ids must be empty or match exposure policy")
-if plugin_exposure.get("tombstoneSkillIds") != exposure_policy.get("tombstone_skill_ids"):
-    fail("plugin manifest tombstone skill ids must match exposure policy")
 for key in [
     "can_replace_mas_overlay_skill",
     "can_replace_mas_runtime_owner_surface",
@@ -2822,7 +2782,7 @@ for skill_id, text in medical_method_specialist_skills.items():
         if token not in text:
             fail(f"skills/{skill_id}/SKILL.md missing medical-method specialist no-authority token: {token}")
 for skill_id in redirect_tombstone_skill_ids:
-    text = read_text(f"skills/{skill_id}/TOMBSTONE.md")
+    text = read_text(f"tombstones/skills/{skill_id}/TOMBSTONE.md")
     target = next(
         (
             item.get("redirect_to")
@@ -2849,7 +2809,10 @@ for skill_id in redirect_tombstone_skill_ids:
         "publication readiness",
     ]:
         if token not in text:
-            fail(f"skills/{skill_id}/TOMBSTONE.md missing redirect tombstone token: {token}")
+            fail(
+                "tombstones/skills/"
+                f"{skill_id}/TOMBSTONE.md missing redirect tombstone token: {token}"
+            )
 for forbidden in [
     "default opl-scholar-write",
     "default opl-scholar-review",

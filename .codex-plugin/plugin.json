@@ -14,123 +14,6 @@
     "codex-skill"
   ],
   "skills": "./skills/",
-  "oplRuntimeModules": {
-    "manifestRef": "contracts/opl_capability_package_manifest.json#/exports/runtime_module_bindings",
-    "moduleIds": [
-      "mas-scholar-skills.reference-provider-adapters",
-      "mas-scholar-skills.scientific-search-adapters"
-    ]
-  },
-  "masScholarSkillsExposure": {
-    "capabilityPackageManifestRef": "contracts/opl_capability_package_manifest.json",
-    "capabilityAbi": "mas-scholar-skills.v1",
-    "requiredBy": [],
-    "consumerProfilesRef": "contracts/opl_capability_package_manifest.json#/consumer_profiles",
-    "policyRef": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy",
-    "codexDefaultExposure": false,
-    "defaultWorkspaceOrQuestInstall": [
-      "mas-scholar-skills",
-      "medical-manuscript-writing",
-      "medical-manuscript-review",
-      "medical-figure-design",
-      "medical-figure-style",
-      "medical-figure-composer",
-      "medical-research-lit",
-      "medical-statistical-review",
-      "medical-table-design",
-      "medical-submission-prep",
-      "medical-data-governance",
-      "medical-advanced-biomed-router",
-      "medical-methodology-planner",
-      "medical-evidence-integrity-reviewer",
-      "medical-publication-routeback-reviewer",
-      "medical-structural-biology",
-      "medical-protein-design",
-      "medical-genomics-foundation-models",
-      "medical-single-cell-modeling",
-      "medical-indication-dossier",
-      "research-pdf-evidence-explorer",
-      "scientific-compute-runner",
-      "medical-protocol-and-sap-planner",
-      "medical-cohort-phenotyping",
-      "medical-evidence-synthesis-and-claim-map",
-      "medical-reference-integrity-auditor",
-      "medical-rebuttal-strategy",
-      "medical-display-qc",
-      "medical-causal-inference-plan",
-      "medical-survival-analysis-plan",
-      "medical-risk-model-transportability-reviewer",
-      "medical-registry-atlas-story-architect",
-      "medical-display-regression-debugger",
-      "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-research-portfolio-memory-curator"
-    ],
-    "optionalInstallPolicy": "all_exported_skills",
-    "specialtyRoutingPolicy": "materialized_by_default_selected_only_for_matching_tasks",
-    "tombstoneSkillIds": [
-      "opl-scholarskills"
-    ],
-    "optionalRouterSkillIds": [
-      "medical-advanced-biomed-router",
-      "medical-methodology-planner",
-      "medical-evidence-integrity-reviewer",
-      "medical-publication-routeback-reviewer"
-    ],
-    "optionalRedirectTombstoneSkillIds": [
-      "medical-evidence-gap-triage-reviewer",
-      "medical-methodology-routeback-reviewer",
-      "medical-owner-gate-handoff-reviewer",
-      "medical-publication-strategy-memory-curator"
-    ],
-    "optionalNamedSpecialtySkillIds": [
-      "medical-structural-biology",
-      "medical-protein-design",
-      "medical-genomics-foundation-models",
-      "medical-single-cell-modeling",
-      "medical-indication-dossier",
-      "research-pdf-evidence-explorer",
-      "scientific-compute-runner",
-      "medical-protocol-and-sap-planner",
-      "medical-cohort-phenotyping",
-      "medical-evidence-synthesis-and-claim-map",
-      "medical-reference-integrity-auditor",
-      "medical-rebuttal-strategy",
-      "medical-display-qc",
-      "medical-causal-inference-plan",
-      "medical-survival-analysis-plan",
-      "medical-risk-model-transportability-reviewer",
-      "medical-registry-atlas-story-architect",
-      "medical-display-regression-debugger",
-      "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-research-portfolio-memory-curator"
-    ],
-    "optionalSkillIds": [
-      "medical-advanced-biomed-router",
-      "medical-methodology-planner",
-      "medical-evidence-integrity-reviewer",
-      "medical-publication-routeback-reviewer",
-      "medical-structural-biology",
-      "medical-protein-design",
-      "medical-genomics-foundation-models",
-      "medical-single-cell-modeling",
-      "medical-indication-dossier",
-      "research-pdf-evidence-explorer",
-      "scientific-compute-runner",
-      "medical-protocol-and-sap-planner",
-      "medical-cohort-phenotyping",
-      "medical-evidence-synthesis-and-claim-map",
-      "medical-reference-integrity-auditor",
-      "medical-rebuttal-strategy",
-      "medical-display-qc",
-      "medical-causal-inference-plan",
-      "medical-survival-analysis-plan",
-      "medical-risk-model-transportability-reviewer",
-      "medical-registry-atlas-story-architect",
-      "medical-display-regression-debugger",
-      "medical-data-freeze-and-analysis-readiness-reviewer",
-      "medical-research-portfolio-memory-curator"
-    ]
-  },
   "interface": {
     "displayName": "MAS Scholar Skills",
     "shortDescription": "Optional MAS paper and MAG grant Skills.",
@@ -143,11 +26,9 @@
       "Research"
     ],
     "defaultPrompt": [
-      "Use the optional MAS paper or MAG grant enhancement profile.",
-      "Route to the concrete medical specialist Skill selected by the owner stage.",
-      "Fail open to the consuming Agent's native workflow when a Skill is unavailable.",
-      "Return refs-only candidates to the consuming domain owner.",
-      "Never treat a Skill candidate as domain truth, a verdict, a receipt, or readiness."
+      "Route this medical research task to the matching Scholar Skill.",
+      "Prepare refs-only candidate material for the consuming domain owner.",
+      "Review this medical research artifact without claiming domain readiness."
     ],
     "brandColor": "#2563EB"
   }

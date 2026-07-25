@@ -69,6 +69,51 @@ For EHR or registry evidence, `registry_signal_validity_pack` folds into one
 professional producer and owner route. Other specialists may consume that ref
 without creating a parallel validity judgment.
 
+## For Codex
+
+This repository is a standard Codex Plugin marketplace and the repository root
+is the plugin root. The marketplace points directly to that root, so
+`skills/` remains the only source of truth for all 35 active Skills; there is no
+second copied Skill tree under `plugins/`.
+
+Add the repository marketplace, inspect the available entry, and install it:
+
+```bash
+codex plugin marketplace add gaofeng21cn/mas-scholar-skills --ref main
+codex plugin list --marketplace mas-scholar-skills --available --json
+codex plugin add mas-scholar-skills@mas-scholar-skills --json
+codex plugin list --marketplace mas-scholar-skills --json
+```
+
+Start a new Codex task after installation so the installed Skills are picked
+up. Remove the plugin and marketplace independently:
+
+```bash
+codex plugin remove mas-scholar-skills@mas-scholar-skills --json
+codex plugin marketplace remove mas-scholar-skills --json
+```
+
+For local development, replace the GitHub shorthand in `marketplace add` with
+the absolute checkout path. Use an isolated `HOME` and `CODEX_HOME` for
+installation tests; Codex copies installed bytes into its plugin cache instead
+of loading the marketplace source in place.
+
+## For Agents
+
+Agents that consume repository sources directly should start from
+`skills/mas-scholar-skills/SKILL.md`, then route to the selected
+`skills/<skill-id>/SKILL.md`. Read package identity and exported Skill ids from
+`contracts/opl_capability_package_manifest.json`, and read exposure, routing,
+and no-authority policy from
+`contracts/scholar-skills-capability-modules.json`. Do not derive Package
+identity, consumer dependency status, or domain readiness from marketplace
+metadata.
+
+The Plugin is a carrier projection only. Installing or enabling it establishes
+Codex discovery of the packaged Skills; it does not install MAS or MAG, satisfy
+a consumer dependency by itself, write study or grant truth, or issue an owner
+receipt.
+
 ## Use With MAS
 
 MAS requires this Package, while individual named specialty Skills remain
@@ -95,6 +140,21 @@ Cloning this repository alone does not install MAS or prove that complete
 ScholarSkills bytes are installed. A Codex Skill projection alone is also
 insufficient. Missing required Package identity or capability callability
 blocks MAS, while unrelated Packages remain available.
+
+Use each surface only for the state it owns:
+
+| Surface | What a positive readback proves | What it does not prove |
+| --- | --- | --- |
+| `codex plugin list --marketplace mas-scholar-skills --json` | The Codex Plugin carrier is installed and enabled in that Codex home. | OPL Package identity/currentness, MAS/MAG dependency closure, or domain readiness. |
+| OPL Package/App maintenance status and its receipt | Installed Package identity, selected source/version/digest, and payload verification recorded by that runtime. | Consumer capability callability or a study/grant verdict. |
+| MAS or MAG dependency/capability readback | The consumer's required edge and selected capability set are callable for that consumer. | Publication, submission, fundability, or owner acceptance. |
+| MAS, MAG, or study/grant owner receipts | Only the exact domain state and artifact bytes bound by that receipt. | Broader Package, Plugin, or production state not named by the receipt. |
+
+The `opl packages ...` examples above are valid only on Framework runtimes that
+actually expose that command surface. When the installed `opl` reports
+`unknown_command`, use the current OPL App/Framework maintenance and receipt
+surface rather than treating a checkout, Plugin install, or stale command
+example as Package status.
 
 Inside a MAS task, the normal path is:
 

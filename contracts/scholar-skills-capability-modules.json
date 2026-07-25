@@ -4871,7 +4871,7 @@
         "redirect_to": "medical-evidence-integrity-reviewer",
         "covered_by": "medical-evidence-integrity-reviewer",
         "coverage_mode": "evidence_gap_triage_mode",
-        "canonical_redirect_ref": "skills/medical-evidence-gap-triage-reviewer/TOMBSTONE.md",
+        "canonical_redirect_ref": "tombstones/skills/medical-evidence-gap-triage-reviewer/TOMBSTONE.md",
         "capability_preserved": true,
         "default_exposure": false,
         "retired_metadata": [
@@ -4883,7 +4883,7 @@
         "redirect_to": "medical-publication-routeback-reviewer",
         "covered_by": "medical-publication-routeback-reviewer",
         "coverage_mode": "methodology_routeback_mode",
-        "canonical_redirect_ref": "skills/medical-methodology-routeback-reviewer/TOMBSTONE.md",
+        "canonical_redirect_ref": "tombstones/skills/medical-methodology-routeback-reviewer/TOMBSTONE.md",
         "capability_preserved": true,
         "default_exposure": false,
         "retired_metadata": [
@@ -4895,7 +4895,7 @@
         "redirect_to": "medical-publication-routeback-reviewer",
         "covered_by": "medical-publication-routeback-reviewer",
         "coverage_mode": "owner_gate_handoff_mode",
-        "canonical_redirect_ref": "skills/medical-owner-gate-handoff-reviewer/TOMBSTONE.md",
+        "canonical_redirect_ref": "tombstones/skills/medical-owner-gate-handoff-reviewer/TOMBSTONE.md",
         "capability_preserved": true,
         "default_exposure": false,
         "retired_metadata": [
@@ -4908,7 +4908,7 @@
         "redirect_to": "medical-research-portfolio-memory-curator",
         "covered_by": "medical-research-portfolio-memory-curator",
         "coverage_mode": "publication_strategy_memory_mode",
-        "canonical_redirect_ref": "skills/medical-publication-strategy-memory-curator/TOMBSTONE.md",
+        "canonical_redirect_ref": "tombstones/skills/medical-publication-strategy-memory-curator/TOMBSTONE.md",
         "capability_preserved": true,
         "default_exposure": false,
         "retired_metadata": [

@@ -46,7 +46,7 @@ function parse(providerId, query, limit, requestResult, body) {
   });
 }
 
-test('manifest, profile, registry, descriptor, and plugin expose the locked search runtime module', () => {
+test('manifest, profile, registry, and descriptor expose the locked search runtime module', () => {
   const manifest = readJson('contracts/opl_capability_package_manifest.json');
   const plugin = readJson('.codex-plugin/plugin.json');
   const descriptor = readJson('contracts/domain_descriptor.json');
@@ -80,9 +80,8 @@ test('manifest, profile, registry, descriptor, and plugin expose the locked sear
     registry.adapters.map((item) => [item.provider_id, item.adapter_id]),
   );
   assert.deepEqual(SCIENTIFIC_SEARCH_ADAPTER_PACKAGE.adapter_ids, profile.adapter_package.adapter_ids);
-  assert.deepEqual(plugin.oplRuntimeModules.moduleIds, descriptor.capability_pack.runtime_module_ids);
   assert.deepEqual(
-    plugin.oplRuntimeModules.moduleIds,
+    descriptor.capability_pack.runtime_module_ids,
     manifest.exports.runtime_module_bindings.map((item) => item.module_id),
   );
   const locked = new Set(manifest.content_lock.paths);

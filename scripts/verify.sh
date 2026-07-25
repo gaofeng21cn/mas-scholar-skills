@@ -7,6 +7,7 @@ cd "$ROOT"
 lane="${1:-fast}"
 
 run_fast() {
+  node --test tests/codex-plugin-marketplace.test.mjs
   node --test tests/reference-provider-adapters.test.mjs
   node --test tests/scientific-search-adapters.test.mjs
   python3 scripts/run-kernel-self-checks.py
