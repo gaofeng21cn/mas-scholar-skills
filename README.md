@@ -39,6 +39,10 @@ not cross-Package version/ABI solving, lock, payload, digest, Release Set, or
 atomic closure. The current manifest still models both profiles as optional and
 fail-open; that is migration truth, not the accepted target. The historical
 `opl-scholarskills` name is provenance only and is not an active skill.
+The cross-repository migration SSOT is the App
+[`opl-package-platform-composition-migration.md`](https://github.com/gaofeng21cn/one-person-lab-app/blob/main/docs/active/opl-package-platform-composition-migration.md);
+Framework's same-named document remains its repo-local compatibility and
+deletion inventory.
 
 ## What It Covers
 
