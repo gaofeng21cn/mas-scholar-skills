@@ -631,8 +631,8 @@ if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
 if package_manifest.get("version") != "0.2.22":
     fail("capability package version must be 0.2.22")
-if package_manifest.get("package_role") != "framework_capability_package":
-    fail("capability package must use the consumer-neutral framework capability role")
+if package_manifest.get("package_role") != "capability_package":
+    fail("capability package must use the consumer-neutral capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
     fail("capability package manifest must point to the OPL capability package schema")
 if "primary_consumer" in package_manifest:

@@ -7,6 +7,19 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (relative) => JSON.parse(fs.readFileSync(path.join(ROOT, relative), 'utf8'));
 
+test('root owner descriptor delegates to the canonical capability manifest', () => {
+  const descriptorPath = path.join(ROOT, 'opl-package.json');
+  const packageManifest = readJson('contracts/opl_capability_package_manifest.json');
+
+  assert.equal(fs.lstatSync(descriptorPath).isSymbolicLink(), true);
+  assert.equal(fs.readlinkSync(descriptorPath), 'contracts/opl_capability_package_manifest.json');
+  assert.deepEqual(readJson('opl-package.json'), packageManifest);
+  assert.equal(packageManifest.package_role, 'capability_package');
+  assert.equal(packageManifest.capability_abi.id, 'mas-scholar-skills.v1');
+  assert.equal(Object.hasOwn(packageManifest, 'configured_codex_plugin_carrier'), false);
+  assert.equal(Object.hasOwn(packageManifest, 'managed_update_source'), false);
+});
+
 test('repo marketplace exposes the repository root as the single plugin source', () => {
   const marketplace = readJson('.agents/plugins/marketplace.json');
   const plugin = readJson('.codex-plugin/plugin.json');
