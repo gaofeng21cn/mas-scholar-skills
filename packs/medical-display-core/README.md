@@ -76,7 +76,6 @@ It lets OPL consume the pack through `opl pack inspect/check/run/gallery --pack 
 
 The Python implementation under `src/fenggaolab_org_medical_display_core/` now covers non-evidence graphical composition surfaces and table shells:
 
-- `r_renderer.py`: compatibility caller for old host materialization paths; core template descriptors do not point at it.
 - `illustration_shells/`: graphical-abstract validators, renderers, and dispatcher.
 - `table_shells.py`: tabular shell renderer.
 
