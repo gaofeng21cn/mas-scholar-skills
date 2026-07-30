@@ -76,8 +76,10 @@ covered by the core skills. Start from the closest router/reviewer:
 
 Let that router select one narrow specialty skill. Neither a profile
 compatibility set nor a materialized specialty defines consumer readiness.
-OPL Framework owns distribution, refresh, scope materialization, CLI, connector
-access, and runtime bridge behavior; this aggregate only identifies the route.
+The Package owner owns identity and publication; the active carrier owns physical
+lifecycle and readback. OPL Framework only discovers, delegates, aggregates
+installed status, and exposes the OPL Connect CLI/materialization bridge; this
+aggregate only identifies the route.
 
 ## Handoff And Authority
 
