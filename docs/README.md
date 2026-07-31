@@ -11,6 +11,9 @@ owns reusable specialist playbooks, refs, packs, module contracts, and compact
 gallery review material. It does not own study or grant truth, artifacts, owner
 receipts, typed blockers, current-package state, strategy memory, runtime state,
 fundability, quality/export verdicts, or publication readiness.
+Owner GHCR `latest-stable` is the target publication route; fresh publication
+and complete actual-carrier readback remain unproven and are not implied by
+this documentation index.
 
 ## Active Truth
 

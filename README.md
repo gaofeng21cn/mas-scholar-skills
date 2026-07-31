@@ -29,16 +29,18 @@ Codex choose an appropriate specialist, work from explicit evidence, prepare
 inspectable candidate material, and route the result back to the consuming
 domain owner.
 
-The package is a consumer-neutral framework capability provider released
-separately so its skills, quality references, display pack, and specialist
-catalog can evolve independently. Its owner independently publishes complete
-Package bytes to its own GHCR `latest-stable`; Codex Plugin/Skill
-materialization is only a carrier projection. The target MAS and MAG dependency
-edge requires Package identity presence and required capability callability,
-not cross-Package version/ABI solving, lock, payload, digest, Release Set, or
-atomic closure. The current manifest still models both profiles as optional and
-fail-open; that is migration truth, not the accepted target. The historical
-`opl-scholarskills` name is provenance only and is not an active skill.
+The package is a consumer-neutral framework capability provider designed for
+independent release so its skills, quality references, display pack, and
+specialist catalog can evolve independently. The target publication route is
+complete Package bytes in the owner's GHCR `latest-stable`; Codex Plugin/Skill
+materialization is only a carrier projection. Fresh owner publication and
+complete actual-carrier readback remain unproven. The target MAS and MAG
+dependency edge requires Package identity presence and required capability
+callability, not cross-Package version/ABI solving, lock, payload, digest,
+Release Set, or atomic closure. The current manifest still models both profiles
+as optional and fail-open; that is migration truth, not the accepted target.
+The historical `opl-scholarskills` name is provenance only and is not an active
+skill.
 The cross-repository migration SSOT is the App
 [`opl-package-platform-composition-migration.md`](https://github.com/gaofeng21cn/one-person-lab-app/blob/main/docs/active/opl-package-platform-composition-migration.md);
 Framework's same-named document remains its repo-local compatibility and

@@ -27,13 +27,14 @@ MAS Scholar Skills 为 MAS 提供可复用、面向具体任务的医学论文�
 Codex 选择合适的专科 Skill，依据明确证据形成可检查的候选材料，再把结果路由回
 consuming domain owner。
 
-本包是 consumer-neutral 的 framework capability provider，并独立发布，因此专业
-Skill、质量参考、Display Pack 和专科目录可以独立演进。owner 将完整 Package bytes
-独立发布到自己的 GHCR `latest-stable`；Codex Plugin/Skill materialization 只是
-carrier projection。目标 MAS/MAG 依赖边只要求 Package identity 存在且必需能力可调用，
-不做跨包 version/ABI 求解，也不以 lock、payload、digest、Release Set 或原子闭包为门。
-当前 manifest 仍把两个 profile 写成 optional/fail-open；这是待迁移机器事实，不是长期
-组合规则。历史名称 `opl-scholarskills` 只保留 provenance，不是当前可发现的 Skill。
+本包是 consumer-neutral 的 framework capability provider，目标是独立发布，使专业
+Skill、质量参考、Display Pack 和专科目录可以独立演进。目标 publication route 是 owner
+GHCR `latest-stable` 中的完整 Package bytes；Codex Plugin/Skill materialization 只是
+carrier projection。fresh owner publication 和 actual-carrier 完整回读目前仍未证明。
+目标 MAS/MAG 依赖边只要求 Package identity 存在且必需能力可调用，不做跨包
+version/ABI 求解，也不以 lock、payload、digest、Release Set 或原子闭包为门。当前
+manifest 仍把两个 profile 写成 optional/fail-open；这是待迁移机器事实，不是长期组合
+规则。历史名称 `opl-scholarskills` 只保留 provenance，不是当前可发现的 Skill。
 
 ## 能力范围
 
