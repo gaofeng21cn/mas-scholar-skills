@@ -1112,18 +1112,29 @@ if package_exports.get("specialty_routing_policy") != "materialized_by_default_s
 if "lifecycle" in package_manifest:
     fail("framework capability provider must not own consumer install, repair, activation, or readiness lifecycle")
 codex_surface = package_manifest.get("codex_surface") or {}
-expected_codex_surface = {
+expected_configured_codex_plugin_carrier = {
     "kind": "codex_plugin_manager",
     "plugin_selector": "mas-scholar-skills@mas-scholar-skills",
     "marketplace_source": "gaofeng21cn/mas-scholar-skills",
     "publication_ref": "ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable",
     "executor_route": "codex_cli",
 }
+expected_codex_surface = {
+    "plugin_id": "mas-scholar-skills",
+    "carrier_source_role": "codex_plugin_carrier_not_package_truth",
+    "consumer_profiles_ref": "#/consumer_profiles",
+    "default_materialized_skill_ids_ref": "#/exports/all_skill_ids",
+    "codex_default_exposure": False,
+    "optional_install_policy": "all_exported_skills",
+    "configured_codex_plugin_carrier": expected_configured_codex_plugin_carrier,
+}
 if codex_surface != expected_codex_surface:
-    fail("Codex package surface must expose the exact native carrier tuple")
-for carrier_key in expected_codex_surface:
+    fail("Codex package surface must preserve its metadata and expose the exact nested native carrier")
+for carrier_key in expected_configured_codex_plugin_carrier:
     if carrier_key in package_manifest:
         fail(f"Codex carrier field must stay under codex_surface: {carrier_key}")
+if "configured_codex_plugin_carrier" in package_manifest:
+    fail("configured Codex carrier must stay under codex_surface")
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")

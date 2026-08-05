@@ -18,15 +18,23 @@ test('root owner descriptor is a portable regular copy of the canonical capabili
   assert.deepEqual(readJson('opl-package.json'), packageManifest);
   assert.equal(packageManifest.package_role, 'capability_package');
   assert.equal(packageManifest.capability_abi.id, 'mas-scholar-skills.v1');
-  const expectedCodexSurface = {
+  const expectedConfiguredCarrier = {
     kind: 'codex_plugin_manager',
     plugin_selector: 'mas-scholar-skills@mas-scholar-skills',
     marketplace_source: 'gaofeng21cn/mas-scholar-skills',
     publication_ref: 'ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable',
     executor_route: 'codex_cli',
   };
-  assert.deepEqual(packageManifest.codex_surface, expectedCodexSurface);
-  for (const key of Object.keys(expectedCodexSurface)) {
+  assert.deepEqual(packageManifest.codex_surface, {
+    plugin_id: 'mas-scholar-skills',
+    carrier_source_role: 'codex_plugin_carrier_not_package_truth',
+    consumer_profiles_ref: '#/consumer_profiles',
+    default_materialized_skill_ids_ref: '#/exports/all_skill_ids',
+    codex_default_exposure: false,
+    optional_install_policy: 'all_exported_skills',
+    configured_codex_plugin_carrier: expectedConfiguredCarrier,
+  });
+  for (const key of Object.keys(expectedConfiguredCarrier)) {
     assert.equal(Object.hasOwn(packageManifest, key), false, `${key} must stay under codex_surface`);
   }
   assert.equal(Object.hasOwn(packageManifest, 'configured_codex_plugin_carrier'), false);

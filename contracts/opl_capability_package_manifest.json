@@ -455,11 +455,19 @@
     "digest": "sha256:82bb1645caa5410ee7f01c1978f4b8b9bb19917394932cb128d7e853b3a72ff1"
   },
   "codex_surface": {
-    "kind": "codex_plugin_manager",
-    "plugin_selector": "mas-scholar-skills@mas-scholar-skills",
-    "marketplace_source": "gaofeng21cn/mas-scholar-skills",
-    "publication_ref": "ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable",
-    "executor_route": "codex_cli"
+    "plugin_id": "mas-scholar-skills",
+    "carrier_source_role": "codex_plugin_carrier_not_package_truth",
+    "consumer_profiles_ref": "#/consumer_profiles",
+    "default_materialized_skill_ids_ref": "#/exports/all_skill_ids",
+    "codex_default_exposure": false,
+    "optional_install_policy": "all_exported_skills",
+    "configured_codex_plugin_carrier": {
+      "kind": "codex_plugin_manager",
+      "plugin_selector": "mas-scholar-skills@mas-scholar-skills",
+      "marketplace_source": "gaofeng21cn/mas-scholar-skills",
+      "publication_ref": "ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable",
+      "executor_route": "codex_cli"
+    }
   },
   "authority_boundary": {
     "can_write_domain_truth": false,
