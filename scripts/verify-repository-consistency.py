@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.23":
-    fail("plugin version must be 0.2.23")
+if manifest.get("version") != "0.2.24":
+    fail("plugin version must be 0.2.24")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -629,8 +629,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.23":
-    fail("capability package version must be 0.2.23")
+if package_manifest.get("version") != "0.2.24":
+    fail("capability package version must be 0.2.24")
 if package_manifest.get("package_role") != "capability_package":
     fail("capability package must use the consumer-neutral capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
@@ -1112,10 +1112,18 @@ if package_exports.get("specialty_routing_policy") != "materialized_by_default_s
 if "lifecycle" in package_manifest:
     fail("framework capability provider must not own consumer install, repair, activation, or readiness lifecycle")
 codex_surface = package_manifest.get("codex_surface") or {}
-if codex_surface.get("consumer_profiles_ref") != "#/consumer_profiles":
-    fail("Codex package surface must reference the canonical optional consumer profiles")
-if "required_skill_ids_ref" in codex_surface:
-    fail("Codex package surface must not expose a provider-owned required Skill floor")
+expected_codex_surface = {
+    "kind": "codex_plugin_manager",
+    "plugin_selector": "mas-scholar-skills@mas-scholar-skills",
+    "marketplace_source": "gaofeng21cn/mas-scholar-skills",
+    "publication_ref": "ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable",
+    "executor_route": "codex_cli",
+}
+if codex_surface != expected_codex_surface:
+    fail("Codex package surface must expose the exact native carrier tuple")
+for carrier_key in expected_codex_surface:
+    if carrier_key in package_manifest:
+        fail(f"Codex carrier field must stay under codex_surface: {carrier_key}")
 skill = read_text("skills/mas-scholar-skills/SKILL.md")
 if not re.search(r"^---\n[\s\S]*?^name:\s+mas-scholar-skills$", skill, re.MULTILINE):
     fail("SKILL.md frontmatter must expose name: mas-scholar-skills")

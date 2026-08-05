@@ -18,6 +18,17 @@ test('root owner descriptor is a portable regular copy of the canonical capabili
   assert.deepEqual(readJson('opl-package.json'), packageManifest);
   assert.equal(packageManifest.package_role, 'capability_package');
   assert.equal(packageManifest.capability_abi.id, 'mas-scholar-skills.v1');
+  const expectedCodexSurface = {
+    kind: 'codex_plugin_manager',
+    plugin_selector: 'mas-scholar-skills@mas-scholar-skills',
+    marketplace_source: 'gaofeng21cn/mas-scholar-skills',
+    publication_ref: 'ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable',
+    executor_route: 'codex_cli',
+  };
+  assert.deepEqual(packageManifest.codex_surface, expectedCodexSurface);
+  for (const key of Object.keys(expectedCodexSurface)) {
+    assert.equal(Object.hasOwn(packageManifest, key), false, `${key} must stay under codex_surface`);
+  }
   assert.equal(Object.hasOwn(packageManifest, 'configured_codex_plugin_carrier'), false);
   assert.equal(Object.hasOwn(packageManifest, 'managed_update_source'), false);
 });
