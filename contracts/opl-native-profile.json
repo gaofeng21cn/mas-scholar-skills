@@ -57,7 +57,6 @@
     "contracts/**",
     "src/**",
     "tests/**",
-    "docs/status.md",
     "docs/active/mas-scholar-skills-ideal-state-gap-plan.md"
   ],
   "plugin_native_status": "profile_declared",
