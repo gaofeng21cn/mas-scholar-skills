@@ -95,8 +95,8 @@ surfaces only after replacement-owner and no-active-caller evidence; keep this
 plan limited to current progress, open gaps, and the next baton.
 
 Verification commands: scripts/verify.sh fast; scripts/verify.sh full when the
-render environment is available; opl-doc-doctor doctor . --format json; run a
-repository-relative Markdown link scan; git diff --check.
+render environment is available; run a repository-relative Markdown link scan;
+git diff --check.
 
 Completion gate: Every changed claim has a machine or live-readback source;
 there is one Active Truth owner; active docs contain no completed execution
