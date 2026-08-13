@@ -33,9 +33,8 @@ remain with MAS or another consuming domain owner.
 
 The accepted target treats `mas-medical-paper.v1` and
 `mag-medical-grant.v1` as required Package presence/callability profiles. The
-current manifest still records `required=false` and
-`dependency_kind=optional_enhancement`; this is migration truth and must not be
-read as the long-term rule. MAS lists an 11-Skill capability set;
+current manifest records `required=true` and
+`dependency_kind=required_runtime_dependency`. MAS lists an 11-Skill capability set;
 MAG lists six Skills for literature, statistics, methodology, evidence
 integrity, claim mapping, and reference integrity. In both profiles,
 `required_export_ids` and `required_module_ids` identify the capability set each

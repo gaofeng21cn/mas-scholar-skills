@@ -41,6 +41,16 @@ test('root owner descriptor is a portable regular copy of the canonical capabili
   assert.equal(Object.hasOwn(packageManifest, 'managed_update_source'), false);
 });
 
+test('Agent Plugins root carrier and Codex carrier share the canonical interface', () => {
+  const agentPlugin = readJson('plugin.json');
+  const codexPlugin = readJson('.codex-plugin/plugin.json');
+  assert.equal(agentPlugin.name, codexPlugin.name);
+  assert.equal(agentPlugin.version, codexPlugin.version);
+  assert.deepEqual(agentPlugin.extensions?.['com.openai']?.interface, codexPlugin.interface);
+  assert.equal(Object.hasOwn(agentPlugin, 'skills'), false);
+  assert.equal(codexPlugin.skills, './skills/');
+});
+
 test('repo marketplace exposes the repository root as the single plugin source', () => {
   const marketplace = readJson('.agents/plugins/marketplace.json');
   const plugin = readJson('.codex-plugin/plugin.json');

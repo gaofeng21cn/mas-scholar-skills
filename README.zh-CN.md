@@ -33,8 +33,8 @@ GHCR `latest-stable` 中的完整 Package bytes；Codex Plugin/Skill materializa
 carrier projection。fresh owner publication 和 actual-carrier 完整回读目前仍未证明。
 目标 MAS/MAG 依赖边只要求 Package identity 存在且必需能力可调用，不做跨包
 version/ABI 求解，也不以 lock、payload、digest、Release Set 或原子闭包为门。当前
-manifest 仍把两个 profile 写成 optional/fail-open；这是待迁移机器事实，不是长期组合
-规则。历史名称 `opl-scholarskills` 只保留 provenance，不是当前可发现的 Skill。
+manifest 已将两个 profile 定义为 required/fail-closed；历史名称
+`opl-scholarskills` 只保留 provenance，不是当前可发现的 Skill。
 
 ## 能力范围
 
@@ -65,8 +65,8 @@ router 或具名专科 Skill。专科 Skill 默认可发现，但只在任务确
 MAS 必需依赖本 Package，包内具名专科 Skill 仍按任务选择。安装 MAS 时必须确保
 ScholarSkills Package identity 和 MAS 必需能力集合存在且可调用；缺失只阻断 MAS 并
 进入托管安装/修复，不阻断无关 Package，也不引入 version/ABI/lock/payload 门。
-当前 `bundled_capability_package_ids` 与 optional/fail-open profile 字段在迁移期仍作
-兼容输入：
+当前 `bundled_capability_package_ids` 与 required/fail-closed profile 字段由 owner
+manifest 和 consumer contract 共同约束：
 
 ```bash
 opl packages install mas --scope workspace --target-workspace <workspace_root> --json
@@ -114,8 +114,7 @@ MAG grant prompt
 
 缺少 Package identity 或 required capability callability 时只阻断 MAG，并进入托管
 安装/修复；不阻断无关 Package，也不把领域 authority 交给 ScholarSkills。具名专科
-Skill 的 exposure 仍按任务选择。当前 optional/fail-open machine profile 只作为待迁移
-输入，直到 owner contracts 与 consumers 完成更新。
+Skill 的 exposure 仍按任务选择。
 
 `medical-submission-prep` 内置 offline-first 出版版式目录。指定期刊时选择对应的本地
 适配 profile；未指定期刊时使用出版级 `general-medical-reader.v1`。核心阅读输出固定为
