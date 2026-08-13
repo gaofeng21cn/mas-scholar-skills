@@ -139,7 +139,7 @@ opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest
 
 These are internal descriptor/materialization surfaces, not alternative user
 installation interfaces. The first command is descriptor/provenance readback.
-Scope materialization copies all 35 exported skills and compact discovery
+Scope materialization copies all 36 exported skills and compact discovery
 material into a workspace or quest so Codex can discover specialties before
 execution. Specialty skills still require a matching named task; the historical
 aggregate alias is not installed as an active skill. Do not copy the full repository, MAS render outputs,

@@ -49,7 +49,7 @@ manifest 仍把两个 profile 写成 optional/fail-open；这是待迁移机器�
 | Submission | 离线期刊版式 profile、默认阅读版、文件清单、声明与回复准备 |
 | Data Governance | 数据清单、字典、lineage、生命周期、访问与可重复性候选 |
 
-当前源码导出 35 个 Codex 可发现 Skill：11 个 aggregate/core Skill，以及 24 个
+当前源码导出 36 个 Codex 可发现 Skill：11 个 aggregate/core Skill，以及 25 个
 router 或具名专科 Skill。专科 Skill 默认可发现，但只在任务确实匹配时选择。机器
 目录还包含 scientific search 与 reference verification 两个纯 adapter module；其
 网络执行和 receipt 由 OPL Connect 持有。

@@ -59,8 +59,8 @@ deletion inventory.
 | Submission | Offline journal-layout profiles, default reader layout, file inventory, declarations, and response preparation |
 | Data Governance | Data manifests, dictionaries, lineage, lifecycle, access, and reproducibility candidates |
 
-The current source exports 35 discoverable Codex skills: 11 aggregate/core
-skills and 24 routers or named-specialty skills. Specialty skills are present
+The current source exports 36 discoverable Codex skills: 11 aggregate/core
+skills and 25 routers or named-specialty skills. Specialty skills are present
 for discovery but selected only when a task actually needs that specialty.
 The machine catalog also includes two pure adapter modules for scientific search
 and reference verification; OPL Connect performs their network I/O and records
@@ -79,7 +79,7 @@ without creating a parallel validity judgment.
 
 This repository is a standard Codex Plugin marketplace and the repository root
 is the plugin root. The marketplace points directly to that root, so
-`skills/` remains the only source of truth for all 35 active Skills; there is no
+`skills/` remains the only source of truth for all 36 active Skills; there is no
 second copied Skill tree under `plugins/`.
 
 Add the repository marketplace, inspect the available entry, and install it:

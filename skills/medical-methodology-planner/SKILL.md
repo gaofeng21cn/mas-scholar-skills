@@ -1,6 +1,6 @@
 ---
 name: medical-methodology-planner
-description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs refs-only methodology planning across protocol/SAP, cohort phenotyping, causal design, survival analysis, risk-model transportability, registry design, or data readiness. The consuming Agent retains truth, verdict, receipt, blocker, and readiness authority."
+description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs refs-only methodology planning across protocol/SAP, clinical-note abstraction, cohort phenotyping, causal design, survival analysis, risk-model transportability, registry design, or data readiness. The consuming Agent retains truth, verdict, receipt, blocker, and readiness authority."
 ---
 
 # Medical Methodology Planner
@@ -42,6 +42,9 @@ a second methodology validity verdict.
 
 - Protocol/SAP: `protocol_question_ref`, `endpoint_definition_ref`,
   `estimand_and_analysis_set_ref`, `sap_candidate_ref`.
+- Clinical-note abstraction: `abstraction_schema_ref`,
+  `note_level_candidate_refs`, `span_provenance_ref`,
+  `chart_review_validation_candidate_ref`.
 - Cohort/phenotyping: `cohort_definition_ref`, `phenotype_logic_ref`,
   `code_list_or_variable_ref`, `denominator_missingness_ref`.
 - Causal/survival/risk modeling: `target_trial_candidate_ref`,

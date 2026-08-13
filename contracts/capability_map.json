@@ -5,7 +5,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_capability_map",
-  "updated_at": "2026-07-23",
+  "updated_at": "2026-08-13",
   "purpose": "Canonical OMA-readable mapping from MAS, MAG, and Agent Lab feedback targets to MAS Scholar Skills professional skill sources.",
   "source_contract_ref": "contracts/scholar-skills-capability-modules.json",
   "failure_token_registry_ref": "opl-framework:contracts/opl-framework/agent-lab-failure-token-registry.json",
@@ -1622,7 +1622,13 @@
         "SAP",
         "statistical_analysis_plan",
         "estimand",
-        "analysis_sets"
+        "analysis_sets",
+        "interventional_trial",
+        "randomization",
+        "blinding",
+        "schedule_of_activities",
+        "AE_SAE",
+        "DSMB"
       ],
       "verification_refs": [
         "scripts/verify.sh#medical-protocol-and-sap-planner-frontmatter",
@@ -1636,7 +1642,59 @@
         "endpoint_definition_ref",
         "estimand_and_analysis_set_ref",
         "sap_candidate_ref",
+        "interventional_design_ref",
+        "schedule_of_activities_ref",
+        "safety_oversight_ref",
+        "trial_registry_evidence_map_ref",
         "support_map_ref",
+        "owner_gate_handoff_ref"
+      ],
+      "authority_boundary": {
+        "can_replace_default_eight_skills": false,
+        "can_block_default_core_progress_when_missing": false,
+        "can_write_domain_truth": false,
+        "can_write_runtime_state": false,
+        "can_mutate_artifact_body": false,
+        "can_sign_owner_receipt": false,
+        "can_create_typed_blocker": false,
+        "can_claim_quality_verdict": false,
+        "can_claim_publication_readiness": false,
+        "can_claim_current_package_authority": false,
+        "can_claim_owner_closeout": false
+      },
+      "optional_medical_method_specialist": true,
+      "blocks_core_progress_when_missing": false,
+      "default_exposure": false,
+      "optional_named_specialty_only": true
+    },
+    {
+      "skill_id": "medical-clinical-note-abstraction",
+      "canonical_path": "skills/medical-clinical-note-abstraction/SKILL.md",
+      "external_repo_ref": "external_repo:mas-scholar-skills/skills/medical-clinical-note-abstraction/SKILL.md",
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy",
+      "tokens": [
+        "medical-clinical-note-abstraction",
+        "clinical_note",
+        "note_abstraction",
+        "chart_abstraction",
+        "verbatim_span",
+        "assertion_context",
+        "terminology_validation",
+        "chart_review"
+      ],
+      "verification_refs": [
+        "scripts/verify.sh#medical-clinical-note-abstraction-frontmatter",
+        "scripts/verify.sh#medical-method-specialist-no-authority-token-policy",
+        "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+      ],
+      "candidate_ref_families": [
+        "abstraction_schema_ref",
+        "note_level_candidate_refs",
+        "span_provenance_ref",
+        "assertion_context_ref",
+        "terminology_validation_ref",
+        "completeness_ref",
+        "chart_review_validation_candidate_ref",
         "owner_gate_handoff_ref"
       ],
       "authority_boundary": {
@@ -2285,6 +2343,7 @@
     "research-pdf-evidence-explorer",
     "scientific-compute-runner",
     "medical-protocol-and-sap-planner",
+    "medical-clinical-note-abstraction",
     "medical-cohort-phenotyping",
     "medical-evidence-synthesis-and-claim-map",
     "medical-reference-integrity-auditor",
@@ -2372,6 +2431,16 @@
     {
       "skill_id": "medical-protocol-and-sap-planner",
       "canonical_path": "skills/medical-protocol-and-sap-planner/SKILL.md",
+      "router_or_reviewer_entry": "medical-methodology-planner",
+      "capability_preserved_as": "real_named_specialty_skill",
+      "default_exposure": false,
+      "exposure_scope": "optional_named_specialty_only",
+      "blocks_core_progress_when_missing": false,
+      "source_contract_ref": "contracts/scholar-skills-capability-modules.json#/medical_method_specialist_pack_policy"
+    },
+    {
+      "skill_id": "medical-clinical-note-abstraction",
+      "canonical_path": "skills/medical-clinical-note-abstraction/SKILL.md",
       "router_or_reviewer_entry": "medical-methodology-planner",
       "capability_preserved_as": "real_named_specialty_skill",
       "default_exposure": false,

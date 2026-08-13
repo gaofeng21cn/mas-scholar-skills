@@ -6,7 +6,7 @@
   "delivery_domain": "capability_pack",
   "owner": "One Person Lab",
   "state": "active_refs_only_target_descriptor",
-  "updated_at": "2026-07-23",
+  "updated_at": "2026-08-13",
   "purpose": "OMA-readable target descriptor for the MAS Scholar Skills professional capability pack.",
   "source_of_truth_refs": [
     {
@@ -83,6 +83,7 @@
       "medical-evidence-integrity-reviewer",
       "medical-publication-routeback-reviewer",
       "medical-protocol-and-sap-planner",
+      "medical-clinical-note-abstraction",
       "medical-cohort-phenotyping",
       "medical-evidence-synthesis-and-claim-map",
       "medical-reference-integrity-auditor",
@@ -126,6 +127,7 @@
     ],
     "medical_method_named_specialist_skills": [
       "medical-protocol-and-sap-planner",
+      "medical-clinical-note-abstraction",
       "medical-cohort-phenotyping",
       "medical-evidence-synthesis-and-claim-map",
       "medical-reference-integrity-auditor",
@@ -148,6 +150,7 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner",
       "medical-protocol-and-sap-planner",
+      "medical-clinical-note-abstraction",
       "medical-cohort-phenotyping",
       "medical-evidence-synthesis-and-claim-map",
       "medical-reference-integrity-auditor",

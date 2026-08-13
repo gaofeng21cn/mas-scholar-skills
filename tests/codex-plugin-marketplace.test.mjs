@@ -73,7 +73,7 @@ test('Codex plugin carries exactly the package-owned active Skill sources', () =
   assert.equal(plugin.name, packageManifest.package_id);
   assert.equal(plugin.version, packageManifest.version);
   assert.deepEqual(actual, expected);
-  assert.equal(actual.length, 35);
+  assert.equal(actual.length, 36);
   for (const skillId of actual) {
     const skillPath = path.join(ROOT, 'skills', skillId, 'SKILL.md');
     assert.equal(fs.lstatSync(skillPath).isSymbolicLink(), false, `${skillId} must be a real source file`);

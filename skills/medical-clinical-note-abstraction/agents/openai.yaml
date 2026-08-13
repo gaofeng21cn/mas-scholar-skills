@@ -1,0 +1,4 @@
+interface:
+  display_name: "Medical Clinical Note Abstraction"
+  short_description: "Provenance-backed clinical note abstraction"
+  default_prompt: "Use $medical-clinical-note-abstraction to extract schema-bound candidate evidence from clinical notes."

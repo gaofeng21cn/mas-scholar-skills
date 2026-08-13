@@ -148,6 +148,7 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner",
       "medical-protocol-and-sap-planner",
+      "medical-clinical-note-abstraction",
       "medical-cohort-phenotyping",
       "medical-evidence-synthesis-and-claim-map",
       "medical-reference-integrity-auditor",
@@ -185,6 +186,7 @@
       "research-pdf-evidence-explorer",
       "scientific-compute-runner",
       "medical-protocol-and-sap-planner",
+      "medical-clinical-note-abstraction",
       "medical-cohort-phenotyping",
       "medical-evidence-synthesis-and-claim-map",
       "medical-reference-integrity-auditor",
@@ -421,6 +423,10 @@
       "skills/scientific-compute-runner/kernel.py",
       "skills/medical-protocol-and-sap-planner/SKILL.md",
       "skills/medical-protocol-and-sap-planner/kernel.py",
+      "skills/medical-clinical-note-abstraction/SKILL.md",
+      "skills/medical-clinical-note-abstraction/agents/openai.yaml",
+      "skills/medical-clinical-note-abstraction/kernel.py",
+      "skills/medical-clinical-note-abstraction/references/abstraction-contract.md",
       "skills/medical-cohort-phenotyping/SKILL.md",
       "skills/medical-cohort-phenotyping/kernel.py",
       "skills/medical-cohort-phenotyping/references/professional-quality-ref-templates.md",
@@ -452,7 +458,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:82bb1645caa5410ee7f01c1978f4b8b9bb19917394932cb128d7e853b3a72ff1"
+    "digest": "sha256:bcc77a832344b0fea30924dbb98d71188d82c89bf7132b6e7e98150f928242d0"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
