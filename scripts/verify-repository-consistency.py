@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.24":
-    fail("plugin version must be 0.2.24")
+if manifest.get("version") != "0.2.25":
+    fail("plugin version must be 0.2.25")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -629,8 +629,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.24":
-    fail("capability package version must be 0.2.24")
+if package_manifest.get("version") != "0.2.25":
+    fail("capability package version must be 0.2.25")
 if package_manifest.get("package_role") != "capability_package":
     fail("capability package must use the consumer-neutral capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
@@ -641,14 +641,12 @@ capability_abi = package_manifest.get("capability_abi") or {}
 if capability_abi.get("id") != "mas-scholar-skills.v1":
     fail("capability package must expose the canonical provider ABI")
 consumer_policy = package_manifest.get("consumer_policy") or {}
-if consumer_policy.get("compatibility_commitment") != "declared_optional_consumer_profiles":
-    fail("provider compatibility must be bound to declared optional consumer profiles")
-if consumer_policy.get("supported_required_by") != []:
-    fail("framework capability provider must not declare a required consumer")
-if consumer_policy.get("supported_optional_consumer_agent_ids") != ["mas", "mag"]:
-    fail("MAS and MAG must be declared as optional enhancement consumers")
-if consumer_policy.get("non_primary_runtime_dependency_supported") is not False:
-    fail("consumer profiles must not receive a runtime dependency promise")
+if consumer_policy.get("compatibility_commitment") != "declared_required_consumer_profiles":
+    fail("provider compatibility must be bound to declared required consumer profiles")
+if consumer_policy.get("supported_required_by") != ["mas", "mag"]:
+    fail("MAS and MAG must be declared as required consumers")
+if consumer_policy.get("non_primary_runtime_dependency_supported") is not True:
+    fail("declared consumers must receive a runtime dependency promise")
 package_exports = package_manifest.get("exports") or {}
 if package_exports.get("core_skill_ids") != expected_default_exposure_skill_ids:
     fail("capability package core skills must match the canonical default exposure policy")
@@ -675,20 +673,20 @@ mag_compatibility_module_ids = [
     "mas-scholar-skills.reference-provider-adapters",
     "mas-scholar-skills.scientific-search-adapters",
 ]
-optional_profile_common = {
-    "profile_kind": "optional_refs_only_enhancement",
-    "required": False,
-    "dependency_kind": "optional_enhancement",
-    "required_ids_semantics": "selected_profile_compatibility_set_not_consumer_readiness",
-    "missing_or_incompatible_behavior": "consumer_fail_open",
-    "diagnostic_role": "consumer_owned_non_blocking_diagnostic",
-    "distribution_behavior": "consumer_may_bundle_or_materialize_without_dependency_or_readiness_effect",
-    "blocks_install": False,
-    "blocks_activation": False,
-    "blocks_admission": False,
-    "blocks_route": False,
-    "blocks_launch": False,
-    "blocks_readiness": False,
+required_profile_common = {
+    "profile_kind": "required_refs_only_dependency",
+    "required": True,
+    "dependency_kind": "required_runtime_dependency",
+    "required_ids_semantics": "selected_profile_required_capability_set",
+    "missing_or_incompatible_behavior": "consumer_fail_closed",
+    "diagnostic_role": "consumer_owned_required_dependency_readiness",
+    "distribution_behavior": "consumer_requires_identity_and_capability_callability",
+    "blocks_install": True,
+    "blocks_activation": True,
+    "blocks_admission": True,
+    "blocks_route": True,
+    "blocks_launch": True,
+    "blocks_readiness": True,
     "authority_boundary": {
         "can_write_consumer_domain_truth": False,
         "can_claim_consumer_fundability": False,
@@ -706,18 +704,18 @@ expected_consumer_profiles = [
         "consumer_agent_id": "mas",
         "required_export_ids": expected_default_exposure_skill_ids,
         "required_module_ids": expected_module_ids,
-        **optional_profile_common,
+        **required_profile_common,
     },
     {
         "profile_id": "mag-medical-grant.v1",
         "consumer_agent_id": "mag",
         "required_export_ids": mag_optional_skill_ids,
         "required_module_ids": mag_compatibility_module_ids,
-        **optional_profile_common,
+        **required_profile_common,
     },
 ]
 if package_manifest.get("consumer_profiles") != expected_consumer_profiles:
-    fail("MAS and MAG profiles must share optional, refs-only, authority-false, fail-open semantics")
+    fail("MAS and MAG profiles must share required, refs-only, authority-false, fail-closed semantics")
 if "optional_refs_only_consumer_profiles" in package_manifest:
     fail("optional consumer profiles must use the single canonical consumer_profiles surface")
 if any(skill_id not in expected_all_skill_ids for skill_id in mag_optional_skill_ids):
