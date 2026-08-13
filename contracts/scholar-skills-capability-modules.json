@@ -4,19 +4,19 @@
   "owner": "One Person Lab",
   "state": "active_structural_baseline",
   "brand_family": "MAS Scholar Skills",
-  "purpose": "Canonical active professional-Skill catalog and read-only scientific reference-provider adapter catalog for the OPL-owned MAS Scholar Skills framework capability package. MAS and MAG may consume selected refs-only Skills only as optional, fail-open enhancements.",
-  "machine_boundary": "This contract describes professional modules, optional specialist discovery Skills, and read-only provider adapter runtime modules. It is not a generic OPL runtime base, a MAS or MAG domain-truth owner, a parallel stage entry, or a consumer readiness owner. Both consumers retain admission, route, launch, truth, verdict, receipt, blocker, strategy-memory, artifact, and readiness authority. Missing or incompatible profile Skills cannot block either consumer core. OPL Connect owns HTTP execution, retry, cache, strict matching, transport receipts, and errors; adapters only build bounded request descriptions, parse supplied responses, and select bounded next steps.",
+  "purpose": "Canonical active professional-Skill catalog and read-only scientific reference-provider adapter catalog for the OPL-owned MAS Scholar Skills framework capability package. MAS and MAG consume selected refs-only Skills through required, fail-closed identity and callability profiles.",
+  "machine_boundary": "This contract describes professional modules, optional specialist discovery Skills, and read-only provider adapter runtime modules. It is not a generic OPL runtime base, a MAS or MAG domain-truth owner, a parallel stage entry, or a consumer quality/readiness owner. Both consumers retain admission, route, launch, truth, verdict, receipt, blocker, strategy-memory, artifact, and readiness authority. Missing or incompatible required profile capabilities block only the affected consumer's dependency gate. OPL Connect owns HTTP execution, retry, cache, strict matching, transport receipts, and errors; adapters only build bounded request descriptions, parse supplied responses, and select bounded next steps.",
   "consumer_profile_policy": {
     "profile_source_ref": "contracts/opl_capability_package_manifest.json#/consumer_profiles",
-    "all_profiles_are_optional_enhancements": true,
+    "all_profiles_are_required_dependencies": true,
     "global_core_and_specialty_classification_is_not_consumer_readiness": true,
-    "required_ids_are_selected_profile_compatibility_sets_not_readiness_floors": true,
-    "no_profile_defines_consumer_admission_route_launch_or_readiness": true,
+    "required_ids_are_selected_profile_capability_sets_not_domain_quality_floors": true,
+    "required_profile_defines_consumer_dependency_gates_not_domain_readiness": true,
     "consumer_stage_overlay_required": true,
     "outputs_are_refs_only_candidates": true,
     "consuming_domain_owner_retains_authority": true,
-    "consumer_missing_or_incompatible_fail_open": true,
-    "consumer_may_bundle_or_materialize_without_dependency_or_readiness_effect": true
+    "consumer_missing_or_incompatible_fail_closed": true,
+    "consumer_may_bundle_or_materialize_as_carrier_projection": true
   },
   "positioning_policy": {
     "product_stage_name": "MAS Scholar Skills",
@@ -24,7 +24,7 @@
     "legacy_repository_ids": [
       "opl-scholarskills"
     ],
-    "role": "framework_capability_provider_for_optional_mas_paper_and_mag_grant_enhancements",
+    "role": "framework_capability_provider_for_required_mas_paper_and_mag_grant_dependencies",
     "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
     "canonical_mas_stage_source_policy": "MAS_domain_agent_repo_agent_stages_and_agent_prompts_are_the_canonical_stage_prompt_source",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",

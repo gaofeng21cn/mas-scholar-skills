@@ -26,13 +26,12 @@ surfaces.
 
 | Profile | Relationship | Failure semantics |
 | --- | --- | --- |
-| `mas-medical-paper.v1` | Required Package dependency; 11 exports describe the callable capability set MAS expects | Missing Package identity or required capability callability blocks MAS only and routes to managed install/repair |
-| `mag-medical-grant.v1` | Required Package dependency for the MAG native grant workflow | Missing Package identity or required capability callability blocks MAG only and routes to managed install/repair |
+| `mas-medical-paper.v1` | Required Package dependency; 11 exports describe the callable capability set MAS expects | Missing Package identity or required capability callability fails closed for MAS only and routes to managed install/repair |
+| `mag-medical-grant.v1` | Required Package dependency for the MAG native grant workflow | Missing Package identity or required capability callability fails closed for MAG only and routes to managed install/repair |
 
-Current machine profiles still use `required=false`,
-`dependency_kind=optional_enhancement`, and fail-open fields. Those fields are a
-known migration mismatch, not the target composition rule. The target checks
-identity presence and required capability callability without provider version,
+Current machine profiles use `required=true`,
+`dependency_kind=required_runtime_dependency`, and fail-closed fields. The
+consumer gate checks identity presence and required capability callability without provider version,
 ABI, lock, payload, digest, Release Set, or atomic-closure solving. The MAG
 profile selects only
 `medical-research-lit`,

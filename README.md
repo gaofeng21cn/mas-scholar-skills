@@ -37,8 +37,9 @@ materialization is only a carrier projection. Fresh owner publication and
 complete actual-carrier readback remain unproven. The target MAS and MAG
 dependency edge requires Package identity presence and required capability
 callability, not cross-Package version/ABI solving, lock, payload, digest,
-Release Set, or atomic closure. The current manifest still models both profiles
-as optional and fail-open; that is migration truth, not the accepted target.
+Release Set, or atomic closure. The current manifest models both profiles as
+required runtime dependencies with fail-closed identity/callability gates; the
+domain agents retain all stage, quality, artifact, and readiness authority.
 The historical `opl-scholarskills` name is provenance only and is not an active
 skill.
 The cross-repository migration SSOT is the App
@@ -126,9 +127,9 @@ MAS requires this Package, while individual named specialty Skills remain
 task-selected. Installing MAS must therefore ensure the ScholarSkills Package
 identity and the required MAS capability set are present and callable; missing
 capability blocks MAS only and routes to managed install/repair. It does not
-block unrelated Packages or introduce a version/ABI/lock/payload gate. Current
-`bundled_capability_package_ids` and optional/fail-open profile fields remain
-compatibility inputs while that dependency contract migrates:
+block unrelated Packages or introduce a version/ABI/lock/payload gate. The
+package dependency edge is enforced through the consumer's required
+identity/callability gate; carrier installation alone is not sufficient:
 
 ```bash
 opl packages install mas --scope workspace --target-workspace <workspace_root> --json
@@ -195,8 +196,9 @@ MAG grant prompt
 Missing Package identity or required capability callability blocks MAG only and
 routes to managed install/repair; it does not block unrelated Packages or grant
 ScholarSkills any domain authority. Named specialty exposure remains
-task-selected. The current optional/fail-open machine profile is retained only
-as migration input until the owner contracts and consumers are updated.
+task-selected. The required machine profile is now the current owner contract.
+It does not transfer domain truth, quality verdict, artifact authority, or
+readiness to this capability provider.
 
 `medical-submission-prep` includes an offline-first publication-layout catalog.
 Named journals use a matching local adaptation profile; an unspecified journal

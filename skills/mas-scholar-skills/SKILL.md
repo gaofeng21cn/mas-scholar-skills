@@ -1,12 +1,12 @@
 ---
 name: mas-scholar-skills
-description: "Route optional MAS medical-paper or MAG medical-grant enhancements to maintained MAS Scholar Skills specialists. Use for pack-level discovery, consumer-profile routing, specialist selection, or refs-only no-authority guidance. Invoke the routed medical-* skill rather than keeping this aggregate active."
+description: "Route required MAS medical-paper or MAG medical-grant capabilities to maintained MAS Scholar Skills specialists. Use for pack-level discovery, consumer-profile routing, specialist selection, or refs-only no-authority guidance. Invoke the routed medical-* skill rather than keeping this aggregate active."
 ---
 
 # MAS Scholar Skills
 
 Use this skill as the thin discovery and routing entry for an OPL-owned
-framework capability pack with optional MAS paper and MAG grant profiles. Route
+framework capability pack with required MAS paper and MAG grant profiles. Route
 the task through the consuming Agent's own stage overlay to a concrete
 `medical-*` skill, then follow that skill's playbook. Do not copy specialist
 checklists, CLI instructions, gallery details, or data-governance rules into
@@ -17,21 +17,20 @@ not active discovery or authority surfaces.
 
 ## Consumer Profiles
 
-- `mas-medical-paper.v1` declares the 11-Skill compatibility set used when MAS
-  selects this optional enhancement. It is not a MAS readiness floor.
-- `mag-medical-grant.v1` is an optional refs-only enhancement that may use
+- `mas-medical-paper.v1` declares the 11-Skill required capability set used by
+  MAS. Missing identity or callability blocks MAS before its native route.
+- `mag-medical-grant.v1` is a required refs-only capability set that uses
   `medical-research-lit`,
   `medical-statistical-review`, `medical-methodology-planner`,
   `medical-evidence-integrity-reviewer`,
   `medical-evidence-synthesis-and-claim-map`, and
   `medical-reference-integrity-auditor`.
 
-Both profiles are `required=false` optional enhancements. Missing or
-incompatible Skills must fail open to the consuming Agent's native workflow and
-may produce only a consumer-owned non-blocking diagnostic. Bundling or
-materializing the pack for discovery is allowed, but it must not create an
-install, activation, admission, route, launch, or readiness gate. The consuming
-Agent owns stage routing and domain acceptance. This pack never calls MAS on
+Both profiles are `required=true` runtime dependencies. Missing or incompatible
+Skills fail closed for the affected consuming Agent at install, activation,
+admission, route, launch, and readiness gates. Bundling or materializing the
+pack remains a carrier/discovery concern; it does not grant this pack domain
+authority. The consuming Agent owns stage routing and domain acceptance. This pack never calls MAS on
 MAG's behalf and never converts a candidate into study or grant truth,
 fundability, quality, export/publication readiness, strategy memory, a receipt,
 a blocker, or owner authority.
@@ -50,7 +49,7 @@ a blocker, or owner authority.
 | `mas-scholar-skills.data` (Medical Data Governance) | `medical-data-governance` |
 
 Start from the consuming Agent's overlay or stage operating prompt. For MAS,
-that is the paper stage prompt; for optional MAG use, it is the native grant
+that is the paper stage prompt; for MAG use, it is the native grant
 prompt. The consuming prompt owns stage validity, evidence thresholds,
 route-back, and acceptance. Use the routed specialist only for professional
 judgment and candidate handoff preparation.
@@ -74,8 +73,10 @@ covered by the core skills. Start from the closest router/reviewer:
 - `medical-publication-routeback-reviewer`
 - `medical-advanced-biomed-router`
 
-Let that router select one narrow specialty skill. Neither a profile
-compatibility set nor a materialized specialty defines consumer readiness.
+Let that router select one narrow specialty skill. Neither a materialized
+specialty nor this provider's profile defines domain quality or acceptance; the
+required dependency gate proves only identity and selected capability
+callability.
 The Package owner owns identity and publication; the active carrier owns physical
 lifecycle and readback. OPL Framework only discovers, delegates, aggregates
 installed status, and exposes the OPL Connect CLI/materialization bridge; this

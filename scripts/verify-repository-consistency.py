@@ -44,8 +44,8 @@ def require_all(label: str, actual, expected) -> None:
 manifest = read_json(".codex-plugin/plugin.json")
 if manifest.get("name") != "mas-scholar-skills":
     fail("plugin name must be mas-scholar-skills")
-if manifest.get("version") != "0.2.25":
-    fail("plugin version must be 0.2.25")
+if manifest.get("version") != "0.2.26":
+    fail("plugin version must be 0.2.26")
 if manifest.get("skills") != "./skills/":
     fail("plugin skills path must be ./skills/")
 if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
@@ -629,8 +629,8 @@ if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
 if package_manifest.get("package_id") != "mas-scholar-skills":
     fail("capability package manifest package_id must be mas-scholar-skills")
-if package_manifest.get("version") != "0.2.25":
-    fail("capability package version must be 0.2.25")
+if package_manifest.get("version") != "0.2.26":
+    fail("capability package version must be 0.2.26")
 if package_manifest.get("package_role") != "capability_package":
     fail("capability package must use the consumer-neutral capability role")
 if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
@@ -657,7 +657,7 @@ if package_exports.get("all_skill_ids") != expected_all_skill_ids:
 expected_module_ids = [module.get("module_id") for module in contract.get("modules") or []]
 if package_exports.get("core_module_ids") != expected_module_ids:
     fail("capability package core modules must match the canonical module catalog order")
-mag_optional_skill_ids = [
+mag_required_skill_ids = [
     "medical-research-lit",
     "medical-statistical-review",
     "medical-methodology-planner",
@@ -709,7 +709,7 @@ expected_consumer_profiles = [
     {
         "profile_id": "mag-medical-grant.v1",
         "consumer_agent_id": "mag",
-        "required_export_ids": mag_optional_skill_ids,
+        "required_export_ids": mag_required_skill_ids,
         "required_module_ids": mag_compatibility_module_ids,
         **required_profile_common,
     },
@@ -718,21 +718,21 @@ if package_manifest.get("consumer_profiles") != expected_consumer_profiles:
     fail("MAS and MAG profiles must share required, refs-only, authority-false, fail-closed semantics")
 if "optional_refs_only_consumer_profiles" in package_manifest:
     fail("optional consumer profiles must use the single canonical consumer_profiles surface")
-if any(skill_id not in expected_all_skill_ids for skill_id in mag_optional_skill_ids):
-    fail("MAG optional consumer profile may reference only real exported Skills")
+if any(skill_id not in expected_all_skill_ids for skill_id in mag_required_skill_ids):
+    fail("MAG required consumer profile may reference only real exported Skills")
 profile_policy = contract.get("consumer_profile_policy") or {}
 if profile_policy.get("profile_source_ref") != "contracts/opl_capability_package_manifest.json#/consumer_profiles":
-    fail("capability catalog must reference the canonical optional consumer profiles")
+    fail("capability catalog must reference the canonical consumer profiles")
 for key in [
-    "all_profiles_are_optional_enhancements",
+    "all_profiles_are_required_dependencies",
     "global_core_and_specialty_classification_is_not_consumer_readiness",
-    "required_ids_are_selected_profile_compatibility_sets_not_readiness_floors",
-    "no_profile_defines_consumer_admission_route_launch_or_readiness",
+    "required_ids_are_selected_profile_capability_sets_not_domain_quality_floors",
+    "required_profile_defines_consumer_dependency_gates_not_domain_readiness",
     "consumer_stage_overlay_required",
     "outputs_are_refs_only_candidates",
     "consuming_domain_owner_retains_authority",
-    "consumer_missing_or_incompatible_fail_open",
-    "consumer_may_bundle_or_materialize_without_dependency_or_readiness_effect",
+    "consumer_missing_or_incompatible_fail_closed",
+    "consumer_may_bundle_or_materialize_as_carrier_projection",
 ]:
     if profile_policy.get(key) is not True:
         fail(f"capability catalog consumer profile policy {key} must be true")
@@ -2109,7 +2109,7 @@ positioning_policy = contract.get("positioning_policy") or {}
 expected_positioning = {
     "product_stage_name": "MAS Scholar Skills",
     "repository_id": "mas-scholar-skills",
-    "role": "framework_capability_provider_for_optional_mas_paper_and_mag_grant_enhancements",
+    "role": "framework_capability_provider_for_required_mas_paper_and_mag_grant_dependencies",
     "primary_mas_entry_policy": "MAS_stage_operating_prompts_remain_in_med_autoscience_and_may_consume_specialist_skills_from_mas_scholar_skills",
     "canonical_mas_stage_source_policy": "MAS_domain_agent_repo_agent_stages_and_agent_prompts_are_the_canonical_stage_prompt_source",
     "codex_projection_policy": "MAS_overlay_skills_and_workspace_or_quest_dot_codex_skill_copies_are_codex_projection_or_compatibility_surfaces_not_stage_prompt_source",

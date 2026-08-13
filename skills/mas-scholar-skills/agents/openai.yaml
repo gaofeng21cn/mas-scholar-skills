@@ -1,7 +1,7 @@
 interface:
   display_name: "MAS Scholar Skills"
-  short_description: "Route optional MAS paper or MAG grant Skills"
-  default_prompt: "Use $mas-scholar-skills for an optional MAS paper or MAG grant enhancement, preserving fail-open refs-only owner boundaries."
+  short_description: "Route required MAS paper or MAG grant capabilities"
+  default_prompt: "Use $mas-scholar-skills for the required MAS paper or MAG grant capability set, preserving fail-closed dependency checks and refs-only owner boundaries."
 
 policy:
   allow_implicit_invocation: true
