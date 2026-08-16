@@ -20,7 +20,7 @@ def extract_dois(text: str) -> list[str]:
     dois: set[str] = set()
     for match in DOI_RE.findall(decoded):
         doi = match.split("</", 1)[0]
-        doi = re.sub(r"(?:\*\*|__|[_\]\*>`,;:])+$", "", doi)
+        doi = re.sub(r"[_\]\*>`,;:]+$", "", doi)
         doi = doi[:-1] if doi.endswith(".") else doi
         while doi.endswith(")") and doi.count("(") < doi.count(")"):
             doi = doi[:-1]
@@ -168,6 +168,7 @@ def _self_check() -> None:
         "10.1000/abc",
         "10.2000/x",
     ]
+    assert extract_dois(f"doi:10.1000/x{'*' * 10_000}") == ["10.1000/x"]
     assert normalize_pmid("PMID: 12345") == "12345"
     assert normalize_pmcid("pmc987") == "PMC987"
     deduped = dedupe_sources(
