@@ -95,8 +95,8 @@ For literature work, the provider split is explicit:
 
 ```text
 medical-research-lit strategy
-  -> OPL Connect PubMed/PMC discovery returns primary biomedical source refs
-  -> optional pure adapter returns Crossref/OpenAlex metadata/coverage/citation-graph fallback candidates[]
+  -> Package-owned pure adapter builds PubMed/PMC primary-search or Crossref/OpenAlex fallback requests
+  -> OPL Connect executes the bounded requests and returns parsed source candidates[]
   -> domain owner selects a candidate reference
   -> verification companion checks the selected reference through bounded providers
   -> OPL Connect executes HTTP and materializes generic evidence/receipts
@@ -104,12 +104,12 @@ medical-research-lit strategy
   -> MAS citation acceptance and manuscript use
 ```
 
-Search and reference verification are separate surfaces. Framework-owned OPL
-Connect implements PubMed/PMC discovery and executes all HTTP, retry, cache,
-strict matching, receipts, and connector errors. The package's one-step search
-adapter ABI is intentionally limited to Crossref/OpenAlex generic metadata,
-coverage, and citation-graph fallback; it must not implement a second PubMed/PMC
-client. The verification adapter accepts a known reference and may describe up to
+Search and reference verification are separate surfaces. The Package-owned
+scientific-search adapter describes PubMed ESearch -> ESummary and Europe PMC
+search as well as Crossref/OpenAlex fallback requests; its next-step state is
+serializable and bounded. OPL Connect executes all declared HTTP, retry, cache,
+strict matching, receipts, and connector errors without embedding provider search
+logic. The verification adapter accepts a known reference and may describe up to
 two provider steps. MAS still decides candidate selection, source acceptance, and
 manuscript use. All provider outputs are read-only inputs, not a citation verdict,
 owner receipt, blocker, or publication claim.

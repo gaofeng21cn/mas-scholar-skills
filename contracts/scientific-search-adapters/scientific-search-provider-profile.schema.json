@@ -45,13 +45,15 @@
     "default_provider_ids": {
       "const": [
         "crossref",
-        "openalex"
+        "openalex",
+        "pubmed",
+        "pmc"
       ]
     },
     "providers": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
+      "minItems": 4,
+      "maxItems": 4,
       "items": {
         "$ref": "#/$defs/provider"
       }
@@ -66,21 +68,23 @@
       "additionalProperties": false,
       "required": [
         "role",
-        "excluded_provider_ids",
-        "excluded_provider_route"
+        "provider_ids",
+        "framework_core_provider_ids"
       ],
       "properties": {
         "role": {
-          "const": "generic_metadata_coverage_and_citation_graph_fallback_only"
+          "const": "package_owned_primary_biomedical_and_generic_metadata_search"
         },
-        "excluded_provider_ids": {
+        "provider_ids": {
           "const": [
+            "crossref",
+            "openalex",
             "pubmed",
             "pmc"
           ]
         },
-        "excluded_provider_route": {
-          "const": "opl_connect_framework_unified_scientific_search"
+        "framework_core_provider_ids": {
+          "const": []
         }
       }
     },
@@ -119,7 +123,9 @@
         "adapter_ids": {
           "const": [
             "crossref_search_rest",
-            "openalex_search_rest"
+            "openalex_search_rest",
+            "ncbi_pubmed_search",
+            "europe_pmc_search"
           ]
         },
         "byte_authority": {
@@ -140,19 +146,25 @@
         "provider_id": {
           "enum": [
             "crossref",
-            "openalex"
+            "openalex",
+            "pubmed",
+            "pmc"
           ]
         },
         "adapter_id": {
           "enum": [
             "crossref_search_rest",
-            "openalex_search_rest"
+            "openalex_search_rest",
+            "ncbi_pubmed_search",
+            "europe_pmc_search"
           ]
         },
         "source_provider": {
           "enum": [
             "Crossref",
-            "OpenAlex"
+            "OpenAlex",
+            "PubMed",
+            "Europe PMC"
           ]
         },
         "endpoint": {

@@ -73,12 +73,12 @@
       ]
     },
     "max_steps": {
-      "const": 1
+      "const": 2
     },
     "adapters": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
+      "minItems": 4,
+      "maxItems": 4,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -93,20 +93,38 @@
           "adapter_id": {
             "enum": [
               "crossref_search_rest",
-              "openalex_search_rest"
+              "openalex_search_rest",
+              "ncbi_pubmed_search",
+              "europe_pmc_search"
             ]
           },
           "provider_id": {
             "enum": [
               "crossref",
-              "openalex"
+              "openalex",
+              "pubmed",
+              "pmc"
             ]
           },
           "initial_step": {
             "const": "search"
           },
           "max_steps": {
-            "const": 1
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "enum": [
+                "search",
+                "summary"
+              ]
+            }
           },
           "response_kinds": {
             "const": [

@@ -1,9 +1,16 @@
 export const SCIENTIFIC_SEARCH_ADAPTER_ABI = 'opl-connect-scientific-search-adapter.v1' as const;
 
+export type ScientificSearchProviderId = 'crossref' | 'openalex' | 'pubmed' | 'pmc';
+export type ScientificSearchAdapterId =
+  | 'crossref_search_rest'
+  | 'openalex_search_rest'
+  | 'ncbi_pubmed_search'
+  | 'europe_pmc_search';
+
 export type ScientificSearchProviderDefinition = {
-  provider_id: 'crossref' | 'openalex';
-  adapter_id: 'crossref_search_rest' | 'openalex_search_rest';
-  source_provider: 'Crossref' | 'OpenAlex';
+  provider_id: ScientificSearchProviderId;
+  adapter_id: ScientificSearchAdapterId;
+  source_provider: 'Crossref' | 'OpenAlex' | 'PubMed' | 'Europe PMC';
   endpoint: {
     default_base_url: string;
     base_url?: string;
@@ -11,15 +18,42 @@ export type ScientificSearchProviderDefinition = {
   };
 };
 
-export type ScientificSearchAdapterState = {
+type OneStepScientificSearchAdapterState = {
   surface_kind: 'opl_connect_scientific_search_adapter_state.v1';
-  adapter_id: ScientificSearchProviderDefinition['adapter_id'];
+  adapter_id: Exclude<ScientificSearchAdapterId, 'ncbi_pubmed_search'>;
   step: 'search';
   step_index: 1;
   max_steps: 1;
   query: string;
   limit: number;
 };
+
+type PubmedSearchState = {
+  surface_kind: 'opl_connect_scientific_search_adapter_state.v1';
+  adapter_id: 'ncbi_pubmed_search';
+  step: 'search';
+  step_index: 1;
+  max_steps: 2;
+  query: string;
+  limit: number;
+};
+
+export type PubmedSummaryState = {
+  surface_kind: 'opl_connect_scientific_search_adapter_state.v1';
+  adapter_id: 'ncbi_pubmed_search';
+  step: 'summary';
+  step_index: 2;
+  max_steps: 2;
+  query: string;
+  limit: number;
+  ids: string[];
+  provider_total: number | null;
+};
+
+export type ScientificSearchAdapterState =
+  | OneStepScientificSearchAdapterState
+  | PubmedSearchState
+  | PubmedSummaryState;
 
 export type ScientificSearchHttpRequest = {
   method: 'GET';
@@ -38,15 +72,17 @@ export type ScientificSearchHttpResponse = {
 export type ScientificSearchCandidate = {
   source_ref: string;
   source_kind: 'literature_article';
-  source_provider: 'Crossref' | 'OpenAlex';
-  provider_id: 'crossref' | 'openalex';
+  source_provider: 'Crossref' | 'OpenAlex' | 'PubMed' | 'Europe PMC';
+  provider_id: ScientificSearchProviderId;
   doi: string | null;
   pmid: string | null;
+  pmcid: string | null;
   openalex_id: string | null;
   title: string;
   journal: string | null;
   publication_year: string | null;
   authors: string[];
+  article_types: string[];
   source_urls: Record<string, string | null>;
 };
 
@@ -73,13 +109,14 @@ export type ScientificSearchAdapterStepResult = {
     | {
         kind: 'complete';
         candidates: ScientificSearchCandidate[];
+        provider_total: number | null;
       };
 };
 
 export type ScientificSearchProviderAdapter = {
-  adapter_id: ScientificSearchProviderDefinition['adapter_id'];
-  provider_id: ScientificSearchProviderDefinition['provider_id'];
-  max_steps: 1;
+  adapter_id: ScientificSearchAdapterId;
+  provider_id: ScientificSearchProviderId;
+  max_steps: 1 | 2;
   build_search_request(input: {
     provider: ScientificSearchProviderDefinition;
     query: string;
@@ -92,7 +129,7 @@ export type ScientificSearchProviderAdapter = {
     limit: number;
     state: ScientificSearchAdapterState;
     response: ScientificSearchHttpResponse;
-  }): ScientificSearchCandidate[];
+  }): ScientificSearchAdapterStepResult;
 };
 
 export class ScientificSearchAdapterContractError extends Error {

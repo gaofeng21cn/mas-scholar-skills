@@ -146,6 +146,19 @@
       "additionalProperties": false
     },
     "state": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/oneStepState"
+        },
+        {
+          "$ref": "#/$defs/pubmedSearchState"
+        },
+        {
+          "$ref": "#/$defs/pubmedSummaryState"
+        }
+      ]
+    },
+    "oneStepState": {
       "type": "object",
       "required": [
         "surface_kind",
@@ -163,7 +176,8 @@
         "adapter_id": {
           "enum": [
             "crossref_search_rest",
-            "openalex_search_rest"
+            "openalex_search_rest",
+            "europe_pmc_search"
           ]
         },
         "step": {
@@ -182,6 +196,100 @@
         "limit": {
           "type": "integer",
           "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "pubmedSearchState": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_id",
+        "step",
+        "step_index",
+        "max_steps",
+        "query",
+        "limit"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_scientific_search_adapter_state.v1"
+        },
+        "adapter_id": {
+          "const": "ncbi_pubmed_search"
+        },
+        "step": {
+          "const": "search"
+        },
+        "step_index": {
+          "const": 1
+        },
+        "max_steps": {
+          "const": 2
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "pubmedSummaryState": {
+      "type": "object",
+      "required": [
+        "surface_kind",
+        "adapter_id",
+        "step",
+        "step_index",
+        "max_steps",
+        "query",
+        "limit",
+        "ids",
+        "provider_total"
+      ],
+      "properties": {
+        "surface_kind": {
+          "const": "opl_connect_scientific_search_adapter_state.v1"
+        },
+        "adapter_id": {
+          "const": "ncbi_pubmed_search"
+        },
+        "step": {
+          "const": "summary"
+        },
+        "step_index": {
+          "const": 2
+        },
+        "max_steps": {
+          "const": 2
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "provider_total": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
         }
       },
       "additionalProperties": false
@@ -215,7 +323,8 @@
       "type": "object",
       "required": [
         "kind",
-        "candidates"
+        "candidates",
+        "provider_total"
       ],
       "properties": {
         "kind": {
@@ -226,6 +335,13 @@
           "items": {
             "$ref": "#/$defs/candidate"
           }
+        },
+        "provider_total": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
         }
       },
       "additionalProperties": false
@@ -239,11 +355,13 @@
         "provider_id",
         "doi",
         "pmid",
+        "pmcid",
         "openalex_id",
         "title",
         "journal",
         "publication_year",
         "authors",
+        "article_types",
         "source_urls"
       ],
       "properties": {
@@ -257,13 +375,17 @@
         "source_provider": {
           "enum": [
             "Crossref",
-            "OpenAlex"
+            "OpenAlex",
+            "PubMed",
+            "Europe PMC"
           ]
         },
         "provider_id": {
           "enum": [
             "crossref",
-            "openalex"
+            "openalex",
+            "pubmed",
+            "pmc"
           ]
         },
         "doi": {
@@ -273,6 +395,12 @@
           ]
         },
         "pmid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pmcid": {
           "type": [
             "string",
             "null"
@@ -300,6 +428,12 @@
           ]
         },
         "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "article_types": {
           "type": "array",
           "items": {
             "type": "string"

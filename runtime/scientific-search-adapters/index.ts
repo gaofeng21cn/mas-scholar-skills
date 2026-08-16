@@ -15,12 +15,15 @@ export {
   ScientificSearchAdapterContractError,
 } from './types.ts';
 export type {
+  PubmedSummaryState,
+  ScientificSearchAdapterId,
   ScientificSearchAdapterState,
   ScientificSearchAdapterStepRequest,
   ScientificSearchAdapterStepResult,
   ScientificSearchCandidate,
   ScientificSearchHttpRequest,
   ScientificSearchHttpResponse,
+  ScientificSearchProviderId,
   ScientificSearchProviderDefinition,
 } from './types.ts';
 
@@ -88,6 +91,17 @@ function initialState(
   query: string,
   limit: number,
 ): ScientificSearchAdapterState {
+  if (adapter.adapter_id === 'ncbi_pubmed_search') {
+    return {
+      surface_kind: 'opl_connect_scientific_search_adapter_state.v1',
+      adapter_id: 'ncbi_pubmed_search',
+      step: 'search',
+      step_index: 1,
+      max_steps: 2,
+      query,
+      limit,
+    };
+  }
   return {
     surface_kind: 'opl_connect_scientific_search_adapter_state.v1',
     adapter_id: adapter.adapter_id,
@@ -104,13 +118,24 @@ function validateState(
   request: ScientificSearchAdapterStepRequest,
   state: ScientificSearchAdapterState,
 ): void {
-  if (!state || state.surface_kind !== 'opl_connect_scientific_search_adapter_state.v1'
-    || state.adapter_id !== adapter.adapter_id
-    || state.step !== 'search'
-    || state.step_index !== 1
-    || state.max_steps !== 1
-    || state.query !== request.query
-    || state.limit !== request.limit) {
+  const commonValid = Boolean(state)
+    && state.surface_kind === 'opl_connect_scientific_search_adapter_state.v1'
+    && state.adapter_id === adapter.adapter_id
+    && state.query === request.query
+    && state.limit === request.limit;
+  const stateValid = adapter.adapter_id === 'ncbi_pubmed_search'
+    ? (state.step === 'search'
+      ? state.step_index === 1 && state.max_steps === 2
+      : state.step === 'summary'
+        && state.step_index === 2
+        && state.max_steps === 2
+        && Array.isArray(state.ids)
+        && state.ids.length > 0
+        && state.ids.every((id) => typeof id === 'string' && id.length > 0)
+        && (state.provider_total === null
+          || (Number.isSafeInteger(state.provider_total) && state.provider_total >= 0)))
+    : state.step === 'search' && state.step_index === 1 && state.max_steps === 1;
+  if (!commonValid || !stateValid) {
     contractError('search_adapter_state_invalid', 'Scientific search state does not match its request.', {
       provider_id: request.provider.provider_id,
       adapter_id: adapter.adapter_id,
@@ -174,18 +199,13 @@ export function parse_search_response(
     );
   }
   validateState(adapter, request, request.state);
-  const candidates = adapter.parse_search_response({
+  return adapter.parse_search_response({
     provider: request.provider,
     query: request.query,
     limit: request.limit,
     state: request.state,
     response: validateResponse(request.response),
   });
-  return {
-    surface_kind: 'opl_connect_scientific_search_adapter_step_result.v1',
-    adapter_abi: SCIENTIFIC_SEARCH_ADAPTER_ABI,
-    next: { kind: 'complete', candidates },
-  };
 }
 
 export function runScientificSearchAdapterStep(
@@ -210,7 +230,7 @@ export const SCIENTIFIC_SEARCH_ADAPTER_PACKAGE = {
   module_kind: 'opl_connect_scientific_search_adapter',
   adapter_abi: SCIENTIFIC_SEARCH_ADAPTER_ABI,
   adapter_ids: Object.keys(SCIENTIFIC_SEARCH_ADAPTERS),
-  max_steps: 1,
+  max_steps: 2,
   handler_export: 'runScientificSearchAdapterStep',
   state_machine_exports: ['build_search_request', 'parse_search_response'],
   authority_boundary: {

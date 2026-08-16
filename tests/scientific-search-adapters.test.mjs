@@ -68,12 +68,12 @@ test('manifest, profile, registry, and descriptor expose the locked search runti
     'build_search_request',
     'parse_search_response',
   ]);
-  assert.equal(binding.max_steps, 1);
+  assert.equal(binding.max_steps, 2);
   assert.deepEqual(profile.adapter_package.adapter_ids, registry.adapters.map((item) => item.adapter_id));
   assert.deepEqual(profile.provider_scope, {
-    role: 'generic_metadata_coverage_and_citation_graph_fallback_only',
-    excluded_provider_ids: ['pubmed', 'pmc'],
-    excluded_provider_route: 'opl_connect_framework_unified_scientific_search',
+    role: 'package_owned_primary_biomedical_and_generic_metadata_search',
+    provider_ids: ['crossref', 'openalex', 'pubmed', 'pmc'],
+    framework_core_provider_ids: [],
   });
   assert.deepEqual(
     profile.providers.map((item) => [item.provider_id, item.adapter_id]),
@@ -138,11 +138,13 @@ test('Crossref search builds one bounded request and preserves every normalized 
     provider_id: 'crossref',
     doi: '10.1000/first',
     pmid: null,
+    pmcid: null,
     openalex_id: null,
     title: 'First article',
     journal: 'Clinical Journal',
     publication_year: '2025',
     authors: ['Ada Lovelace', 'Hopper'],
+    article_types: [],
     source_urls: {
       doi: 'https://doi.org/10.1000/first',
       crossref: 'https://api.crossref.org/works/10.1000%2Ffirst',
@@ -185,15 +187,169 @@ test('OpenAlex search preserves DOI, PMID, OpenAlex id, authors, journal, year, 
     provider_id: 'openalex',
     doi: '10.1000/openalex',
     pmid: '12345',
+    pmcid: null,
     openalex_id: 'W123',
     title: 'OpenAlex result',
     journal: 'OpenAlex Journal',
     publication_year: '2024',
     authors: ['First Author', 'Second Author'],
+    article_types: [],
     source_urls: {
       openalex: 'https://openalex.org/W123',
       doi: 'https://doi.org/10.1000/openalex',
       pubmed: 'https://pubmed.ncbi.nlm.nih.gov/12345/',
+      pmc: null,
+    },
+  });
+});
+
+test('PubMed search uses an explicit ESearch to ESummary next-step state', () => {
+  const request = build('pubmed', 'CONSORT randomized trial', 2);
+  assert.equal(request.next.kind, 'request');
+  const searchUrl = new URL(request.next.request.url);
+  assert.equal(searchUrl.origin, 'https://eutils.ncbi.nlm.nih.gov');
+  assert.equal(searchUrl.pathname, '/entrez/eutils/esearch.fcgi');
+  assert.equal(searchUrl.searchParams.get('db'), 'pubmed');
+  assert.equal(searchUrl.searchParams.get('term'), 'CONSORT randomized trial');
+  assert.equal(searchUrl.searchParams.get('retmode'), 'json');
+  assert.equal(searchUrl.searchParams.get('retmax'), '2');
+  assert.deepEqual(request.next.state, {
+    surface_kind: 'opl_connect_scientific_search_adapter_state.v1',
+    adapter_id: 'ncbi_pubmed_search',
+    step: 'search',
+    step_index: 1,
+    max_steps: 2,
+    query: 'CONSORT randomized trial',
+    limit: 2,
+  });
+
+  const summaryRequest = parse('pubmed', 'CONSORT randomized trial', 2, request, {
+    esearchresult: {
+      count: '2',
+      idlist: ['20332509', '12345'],
+    },
+  });
+  assert.equal(summaryRequest.next.kind, 'request');
+  const summaryUrl = new URL(summaryRequest.next.request.url);
+  assert.equal(summaryUrl.pathname, '/entrez/eutils/esummary.fcgi');
+  assert.equal(summaryUrl.searchParams.get('db'), 'pubmed');
+  assert.equal(summaryUrl.searchParams.get('id'), '20332509,12345');
+  assert.equal(summaryRequest.next.state.step, 'summary');
+  assert.equal(summaryRequest.next.state.step_index, 2);
+  assert.equal(summaryRequest.next.state.max_steps, 2);
+  assert.deepEqual(summaryRequest.next.state.ids, ['20332509', '12345']);
+  assert.equal(summaryRequest.next.state.provider_total, 2);
+
+  const result = parse('pubmed', 'CONSORT randomized trial', 2, summaryRequest, {
+    result: {
+      uids: ['20332509', '12345'],
+      '20332509': {
+        uid: '20332509',
+        title: 'CONSORT 2010 statement',
+        pubdate: '2010 Mar 23',
+        fulljournalname: 'BMJ',
+        authors: [{ name: 'Schulz KF' }],
+        pubtype: ['Journal Article', 'Randomized Controlled Trial'],
+        articleids: [
+          { idtype: 'doi', value: '10.1136/bmj.c332' },
+          { idtype: 'pmc', value: 'PMC2844940' },
+        ],
+      },
+      '12345': {
+        uid: '12345',
+        title: 'Second article',
+        pubdate: '2024',
+        source: 'Clinical Journal',
+        authors: [{ name: 'Second Author' }],
+      },
+    },
+  });
+  assert.equal(result.next.kind, 'complete');
+  assert.equal(result.next.provider_total, 2);
+  assert.deepEqual(result.next.candidates[0], {
+    source_ref: 'pubmed:20332509',
+    source_kind: 'literature_article',
+    source_provider: 'PubMed',
+    provider_id: 'pubmed',
+    doi: '10.1136/bmj.c332',
+    pmid: '20332509',
+    pmcid: 'PMC2844940',
+    openalex_id: null,
+    title: 'CONSORT 2010 statement',
+    journal: 'BMJ',
+    publication_year: '2010',
+    authors: ['Schulz KF'],
+    article_types: ['Journal Article', 'Randomized Controlled Trial'],
+    source_urls: {
+      doi: 'https://doi.org/10.1136/bmj.c332',
+      pubmed: 'https://pubmed.ncbi.nlm.nih.gov/20332509/',
+      pmc: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2844940/',
+      europe_pmc: null,
+    },
+  });
+});
+
+test('PubMed empty ESearch response completes without an ESummary request', () => {
+  const request = build('pubmed', 'no matches', 5);
+  const result = parse('pubmed', 'no matches', 5, request, {
+    esearchresult: { count: '0', idlist: [] },
+  });
+  assert.equal(result.next.kind, 'complete');
+  assert.deepEqual(result.next.candidates, []);
+  assert.equal(result.next.provider_total, 0);
+});
+
+test('Europe PMC search builds and parses a one-step PMC candidate response', () => {
+  const request = build('pmc', 'OPEN_ACCESS:Y AND CONSORT', 1);
+  assert.equal(request.next.kind, 'request');
+  const url = new URL(request.next.request.url);
+  assert.equal(url.origin, 'https://www.ebi.ac.uk');
+  assert.equal(url.pathname, '/europepmc/webservices/rest/search');
+  assert.equal(url.searchParams.get('query'), 'OPEN_ACCESS:Y AND CONSORT');
+  assert.equal(url.searchParams.get('format'), 'json');
+  assert.equal(url.searchParams.get('resultType'), 'core');
+  assert.equal(url.searchParams.get('pageSize'), '1');
+  assert.equal(request.next.state.max_steps, 1);
+
+  const result = parse('pmc', 'OPEN_ACCESS:Y AND CONSORT', 1, request, {
+    hitCount: 3,
+    resultList: {
+      result: [{
+        id: '20332509',
+        source: 'MED',
+        pmid: '20332509',
+        pmcid: 'PMC2844940',
+        doi: '10.1136/bmj.c332',
+        title: 'CONSORT 2010 statement',
+        pubYear: '2010',
+        journalTitle: 'BMJ',
+        authorList: { author: [{ fullName: 'Schulz KF' }] },
+        pubTypeList: { pubType: ['journal article', 'guideline'] },
+        inEPMC: 'Y',
+      }],
+    },
+  });
+  assert.equal(result.next.kind, 'complete');
+  assert.equal(result.next.provider_total, 3);
+  assert.deepEqual(result.next.candidates[0], {
+    source_ref: 'pmc:PMC2844940',
+    source_kind: 'literature_article',
+    source_provider: 'Europe PMC',
+    provider_id: 'pmc',
+    doi: '10.1136/bmj.c332',
+    pmid: '20332509',
+    pmcid: 'PMC2844940',
+    openalex_id: null,
+    title: 'CONSORT 2010 statement',
+    journal: 'BMJ',
+    publication_year: '2010',
+    authors: ['Schulz KF'],
+    article_types: ['journal article', 'guideline'],
+    source_urls: {
+      doi: 'https://doi.org/10.1136/bmj.c332',
+      pubmed: 'https://pubmed.ncbi.nlm.nih.gov/20332509/',
+      pmc: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2844940/',
+      europe_pmc: 'https://europepmc.org/article/MED/20332509',
     },
   });
 });
@@ -261,6 +417,7 @@ test('query, limit, adapter state, response, and endpoint drift fail closed', ()
   const empty = runScientificSearchAdapterStep(baseParse);
   assert.equal(empty.next.kind, 'complete');
   assert.deepEqual(empty.next.candidates, []);
+  assert.equal(empty.next.provider_total, null);
   const untrusted = provider('openalex');
   untrusted.endpoint.base_url = 'https://untrusted.example';
   assert.throws(

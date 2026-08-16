@@ -790,8 +790,8 @@ if search_runtime_binding.get("adapter_abi") != "opl-connect-scientific-search-a
     fail("scientific search binding must use the v1 search adapter ABI")
 if search_runtime_binding.get("handler") != expected_search_runtime_handler:
     fail("scientific search binding must expose the canonical TypeScript handler")
-if search_runtime_binding.get("max_steps") != 1:
-    fail("scientific search binding must cap every provider search at one HTTP step")
+if search_runtime_binding.get("max_steps") != 2:
+    fail("scientific search binding must cap every provider search at two HTTP steps")
 if search_runtime_binding.get("exports") != [
     "runScientificSearchAdapterStep",
     "build_search_request",
@@ -1037,8 +1037,8 @@ if scientific_search_registry.get("handler") != expected_search_runtime_handler:
     fail("scientific search registry must expose the canonical TypeScript handler")
 if scientific_search_registry.get("state_machine_exports") != ["build_search_request", "parse_search_response"]:
     fail("scientific search registry must expose its two bounded state-machine phases")
-if scientific_search_registry.get("max_steps") != 1:
-    fail("scientific search registry must cap provider searches at one step")
+if scientific_search_registry.get("max_steps") != 2:
+    fail("scientific search registry must cap provider searches at two steps")
 if scientific_search_registry.get("sandbox") != expected_runtime_sandbox:
     fail("scientific search registry sandbox must match the package runtime binding")
 if any(value is not False for value in (scientific_search_registry.get("no_authority_boundary") or {}).values()):
@@ -1046,14 +1046,14 @@ if any(value is not False for value in (scientific_search_registry.get("no_autho
 if any(value is not False for value in (scientific_search_profile.get("no_authority_boundary") or {}).values()):
     fail("scientific search profile authority flags must all be false")
 expected_search_provider_scope = {
-    "role": "generic_metadata_coverage_and_citation_graph_fallback_only",
-    "excluded_provider_ids": ["pubmed", "pmc"],
-    "excluded_provider_route": "opl_connect_framework_unified_scientific_search",
+    "role": "package_owned_primary_biomedical_and_generic_metadata_search",
+    "provider_ids": ["crossref", "openalex", "pubmed", "pmc"],
+    "framework_core_provider_ids": [],
 }
 if scientific_search_profile.get("provider_scope") != expected_search_provider_scope:
-    fail("scientific search package profile must exclude PubMed/PMC and remain a generic fallback adapter")
-if len(search_profile_adapter_ids) != 2 or len(set(search_profile_adapter_ids)) != 2:
-    fail("scientific search package must export exactly two unique adapters")
+    fail("scientific search package profile must own all four scientific providers")
+if len(search_profile_adapter_ids) != 4 or len(set(search_profile_adapter_ids)) != 4:
+    fail("scientific search package must export exactly four unique adapters")
 search_provider_rows = scientific_search_profile.get("providers") or []
 search_provider_ids = [item.get("provider_id") for item in search_provider_rows]
 if scientific_search_profile.get("default_provider_ids") != search_provider_ids:
@@ -1063,6 +1063,8 @@ if len(search_provider_ids) != len(set(search_provider_ids)):
 expected_search_provider_bindings = [
     ("crossref", "crossref_search_rest", "Crossref"),
     ("openalex", "openalex_search_rest", "OpenAlex"),
+    ("pubmed", "ncbi_pubmed_search", "PubMed"),
+    ("pmc", "europe_pmc_search", "Europe PMC"),
 ]
 if [
     (item.get("provider_id"), item.get("adapter_id"), item.get("source_provider"))
@@ -3680,14 +3682,14 @@ if search_runtime_adapter_module.get("adapter_ids") != search_profile_adapter_id
 search_state_machine_contract = search_runtime_adapter_module.get("state_machine_contract") or {}
 if search_state_machine_contract.get("operations") != ["build_search_request", "parse_search_response"]:
     fail("scientific search adapter module must expose its two bounded state-machine phases")
-if search_state_machine_contract.get("max_steps") != 1:
-    fail("scientific search adapter module must cap provider searches at one step")
+if search_state_machine_contract.get("max_steps") != 2:
+    fail("scientific search adapter module must cap provider searches at two steps")
 if search_state_machine_contract.get("http_execution_owner") != "opl_connect":
     fail("OPL Connect must remain the scientific search HTTP execution owner")
-if search_state_machine_contract.get("provider_scope") != "crossref_openalex_generic_metadata_coverage_and_citation_graph_fallback_only":
-    fail("scientific search adapter module must remain limited to Crossref/OpenAlex fallback discovery")
-if search_state_machine_contract.get("excluded_primary_biomedical_discovery_route") != "opl_connect_pubmed_pmc_framework_search":
-    fail("scientific search adapter module must route PubMed/PMC discovery to Framework-owned OPL Connect")
+if search_state_machine_contract.get("provider_scope") != "package_owned_primary_biomedical_and_generic_metadata_search":
+    fail("scientific search adapter module must own primary biomedical and metadata discovery")
+if search_state_machine_contract.get("framework_core_provider_scope") != "no_scientific_search_provider_logic":
+    fail("scientific search adapter module must keep scientific provider logic outside Framework core")
 if any(value is not False for value in (search_runtime_adapter_module.get("authority_boundary") or {}).values()):
     fail("scientific search adapter module authority flags must all be false")
 if search_runtime_adapter_module.get("allowed_writes") != []:

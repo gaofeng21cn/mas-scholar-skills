@@ -4013,19 +4013,21 @@
       "adapter_abi": "opl-connect-scientific-search-adapter.v1",
       "adapter_ids": [
         "crossref_search_rest",
-        "openalex_search_rest"
+        "openalex_search_rest",
+        "ncbi_pubmed_search",
+        "europe_pmc_search"
       ],
       "state_machine_contract": {
         "operations": [
           "build_search_request",
           "parse_search_response"
         ],
-        "max_steps": 1,
+        "max_steps": 2,
         "http_execution_owner": "opl_connect",
         "candidate_consumption_owner": "opl_connect_then_domain_owner",
         "adapter_input_output_policy": "serializable_request_state_response_only",
-        "provider_scope": "crossref_openalex_generic_metadata_coverage_and_citation_graph_fallback_only",
-        "excluded_primary_biomedical_discovery_route": "opl_connect_pubmed_pmc_framework_search"
+        "provider_scope": "package_owned_primary_biomedical_and_generic_metadata_search",
+        "framework_core_provider_scope": "no_scientific_search_provider_logic"
       },
       "authority_boundary": {
         "can_perform_network_io": false,

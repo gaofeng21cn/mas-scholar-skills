@@ -6,12 +6,14 @@
   "registry_owner": "mas-scholar-skills.scientific-search-adapters",
   "provider_ontology_owner": "profile_not_framework_core",
   "provider_scope": {
-    "role": "generic_metadata_coverage_and_citation_graph_fallback_only",
-    "excluded_provider_ids": [
+    "role": "package_owned_primary_biomedical_and_generic_metadata_search",
+    "provider_ids": [
+      "crossref",
+      "openalex",
       "pubmed",
       "pmc"
     ],
-    "excluded_provider_route": "opl_connect_framework_unified_scientific_search"
+    "framework_core_provider_ids": []
   },
   "adapter_package": {
     "package_id": "mas-scholar-skills",
@@ -22,13 +24,17 @@
     "handler_ref": "runtime/scientific-search-adapters/index.ts#runScientificSearchAdapterStep",
     "adapter_ids": [
       "crossref_search_rest",
-      "openalex_search_rest"
+      "openalex_search_rest",
+      "ncbi_pubmed_search",
+      "europe_pmc_search"
     ],
     "byte_authority": "installed_capability_package_source_commit_and_content_digest"
   },
   "default_provider_ids": [
     "crossref",
-    "openalex"
+    "openalex",
+    "pubmed",
+    "pmc"
   ],
   "providers": [
     {
@@ -52,6 +58,30 @@
         "environment_override": "OPL_CONNECT_OPENALEX_API_BASE",
         "allowed_origins": [
           "https://api.openalex.org"
+        ]
+      }
+    },
+    {
+      "provider_id": "pubmed",
+      "adapter_id": "ncbi_pubmed_search",
+      "source_provider": "PubMed",
+      "endpoint": {
+        "default_base_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
+        "environment_override": "OPL_CONNECT_PUBMED_EUTILS_BASE",
+        "allowed_origins": [
+          "https://eutils.ncbi.nlm.nih.gov"
+        ]
+      }
+    },
+    {
+      "provider_id": "pmc",
+      "adapter_id": "europe_pmc_search",
+      "source_provider": "Europe PMC",
+      "endpoint": {
+        "default_base_url": "https://www.ebi.ac.uk/europepmc/webservices/rest",
+        "environment_override": "OPL_CONNECT_EUROPE_PMC_API_BASE",
+        "allowed_origins": [
+          "https://www.ebi.ac.uk"
         ]
       }
     }

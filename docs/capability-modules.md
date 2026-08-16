@@ -19,11 +19,12 @@ OPL consumes this repository as a generic capability pack. Its public surface
 validates the descriptor, distributes or syncs selected skills, and returns
 provenance. OPL Connect may also load the package's two read-only provider
 companion modules: one verifies a known reference, while the other searches
-Crossref or OpenAlex for generic metadata, coverage, or citation-graph fallback
-candidates. Framework-owned OPL Connect provides primary PubMed/PMC discovery;
-the package search adapter explicitly excludes those providers. Connect executes
-HTTP, retry, cache, strict matching where applicable, and receipt materialization;
-the package code only builds bounded request descriptions and parses supplied response bytes.
+PubMed, Europe PMC, Crossref, or OpenAlex and normalizes primary or fallback
+candidates. The Package-owned search adapter declares provider-specific request
+construction and response parsing; Framework supplies transport, retry, cache,
+strict matching where applicable, and receipt materialization without embedding
+provider search logic. The package code only builds bounded request descriptions
+and parses supplied response bytes.
 It does not execute a medical stage, materialize
 candidate artifacts, or issue verdicts or receipts. Stage policy, domain actions,
 candidate acceptance, owner receipts, typed blockers, and artifact authority
@@ -64,7 +65,7 @@ syncable Codex skills, plus two read-only runtime adapter modules.
 | `mas-scholar-skills.submit` | `medical-submission-prep` | Candidate submission-preparation and offline publication-layout selection refs only |
 | `mas-scholar-skills.data` | `medical-data-governance` | Candidate data-governance refs only |
 | `mas-scholar-skills.reference-provider-adapters` | No Skill entry; package runtime binding | Pure request/response normalization for OPL Connect; no I/O, verdict, or receipt authority |
-| `mas-scholar-skills.scientific-search-adapters` | No Skill entry; package runtime binding | One-step Crossref/OpenAlex generic fallback search normalization; explicitly excludes PubMed/PMC and has no I/O, acceptance, verdict, or receipt authority |
+| `mas-scholar-skills.scientific-search-adapters` | No Skill entry; package runtime binding | Bounded PubMed/PMC, Crossref, and OpenAlex search normalization, including the PubMed ESearch -> ESummary next step; no I/O, acceptance, verdict, or receipt authority |
 
 Historical `opl.scholarskills.*` module ids are provenance aliases only. The
 historical aggregate name is likewise not a discoverable skill surface.
@@ -101,10 +102,11 @@ compliance, submission readiness, or authority.
 and route-back recommendations. This package owns the pure provider-specific
 mapping for reference verification across Crossref, OpenAlex, PubMed eSummary,
 Europe PMC, Semantic Scholar, Crossmark, and DOI landing metadata, plus independent
-Crossref/OpenAlex fallback search mapping. Framework-owned OPL Connect implements
-PubMed/PMC discovery and owns all network execution, retry, cache, strict
-comparison, normalized receipts, and connector errors. MAS or MAG owns candidate
-acceptance, citation acceptance, and domain use.
+Crossref/OpenAlex fallback search mapping. OPL Connect owns all network
+execution, retry, cache, strict comparison, normalized receipts, and connector
+errors; Framework does not embed a parallel provider registry or search
+implementation. MAS or MAG owns candidate acceptance, citation acceptance, and
+domain use.
 Provider evidence and search candidates are never literature verdicts or
 publication decisions.
 

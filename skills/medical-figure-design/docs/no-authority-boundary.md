@@ -53,9 +53,9 @@ not discoverable `SKILL.md` surfaces.
 not professional Skills or Stage owners. The first maps a known reference/provider
 input to bounded HTTP request descriptions, parses supplied responses, and may
 choose one Europe PMC full-text follow-up. The second maps
-`provider + query + limit` to one Crossref/OpenAlex request and normalizes all
-returned fallback candidates; it explicitly excludes PubMed/PMC discovery, which
-is implemented once by Framework-owned OPL Connect. Both modules keep network,
+`provider + query + limit` to a bounded provider request for PubMed, Europe PMC,
+Crossref, or OpenAlex and normalizes returned candidates; PubMed may use the
+explicit ESearch -> ESummary next step. Both modules keep network,
 environment, filesystem, process, receipt, verdict, blocker, reference-truth, and
 domain-authority flags false.
 

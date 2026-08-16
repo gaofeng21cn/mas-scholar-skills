@@ -16,7 +16,7 @@
     "build_search_request",
     "parse_search_response"
   ],
-  "max_steps": 1,
+  "max_steps": 2,
   "adapters": [
     {
       "adapter_id": "crossref_search_rest",
@@ -30,6 +30,28 @@
     {
       "adapter_id": "openalex_search_rest",
       "provider_id": "openalex",
+      "initial_step": "search",
+      "max_steps": 1,
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "ncbi_pubmed_search",
+      "provider_id": "pubmed",
+      "initial_step": "search",
+      "max_steps": 2,
+      "steps": [
+        "search",
+        "summary"
+      ],
+      "response_kinds": [
+        "json"
+      ]
+    },
+    {
+      "adapter_id": "europe_pmc_search",
+      "provider_id": "pmc",
       "initial_step": "search",
       "max_steps": 1,
       "response_kinds": [

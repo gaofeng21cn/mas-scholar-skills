@@ -276,7 +276,7 @@
           "file": "runtime/scientific-search-adapters/index.ts",
           "export": "runScientificSearchAdapterStep"
         },
-        "max_steps": 1,
+        "max_steps": 2,
         "contained_implementation_files": [
           "runtime/reference-provider-adapters/types.ts",
           "runtime/reference-provider-adapters/normalization.ts",
@@ -458,7 +458,7 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:d662ea5cf2727bb8955769d011c063060d2d6358d3531cc26b01bfbcb62c535f"
+    "digest": "sha256:d1765f33ec8ef0bae5fcad31ad3585890bba5daf6ffac6cb58f338195296a04b"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
