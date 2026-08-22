@@ -89,31 +89,6 @@ def safe_obs_summary(obs: Any, max_values: int = 8) -> dict[str, Any]:
     }
 
 
-def metadata_schema_skeleton(obs_keys: Sequence[str] | None = None) -> dict[str, Any]:
-    """Return the refs-only metadata schema shape expected before modeling."""
-
-    return {
-        "anndata_input_ref": "",
-        "metadata_schema_ref": {
-            "obs_keys": [
-                {
-                    "key": key,
-                    "sanitized_key": sanitize_key(key),
-                    "role": "",
-                    "provenance_ref": "",
-                    "allowed_missingness": "",
-                }
-                for key in (obs_keys or [])
-            ],
-            "var_keys": [],
-            "batch_key_ref": "",
-            "label_key_ref": "",
-        },
-        "route_back_candidate": "",
-        "owner_gate_handoff_ref": "",
-    }
-
-
 def batch_label_key_diagnostics(
     obs: Any, batch_key: str, label_key: str | None = None
 ) -> dict[str, Any]:

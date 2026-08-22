@@ -313,27 +313,6 @@ plot_kaplan_meier <- function(display_payload) {
   plot
 }
 
-plot_embedding_scatter <- function(display_payload) {
-  points_payload <- display_payload$points
-  if (!is.list(points_payload) || length(points_payload) < 1) {
-    stop("points must contain at least one observation")
-  }
-  point_df <- build_point_dataframe(points_payload)
-  plot <- ggplot(point_df, aes(x = x, y = y, colour = group)) +
-    geom_point(size = style_numeric(style_stroke(display_payload), "marker_size", 4.5) * 0.62, alpha = 0.9) +
-    scale_color_manual(
-      values = style_series_palette(display_payload, unique(point_df$group)),
-      guide = publication_legend_guides(display_payload, point_df$group)
-    ) +
-    labs(
-      title = trimws(as.character(display_payload$title %||% "")),
-      x = trimws(as.character(display_payload$x_label %||% "")),
-      y = trimws(as.character(display_payload$y_label %||% ""))
-    ) +
-    theme_publication(display_payload)
-  plot
-}
-
 plot_heatmap <- function(display_payload) {
   cells_payload <- display_payload$cells
   if (!is.list(cells_payload) || length(cells_payload) < 1) {

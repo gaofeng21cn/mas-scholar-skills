@@ -28,8 +28,8 @@ comparable-condition separation, displayed `n` and fixed context, label
 economy, color-vision robustness, and render-then-verify.
 
 Optional helper: use `kernel.py` for deterministic style utilities such as
-matplotlib rcParams, focal palettes, panel-letter placement refs, frame helpers,
-crop-box refs, and lightweight contrast/readability lint. The helper is a
+matplotlib rcParams, focal palettes, panel-letter placement refs, crop-box refs,
+and lightweight contrast/readability lint. The helper is a
 refs-only style/composition aid; its Matplotlib export default keeps the fixed
 canvas with `savefig.bbox=None`. It must not redraw data, mutate artifacts, or
 decide publication quality.

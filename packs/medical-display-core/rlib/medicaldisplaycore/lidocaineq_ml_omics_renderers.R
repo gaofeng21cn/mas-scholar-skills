@@ -330,20 +330,6 @@ lidocaine_alteration_palette <- function(display_payload, values) {
   named_values[present]
 }
 
-lidocaine_oncoprint_alter_fun <- function(alteration_type, alteration_colours) {
-  force(alteration_type)
-  force(alteration_colours)
-  function(x, y, w, h) {
-    grid::grid.rect(
-      x,
-      y,
-      w * 0.90,
-      h * 0.76,
-      gp = grid::gpar(fill = alteration_colours[[alteration_type]], col = "white", lwd = 0.35)
-    )
-  }
-}
-
 plot_lidocaine_cnv_recurrence <- function(display_payload) {
   records <- display_payload$cnv_records %||% list()
   if (length(records) > 0) {

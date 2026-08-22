@@ -717,7 +717,6 @@ def verify_source_pack() -> dict:
         "render.R",
         "fixtures/registry_gallery_cases.json",
         "renderer_dependency_profile.json",
-        "renderer_migration_ledger.json",
         "rlib/medicaldisplaycore/evidence_renderer.R",
         "rlib/medicaldisplaycore/evidence_renderer_parts/data_frames.R",
         "rlib/medicaldisplaycore/evidence_renderer_parts/layouts.R",

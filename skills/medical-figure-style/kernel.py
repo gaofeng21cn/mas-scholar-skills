@@ -57,32 +57,6 @@ def matplotlib_style_rcparams(
     return rc
 
 
-def apply_matplotlib_style(**kwargs: object) -> dict[str, object]:
-    """Apply :func:`matplotlib_style_rcparams` when matplotlib is installed."""
-    import matplotlib as mpl
-
-    rc = matplotlib_style_rcparams(**kwargs)
-    mpl.rcParams.update(rc)
-    return rc
-
-
-def set_frame(ax: object, style: str = "open") -> object:
-    """Set matplotlib axes spines to ``open``, ``boxed``, or ``none``."""
-    if style not in {"open", "boxed", "none"}:
-        raise ValueError("style must be 'open', 'boxed', or 'none'")
-    visible = {
-        "open": {"left", "bottom"},
-        "boxed": {"left", "bottom", "right", "top"},
-        "none": set(),
-    }[style]
-    for side, spine in ax.spines.items():
-        spine.set_visible(side in visible)
-        if side in visible:
-            spine.set_linewidth(0.6)
-    ax.tick_params(direction="out", length=0 if style == "none" else 3, width=0.6)
-    return ax
-
-
 def _hex_to_rgb(color: str) -> tuple[float, float, float]:
     value = color.strip().lstrip("#")
     if len(value) != 6:

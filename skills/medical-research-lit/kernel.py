@@ -113,29 +113,6 @@ def lint_citation_support(markdown: str) -> list[dict[str, str]]:
     return issues
 
 
-def support_matrix_skeleton(claims: Iterable[str], sources: Iterable[Mapping[str, object]]) -> list[dict[str, object]]:
-    """Create a refs-only claim/source support matrix skeleton."""
-    normalized_sources = [normalize_source(s) for s in sources]
-    return [
-        {
-            "claim": claim,
-            "candidate_sources": [
-                {
-                    "title": src.get("title", ""),
-                    "pmid": src.get("pmid", ""),
-                    "pmcid": src.get("pmcid", ""),
-                    "doi": src.get("doi", ""),
-                    "support_strength": "not_applicable",
-                    "limitations": "",
-                }
-                for src in normalized_sources
-            ],
-            "route_back_candidate": "",
-        }
-        for claim in claims
-    ]
-
-
 def handoff_skeleton(literature_question: str = "") -> dict[str, object]:
     """Return the standard refs-only Lit handoff shell."""
     return {

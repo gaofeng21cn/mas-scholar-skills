@@ -730,23 +730,6 @@ def medical_initial_draft_preflight_candidate_schema() -> dict[str, Any]:
     }
 
 
-def medical_initial_draft_preflight_candidate_schema_v2() -> dict[str, Any]:
-    """Return the strict v2 semantic policy over the stable v1 JSON shape."""
-
-    return {
-        **medical_initial_draft_preflight_candidate_schema(),
-        "semantic_policy_id": "scholarskills_medical_initial_draft_preflight.v2",
-        "required_gate_ref_families": {
-            gate: list(refs)
-            for gate, refs in INITIAL_DRAFT_PREFLIGHT_GATE_REF_FAMILIES_V2.items()
-        },
-        "conditional_gate_ref_alternatives": {
-            gate: [list(group) for group in groups]
-            for gate, groups in INITIAL_DRAFT_PREFLIGHT_GATE_REF_ALTERNATIVES.items()
-        },
-    }
-
-
 def medical_initial_draft_preflight_candidate_schema_v3() -> dict[str, Any]:
     """Return the current semantic policy with author-stance integrity."""
 

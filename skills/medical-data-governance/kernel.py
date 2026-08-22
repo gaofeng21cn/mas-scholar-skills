@@ -102,24 +102,6 @@ def classify_sensitive_field(name: object) -> str:
     return "not_flagged_by_name"
 
 
-def data_governance_handoff_skeleton(dataset_ref: str = "") -> dict[str, object]:
-    """Return the standard refs-only governance handoff shell."""
-
-    return {
-        "data_governance_handoff_ref": "",
-        "dataset_ref": dataset_ref,
-        "source_layer": "",
-        "version_ref": "",
-        "data_dictionary_ref": "",
-        "manifest_completeness_check_ref": "",
-        "privacy_tier_check_ref": "",
-        "study_impact_check_ref": "",
-        "provenance_ref": "",
-        "owner_gate_target": "",
-        "route_back_candidate": "",
-    }
-
-
 def missingness_profile_skeleton(fields: Sequence[str]) -> list[dict[str, object]]:
     """Return one missingness/provenance row per field."""
 

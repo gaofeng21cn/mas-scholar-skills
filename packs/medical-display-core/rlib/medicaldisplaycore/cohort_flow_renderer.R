@@ -146,15 +146,6 @@ cohort_step_id <- function(step, index) {
   make.names(value)
 }
 
-cohort_step_label <- function(step, index) {
-  label <- trimws(as.character(step$label %||% ""))
-  n <- suppressWarnings(as.integer(step$n))
-  if (!nzchar(label) || is.na(n)) {
-    stop(sprintf("cohort_flow_figure steps[%d] requires label and integer n", index))
-  }
-  sprintf("%s<br>n=%s", wrap_node_label(label, width = 26), format(n, big.mark = ",", scientific = FALSE))
-}
-
 cohort_exclusion_label <- function(exclusion, index) {
   label <- trimws(as.character(exclusion$label %||% ""))
   n <- suppressWarnings(as.integer(exclusion$n))
@@ -218,18 +209,6 @@ cohort_design_line_label <- function(item) {
   detail
 }
 
-cohort_design_panel_label <- function(panel) {
-  title <- trimws(as.character(panel$title %||% panel$label %||% "Design"))
-  lines <- panel$lines %||% panel$items %||% list()
-  line_labels <- vapply(lines, cohort_design_line_label, character(1))
-  line_labels <- line_labels[nzchar(trimws(line_labels))]
-  if (length(line_labels) > 5) {
-    line_labels <- c(line_labels[seq_len(5)], sprintf("+%d more", length(line_labels) - 5))
-  }
-  body <- paste(vapply(line_labels, wrap_plain_label, character(1), width = 24), collapse = "\n")
-  paste(c(title, body), collapse = "\n")
-}
-
 cohort_design_panel_body <- function(panel) {
   lines <- panel$lines %||% panel$items %||% list()
   if (length(lines) < 1) {
@@ -248,54 +227,6 @@ cohort_design_panel_body <- function(panel) {
     line_labels <- c(line_labels[seq_len(3)], sprintf("+%d more", length(line_labels) - 3))
   }
   join_limited_lines(vapply(line_labels, clamp_wrapped_lines, character(1), width = 28, max_lines = 2), max_lines = 6)
-}
-
-cohort_endpoint_label <- function(endpoint) {
-  label <- trimws(as.character(endpoint$label %||% endpoint$endpoint %||% "Endpoint"))
-  event_n <- endpoint$event_n %||% endpoint$n_events
-  count_n <- endpoint$n
-  count_text <- ""
-  if (!is.null(event_n)) {
-    count_text <- sprintf("Events: %s", format(as.integer(event_n), big.mark = ",", scientific = FALSE))
-  } else if (!is.null(count_n)) {
-    count_text <- sprintf("n=%s", format(as.integer(count_n), big.mark = ",", scientific = FALSE))
-  }
-  detail <- trimws(as.character(endpoint$detail %||% endpoint$status %||% ""))
-  cohort_events <- character(0)
-  event_match <- regexec("([0-9,]+)\\s+China events?\\s+and\\s+([0-9,]+)\\s+NHANES events?", detail, ignore.case = TRUE)
-  event_parts <- regmatches(detail, event_match)[[1]]
-  if (length(event_parts) == 3) {
-    cohort_events <- sprintf("China %s; NHANES %s", event_parts[[2]], event_parts[[3]])
-  } else if (nzchar(detail)) {
-    cohort_events <- clamp_wrapped_lines(detail, width = 32, max_lines = 2)
-  }
-  paste(
-    c(
-      clamp_wrapped_lines(label, width = 28, max_lines = 2),
-      clamp_wrapped_lines(count_text, width = 28, max_lines = 1),
-      cohort_events
-    )[nzchar(c(label, count_text, cohort_events))],
-    collapse = "\n"
-  )
-}
-
-cohort_step_plot_label <- function(step, index) {
-  label <- trimws(as.character(step$label %||% ""))
-  n <- suppressWarnings(as.integer(step$n))
-  if (!nzchar(label) || is.na(n)) {
-    stop(sprintf("cohort_flow_figure steps[%d] requires label and integer n", index))
-  }
-  detail <- trimws(as.character(step$detail %||% ""))
-  detail_text <- ""
-  if (nzchar(detail)) {
-    detail_text <- wrap_complete_lines(detail, width = 36)
-  }
-  lines <- c(
-    strwrap(label, width = 24, simplify = FALSE)[[1]],
-    sprintf("n=%s", format(n, big.mark = ",", scientific = FALSE)),
-    detail_text
-  )
-  paste(lines[nzchar(trimws(lines))], collapse = "\n")
 }
 
 cohort_step_label_line_count <- function(step, include_detail = TRUE) {
@@ -380,17 +311,6 @@ participant_flow_default_width_in <- function(payload, fallback = 6.1) {
   }
   exclusions <- payload$exclusions %||% list()
   if (length(exclusions) > 0) fallback else 5.4
-}
-
-cohort_step_frame <- function(steps, step_ids, node_height, node_gap = participant_flow_node_gap(node_height)) {
-  layout <- participant_flow_layout(length(steps), node_height, node_gap)
-  data.frame(
-    step_id = step_ids,
-    label = vapply(seq_along(steps), function(index) cohort_step_plot_label(steps[[index]], index), character(1)),
-    x = rep(4, length(steps)),
-    y = layout$y,
-    stringsAsFactors = FALSE
-  )
 }
 
 cohort_flow_mode <- function(payload) {
@@ -496,30 +416,6 @@ normalize_subcohort_coverage <- function(payload) {
     )
   }
   normalized
-}
-
-cohort_exclusion_frame <- function(exclusions, step_df, step_ids) {
-  if (length(exclusions) < 1) {
-    return(data.frame())
-  }
-  rows <- list()
-  for (index in seq_along(exclusions)) {
-    exclusion <- exclusions[[index]]
-    from_step_raw <- trimws(as.character(exclusion$from_step_id %||% ""))
-    from_index <- match(make.names(from_step_raw), step_ids)
-    if (is.na(from_index)) {
-      stop(sprintf("cohort_flow_figure exclusions[%d].from_step_id does not reference a declared step", index))
-    }
-    rows[[length(rows) + 1]] <- data.frame(
-      exclusion_id = make.names(trimws(as.character(exclusion$exclusion_id %||% exclusion$branch_id %||% sprintf("exclusion_%d", index)))),
-      from_step_id = step_ids[[from_index]],
-      label = cohort_exclusion_label(exclusion, index),
-      x = 34,
-      y = step_df$y[[from_index]] - 6,
-      stringsAsFactors = FALSE
-    )
-  }
-  do.call(rbind, rows)
 }
 
 source_layer_label <- function(layer) {

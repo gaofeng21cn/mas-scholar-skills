@@ -18,10 +18,10 @@ sign owner receipt, create typed blocker, claim source readiness, or claim
 publication readiness.
 
 Optional skill-local helper: use `kernel.py` for deterministic AnnData key
-sanitizing, obs metadata summaries, metadata schema scaffolds, and
-batch/label-key diagnostics. It is a no-authority scaffold/diagnostic helper
-only; the consuming workspace or compute owner still owns data truth, execution,
-model outputs, owner receipts, typed blockers, and readiness labels.
+sanitizing, safe obs summaries, and batch/label-key diagnostics. It is a
+no-authority diagnostic helper only; the consuming workspace or compute owner
+still owns data truth, execution, model outputs, owner receipts, typed blockers,
+and readiness labels.
 
 `kernel.py` also exposes `h5ad_safe_obs(df)`, a skill-local deterministic helper
 for preparing copied AnnData `.obs`/`.var` dataframes before a caller writes

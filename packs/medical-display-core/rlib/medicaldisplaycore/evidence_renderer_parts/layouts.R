@@ -141,35 +141,6 @@ build_forest_layout <- function(display_payload, panel_box, axis_left_box) {
   list(layout_boxes = layout_boxes, guide_boxes = guide_boxes, metrics = list(rows = metric_rows))
 }
 
-build_embedding_metrics <- function(display_payload, panel_box) {
-  points <- display_payload$points
-  if (is.null(panel_box) || !is.list(points) || length(points) < 1) {
-    return(list(points = list()))
-  }
-  x_values <- vapply(points, function(item) as.numeric(item$x), numeric(1))
-  y_values <- vapply(points, function(item) as.numeric(item$y), numeric(1))
-  x_min <- min(x_values)
-  x_max <- max(x_values)
-  y_min <- min(y_values)
-  y_max <- max(y_values)
-  if (identical(x_min, x_max)) {
-    x_min <- x_min - 0.5
-    x_max <- x_max + 0.5
-  }
-  if (identical(y_min, y_max)) {
-    y_min <- y_min - 0.5
-    y_max <- y_max + 0.5
-  }
-  point_metrics <- lapply(points, function(item) {
-    list(
-      x = map_value_to_panel_x(as.numeric(item$x), panel_box, x_min, x_max),
-      y = panel_box$y0 + ((as.numeric(item$y) - y_min) / (y_max - y_min)) * (panel_box$y1 - panel_box$y0),
-      group = trimws(as.character(item$group %||% ""))
-    )
-  })
-  list(points = point_metrics)
-}
-
 build_metrics <- function(template_id, display_payload, panel_box) {
   lidocaineq_metrics <- if (exists("build_lidocaineq_metrics", mode = "function")) {
     build_lidocaineq_metrics(template_id, display_payload, panel_box)

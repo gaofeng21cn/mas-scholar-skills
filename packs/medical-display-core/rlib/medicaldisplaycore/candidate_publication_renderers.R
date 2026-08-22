@@ -605,25 +605,6 @@ transportability_verdict_label <- function(value) {
   candidate_non_empty(normalized, "Review")
 }
 
-transportability_wrap_label <- function(value, width = 14) {
-  label <- candidate_non_empty(value, "Review")
-  paste(strwrap(label, width = width), collapse = "\n")
-}
-
-transportability_owner_action_label <- function(value) {
-  normalized <- tolower(trimws(as.character(value %||% "")))
-  if (grepl("recalibration", normalized)) {
-    return("Recalibrate\nbefore use")
-  }
-  if (grepl("bounded", normalized) || grepl("report", normalized)) {
-    return("Report as\nbounded")
-  }
-  if (grepl("within", normalized) || grepl("accept", normalized) || grepl("reference", normalized)) {
-    return("Accept\nreference")
-  }
-  transportability_wrap_label(value, width = 13)
-}
-
 candidate_plot_center_transportability_governance <- function(payload) {
   centers <- payload$centers %|||% list()
   if (length(centers) < 1) {

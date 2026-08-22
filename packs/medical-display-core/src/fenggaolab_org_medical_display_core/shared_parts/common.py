@@ -8,13 +8,6 @@ from typing import Any
 from med_autoscience.display_pack_resolver import get_pack_id, get_template_short_id
 
 
-def load_json(path: Path) -> dict[str, Any]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        raise ValueError(f"expected JSON object at {path}")
-    return payload
-
-
 def dump_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -27,13 +20,6 @@ def _require_namespaced_registry_id(identifier: str, *, label: str) -> tuple[str
     except ValueError as exc:
         raise ValueError(f"{label} must be namespaced as '<pack_id>::<template_id>'") from exc
     return pack_id, short_id
-
-
-def _read_bool_override(mapping: dict[str, Any], key: str, default: bool) -> bool:
-    value = mapping.get(key)
-    if isinstance(value, bool):
-        return value
-    return default
 
 
 def _require_non_empty_string(value: object, *, label: str) -> str:

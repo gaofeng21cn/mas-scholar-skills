@@ -384,7 +384,10 @@ def _self_check() -> None:
     from pathlib import Path
     from tempfile import TemporaryDirectory
 
-    from PIL import Image
+    try:
+        from PIL import Image
+    except ModuleNotFoundError:
+        Image = None
 
     outline = _sample_outline()
     fit_schema = figure_outline_schema()["properties"]["panels"]["items"]["properties"]["fit_mode"]
@@ -544,6 +547,11 @@ def _self_check() -> None:
     assert panel_properties["col"]["minimum"] == 0
     assert panel_properties["rowspan"]["minimum"] == 1
     assert panel_properties["colspan"]["minimum"] == 1
+
+    # Geometry and refs-only checks remain useful without the optional image
+    # compositor dependency.
+    if Image is None:
+        return
 
     square_outline = {
         "claim": "Preserve panel aspect ratio.",
