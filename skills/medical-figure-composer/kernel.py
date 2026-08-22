@@ -380,15 +380,7 @@ def _sample_outline() -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    from pathlib import Path
-    from tempfile import TemporaryDirectory
-
-    try:
-        from PIL import Image
-    except ModuleNotFoundError:
-        Image = None
-
+def _self_check(*, include_pillow: bool = False) -> None:
     outline = _sample_outline()
     fit_schema = figure_outline_schema()["properties"]["panels"]["items"]["properties"]["fit_mode"]
     assert fit_schema == {"type": "string", "enum": ["contain", "crop"], "default": "contain"}
@@ -548,10 +540,16 @@ def _self_check() -> None:
     assert panel_properties["rowspan"]["minimum"] == 1
     assert panel_properties["colspan"]["minimum"] == 1
 
-    # Geometry and refs-only checks remain useful without the optional image
-    # compositor dependency.
-    if Image is None:
+    if not include_pillow:
         return
+
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    try:
+        from PIL import Image
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("Pillow is required for the image-composition self-check") from exc
 
     square_outline = {
         "claim": "Preserve panel aspect ratio.",
@@ -626,5 +624,11 @@ def _self_check() -> None:
 
 
 if __name__ == "__main__":
-    _self_check()
-    print("medical-figure-composer kernel self-check passed")
+    import sys
+
+    args = sys.argv[1:]
+    if args not in ([], ["--with-pillow"]):
+        raise SystemExit("usage: kernel.py [--with-pillow]")
+    _self_check(include_pillow=args == ["--with-pillow"])
+    lane = "image composition" if args else "core"
+    print(f"medical-figure-composer {lane} self-check passed")
