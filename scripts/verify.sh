@@ -18,7 +18,6 @@ run_fast() {
 }
 
 run_render() {
-  python3 skills/medical-figure-composer/kernel.py --with-pillow
   python3 scripts/verify-display-gallery-pack.py --check
   python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py
   python3 packs/medical-display-core/tests/render_registry_gallery_templates.py
