@@ -53,8 +53,8 @@ test('manifest, profile, registry, and descriptor expose the locked search runti
   const binding = manifest.exports.runtime_module_bindings.find(
     (item) => item.module_id === 'mas-scholar-skills.scientific-search-adapters',
   );
-  assert.equal(manifest.version, '0.2.28');
-  assert.equal(plugin.version, '0.2.28');
+  assert.equal(manifest.version, '0.2.29');
+  assert.equal(plugin.version, '0.2.29');
   assert.equal(manifest.content_lock.canonicalization, 'ordered_path_length_file_length_bytes');
   assert.ok(binding);
   assert.equal(binding.adapter_abi, SCIENTIFIC_SEARCH_ADAPTER_ABI);

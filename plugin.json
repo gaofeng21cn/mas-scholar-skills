@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "mas-scholar-skills",
-  "version": "0.2.28",
+  "version": "0.2.29",
   "description": "Professional medical-research skills for MAS and MAG.",
   "author": {
     "name": "One Person Lab"
