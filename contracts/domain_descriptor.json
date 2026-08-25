@@ -107,7 +107,7 @@
       "medical-owner-gate-handoff-reviewer",
       "medical-publication-strategy-memory-curator"
     ],
-    "optional_router_policy": "all exported skills are materialized by default; default_exposure=false means no automatic routing or global exposure, and router/reviewer skills select named specialists only for matching tasks.",
+    "optional_router_policy": "only the primary routing skill is materialized by default; default_exposure=false keeps the capability out of global discovery, and router/reviewer skills select named specialists only for matching tasks.",
     "advanced_specialist_router_skills": [
       "medical-advanced-biomed-router"
     ],

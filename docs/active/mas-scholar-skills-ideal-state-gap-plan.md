@@ -35,7 +35,7 @@ The audited source snapshot has the following structural shape:
 | --- | --- | --- |
 | Package | `contracts/opl_capability_package_manifest.json` declares required MAS/MAG consumer profiles at version `0.2.29`, preserves its Codex exposure metadata, and carries both Agent Plugins and Codex descriptors | Owner GHCR publication and complete carrier readback remain unproven; source projection is not installed/effective truth |
 | Consumer profiles | Current `.v1` profiles now declare required/fail-closed identity and callability fields | Required readiness is limited to Package identity presence and capability callability for the affected consumer; no version/ABI/lock/payload solving |
-| Skill exposure | 35 discoverable `SKILL.md` entries: 11 aggregate/core and 24 router or named-specialty skills | Presence does not select a specialty or grant authority |
+| Skill exposure | 36 source `SKILL.md` entries: one primary routing entry, required core capabilities, and named specialists | Only the primary entry is projected by default; presence does not select a specialty or grant authority |
 | Module catalog | `contracts/scholar-skills-capability-modules.json` declares eight professional modules and two machine adapter modules | The adapters describe or parse bounded requests; OPL Connect owns I/O and receipts |
 | Authority | Contract authority flags are false for domain truth, owner receipts, typed blockers, artifact mutation, current-package authority, and publication readiness | MAS or the consuming domain owner remains authoritative |
 | Verification | `scripts/verify.sh` defines `fast`, `render`, and `full` lanes | A passing lane is repository evidence only, not live install, render, domain, or publication readiness |

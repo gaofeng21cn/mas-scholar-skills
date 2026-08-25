@@ -134,6 +134,9 @@
       "medical-submission-prep",
       "medical-data-governance"
     ],
+    "default_materialized_skill_ids": [
+      "mas-scholar-skills"
+    ],
     "specialty_skill_ids": [
       "medical-advanced-biomed-router",
       "medical-methodology-planner",
@@ -314,9 +317,9 @@
       }
     ],
     "optional_skill_policy_ref": "contracts/scholar-skills-capability-modules.json#/codex_skill_exposure_policy/optional_named_specialty_skill_ids",
-    "optional_skills_installed_by_default": true,
-    "default_materialization_policy": "all_exported_skills",
-    "specialty_routing_policy": "materialized_by_default_selected_only_for_matching_tasks"
+    "optional_skills_installed_by_default": false,
+    "default_materialization_policy": "core_skills_only",
+    "specialty_routing_policy": "materialized_only_for_matching_tasks"
   },
   "content_lock": {
     "algorithm": "sha256",
@@ -458,15 +461,16 @@
       "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py",
       "skills/medical-research-portfolio-memory-curator/SKILL.md"
     ],
-    "digest": "sha256:b3d3a23e48cd75766c8e196ca5e0b819d468a02110f0329d0d065b6eeefad860"
+    "digest": "sha256:60dffc4cc74177274d80e4570076116b8013c6ce8e5bd2aa8e446b6fdd2c3791"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
     "carrier_source_role": "codex_plugin_carrier_not_package_truth",
     "consumer_profiles_ref": "#/consumer_profiles",
-    "default_materialized_skill_ids_ref": "#/exports/all_skill_ids",
+    "default_materialized_skill_ids_ref": "#/exports/default_materialized_skill_ids",
     "codex_default_exposure": false,
-    "optional_install_policy": "all_exported_skills",
+    "optional_install_policy": "core_skills_only",
+    "interaction_mode": "headless_internal",
     "configured_codex_plugin_carrier": {
       "kind": "codex_plugin_manager",
       "plugin_selector": "mas-scholar-skills@mas-scholar-skills",

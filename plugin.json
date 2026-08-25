@@ -18,7 +18,7 @@
       "interface": {
         "displayName": "MAS Scholar Skills",
         "shortDescription": "Required MAS paper and MAG grant capability Skills.",
-        "longDescription": "Provides refs-only MAS medical-paper and MAG medical-grant capability profiles. All exported Skills may be bundled or materialized for native discovery; MAS and MAG still require the Package identity and selected capability set to be present and callable. Missing or incompatible profile Skills fail closed for the affected consumer while preserving the consumer's domain authority.",
+        "longDescription": "Provides refs-only MAS medical-paper and MAG medical-grant capability profiles. The aggregate and core Skills are available through the consuming Agent; named specialist Skills are materialized only for a matching task. Missing or incompatible profile Skills fail closed for the affected consumer while preserving the consumer's domain authority.",
         "developerName": "One Person Lab",
         "category": "Productivity",
         "capabilities": [

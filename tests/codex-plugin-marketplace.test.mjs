@@ -29,9 +29,10 @@ test('root owner descriptor is a portable regular copy of the canonical capabili
     plugin_id: 'mas-scholar-skills',
     carrier_source_role: 'codex_plugin_carrier_not_package_truth',
     consumer_profiles_ref: '#/consumer_profiles',
-    default_materialized_skill_ids_ref: '#/exports/all_skill_ids',
+    default_materialized_skill_ids_ref: '#/exports/default_materialized_skill_ids',
     codex_default_exposure: false,
-    optional_install_policy: 'all_exported_skills',
+    optional_install_policy: 'core_skills_only',
+    interaction_mode: 'headless_internal',
     configured_codex_plugin_carrier: expectedConfiguredCarrier,
   });
   for (const key of Object.keys(expectedConfiguredCarrier)) {

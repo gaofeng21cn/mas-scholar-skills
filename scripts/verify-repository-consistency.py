@@ -620,10 +620,11 @@ redirect_tombstone_skill_ids = [
     *medical_method_redirect_tombstone_skill_ids,
 ]
 aggregate_skill_ids = ["mas-scholar-skills"]
-expected_default_exposure_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
+expected_required_skill_ids = [*aggregate_skill_ids, *expected_capability_skills]
+expected_default_exposure_skill_ids = [*aggregate_skill_ids]
 expected_optional_skill_ids = [*optional_router_skill_ids, *optional_named_specialty_skill_ids]
-expected_discoverable_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
-expected_all_skill_ids = [*expected_default_exposure_skill_ids, *expected_optional_skill_ids]
+expected_discoverable_skill_ids = [*expected_required_skill_ids, *expected_optional_skill_ids]
+expected_all_skill_ids = [*expected_required_skill_ids, *expected_optional_skill_ids]
 
 if package_manifest.get("surface_kind") != "opl_capability_package_manifest.v2":
     fail("capability package manifest must use opl_capability_package_manifest.v2")
@@ -648,8 +649,10 @@ if consumer_policy.get("supported_required_by") != ["mas", "mag"]:
 if consumer_policy.get("non_primary_runtime_dependency_supported") is not True:
     fail("declared consumers must receive a runtime dependency promise")
 package_exports = package_manifest.get("exports") or {}
-if package_exports.get("core_skill_ids") != expected_default_exposure_skill_ids:
-    fail("capability package core skills must match the canonical default exposure policy")
+if package_exports.get("core_skill_ids") != expected_required_skill_ids:
+    fail("capability package core skills must match the required capability closure")
+if package_exports.get("default_materialized_skill_ids") != expected_default_exposure_skill_ids:
+    fail("capability package default materialized skills must match the primary routing policy")
 if package_exports.get("specialty_skill_ids") != expected_optional_skill_ids:
     fail("capability package specialty skills must match the canonical optional skill catalog")
 if package_exports.get("all_skill_ids") != expected_all_skill_ids:
@@ -702,7 +705,7 @@ expected_consumer_profiles = [
     {
         "profile_id": "mas-medical-paper.v1",
         "consumer_agent_id": "mas",
-        "required_export_ids": expected_default_exposure_skill_ids,
+        "required_export_ids": expected_required_skill_ids,
         "required_module_ids": expected_module_ids,
         **required_profile_common,
     },
@@ -1103,11 +1106,11 @@ for relative in all_runtime_source_paths:
     ]:
         if token in source:
             fail(f"{relative} must not expose direct I/O surface {token}")
-if package_exports.get("optional_skills_installed_by_default") is not True:
-    fail("all specialty skills must be installed by default")
-if package_exports.get("default_materialization_policy") != "all_exported_skills":
-    fail("capability package must use all-exported-skills materialization")
-if package_exports.get("specialty_routing_policy") != "materialized_by_default_selected_only_for_matching_tasks":
+if package_exports.get("optional_skills_installed_by_default") is not False:
+    fail("specialty skills must not be installed by default")
+if package_exports.get("default_materialization_policy") != "core_skills_only":
+    fail("capability package must use core-only default materialization")
+if package_exports.get("specialty_routing_policy") != "materialized_only_for_matching_tasks":
     fail("capability package must keep specialty routing task-selective")
 if "lifecycle" in package_manifest:
     fail("framework capability provider must not own consumer install, repair, activation, or readiness lifecycle")
@@ -1123,9 +1126,10 @@ expected_codex_surface = {
     "plugin_id": "mas-scholar-skills",
     "carrier_source_role": "codex_plugin_carrier_not_package_truth",
     "consumer_profiles_ref": "#/consumer_profiles",
-    "default_materialized_skill_ids_ref": "#/exports/all_skill_ids",
+    "default_materialized_skill_ids_ref": "#/exports/default_materialized_skill_ids",
     "codex_default_exposure": False,
-    "optional_install_policy": "all_exported_skills",
+    "optional_install_policy": "core_skills_only",
+    "interaction_mode": "headless_internal",
     "configured_codex_plugin_carrier": expected_configured_codex_plugin_carrier,
 }
 if codex_surface != expected_codex_surface:
@@ -2240,17 +2244,17 @@ if exposure_policy.get("plugin_manifest_ref") != ".codex-plugin/plugin.json":
     fail("codex skill exposure policy must point to plugin manifest")
 if exposure_policy.get("codex_default_exposure") is not False:
     fail("codex skill exposure policy default exposure must be false")
-if exposure_policy.get("default_install_policy") != "workspace_or_quest_install_includes_all_exported_skills":
-    fail("codex skill exposure policy must install all exported skills")
+if exposure_policy.get("default_install_policy") != "workspace_or_quest_install_includes_primary_routing_skill_only":
+    fail("codex skill exposure policy must install only the primary routing skill by default")
 if exposure_policy.get("aggregate_skill_ids") != aggregate_skill_ids:
     fail("codex skill exposure aggregate skill ids must match")
 if exposure_policy.get("core_skill_ids") != expected_capability_skills:
     fail("codex skill exposure core skill ids must match real syncable skills")
-if exposure_policy.get("default_exposure_skill_ids") != expected_all_skill_ids:
-    fail("codex skill exposure default skill ids must include all exported skills")
-if exposure_policy.get("optional_skills_installed_by_default") is not True:
-    fail("codex skill exposure must install specialty skills by default")
-if exposure_policy.get("specialty_routing_policy") != "materialized_by_default_selected_only_for_matching_tasks":
+if exposure_policy.get("default_exposure_skill_ids") != expected_default_exposure_skill_ids:
+    fail("codex skill exposure default skill ids must include only the aggregate routing skill")
+if exposure_policy.get("optional_skills_installed_by_default") is not False:
+    fail("codex skill exposure must keep specialty skills opt-in")
+if exposure_policy.get("specialty_routing_policy") != "materialized_only_for_matching_tasks":
     fail("codex skill exposure must separate materialization from specialty routing")
 for policy_name, policy_value in [
     (
@@ -2274,10 +2278,7 @@ for policy_name, policy_value in [
         ),
     ),
 ]:
-    if (
-        "materialized_by_default" not in (policy_value or "")
-        or "selected_only_for_matching_tasks" not in (policy_value or "")
-    ):
+    if "materialized_only_for_matching_tasks" not in (policy_value or ""):
         fail(
             f"{policy_name} must separate default materialization from task routing"
         )
@@ -2295,7 +2296,7 @@ for policy_name, policy_value in [
     if not all(
         token in normalized_policy
         for token in (
-            "materialized by default",
+            "primary routing skill is materialized by default",
             "default_exposure=false",
             "matching tasks",
         )

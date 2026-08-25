@@ -61,7 +61,7 @@ there is no pack-specific medical module execution surface.
 | Classification | Members | Role |
 | --- | --- | --- |
 | Active professional modules | `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, `data` | Contract ids and candidate-ref vocabulary backed by real skills |
-| Default professional skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance` | AI-first playbooks that can be selectively synchronized for Codex discovery |
+| Default professional skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance` | Required package capabilities; synchronized into a project only for the matching MAS stage |
 | Optional specialist skills | Advanced and medical-method specialist skills | Named-task helpers; refs-only and never part of consumer readiness |
 
 The quality floor belongs in the relevant professional skill. Change a module
@@ -138,10 +138,10 @@ opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest
 
 These are internal descriptor/materialization surfaces, not alternative user
 installation interfaces. The first command is descriptor/provenance readback.
-Scope materialization copies all 36 exported skills and compact discovery
-material into a workspace or quest so Codex can discover specialties before
-execution. Specialty skills still require a matching named task; the historical
-aggregate alias is not installed as an active skill. Do not copy the full repository, MAS render outputs,
+Scope materialization copies the primary routing Skill by default and adds a
+selected stage or specialty Skill only for the matching task. The package keeps
+all 36 source Skill entries for dependency callability and on-demand routing,
+but they do not become one project-wide discovery set. Do not copy the full repository, MAS render outputs,
 caches, dependency locks, or intermediate gallery workspaces into a paper
 workspace.
 

@@ -64,9 +64,12 @@ identity instead of bypassing the professional workflow.
 
 ## Optional Routing
 
-When the pack is bundled or materialized, all exported specialty Skills are
-available for native discovery. Use them only when a named specialty is not
-covered by the core skills. Start from the closest router/reviewer:
+The pack's aggregate routing Skill is the only default project entry; the
+required core capability Skills remain package-installed but are loaded into a
+project only for the matching MAS stage. Optional specialty Skills are never
+materialized for generic tasks. Use them only when a named specialty is not
+covered by the routed core skill. Start from the closest
+router/reviewer:
 
 - `medical-methodology-planner`
 - `medical-evidence-integrity-reviewer`
