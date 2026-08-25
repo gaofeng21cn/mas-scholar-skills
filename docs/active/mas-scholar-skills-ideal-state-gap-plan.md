@@ -33,7 +33,7 @@ The audited source snapshot has the following structural shape:
 
 | Theme | Current source evidence | Boundary |
 | --- | --- | --- |
-| Package | `contracts/opl_capability_package_manifest.json` declares required MAS/MAG consumer profiles at version `0.2.29`, preserves its Codex exposure metadata, and carries both Agent Plugins and Codex descriptors | Owner GHCR publication and complete carrier readback remain unproven; source projection is not installed/effective truth |
+| Package | `contracts/opl_capability_package_manifest.json` declares required MAS/MAG consumer profiles at version `0.2.30`, preserves its Codex exposure metadata, and carries both Agent Plugins and Codex descriptors | Owner GHCR publication and complete carrier readback remain unproven; source projection is not installed/effective truth |
 | Consumer profiles | Current `.v1` profiles now declare required/fail-closed identity and callability fields | Required readiness is limited to Package identity presence and capability callability for the affected consumer; no version/ABI/lock/payload solving |
 | Skill exposure | 36 source `SKILL.md` entries: one primary routing entry, required core capabilities, and named specialists | Only the primary entry is projected by default; presence does not select a specialty or grant authority |
 | Module catalog | `contracts/scholar-skills-capability-modules.json` declares eight professional modules and two machine adapter modules | The adapters describe or parse bounded requests; OPL Connect owns I/O and receipts |
