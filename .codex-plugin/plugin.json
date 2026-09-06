@@ -1,6 +1,6 @@
 {
   "name": "mas-scholar-skills",
-  "version": "0.2.30",
+  "version": "0.2.31",
   "description": "Repo-tracked framework capability plugin with required refs-only MAS medical-paper and MAG medical-grant capability profiles.",
   "author": {
     "name": "One Person Lab"
