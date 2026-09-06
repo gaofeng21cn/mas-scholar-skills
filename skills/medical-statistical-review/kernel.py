@@ -154,6 +154,8 @@ PREDICTION_LIMITING_EVIDENCE_POLICY_ID = (
     "scholarskills_prediction_limiting_evidence.v1"
 )
 PREDICTION_LIMITED_IPA_UPPER_BOUND = 0.02
+PREDICTION_CONTEXT_POLICY_ID = "scholarskills_linked_prediction_performance.v3"
+PREDICTION_CONTEXT_LIMITING_POLICY_ID = "scholarskills_prediction_limiting_evidence.v2"
 PREDICTION_LIMITING_POLICY_OVERRIDE_FIELDS = (
     "limited_prediction_error_ipa_upper_bound",
     "limiting_calibration_bounds",
@@ -880,7 +882,22 @@ def validate_endpoint_analysis_set_reconciliation_v2(
 def validate_linked_prediction_performance(
     candidate: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Require discrimination, prediction error, calibration, and claim limits together."""
+    """Validate historical candidates under the unchanged numerical policy."""
+
+    return _validate_linked_prediction_performance(candidate, contextual=False)
+
+
+def validate_linked_prediction_performance_v2(
+    candidate: Mapping[str, object],
+) -> dict[str, Any]:
+    """Check metric integrity and study-bound interpretation, without deciding utility."""
+
+    return _validate_linked_prediction_performance(candidate, contextual=True)
+
+
+def _validate_linked_prediction_performance(
+    candidate: Mapping[str, object], *, contextual: bool,
+) -> dict[str, Any]:
 
     findings: list[dict[str, object]] = []
     required = (
@@ -895,12 +912,12 @@ def validate_linked_prediction_performance(
         "oe_ratio_ref",
         "grouped_calibration_ref",
         "ipa_consistency_tolerance",
-        "calibration_reasonable_bounds",
         "performance_boundary",
         "limiting_evidence",
         "surface_text",
         "authority",
     )
+    required += ("clinical_assessment",) if contextual else ("calibration_reasonable_bounds",)
     _require_candidate_fields(candidate, required, findings, "PREDICTION_PERFORMANCE")
     discrimination_metric_type = str(
         candidate.get("discrimination_metric_type") or ""
@@ -961,7 +978,15 @@ def validate_linked_prediction_performance(
             ):
                 bounds_match_policy = False
                 break
-    if bounds_value is not None and not bounds_match_policy:
+    if contextual and bounds_value is not None:
+        findings.append(
+            _candidate_finding(
+                "PREDICTION_CONTEXT_GLOBAL_BOUNDS_FORBIDDEN",
+                "calibration_reasonable_bounds",
+                "supply study-bound clinical_assessment instead of global acceptance bounds",
+            )
+        )
+    elif not contextual and bounds_value is not None and not bounds_match_policy:
         findings.append(
             _candidate_finding(
                 "PREDICTION_CALIBRATION_BOUNDS_CALLER_OVERRIDE_FORBIDDEN",
@@ -1066,6 +1091,12 @@ def validate_linked_prediction_performance(
                 "require a positive null-model Brier score within (0, 1]",
             )
         )
+    oe_ratio = numeric_values.get("oe_ratio")
+    if contextual and oe_ratio is not None and oe_ratio < 0:
+        findings.append(_candidate_finding(
+            "PREDICTION_OE_RATIO_RANGE_INVALID", "oe_ratio",
+            "require a nonnegative observed-to-expected ratio",
+        ))
     tolerance = PREDICTION_IPA_CONSISTENCY_TOLERANCE
     ipa_value = numeric_values.get("ipa_value")
     ipa_identity_evaluable = (
@@ -1088,6 +1119,10 @@ def validate_linked_prediction_performance(
         )
     calibration_bounds = PREDICTION_CALIBRATION_REASONABLE_BOUNDS
     boundary = str(candidate.get("performance_boundary") or "")
+    clinical_assessment = (
+        _validate_prediction_clinical_assessment(candidate, findings)
+        if contextual else {}
+    )
     if boundary not in PREDICTION_PERFORMANCE_BOUNDARIES:
         findings.append(
             _candidate_finding(
@@ -1104,17 +1139,21 @@ def validate_linked_prediction_performance(
         }
         calibration_supported = (
             all(value is not None for value in calibration_values.values())
-            and all(
+            and (contextual or all(
                 calibration_bounds[name][0]
                 <= float(calibration_values[name])
                 <= calibration_bounds[name][1]
                 for name in calibration_values
-            )
+            ))
+            and (not contextual or (
+                clinical_assessment.get("calibration_status") == "adequate"
+                and clinical_assessment.get("prediction_error_status") == "adequate"
+            ))
             and brier_value is not None
             and null_brier_value is not None
-            and brier_value < null_brier_value
+            and (contextual or brier_value < null_brier_value)
             and ipa_value is not None
-            and ipa_value > 0
+            and (contextual or ipa_value > 0)
             and isinstance(candidate.get("grouped_calibration_ref"), Mapping)
             and set(candidate.get("grouped_calibration_ref", {}))
             == {"kind", "ref", "size_bytes", "sha256"}
@@ -1156,7 +1195,7 @@ def validate_linked_prediction_performance(
         value_field = PREDICTION_LIMITING_METRIC_VALUE_FIELDS[ref_field]
         value = numeric_values.get(value_field)
         lower, upper = PREDICTION_CALIBRATION_REASONABLE_BOUNDS[bound_name]
-        if value is not None and not lower <= value <= upper:
+        if not contextual and value is not None and not lower <= value <= upper:
             validated_limiting_metric_fields.add(ref_field)
     prediction_error_is_limited = bool(
         brier_value is not None
@@ -1165,11 +1204,17 @@ def validate_linked_prediction_performance(
         and 0.0 < null_brier_value <= 1.0
         and ipa_value is not None
         and ipa_identity_matches
+        and not contextual
         and ipa_value <= PREDICTION_LIMITED_IPA_UPPER_BOUND
     )
     if prediction_error_is_limited:
         validated_limiting_metric_fields.add("brier_ref")
         validated_limiting_metric_fields.add("ipa_ref")
+    if contextual:
+        for metric_field in PREDICTION_LIMITING_METRIC_VALUE_FIELDS:
+            family = "prediction_error" if metric_field in ("brier_ref", "ipa_ref") else "calibration"
+            if clinical_assessment.get(f"{family}_status") == "limited":
+                validated_limiting_metric_fields.add(metric_field)
     limiting_metric_panel = {
         identity: ref_field
         for ref_field in PREDICTION_LIMITING_METRIC_VALUE_FIELDS
@@ -1278,6 +1323,26 @@ def validate_linked_prediction_performance(
                         f"include the linked limiting evidence phrase: {phrase}",
                     )
                 )
+        if contextual:
+            surface_assessments = clinical_assessment.get("surface_assessments")
+            assessment = surface_assessments.get(surface) if isinstance(surface_assessments, Mapping) else None
+            if not (
+                isinstance(assessment, Mapping)
+                and assessment.get("text") == text
+                and assessment.get("performance_boundary") == boundary
+                and assessment.get("clinical_use_claimed") is False
+                and isinstance(assessment.get("rationale"), str)
+                and assessment["rationale"].strip()
+            ):
+                findings.append(
+                    _candidate_finding(
+                        "PREDICTION_SURFACE_ASSESSMENT_UNBOUND",
+                        f"clinical_assessment.surface_assessments.{surface}",
+                        "bind the professional claim assessment to this exact text and boundary; clinical utility needs separate evidence",
+                        severity="route_back_required",
+                    )
+                )
+            continue
         unsupported_claim = re.search(
             r"\b(?:accurate|reliable)\s+(?:individual\s+)?absolute risk\b|"
             r"\b(?:clinical deployment|treatment benefit|threshold-based use)\b",
@@ -1310,22 +1375,91 @@ def validate_linked_prediction_performance(
                 )
             )
     _require_no_authority(candidate, findings, "linked_prediction_performance_ref")
+    policy = (
+        {
+            "performance_policy_id": PREDICTION_CONTEXT_POLICY_ID,
+            "limiting_evidence_policy_id": PREDICTION_CONTEXT_LIMITING_POLICY_ID,
+            "clinical_assessment_ref": clinical_assessment.get("assessment_ref"),
+            "semantic_acceptance_owner": "consuming_domain_owner",
+        }
+        if contextual else {
+            "performance_policy_id": PREDICTION_PERFORMANCE_POLICY_ID,
+            "limiting_evidence_policy_id": PREDICTION_LIMITING_EVIDENCE_POLICY_ID,
+            "limited_prediction_error_ipa_upper_bound": PREDICTION_LIMITED_IPA_UPPER_BOUND,
+            "calibration_reasonable_bounds": {
+                name: list(bounds)
+                for name, bounds in PREDICTION_CALIBRATION_REASONABLE_BOUNDS.items()
+            },
+        }
+    )
     return _candidate_audit_result(
         "linked_prediction_performance_ref",
         findings,
         performance_boundary=boundary,
         limiting_evidence_count=len(limiting),
-        performance_policy_id=PREDICTION_PERFORMANCE_POLICY_ID,
-        limiting_evidence_policy_id=PREDICTION_LIMITING_EVIDENCE_POLICY_ID,
-        limited_prediction_error_ipa_upper_bound=(
-            PREDICTION_LIMITED_IPA_UPPER_BOUND
-        ),
         ipa_consistency_tolerance=PREDICTION_IPA_CONSISTENCY_TOLERANCE,
-        calibration_reasonable_bounds={
-            name: list(bounds)
-            for name, bounds in PREDICTION_CALIBRATION_REASONABLE_BOUNDS.items()
-        },
+        **policy,
     )
+
+
+def _validate_prediction_clinical_assessment(
+    candidate: Mapping[str, object], findings: list[dict[str, object]],
+) -> Mapping[str, object]:
+    assessment = candidate.get("clinical_assessment")
+    if not isinstance(assessment, Mapping):
+        findings.append(_candidate_finding(
+            "PREDICTION_CLINICAL_ASSESSMENT_MISSING", "clinical_assessment",
+            "provide a study-bound professional interpretation with exact evidence refs",
+            severity="route_back_required",
+        ))
+        return {}
+    for field in ("study_ref", "assessment_ref"):
+        _validate_exact_evidence_ref_or_disposition(
+            assessment.get(field), f"clinical_assessment.{field}", findings,
+            allowed_dispositions=(), code="PREDICTION_CLINICAL_ASSESSMENT_REF_INVALID",
+        )
+    for field in (
+        "population", "outcome", "prediction_horizon", "intended_use",
+        "calibration_rationale", "prediction_error_rationale",
+    ):
+        if not isinstance(assessment.get(field), str) or not assessment[field].strip():
+            findings.append(_candidate_finding(
+                "PREDICTION_CLINICAL_CONTEXT_MISSING", f"clinical_assessment.{field}",
+                "state the study context and evidence-based interpretation",
+            ))
+    for family in ("calibration", "prediction_error"):
+        status = assessment.get(f"{family}_status")
+        if status not in ("adequate", "limited", "not_estimable"):
+            findings.append(_candidate_finding(
+                "PREDICTION_CLINICAL_JUDGMENT_INVALID", f"clinical_assessment.{family}_status",
+                "use adequate, limited, or not_estimable for this study and intended use",
+            ))
+        family_refs = (
+            ("calibration_slope_ref", "calibration_intercept_ref", "oe_ratio_ref", "grouped_calibration_ref")
+            if family == "calibration" else ("brier_ref", "null_brier_ref", "ipa_ref")
+        )
+        if status == "adequate" and not any(
+            _exact_evidence_ref_identity(candidate.get(field)) is not None
+            for field in family_refs
+        ):
+            findings.append(_candidate_finding(
+                "PREDICTION_CLINICAL_JUDGMENT_CONTRADICTS_AVAILABILITY",
+                f"clinical_assessment.{family}_status",
+                "all family evidence is unavailable; use not_estimable rather than adequate",
+                severity="route_back_required",
+            ))
+    expected_refs = {
+        field: candidate.get(field)
+        for field in ("brier_ref", "null_brier_ref", "ipa_ref", "calibration_slope_ref",
+                      "calibration_intercept_ref", "oe_ratio_ref", "grouped_calibration_ref")
+    }
+    if assessment.get("metric_refs") != expected_refs:
+        findings.append(_candidate_finding(
+            "PREDICTION_CLINICAL_ASSESSMENT_STALE", "clinical_assessment.metric_refs",
+            "bind the interpretation to the same exact current metric panel and dispositions",
+            severity="route_back_required",
+        ))
+    return assessment
 
 
 def validate_model_complexity_sparse_event(
@@ -3257,6 +3391,88 @@ def _self_check() -> None:
         "PREDICTION_LIMIT_NOT_VISIBLE_ON_SURFACE",
         "PREDICTION_CLAIM_EXCEEDS_PERFORMANCE_BOUNDARY",
     }.issubset({item["code"] for item in hidden_limit_audit["findings"]})
+    contextual = json.loads(json.dumps(good_performance_as_limit))
+    contextual.pop("calibration_reasonable_bounds")
+    contextual["clinical_assessment"] = {
+        "study_ref": exact_ref("study-protocol"),
+        "assessment_ref": exact_ref("prediction-performance-interpretation"),
+        "population": "External validation cohort",
+        "outcome": "Prespecified clinical endpoint",
+        "prediction_horizon": "3 years",
+        "intended_use": "Research ranking; individual risk counseling needs further evaluation",
+        "calibration_status": "adequate",
+        "calibration_rationale": "The linked curve and uncertainty support calibration in the evaluated range.",
+        "prediction_error_status": "limited",
+        "prediction_error_rationale": "Improvement over the null model remains insufficient for this intended use under the study assessment.",
+        "metric_refs": {
+            field: contextual[field]
+            for field in ("brier_ref", "null_brier_ref", "ipa_ref", "calibration_slope_ref",
+                          "calibration_intercept_ref", "oe_ratio_ref", "grouped_calibration_ref")
+        },
+        "surface_assessments": {
+            surface: {
+                "text": text,
+                "performance_boundary": contextual["performance_boundary"],
+                "clinical_use_claimed": False,
+                "rationale": "The statement reports the research performance and its study-specific limitation.",
+            }
+            for surface, text in contextual["surface_text"].items()
+        },
+    }
+    context_audit = validate_linked_prediction_performance_v2(contextual)
+    assert context_audit["machine_check_status"] == "candidate_complete", context_audit
+    assert "calibration_reasonable_bounds" not in context_audit
+    assert context_audit["performance_policy_id"] == PREDICTION_CONTEXT_POLICY_ID
+
+    def context_codes(value: Mapping[str, object]) -> set[str]:
+        return {item["code"] for item in validate_linked_prediction_performance_v2(value)["findings"]}
+
+    missing_context = dict(contextual, clinical_assessment=None)
+    assert "PREDICTION_CLINICAL_ASSESSMENT_MISSING" in context_codes(missing_context)
+    stale_context = json.loads(json.dumps(contextual))
+    stale_context["clinical_assessment"]["metric_refs"]["ipa_ref"] = exact_ref("old-ipa")
+    assert "PREDICTION_CLINICAL_ASSESSMENT_STALE" in context_codes(stale_context)
+    unbound_context = json.loads(json.dumps(contextual))
+    unbound_context["clinical_assessment"]["assessment_ref"] = "assessment.txt"
+    assert "PREDICTION_CLINICAL_ASSESSMENT_REF_INVALID" in context_codes(unbound_context)
+    assert "PREDICTION_IPA_IDENTITY_MISMATCH" in context_codes(dict(contextual, ipa_value=0.2))
+    assert "PREDICTION_BRIER_RANGE_INVALID" in context_codes(dict(contextual, brier_value=1.1))
+    assert "PREDICTION_CONTEXT_GLOBAL_BOUNDS_FORBIDDEN" in context_codes(
+        dict(contextual, calibration_reasonable_bounds=linked_performance["calibration_reasonable_bounds"])
+    )
+    changed_text = json.loads(json.dumps(contextual))
+    changed_text["surface_text"]["abstract_conclusion"] = "Clinical deployment is supported."
+    assert "PREDICTION_SURFACE_ASSESSMENT_UNBOUND" in context_codes(changed_text)
+    clinical_claim = json.loads(json.dumps(contextual))
+    clinical_claim["clinical_assessment"]["surface_assessments"]["main_conclusion"]["clinical_use_claimed"] = True
+    assert "PREDICTION_SURFACE_ASSESSMENT_UNBOUND" in context_codes(clinical_claim)
+    absolute_context = json.loads(json.dumps(contextual))
+    absolute_context.update(performance_boundary="absolute_risk_supported", calibration_slope=1.25, limiting_evidence=[])
+    for surface in PREDICTION_SURFACE_NAMES:
+        absolute_context["surface_text"][surface] = "Study-bound absolute-risk estimation is supported; clinical utility is not established."
+        absolute_context["clinical_assessment"]["surface_assessments"][surface].update(
+            text=absolute_context["surface_text"][surface], performance_boundary="absolute_risk_supported",
+        )
+    assert "ABSOLUTE_RISK_SUPPORT_CONTRADICTS_LINKED_PERFORMANCE" in context_codes(absolute_context)
+    absolute_context["clinical_assessment"]["prediction_error_status"] = "adequate"
+    absolute_context["clinical_assessment"]["prediction_error_rationale"] = "The protocol-specific error analysis supports the declared risk estimation scope."
+    absolute_context["clinical_assessment"]["calibration_rationale"] = "The intended-use assessment accepts the linked slope 1.25, its uncertainty and curve for this research scope."
+    assert validate_linked_prediction_performance_v2(absolute_context)["machine_check_status"] == "candidate_complete"
+    assert "PREDICTION_OE_RATIO_RANGE_INVALID" in context_codes(dict(absolute_context, oe_ratio=-1.0))
+    null_equivalent = dict(absolute_context, brier_value=0.2, null_brier_value=0.2, ipa_value=0.0)
+    assert validate_linked_prediction_performance_v2(null_equivalent)["machine_check_status"] == "candidate_complete"
+    absent_calibration = json.loads(json.dumps(contextual))
+    for field in ("calibration_slope_ref", "calibration_intercept_ref", "oe_ratio_ref", "grouped_calibration_ref"):
+        absent_calibration[field] = {"status": "not_estimable_with_reason", "reason": "insufficient data"}
+        absent_calibration["clinical_assessment"]["metric_refs"][field] = absent_calibration[field]
+    for field in ("calibration_slope", "calibration_intercept", "oe_ratio"):
+        absent_calibration[field] = None
+    assert "PREDICTION_CLINICAL_JUDGMENT_CONTRADICTS_AVAILABILITY" in context_codes(absent_calibration)
+    missing_calibration = json.loads(json.dumps(absolute_context))
+    missing_calibration["calibration_slope"] = None
+    missing_calibration["calibration_slope_ref"] = {"status": "not_estimable_with_reason", "reason": "insufficient events"}
+    missing_calibration["clinical_assessment"]["metric_refs"]["calibration_slope_ref"] = missing_calibration["calibration_slope_ref"]
+    assert "ABSOLUTE_RISK_SUPPORT_CONTRADICTS_LINKED_PERFORMANCE" in context_codes(missing_calibration)
     assert all(
         item["writes_authority"] is False
         for audit in (
@@ -3269,7 +3485,7 @@ def _self_check() -> None:
         )
         for item in audit["findings"]
     )
-    print(json.dumps({"ok": True, "checks": 80}, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "checks": 80, "study_context_cases": 15}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

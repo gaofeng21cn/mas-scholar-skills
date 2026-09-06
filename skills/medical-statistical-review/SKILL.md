@@ -1,6 +1,6 @@
 ---
 name: medical-statistical-review
-description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs statistical review of design fit, estimands, outcomes, denominators, missingness, assumptions, effect sizes, uncertainty, multiplicity, sensitivity, and claim strength. Outputs are refs-only candidates; the consuming Agent retains analysis and domain authority."
+description: "Review medical study analyses, model performance, uncertainty, and statistical claims for MAS or MAG using the declared protocol and current evidence."
 ---
 
 # Medical Statistical Review
@@ -126,7 +126,8 @@ then sync only that one skill into the active workspace or quest if needed.
 Keep the output as refs-only method support; it does not replace this skill,
 the analysis plan owner, or MAS statistical acceptance authority.
 
-OpenScience main `f120290` contributes a refs-only `claimType` +
+Historical patterns from `ResearAI/OpenScience` at
+`f120290c19a79212a1576a1046e64707e9dbb6f0` inform a refs-only `claimType` +
 `graphWarnings` claim-warning floor for statistical claims. Add
 `claim_type_ref` when a result sentence, table, figure,
 or methods claim needs classification as descriptive, association, prediction,
@@ -151,6 +152,18 @@ plan, data dictionary, model specification, table/figure, literature, or rerun
 receipt refs. Consume `project_local_ledger_pointer_ref` and
 `rerun_receipt_ref` as local provenance and re-analysis evidence only when
 inputs, fingerprints, commands, and limits are visible.
+
+The [current OpenScience repository](https://github.com/ResearAI/OpenScience)
+no longer distributes source under the historical open-source model. The local
+implementation retains independently maintained historical patterns; do not
+fetch a closed-source binary or adopt a new license as a Skill update.
+
+Power and design review should use a clinically justified smallest effect of
+interest, sensitivity analysis, and the independent experimental unit. Keep
+Monte Carlo uncertainty when simulation estimates power. Do not use observed
+post-hoc power to interpret a completed study, infer equivalence from overlapping
+error bars, select tests solely from normality-test significance, or treat a
+sample-size rule of thumb as proof of robustness.
 
 ## Review Contract
 
@@ -200,162 +213,18 @@ map must contain the central claim row, its `analysis_source_ref`, and every
 supporting main/supplement display ref. Missing binding is a refs-only
 statistical route-back candidate, not a statistical verdict or execution stop.
 
-## Initial-Draft Prediction-Model Integrity
+## Prediction Models
 
-Before a prediction-model initial draft is treated as complete, build and
-pressure-test four separate refs: `validation_partition_integrity_ref`,
-`endpoint_analysis_set_reconciliation_ref`,
-`model_complexity_sparse_event_ref`, and `linked_prediction_performance_ref`;
-also build `decision_curve_validity_ref` when decision curves are reported.
+For prediction-model development, external validation, or initial-draft performance review,
+read [prediction-model-review.md](references/prediction-model-review.md). It contains
+partition, analysis-set, model-complexity, decision-curve and study-bound interpretation
+requirements. Other statistical reviews do not load this mode.
 
-For partition integrity, bind development, tuning, and validation partitions,
-their disjointness, source-population relation, and every penalty/tuning/model
-selection decision. An empty decision list is not evidence; record an explicit
-prespecified `no_tuning_prespecified` row when no tuning occurred. Validation
-outcomes cannot select hyperparameters, penalties, transforms, or model form.
-A center-disjoint split from one cohort is internal or internal-external
-validation, not external validation.
+## EHR And Registry Studies
 
-For endpoint reconciliation, use one row per endpoint and follow-up basis with
-its exact analysis-set ref, N, events, estimand, and source metric. Distinct
-endpoints or horizons may legitimately have different N/events; this is not a
-conflict when their estimands and sources are independently bound. Never reuse
-one estimand or source ref to hide incompatible event counts. Require events,
-competing events, and early censoring to conserve the analysis N. Fixed-horizon
-risk and prediction-error evidence uses exact refs; full-follow-up rows use an
-explicit `not_applicable_with_reason` disposition rather than a placeholder ref.
-Run `validate_endpoint_analysis_set_reconciliation_v2()` for new candidates.
-The unversioned validator preserves the earlier eight-field v1 row contract for
-same-major callers.
-
-For model complexity, report candidate and effective degrees of freedom,
-continuous-predictor count, formal sample-size/overfitting method and inputs,
-expected and observed shrinkage or optimism, separation, penalty source,
-calibration, and full parameters. Events per parameter is descriptive context,
-not a mechanical 5- or 10-events-per-variable pass rule. Declare proportional-
-hazards applicability explicitly as `required` or
-`not_applicable_with_reason`; do not infer it from a model-name string.
-Nonlinearity evidence is required when any continuous predictor is modeled and
-may be explicitly inapplicable only when none exists.
-
-For decision curves, bind the horizon, censoring count and method, analysis-set
-policy, uncertainty method and interval, calibration basis and status,
-threshold range, net-benefit source, and at least one real clinical action
-scenario. Complete-case binary point estimates, unverified calibration, or a
-plot alone do not support clinical-utility language.
-
-For linked prediction performance, assess discrimination, Brier and null Brier,
-IPA, calibration slope/intercept, O:E, and grouped calibration together. Check
-that discrimination declares `harrell_c_index`, `uno_c_index`, or
-`time_dependent_auc` and lies within `[0, 1]`. For a `ranking_only` boundary,
-bind every limiting-evidence row to the exact current Brier, IPA, or calibration
-metric ref and require its surface phrase to carry that metric's current value.
-IPA may use either its raw proportion or the corresponding `value * 100`
-percentage. A percent suffix cannot be attached to the raw IPA value, Brier,
-calibration slope/intercept, or O:E value. The metric label must be followed by
-a complete signed decimal or scientific numeric token whose parsed value and
-unit match the current metric; substring, wrong-sign, and wrong-exponent
-matches are invalid.
-The versioned kernel limiting-evidence policy treats prediction-error evidence
-as limited only when the validated IPA is at most 0.02; reasonable calibration,
-larger IPA, or a favorable Brier/null-Brier pair cannot be relabeled as a
-limitation. Callers cannot override this threshold or the kernel calibration
-bounds.
-Then check the Brier ranges and the identity `IPA = 1 - Brier/null Brier` against the
-versioned, kernel-owned tolerance. Require finite intercept and O:E values or
-typed dispositions, and judge calibration against versioned, kernel-owned
-bounds. Candidate producers cannot override either policy. Absolute-risk
-support is a joint performance and calibration decision and cannot be inferred
-from calibration slope alone. Each metric uses an exact ref or explicit
-`not_estimable_with_reason` disposition.
-When the boundary is `ranking_only`, carry adverse calibration or limited
-prediction-error evidence into both abstract and main conclusions and forbid
-absolute-risk, threshold-use, or deployment claims.
-
-For every applicable fixed-horizon initial draft, consume
-`fixed_horizon_risk_semantics_ref` from `medical-survival-analysis-plan`. For
-every fixed-horizon or external-validation initial draft, produce
-`verification_scope_contract_ref`. Produce `anomaly_sensitivity_ref` when
-`analysis_input_anomaly_inventory_ref` from `medical-data-governance` records an
-implausible, extreme, sentinel-like, unit-inconsistent, or codebook-conflicting
-value. Bind the primary
-handling, at least one justified sensitivity or an explicit reason none is
-estimable, affected N/events, each key estimand under both analyses, tolerance
-or interpretation rule, and claim impact. Do not use post hoc deletion or
-winsorization to make a result look stable.
-
-The verification scope must enumerate the exact analysis inputs, estimands,
-methods, anomaly rules, sensitivity variants, tables, figures, and claims that
-were actually checked, plus excluded or unverified items and the command/output
-or rerun refs used. A successful script, build, or spot check verifies only its
-declared scope. This refs-only contract does not establish artifact currentness,
-review currentness, analysis acceptance, or readiness; it is consumed by
-`medical-evidence-integrity-reviewer` and `medical-manuscript-writing` and
-remains subject to MAS/domain-owner acceptance.
-
-## EHR And Registry Signal Validity Rule
-
-For EHR, registry, chart-derived, claims-linked, or other real-world-data work,
-do not treat a recorded field as a direct measurement of the target clinical
-state. The analyzable signal is jointly shaped by the underlying state, the
-opportunity to observe it, the care/documentation/coding process, and the
-extraction or transformation path. Review those mechanisms together before
-interpreting a count, rate, phenotype, outcome, association, or model result.
-
-Produce one `ehr_registry_signal_validity_ref` under
-`registry_signal_validity_pack`:
-
-- `paper_identity_ref` must lock the paper type, target population, unit, source
-  and time window, intended inference, and scientific identity. A descriptive
-  registry atlas, phenotype validation study, association study, and prediction
-  study cannot share an unstated validity target.
-- `chart_review_validation_ref` must state what chart review validates, in which
-  sampling frame and review unit, against what reference standard, and with what
-  abstraction, adjudication, blinding, and agreement evidence. Positive
-  predictive value in a selected sample does not establish sensitivity,
-  representativeness, source completeness, or validity for every downstream
-  phenotype and outcome.
-- `phenotype_outcome_coupling_ref` must show that phenotype assignment and the
-  outcome or target signal refer to compatible people, episodes, time windows,
-  eligibility rules, denominators, and source coverage. Valid-looking components
-  cannot be combined into an unvalidated joint endpoint.
-- `availability_mechanism_ref` must distinguish true absence from not
-  applicable, structurally unavailable, not ordered, not measured, not
-  documented, not extracted, and site/time-specific capture. The statistical
-  handling and denominator must follow the actual mechanism rather than treating
-  every blank as one missing-data state.
-- `observation_opportunity_bias_ref` must examine whether encounter frequency,
-  follow-up, testing, referral, access, survival, site workflow, or care pathway
-  changes who can acquire a recorded signal. Adjust, stratify, sensitize,
-  restrict, or bound the claim when observation opportunity differs materially.
-- `source_generation_quality_ref` must bind the signal to clinical workflow,
-  measurement/coding/documentation rules, ingestion, deduplication,
-  transformation, release/version, lineage, and source-QA evidence. Clean model
-  output cannot repair an unidentified or unstable source-generation process.
-- `claim_boundary_ref` must state the strongest supported descriptive,
-  association, prediction, or causal wording and name forbidden inferences.
-  Recorded-field positivity or availability is not automatically prevalence or
-  incidence; missing recorded treatment is not automatically non-treatment or a
-  treatment gap; site support is not automatically site performance or external
-  validity.
-
-Judge the seven member refs as one coupled validity argument. A chart-review
-strength in one component cannot waive an availability, observation-opportunity,
-source-generation, coupling, or claim-boundary failure elsewhere. When evidence
-is incomplete, return a bounded claim downgrade, sensitivity requirement, or
-`route_back_candidate` rather than a binary validity label.
-
-Route phenotype-definition and ascertainment inputs to
-`medical-cohort-phenotyping`, method decomposition to
-`medical-methodology-planner`, source lineage and generation evidence to
-`medical-data-governance`, prose calibration to `medical-manuscript-writing`,
-and independent pressure testing to `medical-manuscript-review`. The integrated
-ref returns here before MAS or the domain owner records acceptance.
-`medical-registry-atlas-story-architect` may contribute optional narrative
-framing only; it does not produce or own the integrated validity ref. The ref
-remains refs-only/no-authority and cannot establish cohort truth, dataset validity,
-analysis acceptance, an owner receipt, a typed blocker, a quality verdict, or
-publication readiness.
+For recorded-field, phenotype, registry, chart-derived or claims-linked analyses,
+read [ehr-registry-review.md](references/ehr-registry-review.md). Preserve the coupled
+source-generation, observation-opportunity and claim-validity assessment.
 
 ## Workflow
 
