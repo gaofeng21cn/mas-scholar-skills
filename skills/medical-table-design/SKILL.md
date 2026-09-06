@@ -1,6 +1,6 @@
 ---
 name: medical-table-design
-description: "Use when a MAS medical-paper task needs professional clinical table design, table shell planning, statistical table QA, footnote and abbreviation discipline, table-to-claim alignment, journal-ready table handoff, or refs-only table repair routing. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps study truth, artifact authority, owner receipts, typed blockers, current-package authority, and publication readiness."
+description: "Design and audit medical manuscript tables, including shells, denominators, units, source traceability, footnotes and claim alignment."
 ---
 
 # Medical Table Design
@@ -60,32 +60,9 @@ These judgments are candidate handoff refs only. MAS or the consuming owner
 must still accept, reject, mutate, or route the table through its authority
 surface.
 
-## External Learning Quality Floor
+## Method References
 
-This skill adapts maintainable patterns from clinical data-presentation,
-spreadsheet-quality, statistical-analysis, and Nature-style data workflows:
-
-- preserve existing table conventions when the paper already has a style;
-- design the table shell before filling cells;
-- keep formulas/statistics traceable to source refs;
-- verify denominators, units, decimal places, and footnotes;
-- make table claims match manuscript and figure claims;
-- keep data availability and source lineage visible without moving authority
-  into this skill.
-- use K-Dense scientific-writing/statistical-visualization discipline to choose
-  a table only when exact values, denominators, subgroup structure, or compact
-  multi-metric comparison are more useful than a figure.
-
-Use `professional_ai_quality_floor_ref` for table-specific AI judgment.
-`critique_as_repair_hint_ref` should convert table critique into a concrete
-source metric, denominator, statistic, claim, footnote, figure-vs-table, or
-submission repair. Add `claim_type_ref` and `graph_warnings_ref` when table
-titles, notes, row labels, or manuscript-linked claims risk unsupported,
-stale, circular, missing-source, denominator-drift, or table/body drift. Use
-`annotation_to_source_regeneration_ref` for reviewer annotations that must trace
-back to source metrics or analysis outputs. Consume `rerun_receipt_ref` only as
-table rebuild/check evidence, and trigger `triggered_meta_review_ref` when
-table and text/figure/statistics disagree materially.
+When the task needs a method, reporting-standard, source or quality detail beyond the current accepted context, load [method quality reference](references/method-quality-reference.md). Reuse applicable current evidence; load only resources needed by the selected task mode.
 
 ## Table Contract
 
@@ -230,48 +207,9 @@ repeated long notes, and internal audit metadata as repairable candidate quality
 debt. This deterministic lint does not decide table acceptance or publication
 readiness.
 
-For prediction-model external-validation manuscripts, require table shells to
-separate three jobs instead of compressing them into prose:
+For prediction-model external validation, load [external-validation tables](references/external-validation-tables.md). Table numbers are template positions; preserve each table's scientific job and use the manuscript's actual numbering.
 
-- Table 1: development and validation cohort characteristics, endpoint counts,
-  key predictor distributions, units, missingness or available N, and SMD or a
-  clear reason SMD cannot be computed;
-- Table 2: validation performance, including validation N, event count, mean
-  predicted risk, observed risk, C-statistic, O:E, Brier or prediction error,
-  calibration intercept/slope, and uncertainty where available;
-- grouped calibration table: group or decile, N, events, mean predicted risk,
-  observed risk with interval, and O:E or risk difference when it supports the
-  central claim.
-
-When follow-up can end before the prediction horizon, label Table 1 event
-percentages as recorded event count fractions, not observed risks. Put the
-censoring-aware observed risk and its estimator in the performance or grouped
-calibration table. Table notes must identify Kaplan-Meier, cumulative-incidence,
-IPCW, or other estimands and keep event counts, risk estimates, O:E, and
-prediction error semantically distinct.
-
-If development-cohort individual data are unavailable, make the source of
-summary statistics explicit and route missing rows to review or human gate
-rather than inventing comparable Table 1 cells.
-
-Before initial-draft handoff, build `baseline_table_traceability_ref` for every
-Table 1 variable. Bind the variable and unit, each group's total N, available N,
-missing N, displayed denominator, group/source identity, source metric, and the
-source/table SMD values. Require `available_n + missing_n = group_n` and the
-displayed summary denominator to equal the available N. A single global cohort
-denominator cannot replace variable-level denominators. Reconcile SMDs across
-source and Table 1 within an explicit rounding tolerance; do not omit SMD or
-invent comparability when a source cohort lacks individual-level data.
-
-For phenotype-atlas or recorded risk-treatment mismatch manuscripts, prefer a
-compact wide main Table 2 when the table's job is to compare phenotypes across
-baseline traits and core mismatch indicators. Use one row per phenotype with
-visible `n`, percentage of the index cohort, key clinical characteristics, and
-the main denominator-defined mismatch signals; keep long measure-value tables
-for supplementary material, machine payloads, or audit surfaces unless the
-journal format requires them. Align table terminology with the manuscript's
-bounded claim, for example recorded risk-treatment mismatch rather than generic
-treatment gaps when missingness and record availability are central.
+For phenotype-atlas comparisons, load [registry tables](references/registry-tables.md). Choose numbering and layout for the current manuscript rather than requiring a literal Table 2.
 
 ## Handoff Shape
 

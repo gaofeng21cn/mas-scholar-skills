@@ -1,6 +1,6 @@
 ---
 name: medical-data-governance
-description: "Use when a MAS medical-paper task needs clinical cohort data governance, data asset manifest review, data dictionary and codebook review, cleaning or normalization readiness, data version-diff impact review, study data binding review, privacy/access tier review, retention/lifecycle guardrail review, or refs-only source-readiness route-back. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps clinical data body authority, source readiness verdicts, study truth, irreversible data mutation authorization, owner receipts, typed blockers, human gates, and publication readiness."
+description: "Review clinical research data manifests, dictionaries, lineage, cohort binding, access/privacy and lifecycle requirements for MAS source and analysis readiness."
 ---
 
 # Medical Data Governance
@@ -107,7 +107,14 @@ source value, reconstructed value, comparison mode, and numeric tolerance in
 it cannot remain an author TODO merely because the frozen analysis table lacks
 the original identifier column.
 
-OpenScience main `f120290` contributes local-first `claimType` +
+Historical [ResearAI/OpenScience](https://github.com/ResearAI/OpenScience)
+`f120290c19a79212a1576a1046e64707e9dbb6f0` (short `f120290`, then AGPL v3)
+is a `historical_source_only` learning source. As checked on 2026-09-06,
+current main `4ce7d7aad40deb2afd01348f8e3846dba4bb348e` publishes releases,
+metadata and an OpenScience Personal and Research Use License; its source is
+no longer public. Retaining local patterns does not claim a current runtime
+upgrade or permission to import its closed-source implementation.
+The historical source contributes local-first `claimType` +
 `graphWarnings` source traceability patterns, not data authority or a second
 skill catalog. Use refs-only `claim_type_ref` and
 `graph_warnings_ref` when a data, source-readiness, extraction, or lifecycle
@@ -178,70 +185,11 @@ OPL does not own clinical data bodies, clinical semantic mapping, source
 readiness verdicts, data-cleaning acceptance, or irreversible physical delete.
 Those decisions stay with MAS or the downstream domain owner.
 
-## MAS Data Planes
+## Current MAS Route
 
-When reviewing a MAS workspace, preserve this physical split:
+Use the installed OPL-generated MAS interface: `baseline_and_evidence_setup` owns source/data governance, cohort and analysis readiness; `bounded_analysis_campaign` consumes accepted frozen inputs for analysis. Return candidate refs to the earliest unresolved owner. Resolve study identity, source manifests and accepted data locators from the current Attempt/context; do not infer them from a historical directory layout.
 
-- Data body plane: `data/datasets/<layer>/<version>/`.
-- Registry/read-model plane: `memory/portfolio/data_assets/`.
-- Study binding plane: `studies/<study-id>/study.yaml` or
-  `studies/<study-id>/data_input/dataset_manifest.yaml`.
-- Stage output plane:
-  `artifacts/stage_outputs/03-data_asset_and_cohort_build/`.
-
-Expected dataset layers are:
-
-- `restricted_raw`
-- `deidentified_linkage`
-- `master`
-- `deidentified_longitudinal`
-- `standardized_longitudinal`
-- `external`
-
-Do not move data between these layers from this skill. Review the manifest,
-dictionary, lineage, and owner-gate requirements, then route MAS to the legal
-controller entry.
-
-## MAS Controller Entries
-
-Use MAS controller commands as the authority path when the workspace provides
-them:
-
-```bash
-medautosci data-assets-status --workspace-root <workspace_root>
-medautosci init-data-assets --workspace-root <workspace_root>
-medautosci assess-data-asset-impact --workspace-root <workspace_root>
-medautosci data-asset-manifest-refs-rebuild --workspace-root <workspace_root>
-medautosci apply-data-asset-update --workspace-root <workspace_root> --payload-file <path>
-medautosci data-lifecycle inspect --workspace-root <workspace_root>
-medautosci data-lifecycle index-assets --workspace-root <workspace_root> --dry-run
-```
-
-Prefer read-only or dry-run commands unless the user, MAS owner surface, or
-project-specific runbook explicitly authorizes an apply command. Even then,
-report the command as an authority route; do not hand-edit registry files or data
-bodies from this skill.
-
-## Yang/MAS Data Compliance Checklist
-
-For Yang/MAS workspaces, include this concise checklist before recommending
-analysis, cleanup, archival, or owner-gate handoff:
-
-- `project_data_plan.yaml` exists or its absence is routed back as the data plan
-  gap.
-- `memory/portfolio/data_assets/index.sqlite`, `runtime/index.sqlite`, and
-  `studies/index.sqlite` are read as indices/read models, not data body truth.
-- `medautosci data-lifecycle inspect --workspace-root <workspace_root>` has a
-  fresh readback or a named reason it cannot run.
-- ScholarSkills install receipt identifies the synced `mas-scholar-skills` and
-  `medical-data-governance` skill sources used for the review.
-- Stale legacy skill detector confirms old `opl-scholarskills` or
-  `opl.scholarskills.*` projections are legacy aliases/provenance only.
-- Cleanup candidates stay behind an owner-review boundary: produce
-  `prune_dry_run_ref`, `owner_decision_ref`, and `post_cleanup_readback_ref`;
-  do not delete, thin, move, or compact clinical data bodies from this skill.
-- Source readiness and owner gate refs are explicit before downstream manuscript,
-  analysis, table, figure, submission, or lifecycle claims rely on the data.
+Only for a workspace explicitly identified as a legacy MAS controller deployment, read [legacy data workspace](references/legacy-mas-data-workspace.md). Verify its installed CLI help and project runbook before using its commands or Yang-specific layout. An absent legacy CLI is not a gap in the current hosted route.
 
 ## Workflow
 

@@ -212,11 +212,40 @@ test('Europe PMC adapter performs exactly one bounded fullTextXML follow-up', ()
   const completed = parse('pmc', input, fullTextRequest, {
     url: 'https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7654/fullTextXML',
     headers: { 'content-type': 'application/xml' },
-    body: '<?xml version="1.0"?><article><front/></article>',
+    body: '<?xml version="1.0"?><article><front/><body><p>Research methods and results.</p></body></article>',
   });
   assert.equal(completed.next.kind, 'complete');
   assert.equal(completed.next.evidence.verification_scope.full_text_body_verified, true);
   assert.equal(completed.next.evidence.verification_scope.full_text_probe_status, 'verified');
+  for (const [body, expectedStatus] of [
+    ['<article><front><abstract>Abstract only.</abstract></front></article>', 'metadata_only'],
+    ['<article><front/><!-- <body>not real content</body> --></article>', 'metadata_only'],
+    ['<article><body>   </body></article>', 'metadata_only'],
+    ['<article><body><sec/></body></article>', 'metadata_only'],
+    ['<article><body><p> </p></body></article>', 'metadata_only'],
+    ['<article><body><p>&nbsp;&#160;&#x20;</p></body></article>', 'metadata_only'],
+    ['<article><front><![CDATA[<body>not real XML body</body>]]></front></article>', 'metadata_only'],
+    ['<error>Full text is not available</error>', 'invalid_payload'],
+  ]) {
+    const partial = parse('pmc', input, fullTextRequest, { body });
+    assert.equal(partial.next.kind, 'complete');
+    assert.equal(partial.next.evidence.verification_scope.full_text_body_verified, false);
+    assert.equal(partial.next.evidence.verification_scope.full_text_probe_status, expectedStatus);
+    assert.equal(partial.next.evidence.metadata.title, 'Europe PMC title');
+  }
+});
+
+test('Europe PMC preserves non-MED identifiers without inventing a PMID', () => {
+  const input = reference({ doi: '10.1101/example' });
+  for (const source of ['PPR', undefined]) {
+    const result = parse('pmc', input, build('pmc', input), {
+      body: { resultList: { result: [{ id: '12345', source, title: 'Preprint', doi: input.doi }] } },
+    });
+    assert.equal(result.next.kind, 'complete');
+    assert.equal(result.next.evidence.normalized.pmid, null);
+    assert.equal(result.next.evidence.normalized.pmcid, null);
+    assert.equal(result.next.evidence.provider_identifiers.europe_pmc, '12345');
+  }
 });
 
 test('Europe PMC adapter does not misclassify a PMC-only id as a PMID', () => {

@@ -1,6 +1,6 @@
 ---
 name: mas-scholar-skills
-description: "Route required MAS medical-paper or MAG medical-grant capabilities to maintained MAS Scholar Skills specialists. Use for pack-level discovery, consumer-profile routing, specialist selection, or refs-only no-authority guidance. Invoke the routed medical-* skill rather than keeping this aggregate active."
+description: "Discover MAS Scholar Skills and select the specialist for a MAS medical-paper or MAG medical-grant task, including consumer-profile routing."
 ---
 
 # MAS Scholar Skills
@@ -30,10 +30,9 @@ Both profiles are `required=true` runtime dependencies. Missing or incompatible
 Skills fail closed for the affected consuming Agent at install, activation,
 admission, route, launch, and readiness gates. Bundling or materializing the
 pack remains a carrier/discovery concern; it does not grant this pack domain
-authority. The consuming Agent owns stage routing and domain acceptance. This pack never calls MAS on
-MAG's behalf and never converts a candidate into study or grant truth,
-fundability, quality, export/publication readiness, strategy memory, a receipt,
-a blocker, or owner authority.
+authority. The consuming Agent owns stage routing and domain acceptance. This
+pack never calls MAS on MAG's behalf; the candidate-only handoff boundary below
+applies to both profiles, including fundability and strategy memory.
 
 ## Core Routing
 

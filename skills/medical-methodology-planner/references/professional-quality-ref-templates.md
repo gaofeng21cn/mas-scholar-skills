@@ -245,8 +245,10 @@ Minimum fields:
   shortening may precede wrapping and justified rotation may follow it; never
   pass by shrinking text.
 - `text_extent_safe_area_ref`: the renderer-drawn text-extent and composed-page
-  evidence shape defined below. It separates the right `annotation_lane` from
-  the plotting/data lane, registers every panel text artist, checks overlap,
+  evidence shape defined below. It separates a dedicated `annotation_lane` from
+  the plotting/data lane when the grammar uses an annotation column; other
+  grammars declare `annotation_lane_policy=not_applicable` with an
+  `annotation_lane_reason` and retain actual label geometry. It registers every panel text artist, checks overlap,
   overflow, clipping, minimum spacing, and the safe inset, and links the
   deterministic `layout_qc_receipt_ref`.
 - `single_generation_source_ref`: one structured generation source for plotted
@@ -284,8 +286,9 @@ Minimum fields:
   answers the data question.
 - `ai_visual_review_ref`: AI visual-review findings kept separate from
   deterministic export/programmatic audit results.
-- `clean_rebuild_consistency_ref`: two clean rebuild receipts after prior
-  outputs and caches are removed. Each records one SHA-256 `source_fingerprint`
+- `clean_rebuild_consistency_ref`: two clean rebuild receipts from separate
+  empty temporary output/cache directories, preserving user artifacts and prior
+  caches. Each records one SHA-256 `source_fingerprint`
   over source data, render code/config, caption and catalog/manifest source,
   bound font files, and renderer/backend versions, plus byte-level
   `output_fingerprints` for every required export. Volatile export metadata such
@@ -343,9 +346,10 @@ export lint/programmatic/visual-review failure. External plotting runtimes and
 scripts may inform the pattern, but they do not become the default backend, MAS
 authority, owner receipt, typed blocker, or publication readiness evidence.
 
-For multi-panel main figures, use a light outline -> panel render -> composite
-review loop: first write the figure claim and panel outline, then render only
-the affected panels, then review the composed figure and crops before handoff.
+For multi-panel main figures, first write the figure claim and panel outline,
+then use either one fixed-canvas render with per-panel evidence bindings or
+separate panel renders followed by `medical-figure-composer`. Review the whole
+figure and crops before handoff. A single-canvas path has no composer receipt.
 Do not regenerate clean panels just to make the package look more active.
 
 ### Text Extent Safe-Area Ref
@@ -396,8 +400,10 @@ text_extent_safe_area_ref:
 
 Use the renderer-measured width for long source labels; never encode wrapping by
 hand in the source string. Wrap only after the measured width exceeds the
-available label lane. Keep right-side values and notes in an independent
-`annotation_lane` whose bounds do not overlap the plotting/data lane.
+available label lane. A dedicated numeric column uses an independent
+`annotation_lane` whose bounds do not overlap the plotting/data lane. Other
+grammars declare `annotation_lane_policy=not_applicable` and a reason, omit the
+unused annotation lane and keep all labels registered in their actual lane.
 
 After `renderer_draw_complete=true`, register every panel text bounding box under
 `artist_scope=all_text_artists`. Compare each bbox with its lane, clip bbox,
@@ -410,8 +416,13 @@ equivalent fixed-canvas policy. `tight_layout`, `bbox_inches=tight`, `clip_on`,
 and tight-crop output are not safe-area proof. Bind each final file SHA-256,
 dimensions, safe inset, lane bounds, bbox-registry hash, and check counts in a
 deterministic machine-readable `layout_qc_receipt_ref`. Use
-`skills/medical-display-qc/fixtures/layout_qc_regression.json` for long-string,
-extreme-value, and full-width regression coverage. Repeat the page-boundary
+`skills/medical-display-qc/fixtures/layout_qc_regression.json` for affected
+long-string, extreme-value, and full-width regression coverage when renderer,
+font, wrapping, geometry or export behavior changes. This is
+`validation_scope=renderer_regression`. For content-only artifact acceptance
+with an unchanged tested renderer, use `validation_scope=artifact_acceptance`
+and bind an exact `renderer_baseline_ref` (kind, ref, size_bytes, sha256); retain
+all current artifact geometry and final-byte checks. Repeat the page-boundary
 check after embedding in the rendered DOCX/PDF page.
 
 The machine check may report geometry pass/fail, but it remains candidate

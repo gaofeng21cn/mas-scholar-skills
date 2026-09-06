@@ -1,6 +1,6 @@
 ---
 name: medical-registry-atlas-story-architect
-description: "Use when a MAS medical-paper task needs refs-only registry or atlas story architecture: data-lock/enrollment boundary, phenotype axes, descriptive claim boundary, figure/table story map, treatment-gap framing, discussion compression, route-back, and owner-gate handoff. This optional specialist does not write MAS truth, sign owner receipts, create typed blockers, or claim readiness."
+description: "Shape the medical story, phenotype axes, bounded claims and display roles of a descriptive registry or atlas manuscript."
 ---
 
 # Medical Registry Atlas Story Architect
@@ -27,6 +27,12 @@ validity ref; route that judgment to `medical-statistical-review`. Its local
 aggregate validity judgment.
 
 ## Workflow
+
+Use the actual disease, population, endpoints and data capture to select the
+story. Cardiometabolic medication examples apply only to that study scope;
+other registries use their own accepted clinical definitions and guideline
+sources. Do not require diabetes drugs, eGFR criteria or prevention-gap analyses
+merely because a study is called a phenotype atlas.
 
 1. Build `handling_editor_first_draft_contract_ref` before sentences: one
    unique scientific claim, clinical or operational value, falsifiable

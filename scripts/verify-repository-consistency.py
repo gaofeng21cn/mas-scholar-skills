@@ -26,7 +26,16 @@ def read_text(relative: str) -> str:
     path = root / relative
     if not path.is_file():
         fail(f"missing {relative}")
-    return path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8")
+    if path.name == "SKILL.md":
+        # Validate packaged on-demand resources without requiring every method
+        # contract to be repeated in the discoverable entrypoint.
+        for reference in re.findall(r"\]\((references/[^)#]+\.md)(?:#[^)]*)?\)", text):
+            target = (path.parent / reference).resolve()
+            if not target.is_relative_to(path.parent.resolve()) or not target.is_file():
+                fail(f"unresolved package-local Skill reference: {relative}: {reference}")
+            text += "\n" + target.read_text(encoding="utf-8")
+    return text
 
 def sha256_file(relative: str) -> str:
     h = hashlib.sha256()

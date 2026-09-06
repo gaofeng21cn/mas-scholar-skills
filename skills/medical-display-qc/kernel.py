@@ -3494,8 +3494,18 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
     lanes_value = registry.get("lanes")
     if not isinstance(lanes_value, Mapping):
         raise ValueError("lanes must be an object")
-    if not {"plotting_data", "annotation"}.issubset(lanes_value):
-        raise ValueError("lanes must define plotting_data and annotation")
+    annotation_policy = registry.get("annotation_lane_policy", "separate")
+    if annotation_policy not in {"separate", "not_applicable"}:
+        raise ValueError("annotation_lane_policy must be separate or not_applicable")
+    if annotation_policy == "not_applicable" and not str(
+        registry.get("annotation_lane_reason") or ""
+    ).strip():
+        raise ValueError("annotation_lane_reason is required when not applicable")
+    required_lanes = {"plotting_data"}
+    if annotation_policy == "separate":
+        required_lanes.add("annotation")
+    if not required_lanes.issubset(lanes_value):
+        raise ValueError(f"lanes must define {', '.join(sorted(required_lanes))}")
     lane_boxes: dict[str, tuple[float, float, float, float]] = {}
     violations: list[dict[str, object]] = []
     for lane_name in sorted(lanes_value):
@@ -3506,7 +3516,9 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
         lane_boxes[str(lane_name)] = lane_bbox
         if not _bbox_inside(lane_bbox, canvas_bbox):
             violations.append(_layout_violation("lane_canvas_overflow", lane=lane_name))
-    if _bbox_overlap_area(lane_boxes["plotting_data"], lane_boxes["annotation"]) > 0:
+    if "annotation" in lane_boxes and _bbox_overlap_area(
+        lane_boxes["plotting_data"], lane_boxes["annotation"]
+    ) > 0:
         violations.append(_layout_violation("data_annotation_lane_overlap"))
 
     export_policy = registry.get("export_policy")
@@ -3566,6 +3578,7 @@ def audit_layout_registry(registry: Mapping[str, object]) -> dict[str, Any]:
             lane_bbox = lane_boxes.get(lane_name)
             if (
                 artist.get("artist_kind") == "numeric_annotation"
+                and annotation_policy == "separate"
                 and lane_name != "annotation"
             ):
                 violations.append(
@@ -4081,8 +4094,16 @@ def build_layout_qc_receipt(
         fixture_id = registry.get("fixture_id")
         fixture_refs = [fixture_id] if fixture_id else []
     fixture_refs = sorted(str(item) for item in fixture_refs if item)
-    if not fixture_refs:
+    validation_scope = registry.get("validation_scope", "renderer_regression")
+    renderer_baseline_ref = registry.get("renderer_baseline_ref")
+    if validation_scope not in {"renderer_regression", "artifact_acceptance"}:
+        violations.append(_layout_violation("validation_scope_invalid"))
+    if validation_scope == "renderer_regression" and not fixture_refs:
         violations.append(_layout_violation("regression_fixture_ref_missing"))
+    if validation_scope == "artifact_acceptance" and not _display_render_exact_ref_valid(
+        renderer_baseline_ref
+    ):
+        violations.append(_layout_violation("renderer_baseline_ref_invalid"))
 
     violations.sort(
         key=lambda item: json.dumps(item, ensure_ascii=True, sort_keys=True)
@@ -4112,8 +4133,12 @@ def build_layout_qc_receipt(
         "safe_inset_px": registry["safe_inset_px"],
         "lane_bounds_px": {
             lane: registry["lanes"][lane]
-            for lane in ("plotting_data", "annotation")
+            for lane in sorted(registry["lanes"])
         },
+        "annotation_lane_policy": registry.get("annotation_lane_policy", "separate"),
+        "annotation_lane_reason": registry.get("annotation_lane_reason"),
+        "validation_scope": validation_scope,
+        "renderer_baseline_ref": renderer_baseline_ref,
         "semantic_artist_scope": registry.get(
             "semantic_artist_scope", "not_declared_non_flow"
         ),
@@ -6005,6 +6030,53 @@ def _self_check() -> None:
         == "not_applicable:statistical_layout_regression"
     )
     assert receipt == build_layout_qc_receipt(fixture, [fake_pdf, fake_png])
+    direct_labels = json.loads(json.dumps(fixture))
+    direct_labels["annotation_lane_policy"] = "not_applicable"
+    direct_labels["annotation_lane_reason"] = "Direct labels on one shared data canvas"
+    direct_labels["lanes"]["plotting_data"]["bbox_px"] = [0, 0, 1800, 1000]
+    direct_labels["lanes"].pop("annotation")
+    for panel in direct_labels["panels"]:
+        for artist in panel["text_artists"]:
+            artist["lane"] = "plotting_data"
+    assert audit_layout_registry(direct_labels)["violations"] == []
+    unexplained_lane = json.loads(json.dumps(direct_labels))
+    unexplained_lane.pop("annotation_lane_reason")
+    try:
+        audit_layout_registry(unexplained_lane)
+    except ValueError as exc:
+        assert "annotation_lane_reason" in str(exc)
+    else:
+        raise AssertionError("an inapplicable annotation lane requires its reason")
+    overlapping_direct = json.loads(json.dumps(direct_labels))
+    first, second = overlapping_direct["panels"][0]["text_artists"][:2]
+    second["bbox_px"] = first["bbox_px"]
+    assert "text_artist_overlap" in {
+        item["code"] for item in audit_layout_registry(overlapping_direct)["violations"]
+    }
+    direct_labels["validation_scope"] = "artifact_acceptance"
+    direct_labels["renderer_baseline_ref"] = {
+        "kind": "renderer_regression_baseline",
+        "ref": "artifact://renderer/tested-baseline.json",
+        "sha256": "sha256:" + "3" * 64,
+        "size_bytes": 400,
+    }
+    direct_labels.pop("fixture_id", None)
+    direct_labels.pop("regression_fixture_refs", None)
+    content_receipt = build_layout_qc_receipt(direct_labels, [fake_png, fake_pdf])
+    assert content_receipt["machine_check_status"] == "geometry_checks_passed"
+    assert content_receipt["regression_fixture_refs"] == []
+    assert "plotting_data" in content_receipt["lane_bounds_px"]
+    assert "annotation" not in content_receipt["lane_bounds_px"]
+    direct_labels.pop("renderer_baseline_ref")
+    assert "renderer_baseline_ref_invalid" in {
+        item["code"]
+        for item in build_layout_qc_receipt(direct_labels, [fake_png, fake_pdf])["violations"]
+    }
+    direct_labels["validation_scope"] = "renderer_regression"
+    assert "regression_fixture_ref_missing" in {
+        item["code"]
+        for item in build_layout_qc_receipt(direct_labels, [fake_png, fake_pdf])["violations"]
+    }
     wrong_size_pdf = json.loads(json.dumps(fake_pdf))
     wrong_size_pdf["display_artifact_inventory_ref"]["dimensions"]["variants"][0][
         "width_pt"

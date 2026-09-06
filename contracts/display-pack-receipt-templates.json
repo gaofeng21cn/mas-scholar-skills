@@ -198,6 +198,15 @@
   },
   "layout_qc_receipt_ref": {
     "surface_kind": "layout_qc_receipt_candidate.v1",
+    "annotation_lane_policy": {
+      "default": "separate",
+      "not_applicable_requires": "annotation_lane_reason_and_actual_label_lane_geometry"
+    },
+    "validation_scope_policy": {
+      "default": "renderer_regression",
+      "renderer_regression": "requires_affected_regression_fixture_refs",
+      "artifact_acceptance": "requires_exact_renderer_baseline_ref_for_unchanged_tested_renderer"
+    },
     "required_fields": [
       "receipt_id",
       "generation_source_ref",

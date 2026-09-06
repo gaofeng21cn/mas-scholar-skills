@@ -1,6 +1,6 @@
 ---
 name: medical-figure-style
-description: "Use when a MAS figure task only needs professional visual grammar or style QA for an existing figure, panel, or draft export. This thin MAS Scholar Skills display subskill checks data fidelity, claim-title truth, label economy, color accessibility, final-scale readability, and export-visible style risk without composing panels, redrawing data figures, mutating artifacts, or claiming MAS authority."
+description: "Review visual grammar, label economy, accessibility and final-size readability of an existing medical figure or panel; use figure design for material redraws and composer for panel assembly."
 ---
 
 # Medical Figure Style
@@ -63,7 +63,9 @@ unsupported, stale, circular, missing-source, or visible-payload drift. Consume
    visual polish recommendation.
 3. Consume the renderer's `text_extent_safe_area_ref` and
    `layout_qc_receipt_ref`. Confirm measured-width automatic wrapping without
-   manual source breaks, separate plotting/data and right annotation lanes, a
+   manual source breaks, separate plotting/data and annotation lanes when the
+   grammar uses a dedicated numeric column, or a reasoned not-applicable lane
+   disposition with actual label geometry, a
    complete per-panel text bbox registry, zero overlap/overflow/clipping/minimum
    spacing/safe-inset violations, and final-size PNG/PDF SHA and dimensions on a
    fixed canvas. Consume `final_scale_projection_ref` for every main and

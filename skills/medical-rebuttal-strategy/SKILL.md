@@ -1,6 +1,6 @@
 ---
 name: medical-rebuttal-strategy
-description: "Use when a MAS medical-paper task needs refs-only reviewer response and rebuttal strategy: comment triage, evidence-response map, manuscript delta plan, experiment/analysis route-back, response tone, owner-gate handoff, and stop/continue recommendation. This optional specialist does not sign reviewer receipts, write MAS truth, create typed blockers, or claim acceptance/readiness."
+description: "Plan evidence-backed responses to medical manuscript reviewer/editor comments, including manuscript changes, analysis repairs and justified disagreements."
 ---
 
 # Medical Rebuttal Strategy
@@ -18,6 +18,11 @@ Optional skill-local helper: `kernel.py` provides stdlib-only deterministic comm
 normalization, rebuttal skeletons, response route hints, authority phrase lint, and self-checks.
 
 ## Workflow
+
+This entry owns response strategy. Use `medical-submission-prep` only when the
+task also needs journal packaging or export audit; do not repeat its full
+submission checklist for a comment-level revision. Reuse unchanged evidence and
+verify the affected comment-to-change links after each repair.
 
 1. Build `review_comment_inventory_ref`: comment id, source, severity, target
    section/table/figure, requested action, and implied evidence need.

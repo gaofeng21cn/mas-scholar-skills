@@ -1,6 +1,6 @@
 ---
 name: medical-display-qc
-description: "Use when a MAS medical-paper task needs refs-only figure/table display QC: nonblank export checks, panel/caption consistency, readability, color/accessibility, claim-display alignment, artifact refs, route-back, and owner-gate handoff. This optional specialist does not mutate artifacts, sign visual audit receipts, create typed blockers, or claim publication/readiness."
+description: "Inspect medical figure/table exports for artifact integrity, final-size layout, accessibility, caption consistency and evidence-to-display alignment."
 ---
 
 # Medical Display QC
@@ -83,8 +83,11 @@ currentness, package identity, a receipt, a verdict, or authority.
 4. Check `text_extent_safe_area_ref` after a final renderer draw. Require
    `renderer_draw_complete=true`, an explicit `final_canvas` and `safe_inset`,
    and one registered text bounding box plus clip bbox for every expected text
-   artist in every panel under `artist_scope=all_text_artists`. Require a right
-   `annotation_lane` geometrically separate from the plotting/data lane, a
+   artist in every panel under `artist_scope=all_text_artists`. A dedicated
+   numeric annotation column requires an `annotation_lane` separate from the
+   plotting/data lane; a grammar
+   without one declares `annotation_lane_policy=not_applicable` with an
+   `annotation_lane_reason` and records labels in their actual lane. Require a
    complete `artist_extent_report`, zero overlap,
    canvas overflow, clipping, minimum-spacing and safe-inset violations, and
    `overflow_count=0`.
@@ -123,9 +126,13 @@ currentness, package identity, a receipt, a verdict, or authority.
    final PNG/PDF pair. Require one fixed canvas at final size,
    `bbox_inches=None` or the backend-equivalent no-tight-crop policy, both file
    SHA-256 values and dimensions, safe inset, lane bounds, registry hash, and
-   deterministic check counts. Run the long-string, extreme-value, and
-   full-width fixture at
-   `skills/medical-display-qc/fixtures/layout_qc_regression.json`. Repeat the
+   deterministic check counts. Renderer/font/wrapping/geometry/export changes
+   use `validation_scope=renderer_regression` and run affected long-string,
+   extreme-value and full-width fixtures, including
+   `skills/medical-display-qc/fixtures/layout_qc_regression.json`. Content-only
+   acceptance against an unchanged tested renderer uses
+   `validation_scope=artifact_acceptance` with exact `renderer_baseline_ref`;
+   it does not claim a new regression run. Repeat the
    page check for the embedded DOCX/PDF and record it in `composed_page_check`.
    `tight_layout`, `bbox_inches=tight`, and `clip_on` are not proof.
 7. Check `paired_export_qa_ref`: both outputs exist and come from the same
@@ -143,7 +150,9 @@ currentness, package identity, a receipt, a verdict, or authority.
    physical dimensions, and normalized crop. Never compare PNG pixels directly
    with PDF points. A filename or arbitrary artifact string is not
    paired-export evidence.
-8. Check `clean_rebuild_consistency_ref`: two clean rebuild receipts must carry
+8. For deterministic owner handoff, check `clean_rebuild_consistency_ref`:
+   two clean rebuilds in separate empty temporary output/cache directories
+   preserve all user artifacts and prior caches. Their receipts must carry
    the same SHA-256 `source_fingerprint` and identical per-format
    `output_fingerprints`. Any difference routes back to the source/render owner
    before owner review.

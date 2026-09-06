@@ -203,6 +203,26 @@ test('OpenAlex search preserves DOI, PMID, OpenAlex id, authors, journal, year, 
   });
 });
 
+test('Europe PMC search keeps non-MED source identity and its real article URL', () => {
+  const request = build('pmc', 'preprint', 1);
+  const result = parse('pmc', 'preprint', 1, request, {
+    hitCount: 1,
+    resultList: { result: [{ id: '12345', source: 'PPR', title: 'Preprint result' }] },
+  });
+  const candidate = result.next.candidates[0];
+  assert.equal(candidate.pmid, null);
+  assert.equal(candidate.pmcid, null);
+  assert.equal(candidate.source_urls.pubmed, null);
+  assert.equal(candidate.source_urls.europe_pmc, 'https://europepmc.org/article/PPR/12345');
+  const unknown = parse('pmc', 'preprint', 1, request, {
+    hitCount: 1,
+    resultList: { result: [{ id: '12345', title: 'Source not supplied' }] },
+  }).next.candidates[0];
+  assert.equal(unknown.pmid, null);
+  assert.equal(unknown.source_urls.pubmed, null);
+  assert.equal(unknown.source_urls.europe_pmc, null);
+});
+
 test('PubMed search uses an explicit ESearch to ESummary next-step state', () => {
   const request = build('pubmed', 'CONSORT randomized trial', 2);
   assert.equal(request.next.kind, 'request');

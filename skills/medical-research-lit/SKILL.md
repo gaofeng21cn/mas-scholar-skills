@@ -1,6 +1,6 @@
 ---
 name: medical-research-lit
-description: "Use when a profiled MAS medical-paper or MAG medical-grant task needs AI-first literature discovery, PubMed/PMC search planning, source screening, PMID/DOI verification, claim-support maps, and refs-only owner handoff. OPL Connect owns provider transport; the consuming Agent owns evidence acceptance and domain authority."
+description: "Find and verify biomedical literature for MAS papers or MAG grants, from a targeted source lookup to a systematic evidence search and claim-support synthesis."
 ---
 
 # Medical Research Literature
@@ -49,39 +49,9 @@ integration, `medical-manuscript-review` for citation and claim critique,
 `medical-table-design` for literature-backed table notes, and
 `medical-submission-prep` for guideline, declaration, and response surfaces.
 
-## External Learning Quality Floor
+## Method References
 
-This skill absorbs useful patterns from Nature-style academic search,
-Nature-style citation workflows, K-Dense paper lookup, citation management, and
-literature review skills:
-
-- source routing by question type instead of one generic search;
-- explicit query plans with PICO/PECO, MeSH candidates, synonyms, and exclusion
-  logic;
-- multi-source fallback when PubMed alone is insufficient;
-- deduplication by PMID, DOI, title, and preprint/server identifiers;
-- retain/reject/watchlist screening with reasons;
-- claim-level support grading instead of "found some papers";
-- citation metadata verification before manuscript use.
-
-The default discovery route for medical and clinical claims is PubMed/PMC
-through OPL Connect scientific search. Candidate identifiers and metadata are
-then strictly checked through OPL Connect reference verification. Record
-`opl_connect_search_ref`, `opl_connect_reference_verification_ref`, and
-`pubmed_source_refs` as read-only evidence inputs. Use broader sources only
-when the question needs metadata
-normalization, cross-disciplinary coverage, citation graph expansion, guideline
-lookup beyond PubMed indexing, or full-text/protocol context. Crossref and
-OpenAlex may be supplied through an explicit generic OPL Connect fallback as
-`fallback_source_refs`; they are metadata, coverage, or graph evidence, not
-citation acceptance. MAS still decides whether any source enters the citation
-ledger or manuscript.
-
-K-Dense `paper-lookup`, `citation-management`, `literature-review`, and
-`database-lookup` contribute a retrieval contract: choose the smallest
-authoritative source set that answers the claim, keep endpoint/filter
-provenance, reconcile identifiers and counts when completeness matters, and
-return screened candidate refs rather than unbounded raw API dumps.
+When the task needs a method, reporting-standard, source or quality detail beyond the current accepted context, load [method quality reference](references/method-quality-reference.md). Reuse applicable current evidence; load only resources needed by the selected task mode.
 
 ## AI-First Source Judgment
 
@@ -166,6 +136,14 @@ acceptance. MAS remains the owner of medical screening, claim-support judgment,
 citation acceptance, and any citation-ledger mutation.
 
 ## Retrieval Contract
+
+Choose `targeted_lookup` for a named paper, identifier, narrow claim or citation
+repair; return the question, actual lookup/source refs, verified available
+metadata, support judgment and unresolved limits. Choose `evidence_search` for
+a broader synthesis; add the query plan, screening/support matrix and synthesis.
+Choose `systematic_search` only when completeness is requested by the review
+design; add reproducible eligibility, screening and count reconciliation.
+Full-text extraction and citation-graph expansion are conditional in every mode.
 
 Before searching, define `literature_retrieval_contract_ref`:
 
@@ -261,7 +239,10 @@ need, preprint/published-version check, or official-source requirement.
 
 ## Handoff Shape
 
-Return a compact structure with:
+Use the following output vocabulary for the selected mode. Return only fields
+supported by work actually performed; optional graph/PDF/provider fields are
+omitted when not applicable. Required-but-missing evidence is a named gap, not
+a fabricated receipt. A targeted lookup does not need a screening campaign:
 
 - `literature_question`
 - `literature_retrieval_contract_ref`

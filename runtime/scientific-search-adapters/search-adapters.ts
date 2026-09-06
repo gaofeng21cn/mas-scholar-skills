@@ -232,7 +232,7 @@ function normalizeEuropePmcCandidate(entry: Record<string, unknown>): Scientific
   const source = asString(entry.source)?.toUpperCase() ?? null;
   const providerId = asString(entry.id);
   const pmid = asString(entry.pmid)
-    ?? (source === 'MED' || (providerId !== null && /^\d+$/.test(providerId)) ? providerId : null);
+    ?? (source === 'MED' ? providerId : null);
   const pmcid = normalizePmcid(
     asString(entry.pmcid)
       ?? (source === 'PMC' || providerId?.toUpperCase().startsWith('PMC') ? providerId : null),
@@ -241,7 +241,8 @@ function normalizeEuropePmcCandidate(entry: Record<string, unknown>): Scientific
   const sourceRef = pmcid ?? pmid ?? providerId;
   if (!sourceRef || !title) return null;
   const doi = normalizeDoi(asString(entry.doi));
-  const europePmcType = pmid ? 'MED' : 'PMC';
+  const europePmcType = pmid ? 'MED' : pmcid ? 'PMC' : source;
+  const europePmcId = pmid ?? pmcid ?? providerId;
   return {
     source_ref: `pmc:${sourceRef}`,
     source_kind: 'literature_article',
@@ -263,7 +264,9 @@ function normalizeEuropePmcCandidate(entry: Record<string, unknown>): Scientific
       doi: doi ? `https://doi.org/${doi}` : null,
       pubmed: pmid ? `https://pubmed.ncbi.nlm.nih.gov/${pmid}/` : null,
       pmc: pmcid ? `https://pmc.ncbi.nlm.nih.gov/articles/${pmcid}/` : null,
-      europe_pmc: `https://europepmc.org/article/${europePmcType}/${pmid ?? pmcid}`,
+      europe_pmc: europePmcType && europePmcId
+        ? `https://europepmc.org/article/${encodeURIComponent(europePmcType)}/${encodeURIComponent(europePmcId)}`
+        : null,
     },
   };
 }

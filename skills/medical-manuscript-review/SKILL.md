@@ -1,6 +1,6 @@
 ---
 name: medical-manuscript-review
-description: "Use when a MAS review stage operating prompt needs professional adversarial medical review over a manuscript, draft, claim-evidence package, reviewer response, figure/table set, or citation surface. Covers claim downgrade, citation repair routing, reviewer action matrix, SCI clinical-registry review, revision-delta audit, and route-back candidates. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps stage authority, runtime authority, artifact authority, owner receipts, typed blockers, and publication readiness."
+description: "Independently review medical manuscripts, evidence claims, displays and revision deltas for scientific defects and actionable repairs within the declared MAS review scope."
 ---
 
 # Medical Manuscript Review
@@ -139,90 +139,9 @@ source/data gaps to data governance. The AI judgment remains a candidate until
 MAS or the consuming owner records reviewer receipt, owner receipt, typed
 blocker, human gate, artifact mutation, quality verdict, or readiness.
 
-## External Learning Quality Floor
+## Method References
 
-This skill absorbs useful reviewer patterns from Nature-style reviewer skills
-and K-Dense-style peer-review skills:
-
-- extract a shared manuscript fact base before judging;
-- evaluate significance, originality, technical soundness, readability, and
-  audience fit separately;
-- simulate multiple reviewer emphases when that helps identify hidden risk;
-- consolidate findings into a cross-review synthesis instead of averaging them
-  away;
-- tie every major concern to a route-back action and owner surface.
-
-Use these patterns as stricter review discipline, not as a foreign journal
-verdict. The skill may say a Nature-style case is weak, but it cannot claim an
-editorial decision or publication readiness.
-
-K-Dense `scientific-critical-thinking` contributes evidence-quality discipline
-to review, not a separate authority layer. Use it to name internal validity,
-external validity, construct validity, statistical conclusion validity, bias,
-confounding, reproducibility, ethics, and reporting-standard problems when the
-manuscript evidence supports the concern.
-
-K-Dense `scholar-evaluation` contributes evaluation discipline for positioning,
-novelty, rigor, and likely reviewer reception. Use it to make the review
-decision more explicit: separate "interesting but unsupported", "technically
-adequate but low contribution", "clinically useful but under-explained", and
-"submission-fit issue" findings. These are route-back labels, not editorial
-accept/reject decisions.
-
-For claim/citation disputes, read
-`references/professional-quality-ref-templates.md` and use
-`claim_citation_quality_loop_ref` plus `citation_quality_action_matrix_ref`.
-These refs let the AI reviewer recommend keep, downgrade, replace, route back,
-human gate, or stop without issuing a quality verdict, owner receipt, typed
-blocker, or publication readiness claim.
-
-OpenScience main `f120290` contributes local-first claim-warning discipline, not
-a second skill catalog. For disputed manuscript, figure/table, or citation
-claims, add refs-only `claim_type_ref` and `graph_warnings_ref` before the
-reviewer action matrix when source material permits it. Use `claimType` to
-separate descriptive, association, prediction, causal, methods, and governance
-claims; use `graphWarnings` for unsupported, stale, circular, missing-source, or
-source/body drift risks. When a reviewer annotation points at a claim gap, add
-`annotation_to_source_regeneration_ref` that maps the annotation back to source
-refs, claim-evidence refs, citation refs, or the missing ref family, then emit
-`claim_warning_route_back_candidate_ref` if repair is needed. These refs are
-review hints only: they are not reviewer receipts, MAS owner receipts, typed
-blockers, publication verdicts, or quality verdicts.
-
-`skill_pack_governance_policy_ref` may record allowed scope, dependency or
-permission notes, and stage-use policy for the synced skill pack. Do not copy an
-OpenScience skill catalog, create a new MAS default skill source, or treat this
-governance ref as owner acceptance.
-
-Use `professional_ai_quality_floor_ref` for Co-Scientist-style JIT review
-affordance inside this existing skill. Every major critique should produce
-`critique_as_repair_hint_ref`, not only a severity label: name the affected
-claim/source/figure/table/data/package refs, the repair route, and the evidence
-needed to clear it. Extract `reusable_lesson_ref` only when the concern is a
-repeatable manuscript-quality lesson. Trigger `triggered_meta_review_ref` when
-findings conflict, route-back repeats, claim type crosses disciplines, or a
-candidate would approach MAS truth, owner receipt, typed blocker, artifact
-authority, or readiness. Use `opportunistic_knowledge_prefetch_ref` for bounded
-source, journal, prior-review, figure/table, data, or rerun refs needed for the
-review; consume `rerun_receipt_ref` as evidence only when fingerprints and
-limits are visible.
-
-AcademicForge/Claude Science paper-narrative contributes a handling-editor deck
-review pattern. Use it when the draft has figures, captions, or a manuscript
-PDF: infer the pitch and figure claims from the work itself, then review the
-full deck for `fig1_hook_ref`, `deck_arc_ref`, `figure_moves_ref`,
-`missing_panels_ref`, and `kill_list_ref`. These are action-matrix inputs only;
-they do not create editorial acceptance, reviewer receipt, publication
-readiness, or a MAS owner verdict.
-
-AcademicForge/Claude Science pdf-explore contributes a PDF evidence-extraction
-boundary. For long PDFs or supplements, parse once, then use outline, scan,
-grep, and crop refs to find evidence. Keep extraction separate from judgment:
-`pdf_evidence_extraction_ref` can support review findings, but MAS still owns
-source acceptance, citation acceptance, claim repair, and readiness labels. Do
-not block review on Claude Science helper availability; use the current
-workspace's PDF reader, text extraction, image crop, or manual page readback and
-record the method as part of the extraction ref.
+When the task needs a method, reporting-standard, source or quality detail beyond the current accepted context, load [method quality reference](references/method-quality-reference.md). Reuse applicable current evidence; load only resources needed by the selected task mode.
 
 ## Fact Base And Reviewer Lanes
 
@@ -317,143 +236,11 @@ If reference context or citation ledger refs are missing, record that as a
 review blocker and create a citation repair request. Do not fill the gap with
 memory-only claims.
 
-## Prediction Model External Validation Review
+## Study-Design Review
 
-For prediction-model external-validation manuscripts, run a specific review
-lane before clearing draft, paper, or submission readiness. Major or blocker
-findings include:
+For prediction-model external validation, load [prediction-validation review](references/prediction-validation-review.md).
 
-- unclear source-model origin, missing equation, missing coefficient table,
-  missing predictor coding, or missing baseline survival / absolute-risk
-  extraction;
-- validation cohort described without source years, eligibility, diabetes or
-  disease definition, endpoint ascertainment, follow-up completeness, censoring
-  policy, missingness, or survey-weighting policy when relevant;
-- a recorded event percentage labeled as observed fixed-horizon risk despite
-  early censoring or unresolved follow-up completeness;
-- discrimination reported as if it proves calibrated absolute risk;
-- calibration slope, O:E, Brier score, grouped calibration, or recalibration
-  claims lacking uncertainty or denominator support;
-- a title that foregrounds implementation status such as "fixed" or "locked"
-  when the clinically useful contribution is higher-risk identification,
-  recalibration need, or external validation;
-- a results narrative that repeats the same grouped-risk-gradient sentence in
-  adjacent subsections instead of separating risk stratification from absolute
-  calibration;
-- discussion that invokes population transportability without anchoring the
-  interpretation to Table 1 case-mix or event-rate differences when those
-  differences are available;
-- performance tables that label development-cohort external-validation-only
-  calibration intercept/slope as "not estimated" instead of "not applicable";
-- a cohort-level two-point calibration figure presented as if it were the
-  calibration plot when grouped calibration by validation quantile is available;
-- risk groups that mix development-cohort bins with validation self-quantiles
-  without showing occupancy and calibration separately;
-- decision-curve or threshold-utility figures shown while Methods/Results say
-  clinical utility was not estimated, or while severe miscalibration makes the
-  threshold basis unverified;
-- cross-cohort cause, endpoint, phenotype, or attribution constructs treated as
-  equivalent without an accepted codebook map and identity-preserving linkage;
-- a non-estimable secondary comparison silently dropped or rewritten as evidence
-  of similarity, difference, or mechanism;
-- a table or figure regenerated from a stale render request with embedded old
-  values instead of the current structured source and catalog generation;
-- discussion that stops at "transportability failed" without explaining the
-  bounded interpretation, case-mix/support possibilities, baseline-risk
-  mismatch, and why clinical deployment or absolute-risk communication is not
-  supported.
-
-Route these findings to `medical-statistical-review`, `medical-table-design`,
-`medical-figure-design`, `medical-manuscript-writing`, `analysis-campaign`, or
-human gate as appropriate. Do not smooth them into prose-only caveats.
-
-## SCI Clinical Registry Review
-
-For observational, cohort, registry, real-world, or descriptive atlas
-manuscripts, include a `sci_clinical_registry_review` matrix. This is a
-scientific review layer, not a prose check.
-
-Cover these domains:
-
-- `clinical_contribution`
-- `reporting_metadata`
-- `population_applicability`
-- `variable_ascertainment`
-- `source_heterogeneity`
-- `display_to_claim`
-- `risk_of_bias_or_grade_signal`
-
-Each row should include `concern_id`, `domain`, `status`, `severity`,
-`finding`, `evidence_refs`, and `required_disposition`. Any `major` or
-`blocker` concern blocks publication-quality readiness and must route to write,
-analysis-campaign, decision, or human gate.
-
-Red flags include:
-
-- missing enrollment window, source-specific data window, or data lock date
-- missing inclusion/exclusion flow, ethics/consent, funding, COI, or data
-  availability
-- missing BMI calculation, adult/child standard, or diagnostic ascertainment
-- non-model descriptive registry Methods that retain `Model building` or
-  `Validation framework` headings instead of reviewer-facing descriptive
-  analysis, data-check, or sensitivity-analysis headings
-- missing diagnostic-variable ascertainment table when disease-control,
-  hypertension, dyslipidemia, complication-burden, or phenotype labels are
-  derived from structured records
-- adult BMI classes promoted while age distribution or under-18 proportion is
-  unresolved
-- adult-focused conclusions without adult/known-age sensitivity when age is
-  missing, implausible, or includes children
-- selected diagnostic-field positivity described as prevalence or burden
-- descriptive registry figure/table titles or legends using burden for
-  populated diagnostic fields, variable availability, or subcohort-only
-  screening instruments instead of recorded-field, availability, symptom-status,
-  or co-occurrence wording
-- figure legends that use instruction-style boundary phrasing such as `should
-  not be interpreted as` instead of manuscript-ready declarative phrasing such
-  as `are not prevalence estimates`
-- figure titles, legends, captions, or section headings that claim variables
-  not shown or overstate the design
-- Results sentences that explain why a finding is clinically useful instead of
-  reporting the finding and leaving interpretation to Discussion
-- figure legends that import `direct_message`, panel-message, glossary, or
-  instruction-style semantics into the submission legend instead of a compact
-  visible-variable, denominator, and boundary statement
-- PDF figure pages that show a figure heading with a blank figure region, or
-  figure captions that retain double identifiers such as "F1 / Figure 1: F1"
-- main-text PDF tables that are unreadable because the table is too wide,
-  over-wrapped, or should route to supplementary material
-- missingness/availability atlas too thin for the manuscript's registry-atlas
-  claim
-- phenotype-atlas or treatment-gap drafts that list groups and rates but do not
-  articulate a medical discovery contract, such as burden-medication
-  discordance, structured risk-treatment mismatch, trajectory pattern,
-  site/service variation, or a documented reason these are out of scope
-- severe-glycemia low-intensity, cardiometabolic protection gap, renal-risk
-  protection gap, service-priority tier, or potential overtreatment language
-  without exact eligibility, medication-class mapping, denominator, and
-  unavailable-evidence boundary
-- recorded medication gaps presented without exact numerator, denominator,
-  medication-source, class-mapping, and medication-field-present sensitivity
-- guideline-linked treatment-gap wording without guideline-specific
-  eligibility, contraindication, age/eGFR target, and source refs
-- transition-stability results reported as a single percentage without
-  trajectory categories, plausible clinical/service interpretations, or a
-  documented decision that transition analysis is out of scope
-- site support used as if it were site-level gap variation, external
-  validation, or service-performance evidence
-- discussion that only defends limitations, enumerates too many isolated
-  findings, or fails to compress findings into registry structure, adult
-  metabolic phenotype, and subcohort clinical-depth themes
-- internal workflow, tool pipeline, or manuscript self-evaluation language in
-  article body
-- revision-response phrases such as `reviewer-triggered` in Methods, Results,
-  figure legends, tables, or supplements
-- residual internal phrases such as "formal analytic data-lock date remains"
-  in manuscript body text
-
-Restrained wording can reduce claim risk, but it cannot clear these red flags
-by itself.
+For registry or phenotype-atlas review, load [registry review](references/registry-review.md). Apply its disease-specific examples only when the study population, endpoints and medication scope match; review other registries against their own accepted definitions.
 
 ## Epistemic Evidence Context
 

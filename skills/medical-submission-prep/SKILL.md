@@ -1,6 +1,6 @@
 ---
 name: medical-submission-prep
-description: "Use when a MAS medical-paper task needs professional submission preparation, journal instruction mapping, reporting-guideline checklist, title page and declaration inventory, data/code availability statement planning, cover-letter or reviewer-response package audit, export package QA, or refs-only submission route-back. This professional specialist skill is maintained in mas-scholar-skills; MAS keeps artifact authority, owner receipts, typed blockers, human gates, current-package authority, and publication readiness."
+description: "Prepare or audit a medical-paper submission package, journal requirements, declarations, reviewer response, or final export files for MAS owner review."
 ---
 
 # Medical Submission Prep
@@ -56,43 +56,13 @@ Do not say a paper is ready because a checklist is filled. Use the checklist to
 find missing owner decisions, missing files, unsupported claims, and mismatched
 package parts.
 
-## Publication Layout Selection
+## Task Mode
 
-There are exactly two user modes:
+- `submission_inventory`: assess the requested package and current journal requirements; identify missing source or author inputs.
+- `reviewer_response`: load [reviewer response](references/reviewer-response.md) and use `medical-rebuttal-strategy` for response strategy; the response must bind real manuscript changes.
+- `layout_or_export`: load [publication layout](references/publication-layout.md) and the selected local profile; perform final-file checks for outputs in scope.
 
-1. When a target journal is named, call `select_publication_layout()` and use
-   the matching local journal profile as the authoring and export baseline.
-2. When no journal is named, use `general-medical-reader.v1`, the neutral
-   publication-grade electronic reading profile.
-
-Read the selected profile from
-`packs/medical-publication-layouts/publication_layout_catalog.json`. The built-in
-catalog covers JAMA Network, NEJM, The Lancet, The BMJ, Nature Medicine,
-Diabetes Care, Cardiovascular Diabetology, BMC Medicine, and the shared
-Frontiers journal family. Any normalized journal name beginning with
-`Frontiers in ...` selects `frontiers-research-article.v1`; similarly named
-singular journals such as `Frontier Medicine` do not. These are locally
-maintained adaptation profiles, not copied publisher templates. Their stable
-authoring rules are usable offline; changing limits, article types, journal
-sections, declarations, and portal file rules must be refreshed from the listed
-official source before formal submission.
-
-An unknown or stale journal profile never blocks ordinary writing. Continue with
-the general reader template and record `journal_profile_pending_official_mapping`
-or `local_profile_selected_refresh_pending`. Do not claim that the journal format
-is current until the official instruction refresh is consumed.
-
-Every layout selection exposes exactly two core reader PDFs:
-
-- `paper.pdf`: the selected-layout main manuscript.
-- `paper_with_supplementary.pdf`: the main manuscript followed by readable
-  supplementary material for the user.
-
-The combined PDF is a reading convenience, not automatically a journal upload
-artifact. Keep separately addressable supplementary files in the package and do
-not create a third reader-edition PDF. Layout profiles are quality floors and
-format adapters; they do not replace manuscript, figure, table, statistical, or
-reference Skills.
+Modes may combine when the requested deliverable needs them. Run only applicable workflow steps and return applicable refs from the handoff vocabulary. Omit optional non-applicable fields or use the existing `not_applicable_with_reason` disposition; never invent a receipt. Required but missing files become scoped repair candidates, while independent package work continues.
 
 ## AI-First Submission Judgment
 
@@ -107,37 +77,9 @@ Emit `submission_verdict_candidate`, `package_consistency_ref`,
 not submission readiness, journal acceptance, owner receipt, typed blocker,
 current-package authority, or publication readiness.
 
-## External Learning Quality Floor
+## Method References
 
-This skill adapts maintainable patterns from Nature-style data availability,
-reviewer response, citation, and submission workflows:
-
-- load journal instructions and article type before formatting advice;
-- record the current venue instruction source, access date, and template or
-  author-guide version before applying rules;
-- inventory every required file and declaration;
-- separate ready-to-paste text from fields the author must supply;
-- map every reviewer response claim to a manuscript location or explicit
-  placeholder;
-- treat data/code availability and FAIR metadata as submission surfaces, not as
-  decorative end matter;
-- preserve MAS owner gates for readiness and final submission decisions.
-- adapt K-Dense `venue-templates` as an instruction-mapping discipline, not a
-  guarantee that a generic template is current or accepted.
-
-Use `professional_ai_quality_floor_ref` for submission-package judgment.
-Convert every checklist or reviewer-response critique into
-`critique_as_repair_hint_ref` with the affected file, declaration, author field,
-journal instruction, citation, figure/table, data/code availability, or response
-claim. Use `opportunistic_knowledge_prefetch_ref` only for current venue
-instructions, reporting guideline, declaration, source, package, or prior
-review refs needed by this package. Add `claim_type_ref` and
-`graph_warnings_ref` for package claims that are unsupported, stale, circular,
-missing-source, source/body divergent, or inconsistent across manuscript,
-figures, tables, supplement, and response files. Use
-`annotation_to_source_regeneration_ref` for reviewer comments that must trace
-back to manuscript/source refs, and consume `rerun_receipt_ref` only as
-re-export, package-check, or reopen-readback evidence.
+When the task needs a method, reporting-standard, source or quality detail beyond the current accepted context, load [method quality reference](references/method-quality-reference.md). Reuse applicable current evidence; load only resources needed by the selected task mode.
 
 ## Submission Contract
 
@@ -213,8 +155,10 @@ not establish`.
    sentence-casing may lowercase, such as country/place names, cohort names,
    population labels, tool names, and abbreviations (`{Hong Kong}`,
    `{Nanjing, China}`, `{U.S. adults}`, `{NHANES}`, `{HbA1c}`).
-   Before packaging, consume the exact `post_csl_reader_semantics_ref` for the
-   final DOCX and PDF. Source braces, identifiers, or a clean keyed bibliography
+   For a final CSL/citeproc export package, consume the exact
+   `post_csl_reader_semantics_ref` for the final DOCX and PDF. Source-only
+   planning and response-strategy tasks omit this export-only ref. Source
+   braces, identifiers, or a clean keyed bibliography
    do not replace reader-facing verification of protected names, literal group
    authors, corrections, and official metadata.
 6. Check figures and tables against journal format and manuscript claims. For a
@@ -227,7 +171,8 @@ not establish`.
    should expose a readable supplementary PDF and a combined review PDF/DOCX
    when the exporter supports it, rather than leaving only hidden source
    markdown, CSV, or generated image files.
-   Also consume one exact `figure_numbering_one_owner_ref` bound to those final
+   When final figure-bearing DOCX/PDF exports are in scope, consume one exact
+   `figure_numbering_one_owner_ref` bound to those final
    DOCX/PDF bytes and run `validate_submission_figure_numbering_binding()`.
    Package assembly cannot rely on an unbound digest or a source-only caption
    check to satisfy the final exactly-one invariant.
@@ -252,19 +197,7 @@ reviewer-response text needs biomedical literature support, route it to
 refs only. OPL Connect owns provider transport and receipts; MAS still decides
 medical support strength, citation acceptance, and manuscript use.
 
-## Reviewer Response Mode
-
-When reviewer comments or editor letters are present:
-
-- extract editor instructions and reviewer comments into stable IDs;
-- preserve each comment before responding;
-- classify comments by action: text repair, analysis repair, figure/table
-  repair, citation repair, disagreement, impossible request, or author input;
-- map every claimed change to manuscript location, figure/table/supplement
-  ref, or an explicit placeholder;
-- mark missing author information as `AUTHOR_INPUT_NEEDED`;
-- route statistical, literature, writing, table, and figure repairs to sibling
-  skills instead of pretending the response letter itself fixes the paper.
+Reviewer-response work follows the mode reference above; first-submission or layout-only work does not need an invented response packet.
 
 ## Handoff Shape
 
@@ -273,8 +206,9 @@ Return refs-only candidate output:
 - `journal_instruction_ref`
 - `journal_instruction_source_ref`
 - `publication_layout_selection_ref`
-- consumed exact `post_csl_reader_semantics_ref`
+- consumed exact `post_csl_reader_semantics_ref` for final CSL exports
 - consumed exact `figure_numbering_one_owner_ref` and final DOCX/PDF binding
+  for applicable figure-bearing final exports
 - `submission_inventory_ref`
 - `reporting_guideline_ref`
 - `data_code_availability_ref`

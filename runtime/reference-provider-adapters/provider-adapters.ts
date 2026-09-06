@@ -173,7 +173,7 @@ function parseEuropePmcSearch(payload: unknown, reference: ReferenceRecord): Can
   const providerId = asString(entry.id);
   const doi = normalizeDoi(asString(entry.doi));
   const pmid = asString(entry.pmid)
-    ?? (source === 'MED' || (providerId !== null && /^\d+$/.test(providerId)) ? providerId : null);
+    ?? (source === 'MED' ? providerId : null);
   const pmcid = normalizePmcid(
     asString(entry.pmcid)
       ?? (source === 'PMC' || providerId?.toUpperCase().startsWith('PMC') ? providerId : null),
@@ -404,9 +404,21 @@ const europePmcAdapter: ProviderAdapter = {
           { adapter_id: state.adapter_id, step: state.step },
         );
       }
+      // This bounded presence probe is not full-text extraction or acceptance.
+      // PMC can return a valid article wrapper with front-matter only.
+      const xml = response.body
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '');
+      const article = xml.match(/<(?:[\w.-]+:)?article\b[^>]*>([\s\S]*)<\/(?:[\w.-]+:)?article\s*>\s*$/i);
+      const body = article?.[1].match(/<(?:[\w.-]+:)?body\b[^>]*>([\s\S]*?)<\/(?:[\w.-]+:)?body\s*>/i);
+      const bodyText = body?.[1]
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&(?:#\d+|#x[\da-f]+|[\w]+);/gi, ' ') ?? '';
+      const verified = /[\p{L}\p{N}]/u.test(bodyText);
       return {
         kind: 'full_text_probe',
-        verified: /<article\b/i.test(response.body),
+        verified,
+        probe_status: verified ? 'verified' : article ? 'metadata_only' : 'invalid_payload',
         response_url: response.url ?? null,
       };
     }
@@ -473,7 +485,7 @@ const europePmcAdapter: ProviderAdapter = {
       verification_scope: {
         ...retainedEvidence.verification_scope,
         full_text_body_verified: verified,
-        full_text_probe_status: verified ? 'verified' : 'invalid_payload',
+        full_text_probe_status: asString(input.parsed.probe_status) ?? 'invalid_payload',
         ...(asString(input.parsed.response_url)
           ? { full_text_response_url: asString(input.parsed.response_url) }
           : {}),
