@@ -5,7 +5,6 @@
   "profile_owner": "MedAutoScience Display Pack",
   "canonical_substrate_owner": "OPL Framework",
   "contract_ref": "opl-framework:contracts/opl-framework/runtime-environment-substrate-contract.json",
-  "target_doc_ref": "docs/runtime/designs/opl_dependency_environment_substrate_target.md",
   "authority_boundary": {
     "domain_pack_declares_requirements_only": true,
     "opl_substrate_solves_locks_prepares_and_caches": true,
