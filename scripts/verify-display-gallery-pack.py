@@ -732,6 +732,14 @@ def verify_source_pack() -> dict:
             fail(f"missing source pack file packs/medical-display-core/{required}")
 
     dependency_profile = read_json(PACK_ROOT / "renderer_dependency_profile.json")
+    profiles_by_id = {profile["profile_id"]: profile for profile in dependency_profile["profiles"]}
+    for descriptor_path in (PACK_ROOT / "templates").glob("*/template.toml"):
+        descriptor = read_toml(descriptor_path)
+        selected = descriptor.get("requirement_profile_ids")
+        if not isinstance(selected, list) or any(item not in profiles_by_id for item in selected):
+            fail(f"{descriptor_path.parent.name}: invalid requirement_profile_ids")
+        if descriptor.get("renderer_family") == "r_ggplot2" and not selected:
+            fail(f"{descriptor_path.parent.name}: R renderer requires explicit dependency profiles")
     cohort_profiles = [
         profile
         for profile in dependency_profile.get("profiles") or []

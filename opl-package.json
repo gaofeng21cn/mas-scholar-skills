@@ -486,9 +486,12 @@
       "skills/medical-table-design/references/external-validation-tables.md",
       "skills/medical-table-design/references/method-quality-reference.md",
       "skills/medical-table-design/references/registry-tables.md",
-      "skills/medical-table-design/references/upstream-provenance.md"
+      "skills/medical-table-design/references/upstream-provenance.md",
+      "packs/medical-display-core/rlib/medicaldisplaycore/render_session.R",
+      "packs/medical-display-core/tests/benchmark_render_batch.py",
+      "packs/medical-display-core/tests/test_render_session.R"
     ],
-    "digest": "sha256:9973c6cc15482f912659fd3a9a977f85321c951b7cbdcdd3a78d14e22c4e94ab"
+    "digest": "sha256:ab03d92694222c56dec5ddd5c4499218ae13b5f5421361285cc36613af37a54b"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",

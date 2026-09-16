@@ -24,7 +24,7 @@ source_renderer_helper <- function(file_name) {
   for (source_path in rev(frame_files[nzchar(frame_files)])) {
     helper_path <- file.path(dirname(normalizePath(source_path, mustWork = FALSE)), file_name)
     if (file.exists(helper_path)) {
-      source(helper_path)
+      source(helper_path, local = environment(source_renderer_helper))
       return(invisible(TRUE))
     }
   }
@@ -35,7 +35,7 @@ source_renderer_helper <- function(file_name) {
   )
   for (helper_path in fallback_paths) {
     if (file.exists(helper_path)) {
-      source(helper_path)
+      source(helper_path, local = environment(source_renderer_helper))
       return(invisible(TRUE))
     }
   }

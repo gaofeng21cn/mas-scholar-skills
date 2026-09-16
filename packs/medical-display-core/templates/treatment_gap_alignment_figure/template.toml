@@ -16,3 +16,4 @@ paper_proven = true
 inventory_class = "canonical"
 default_visible = true
 paper_provenance_refs = ["med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"]
+requirement_profile_ids = ["r_ggplot2_evidence_subprocess_v1"]

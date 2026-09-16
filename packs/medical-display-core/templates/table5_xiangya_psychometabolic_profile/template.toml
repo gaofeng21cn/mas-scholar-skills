@@ -12,3 +12,4 @@ allowed_paper_roles = ["main_text", "supplementary"]
 execution_mode = "python_plugin"
 entrypoint = "fenggaolab_org_medical_display_core.table_shells:render_table_shell"
 paper_proven = true
+requirement_profile_ids = []

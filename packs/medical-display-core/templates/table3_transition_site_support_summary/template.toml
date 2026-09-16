@@ -15,3 +15,4 @@ paper_proven = true
 inventory_class = "paper_derived_reference"
 default_visible = false
 paper_provenance_refs = ["med-autoscience/studies/003-dpcc-primary-care-phenotype-treatment-gap"]
+requirement_profile_ids = []

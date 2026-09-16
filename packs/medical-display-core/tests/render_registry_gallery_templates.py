@@ -15,7 +15,7 @@ from typing import Any
 
 
 PACK_ROOT = Path(__file__).resolve().parents[1]
-BATCH_RENDERER = PACK_ROOT / "tests" / "render_registry_gallery_batch.R"
+BATCH_RENDERER = PACK_ROOT / "render.R"
 FIXTURE_PATH = PACK_ROOT / "fixtures" / "registry_gallery_cases.json"
 EXPECTED_CASE_IDS = {
     "adult_bmi_waist_central_adiposity_bar",
@@ -114,13 +114,13 @@ def run_renderer_batch(output_root: Path, jobs: list[dict[str, str]]) -> dict[st
         encoding="utf-8",
     )
     completed = subprocess.run(
-        ["Rscript", str(BATCH_RENDERER), str(batch_path)],
+        ["Rscript", "--vanilla", str(BATCH_RENDERER), "--batch", str(batch_path)],
         cwd=output_root,
         text=True,
         capture_output=True,
         check=False,
     )
-    if completed.returncode != 0:
+    if completed.returncode not in (0, 1) or not completed.stdout.strip():
         raise RuntimeError(f"batch renderer failed: {completed.stderr.strip()}")
     payload = json.loads(completed.stdout)
     actual_case_ids = [item.get("case_id") for item in payload.get("results", [])]

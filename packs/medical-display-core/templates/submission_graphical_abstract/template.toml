@@ -12,3 +12,4 @@ allowed_paper_roles = ["submission_companion"]
 execution_mode = "python_plugin"
 entrypoint = "fenggaolab_org_medical_display_core.illustration_shells:render_illustration_shell"
 paper_proven = true
+requirement_profile_ids = []

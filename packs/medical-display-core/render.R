@@ -5,10 +5,14 @@ request_path <- Sys.getenv("MAS_DISPLAY_RENDER_REQUEST", unset = "")
 template_id <- Sys.getenv("MAS_DISPLAY_TEMPLATE_ID", unset = "")
 render_mode <- Sys.getenv("MAS_DISPLAY_RENDER_MODE", unset = "")
 
+batch_path <- ""
 index <- 1
 while (index <= length(args)) {
   token <- args[[index]]
-  if (identical(token, "--request") && index < length(args)) {
+  if (identical(token, "--batch") && index < length(args)) {
+    batch_path <- args[[index + 1]]
+    index <- index + 2
+  } else if (identical(token, "--request") && index < length(args)) {
     request_path <- args[[index + 1]]
     index <- index + 2
   } else if (identical(token, "--template") && index < length(args)) {
@@ -22,6 +26,15 @@ while (index <= length(args)) {
   }
 }
 
+script_args <- commandArgs(trailingOnly = FALSE)
+script_file <- sub("^--file=", "", grep("^--file=", script_args, value = TRUE)[[1]])
+pack_root <- dirname(normalizePath(script_file, mustWork = TRUE))
+
+source(file.path(pack_root, "rlib/medicaldisplaycore/render_session.R"))
+if (nzchar(batch_path)) {
+  if (nzchar(request_path) || nzchar(template_id)) stop("--batch cannot be combined with a single request")
+  quit(status = run_render_batch(normalizePath(batch_path, mustWork = TRUE), pack_root))
+}
 if (!nzchar(request_path)) {
   stop("expected --request <request_json> or MAS_DISPLAY_RENDER_REQUEST")
 }
@@ -35,30 +48,7 @@ if (!(render_mode %in% c("final", "candidate"))) {
   stop("render mode must be final or candidate")
 }
 
-script_args <- commandArgs(trailingOnly = FALSE)
-script_file <- sub("^--file=", "", grep("^--file=", script_args, value = TRUE)[[1]])
-pack_root <- dirname(normalizePath(script_file, mustWork = TRUE))
-
-if (identical(template_id, "cohort_flow_figure")) {
-  source(file.path(pack_root, "rlib", "medicaldisplaycore", "cohort_flow_renderer.R"))
-  render_cohort_flow_request(request_path)
-} else {
-  old_source_only <- Sys.getenv("MAS_DISPLAY_RENDERER_SOURCE_ONLY", unset = "")
-  old_render_mode <- Sys.getenv("MAS_DISPLAY_RENDER_MODE", unset = "")
-  Sys.setenv(MAS_DISPLAY_RENDERER_SOURCE_ONLY = "1")
-  Sys.setenv(MAS_DISPLAY_RENDER_MODE = render_mode)
-  source(file.path(pack_root, "rlib", "medicaldisplaycore", "evidence_renderer.R"))
-  source(file.path(pack_root, "rlib", "medicaldisplaycore", "candidate_renderer.R"))
-  if (nzchar(old_source_only)) {
-    Sys.setenv(MAS_DISPLAY_RENDERER_SOURCE_ONLY = old_source_only)
-  } else {
-    Sys.unsetenv("MAS_DISPLAY_RENDERER_SOURCE_ONLY")
-  }
-  if (nzchar(old_render_mode)) {
-    Sys.setenv(MAS_DISPLAY_RENDER_MODE = old_render_mode)
-  } else {
-    Sys.unsetenv("MAS_DISPLAY_RENDER_MODE")
-  }
-
-  render_evidence_request(request_path, expected_template_id = template_id)
-}
+session <- load_render_session(pack_root, template_id)
+job <- list(case_id = template_id, template_id = template_id, request_path = normalizePath(request_path, mustWork = TRUE), render_mode = render_mode)
+result <- run_render_job(job, session)
+if (!result$ok) stop(paste(c(result$error, result$restoration_error), collapse = "; "))

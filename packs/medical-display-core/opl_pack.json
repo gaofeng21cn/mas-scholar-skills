@@ -36,6 +36,11 @@
       "ref": "render.R"
     },
     {
+      "resource_id": "pack.render_session",
+      "role": "renderer",
+      "ref": "rlib/medicaldisplaycore/render_session.R"
+    },
+    {
       "resource_id": "pack.evidence_renderer",
       "role": "renderer",
       "ref": "rlib/medicaldisplaycore/evidence_renderer.R"

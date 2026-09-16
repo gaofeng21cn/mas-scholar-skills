@@ -13,3 +13,4 @@ allowed_paper_roles = ["main_text", "supplementary"]
 execution_mode = "subprocess"
 entrypoint = "Rscript ../../render.R --template composition_stacked_bar --mode {render_mode} --request {request_json}"
 paper_proven = true
+requirement_profile_ids = ["r_ggplot2_evidence_subprocess_v1"]

@@ -23,6 +23,7 @@ run_render() {
   python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py
   python3 packs/medical-display-core/tests/render_registry_gallery_templates.py
   Rscript --vanilla packs/medical-display-core/tests/test_cohort_flow_heading_overrides.R
+  Rscript --vanilla packs/medical-display-core/tests/test_render_session.R
 }
 
 case "$lane" in

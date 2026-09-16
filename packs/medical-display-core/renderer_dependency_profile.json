@@ -19,8 +19,8 @@
       "profile_id": "r_ggplot2_evidence_subprocess_v1",
       "execution_mode": "subprocess",
       "renderer_family": "r_ggplot2",
-      "entrypoint_pattern": "Rscript render.R --request {request_json}",
-      "template_ids_or_entrypoint_pattern": "templates/*/render.R",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
+      "template_ids_or_entrypoint_pattern": "render.R",
       "runtime_binaries": [
         {
           "name": "Rscript",
@@ -49,58 +49,6 @@
             "name": "grid",
             "required": true,
             "role": "grob layout inspection for sidecars"
-          },
-          {
-            "name": "patchwork",
-            "required": true,
-            "template_ids": [
-              "kaplan_meier_grouped"
-            ],
-            "role": "Kaplan-Meier curve plus at-risk table composition following LidocaineQ/Figure_Template survival_km"
-          },
-          {
-            "name": "gridExtra",
-            "required": true,
-            "template_ids": [
-              "table1_baseline_characteristics"
-            ],
-            "role": "Publication-style baseline table grob composition following LidocaineQ/Figure_Template baseline_table"
-          },
-          {
-            "name": "ComplexHeatmap",
-            "required": true,
-            "template_ids": [
-              "heatmap_group_comparison"
-            ],
-            "source": {
-              "type": "github",
-              "repo": "jokergoo/ComplexHeatmap"
-            },
-            "role": "Publication-style annotated heatmap grammar following LidocaineQ/Figure_Template heatmap"
-          },
-          {
-            "name": "circlize",
-            "required": true,
-            "template_ids": [
-              "heatmap_group_comparison"
-            ],
-            "role": "Diverging colour mapping for ComplexHeatmap publication heatmap"
-          },
-          {
-            "name": "Rtsne",
-            "required": true,
-            "template_ids": [
-              "tsne_scatter_grouped"
-            ],
-            "role": "real t-SNE embedding computation from feature_matrix inputs"
-          },
-          {
-            "name": "uwot",
-            "required": true,
-            "template_ids": [
-              "umap_scatter_grouped"
-            ],
-            "role": "real UMAP embedding computation from feature_matrix inputs"
           }
         ]
       },
@@ -112,14 +60,13 @@
         "network_access_during_render": false,
         "package_install_during_render_allowed": false
       },
-      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
-      "template_wrapper_ref": "templates/<template_id>/render.R"
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R"
     },
     {
       "profile_id": "r_ggplot2_maftools_oncoplot_v1",
       "execution_mode": "subprocess",
       "renderer_family": "r_ggplot2",
-      "entrypoint_pattern": "Rscript render.R --request {request_json}",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
       "template_ids": [
         "genomic_alteration_landscape_panel",
         "fenggaolab.org.medical-display-core::genomic_alteration_landscape_panel"
@@ -181,14 +128,13 @@
         "checked_in_renderer_ref": "templates/genomic_alteration_landscape_panel/render.R",
         "prepared_dependency_receipt_required_before_render": true
       },
-      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
-      "template_wrapper_ref": "templates/genomic_alteration_landscape_panel/render.R"
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R"
     },
     {
       "profile_id": "r_ggplot2_ggradar_profile_v1",
       "execution_mode": "subprocess",
       "renderer_family": "r_ggplot2",
-      "entrypoint_pattern": "Rscript render.R --request {request_json}",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
       "template_ids": [
         "radar_profile",
         "fenggaolab.org.medical-display-core::radar_profile"
@@ -248,14 +194,13 @@
         "checked_in_renderer_ref": "templates/radar_profile/render.R",
         "prepared_dependency_receipt_required_before_render": true
       },
-      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
-      "template_wrapper_ref": "templates/radar_profile/render.R"
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R"
     },
     {
       "profile_id": "r_ggplot2_alluvial_transition_v1",
       "execution_mode": "subprocess",
       "renderer_family": "r_ggplot2",
-      "entrypoint_pattern": "Rscript render.R --request {request_json}",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
       "template_ids": [
         "alluvial_transition",
         "fenggaolab.org.medical-display-core::alluvial_transition"
@@ -311,14 +256,13 @@
         "checked_in_renderer_ref": "templates/alluvial_transition/render.R",
         "prepared_dependency_receipt_required_before_render": true
       },
-      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
-      "template_wrapper_ref": "templates/alluvial_transition/render.R"
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R"
     },
     {
       "profile_id": "r_ggplot2_ggconsort_reporting_flow_v1",
       "execution_mode": "subprocess",
       "renderer_family": "r_ggplot2",
-      "entrypoint_pattern": "Rscript render.R --request {request_json}",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
       "template_ids": [
         "cohort_flow_figure",
         "fenggaolab.org.medical-display-core::cohort_flow_figure"
@@ -348,20 +292,20 @@
             "required": true,
             "role": "ggconsort cohort data manipulation and plotting helpers"
           },
-      {
-        "name": "ggconsort",
-        "required": true,
-        "minimum_version": "0.1.0",
-        "required_exports": [
-          "cohort_start",
-          "consort_box_add",
-          "consort_arrow_add",
-          "create_consort_data",
-          "theme_consort"
-        ],
-        "source": {
-          "type": "github",
-          "repo": "tgerke/ggconsort"
+          {
+            "name": "ggconsort",
+            "required": true,
+            "minimum_version": "0.1.0",
+            "required_exports": [
+              "cohort_start",
+              "consort_box_add",
+              "consort_arrow_add",
+              "create_consort_data",
+              "theme_consort"
+            ],
+            "source": {
+              "type": "github",
+              "repo": "tgerke/ggconsort"
             },
             "role": "mature CONSORT/STROBE-style cohort participant flow grammar"
           },
@@ -400,11 +344,10 @@
       "pack_entrypoint_ref": "render.R"
     },
     {
-      "profile_id": "r_ggplot2_p1_comparison_subprocess_v1",
+      "profile_id": "r_ggplot2_survival_layout_v1",
       "execution_mode": "subprocess",
       "renderer_family": "r_ggplot2",
-      "entrypoint_pattern": "Rscript render_candidate.R --request {request_json}",
-      "template_ids_or_entrypoint_pattern": "templates/*/render_candidate.R",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
       "runtime_binaries": [
         {
           "name": "Rscript",
@@ -415,24 +358,12 @@
       "language_packages": {
         "r": [
           {
-            "name": "jsonlite",
+            "name": "patchwork",
             "required": true,
-            "role": "render request and layout sidecar JSON IO"
-          },
-          {
-            "name": "ggplot2",
-            "required": true,
-            "role": "core grammar-of-graphics rendering"
-          },
-          {
-            "name": "ggsci",
-            "required": true,
-            "role": "medical journal inspired palettes"
-          },
-          {
-            "name": "grid",
-            "required": true,
-            "role": "grob layout inspection for sidecars"
+            "template_ids": [
+              "kaplan_meier_grouped"
+            ],
+            "role": "Kaplan-Meier curve plus at-risk table composition following LidocaineQ/Figure_Template survival_km"
           }
         ]
       },
@@ -445,11 +376,169 @@
         "package_install_during_render_allowed": false
       },
       "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
-      "candidate_helper_ref": "rlib/medicaldisplaycore/candidate_renderer.R",
-      "template_wrapper_ref": "templates/<template_id>/render_candidate.R",
-      "surface_role": "legacy_comparison_receipt",
-      "default_renderer_profile_ref": "r_ggplot2_evidence_subprocess_v1",
-      "publication_readiness_verdict": false
+      "template_ids": [
+        "kaplan_meier_grouped"
+      ]
+    },
+    {
+      "profile_id": "r_ggplot2_baseline_table_v1",
+      "execution_mode": "subprocess",
+      "renderer_family": "r_ggplot2",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
+      "runtime_binaries": [
+        {
+          "name": "Rscript",
+          "required": true,
+          "run_context_key": "binary_paths.Rscript"
+        }
+      ],
+      "language_packages": {
+        "r": [
+          {
+            "name": "gridExtra",
+            "required": true,
+            "template_ids": [
+              "table1_baseline_characteristics"
+            ],
+            "role": "Publication-style baseline table grob composition following LidocaineQ/Figure_Template baseline_table"
+          }
+        ]
+      },
+      "system_requirements": [],
+      "run_context_requirements": {
+        "binary_path_handoff_required": true,
+        "r_lib_path_required": true,
+        "session_info_required_in_receipt": true,
+        "network_access_during_render": false,
+        "package_install_during_render_allowed": false
+      },
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
+      "template_ids": [
+        "table1_baseline_characteristics"
+      ]
+    },
+    {
+      "profile_id": "r_ggplot2_heatmap_v1",
+      "execution_mode": "subprocess",
+      "renderer_family": "r_ggplot2",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
+      "runtime_binaries": [
+        {
+          "name": "Rscript",
+          "required": true,
+          "run_context_key": "binary_paths.Rscript"
+        }
+      ],
+      "language_packages": {
+        "r": [
+          {
+            "name": "ComplexHeatmap",
+            "required": true,
+            "template_ids": [
+              "heatmap_group_comparison"
+            ],
+            "source": {
+              "type": "github",
+              "repo": "jokergoo/ComplexHeatmap"
+            },
+            "role": "Publication-style annotated heatmap grammar following LidocaineQ/Figure_Template heatmap"
+          },
+          {
+            "name": "circlize",
+            "required": true,
+            "template_ids": [
+              "heatmap_group_comparison"
+            ],
+            "role": "Diverging colour mapping for ComplexHeatmap publication heatmap"
+          }
+        ]
+      },
+      "system_requirements": [],
+      "run_context_requirements": {
+        "binary_path_handoff_required": true,
+        "r_lib_path_required": true,
+        "session_info_required_in_receipt": true,
+        "network_access_during_render": false,
+        "package_install_during_render_allowed": false
+      },
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
+      "template_ids": [
+        "heatmap_group_comparison"
+      ]
+    },
+    {
+      "profile_id": "r_ggplot2_tsne_v1",
+      "execution_mode": "subprocess",
+      "renderer_family": "r_ggplot2",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
+      "runtime_binaries": [
+        {
+          "name": "Rscript",
+          "required": true,
+          "run_context_key": "binary_paths.Rscript"
+        }
+      ],
+      "language_packages": {
+        "r": [
+          {
+            "name": "Rtsne",
+            "required": true,
+            "template_ids": [
+              "tsne_scatter_grouped"
+            ],
+            "role": "real t-SNE embedding computation from feature_matrix inputs"
+          }
+        ]
+      },
+      "system_requirements": [],
+      "run_context_requirements": {
+        "binary_path_handoff_required": true,
+        "r_lib_path_required": true,
+        "session_info_required_in_receipt": true,
+        "network_access_during_render": false,
+        "package_install_during_render_allowed": false
+      },
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
+      "template_ids": [
+        "tsne_scatter_grouped"
+      ]
+    },
+    {
+      "profile_id": "r_ggplot2_umap_v1",
+      "execution_mode": "subprocess",
+      "renderer_family": "r_ggplot2",
+      "entrypoint_pattern": "Rscript render.R --template {template_id} --request {request_json}",
+      "runtime_binaries": [
+        {
+          "name": "Rscript",
+          "required": true,
+          "run_context_key": "binary_paths.Rscript"
+        }
+      ],
+      "language_packages": {
+        "r": [
+          {
+            "name": "uwot",
+            "required": true,
+            "template_ids": [
+              "umap_scatter_grouped"
+            ],
+            "role": "real UMAP embedding computation from feature_matrix inputs"
+          }
+        ]
+      },
+      "system_requirements": [],
+      "run_context_requirements": {
+        "binary_path_handoff_required": true,
+        "r_lib_path_required": true,
+        "session_info_required_in_receipt": true,
+        "network_access_during_render": false,
+        "package_install_during_render_allowed": false
+      },
+      "shared_helper_ref": "rlib/medicaldisplaycore/evidence_renderer.R",
+      "template_ids": [
+        "umap_scatter_grouped"
+      ]
     }
   ]
 }
