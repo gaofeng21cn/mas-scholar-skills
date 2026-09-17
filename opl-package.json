@@ -491,7 +491,7 @@
       "packs/medical-display-core/tests/benchmark_render_batch.py",
       "packs/medical-display-core/tests/test_render_session.R"
     ],
-    "digest": "sha256:ab03d92694222c56dec5ddd5c4499218ae13b5f5421361285cc36613af37a54b"
+    "digest": "sha256:f446b64f60a4120f7ade6f61ae9759662cd267a3bf5759b8527882415955b7f4"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",

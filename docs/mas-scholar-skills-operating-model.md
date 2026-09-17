@@ -7,66 +7,59 @@ Machine boundary: Human-readable operating model. Package identity, ABI, exports
 
 ## Role
 
-MAS Scholar Skills is a consumer-neutral framework capability provider. The
-separate repository is a development, versioning, and release boundary. It owns
+MAS Scholar Skills is a consumer-neutral capability package. The separate
+repository is a development, versioning, and release boundary: it owns
 maintained professional playbooks, source packs, quality floors, route-back
-hints, and candidate-ref vocabulary. It does not own study or grant truth,
-publication truth, runtime attempts, provider attempts, ledgers, owner receipts,
-typed blockers, human gates, current-package authority, or readiness. MAS and
-MAG consume it through required Package presence/callability edges and
-refs-only professional handoffs.
+hints, and candidate-ref vocabulary. MAS and MAG consume it through required
+Package presence/callability edges and refs-only professional handoffs; the
+[no-authority boundary](./no-authority-boundary.md) owns the full list of
+claims and writes this package must not make.
 
 The aggregate `mas-scholar-skills` skill is only a discovery and routing entry.
 The selected `medical-*` skills carry professional medical reasoning. Contracts
 record package identity, skill mapping, ref vocabulary, exposure policy, and
-false-authority flags. These layers do not replace MAS stage prompts or owner
-surfaces.
+false-authority flags, and the
+[capability catalog](./capability-modules.md) holds the human-readable module
+list. These layers do not replace MAS stage prompts or owner surfaces.
 
 ## Consumer Model
 
 | Profile | Relationship | Failure semantics |
 | --- | --- | --- |
-| `mas-medical-paper.v1` | Required Package dependency; 11 exports describe the callable capability set MAS expects | Missing Package identity or required capability callability fails closed for MAS only and routes to managed install/repair |
+| `mas-medical-paper.v1` | Required Package dependency for the MAS medical-paper workflow | Missing Package identity or required capability callability fails closed for MAS only and routes to managed install/repair |
 | `mag-medical-grant.v1` | Required Package dependency for the MAG native grant workflow | Missing Package identity or required capability callability fails closed for MAG only and routes to managed install/repair |
 
-Current machine profiles use `required=true`,
+`contracts/opl_capability_package_manifest.json` is the only owner of each
+profile's `required_export_ids` and `required_module_ids`; this table does not
+restate them. Current profiles use `required=true`,
 `dependency_kind=required_runtime_dependency`, and fail-closed fields. The
-consumer gate checks identity presence and required capability callability without provider version,
-ABI, lock, payload, digest, Release Set, or atomic-closure solving. The MAG
-profile selects only
-`medical-research-lit`,
-`medical-statistical-review`, `medical-methodology-planner`,
-`medical-evidence-integrity-reviewer`,
-`medical-evidence-synthesis-and-claim-map`, and
-`medical-reference-integrity-auditor`. These Skills can prepare candidate refs;
-the Package cannot change consumer domain truth or strategy memory, sign a
-consumer owner receipt, or claim fundability, quality/export, publication, or
-owner authority. A missing required edge is reported by the consumer/platform
-readiness surface, never forged as a ScholarSkills domain blocker.
+consumer gate checks identity presence and required capability callability
+without provider version, ABI, lock, payload, digest, Release Set, or
+atomic-closure solving. A missing required edge is reported by the
+consumer/platform readiness surface, never forged as a ScholarSkills domain
+blocker.
 
-## AI-First Boundary
+## Handoff
 
-The specialist skills make evidence-fit, negative-finding, quality-review,
-route-back, figure/table/source QA, and citation-support judgments. They return
-candidate material for a domain owner to consume. The standard handoff is
-`source_pack_ref`, `candidate_refs`, and `owner_gate_handoff_ref`.
+The selected specialist skill makes evidence-fit, negative-finding,
+quality-review, route-back, figure/table/source QA, and citation-support
+judgments, and returns candidate material for a domain owner to consume. The
+standard handoff is `source_pack_ref`, `candidate_refs`, and
+`owner_gate_handoff_ref`.
 
 The package cannot accept sources, sign a receipt, create a typed blocker, mutate
 an artifact, schedule a runtime attempt, or claim readiness. OPL provides only
 generic descriptor validation, selected-skill sync, and provenance readback;
 there is no pack-specific medical module execution surface.
 
-## Skill Classification
+## Catalog And Change Policy
 
-| Classification | Members | Role |
-| --- | --- | --- |
-| Active professional modules | `display`, `tables`, `stats`, `lit`, `write`, `review`, `submit`, `data` | Contract ids and candidate-ref vocabulary backed by real skills |
-| Default professional skills | `medical-manuscript-writing`, `medical-manuscript-review`, `medical-figure-design`, `medical-figure-style`, `medical-figure-composer`, `medical-research-lit`, `medical-statistical-review`, `medical-table-design`, `medical-submission-prep`, `medical-data-governance` | Required package capabilities; synchronized into a project only for the matching MAS stage |
-| Optional specialist skills | Advanced and medical-method specialist skills | Named-task helpers; refs-only and never part of consumer readiness |
-
-The quality floor belongs in the relevant professional skill. Change a module
+The [capability catalog](./capability-modules.md) owns module ids, their backing
+skills, and the skill exposure classification;
+`contracts/scholar-skills-capability-modules.json` owns the machine truth. The
+quality floor belongs in the relevant professional skill. Change a module
 contract only for an id, mapping, ref vocabulary, exposure policy, or boundary
-change. This keeps flexible medical judgment out of framework validators.
+change, so flexible medical judgment stays out of framework validators.
 
 ## Stage, Skill, Provider, And Owner Path
 
@@ -149,13 +142,11 @@ When a task needs a named specialty, route to the already-materialized specialis
 or its router. Discovery and presence do not replace MAS stage policy, domain
 truth, or owner authority.
 
-## Gallery And Ownership
+## Gallery
 
-The display gallery is a compact human-review reference. It can anchor a template
-or visual-audit candidate ref, but does not prove a live renderer, visual parity,
-publication readiness, or owner acceptance.
-
-MAS, MAG, or the consuming domain owner owns all ledger entries, receipts,
-blockers, current-package updates, artifact mutations, grant decisions, and
-publication decisions. Any such ref named by the pack is only a downstream
-destination for owner consumption.
+`docs/gallery/display-gallery.md` owns the compact human-review reference
+package and its maintenance route. The gallery can anchor a template or
+visual-audit candidate ref, but it does not prove a live renderer, visual
+parity, publication readiness, or owner acceptance. Owner-side consumption of
+any pack ref follows the
+[no-authority boundary](./no-authority-boundary.md).

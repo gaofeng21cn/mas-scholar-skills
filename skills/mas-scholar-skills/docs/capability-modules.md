@@ -7,47 +7,29 @@ Machine boundary: This is human-readable navigation. Module truth, exposure poli
 
 ## Positioning
 
-`MAS Scholar Skills` is a consumer-neutral framework capability provider. Its
-external repository is a maintenance boundary. It is not an OPL runtime base,
-an additional brand module, or a MAS/MAG domain-truth owner. It supplies
-professional Codex skills, source packs, quality floors, candidate-ref
-vocabulary, and external-learning references through required MAS paper and MAG
-grant Package dependency profiles. Individual named specialty Skills remain
-task-selected; that exposure choice does not make the whole Package optional.
+`MAS Scholar Skills` is a consumer-neutral capability package. It is not an OPL
+runtime base, an additional brand module, or a MAS/MAG domain-truth owner. It
+supplies professional Codex skills, source packs, quality floors, candidate-ref
+vocabulary, and external-learning references; individual named specialty Skills
+remain task-selected, and that exposure choice does not make the whole Package
+optional. The [operating model](./mas-scholar-skills-operating-model.md) owns
+the consumer dependency profiles, layer split, and distribution surfaces.
 
-OPL consumes this repository as a generic capability pack. Its public surface
+OPL consumes this repository as a generic capability pack: the public surface
 validates the descriptor, distributes or syncs selected skills, and returns
 provenance. OPL Connect may also load the package's two read-only provider
-companion modules: one verifies a known reference, while the other searches
-PubMed, Europe PMC, Crossref, or OpenAlex and normalizes primary or fallback
-candidates. The Package-owned search adapter declares provider-specific request
-construction and response parsing; Framework supplies transport, retry, cache,
-strict matching where applicable, and receipt materialization without embedding
-provider search logic. The package code only builds bounded request descriptions
-and parses supplied response bytes.
-It does not execute a medical stage, materialize
-candidate artifacts, or issue verdicts or receipts. Stage policy, domain actions,
-candidate acceptance, owner receipts, typed blockers, and artifact authority
-remain with MAS or another consuming domain owner.
+companion modules. The package code only builds bounded request descriptions and
+parses supplied response bytes; it does not execute a medical stage, materialize
+candidate artifacts, or issue verdicts or receipts.
 
-## Consumer Profiles
+## Profile Composition
 
-The accepted target treats `mas-medical-paper.v1` and
-`mag-medical-grant.v1` as required Package presence/callability profiles. The
-current manifest records `required=true` and
-`dependency_kind=required_runtime_dependency`. MAS lists an 11-Skill capability set;
-MAG lists six Skills for literature, statistics, methodology, evidence
-integrity, claim mapping, and reference integrity. In both profiles,
-`required_export_ids` and `required_module_ids` identify the capability set each
-consumer requires to be callable. They do not impose provider-version equality
-or make unrelated Packages part of the same readiness gate.
-
-Missing Package identity or required capability callability blocks only the
-affected MAS or MAG consumer and routes to managed install/repair. It does not
-block unrelated Packages, compare provider versions/ABIs, or require a lock,
-payload, digest, Release Set, or atomic closure. The dependency grants no truth,
-fundability, quality/export, strategy-memory, receipt, blocker, publication, or
-owner authority to ScholarSkills.
+`contracts/opl_capability_package_manifest.json` is the only owner of the
+consumer profiles: each profile declares `required_export_ids` and
+`required_module_ids`, and those machine sets — not this document — define the
+capability set a consumer requires to be callable. The
+[operating model](./mas-scholar-skills-operating-model.md) owns the required
+presence/callability semantics and the fail-closed behaviour for MAS and MAG.
 
 ## Active Catalog
 
@@ -110,33 +92,6 @@ domain use.
 Provider evidence and search candidates are never literature verdicts or
 publication decisions.
 
-## Distribution Readback
-
-```bash
-opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
-```
-
-MAS and MAG may currently list this package under
-`bundled_capability_package_ids` so exports are available for native discovery.
-That is a compatibility carrier projection, not the target dependency model or
-complete installed truth. The provider owns no consumer status, repair,
-activation, admission, route, launch, or readiness authority; the
-consumer/platform reports a missing presence/callability edge and blocks only
-that consumer.
-
-Provider-source development may additionally use the internal discovery surfaces:
-
-```bash
-opl connect skills --domain mas-scholar-skills --json
-opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-workspace <workspace_root> --json
-opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
-```
-
-The internal descriptor readback reports package identity, discovery sources, sync
-eligibility, provenance, and false-authority state. Sync copies only selected
-Codex discovery material. It does not make the pack a default stage entry, write
-MAS files, or make any readiness claim.
-
 ## Data-Governance Retention Vocabulary
 
 The `data` module keeps the following refs as candidate vocabulary; the owner
@@ -146,14 +101,11 @@ still decides all lifecycle actions:
 - `owner_decision_ref`, `study_impact_ref`, `prune_dry_run_ref`, and `post_cleanup_readback_ref`.
 - `hot_current_body`, `warm_parent_or_provenance`, `paper_facing_current`, `active_runtime`, `semantic_closed`, `byte_closed`, `delete_safe_cache`, and `retired_tombstone`.
 
-## Gallery And Change Policy
-
-`gallery/medical-display/` is a compact human-review package. Its files can
-anchor a template or visual-audit reference, but do not prove a live renderer,
-visual parity, paper readiness, or owner acceptance.
+## Change Policy
 
 Add or change a module only when the module id, specialist mapping, ref
 vocabulary, exposure policy, or no-authority boundary changes. Improve medical
 judgment in the relevant `medical-*` skill, update stage semantics in MAS, and
 change generic package behavior in OPL. This division avoids recreating a second
-module runtime or a second medical catalog in the framework.
+module runtime or a second medical catalog in the framework. Gallery facts and
+their maintenance route belong to `docs/gallery/display-gallery.md`.

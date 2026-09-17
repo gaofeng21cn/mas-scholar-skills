@@ -21,23 +21,21 @@ itself performs every HTTP request and materializes any strict match or receipt;
 the package cannot perform I/O, materialize a candidate artifact, or create a
 verdict or receipt.
 
-For MAS and MAG, this boundary also forbids study/grant truth, fundability,
-quality/export verdicts, strategy-memory writes, consumer typed blockers, and
-owner authority. Both consumers require the ScholarSkills Package identity and
-their declared capability set to be callable. Missing capability blocks only
-the affected consumer and routes to managed install/repair; it does not grant
-ScholarSkills blocker authority or affect unrelated Packages. Individual named
-specialty Skills remain task-selected.
+For MAS and MAG, this boundary also forbids study or grant truth, fundability,
+quality or export verdicts, strategy-memory writes, consumer typed blockers, and
+owner authority. Individual named specialty Skills remain task-selected, and a
+missing required dependency edge grants this package no blocker authority over
+the consumer or over unrelated Packages; the
+[operating model](./mas-scholar-skills-operating-model.md) owns that dependency
+semantics.
 
-## Active Skills
+## Active Surfaces
 
-The active professional modules are `display`, `tables`, `stats`, `lit`, `write`,
-`review`, `submit`, and `data`. They are backed by the syncable real Codex skills
-`medical-manuscript-writing`, `medical-manuscript-review`,
-`medical-figure-design`, `medical-figure-style`, `medical-figure-composer`,
-`medical-research-lit`, `medical-statistical-review`, `medical-table-design`,
-`medical-submission-prep`, and `medical-data-governance`. `medical-figure-style`
-and `medical-figure-composer` are display subskills, not additional active modules.
+The active professional modules, their backing skills, and the two machine
+companion modules are owned by [the capability catalog](./capability-modules.md)
+and `contracts/scholar-skills-capability-modules.json`. `medical-figure-style`
+and `medical-figure-composer` are display subskills, not additional active
+modules.
 
 Each module uses the standard refs-only handoff family: `source_pack_ref`,
 `candidate_refs`, and `owner_gate_handoff_ref`.
@@ -45,19 +43,13 @@ Each module uses the standard refs-only handoff family: `source_pack_ref`,
 Optional advanced and medical-method specialist skills are named-task helpers,
 not active module owners. They may emit specialty candidate refs, support maps,
 `route_back_candidate`, and `owner_gate_handoff_ref`; their absence does not block
-default medical-paper work. Retired optional ids remain redirect tombstones only,
-not discoverable `SKILL.md` surfaces.
+default medical-paper work. Retired optional ids resolve to redirect tombstones
+under `tombstones/skills/` and are not discoverable `SKILL.md` surfaces.
 
-`mas-scholar-skills.reference-provider-adapters` and
-`mas-scholar-skills.scientific-search-adapters` are machine companion modules,
-not professional Skills or Stage owners. The first maps a known reference/provider
-input to bounded HTTP request descriptions, parses supplied responses, and may
-choose one Europe PMC full-text follow-up. The second maps
-`provider + query + limit` to a bounded provider request for PubMed, Europe PMC,
-Crossref, or OpenAlex and normalizes returned candidates; PubMed may use the
-explicit ESearch -> ESummary next step. Both modules keep network,
-environment, filesystem, process, receipt, verdict, blocker, reference-truth, and
-domain-authority flags false.
+The machine companion modules are not professional Skills or Stage owners. They
+keep network, environment, filesystem, process, receipt, verdict, blocker,
+reference-truth, and domain-authority flags false; their ABIs and provider
+coverage are owned by [the capability catalog](./capability-modules.md).
 
 ## Owner Route
 
@@ -70,11 +62,11 @@ authority surface.
 
 MAS `agent/stages/` and `agent/prompts/` own stage policy, evidence thresholds,
 route-back, owner gates, and acceptance. A `medical-*` skill owns its AI-first
-playbook and candidate handoff. The package adapter owns provider response
-normalization; OPL Connect owns HTTP execution and generic verification receipts;
-MAS owns citation acceptance. None of those provider outputs is paper truth. The
-contract owns ids, profile/registry bindings, ref vocabulary, false-authority
-flags, and sync policy.
+playbook and candidate handoff, and the
+[operating model](./mas-scholar-skills-operating-model.md) owns the provider
+execution split. None of those provider outputs is paper truth. The contract
+owns ids, profile/registry bindings, ref vocabulary, false-authority flags, and
+sync policy.
 
 Journal-family quality-pack refs remain foldback routes into existing active
 skills, not new physical skills or MAS authority surfaces. The compact mapping is
