@@ -98,10 +98,9 @@ MAS Scholar Skills internal display module
 
 ## 维护命令
 
-常规维护先在本 repo 校验 pack source 与 compact review refs：
+常规维护先在 repo root 校验 pack source 与 compact review refs：
 
 ```bash
-cd /Users/gaofeng/workspace/mas-scholar-skills
 python3 scripts/verify-display-gallery-pack.py --check
 ./scripts/verify.sh
 ```
