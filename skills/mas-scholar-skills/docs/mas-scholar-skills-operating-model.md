@@ -101,9 +101,13 @@ Search and reference verification are separate surfaces. The Package-owned
 scientific-search adapter describes PubMed ESearch -> ESummary and Europe PMC
 search as well as Crossref/OpenAlex fallback requests; its next-step state is
 serializable and bounded. OPL Connect executes all declared HTTP, retry, cache,
-strict matching, receipts, and connector errors without embedding provider search
-logic. The verification adapter accepts a known reference and may describe up to
-two provider steps. MAS still decides candidate selection, source acceptance, and
+receipts, and connector errors. The Package adapter returns a strict identifier
+and metadata match assessment; OPL validates its shape and records the result
+without claiming citation acceptance. Earlier installed v1 adapters without
+that optional assessment remain readable through the legacy match path until
+their active consumers are retired. The verification adapter accepts a known
+reference and may describe up to two provider steps. MAS still decides candidate
+selection, source acceptance, and
 manuscript use. All provider outputs are read-only inputs, not a citation verdict,
 owner receipt, blocker, or publication claim.
 
@@ -131,6 +135,9 @@ opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest
 
 These are internal descriptor/materialization surfaces, not alternative user
 installation interfaces. The first command is descriptor/provenance readback.
+`connect_skill_sync_policy` in the Package manifest owns the compatibility
+sync command's allowed and default scopes; current policy is workspace/quest
+only and skips an implicit sync without a target.
 Scope materialization copies the primary routing Skill by default and adds a
 selected stage or specialty Skill only for the matching task. The package keeps
 all 36 source Skill entries for dependency callability and on-demand routing,

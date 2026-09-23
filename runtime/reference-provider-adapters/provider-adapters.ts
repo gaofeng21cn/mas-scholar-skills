@@ -1,6 +1,7 @@
 import {
   asRecord,
   asString,
+  assessReferenceMatch,
   compactIdentifiers,
   compactMetadata,
   crossrefFlags,
@@ -51,11 +52,16 @@ function getRequest(url: URL, headers?: Record<string, string>): AdapterHttpRequ
   };
 }
 
-function completeResult(evidence: AdapterEvidence): AdapterStepResult {
+function completeResult(reference: ReferenceRecord, provider: ProviderDefinition, evidence: AdapterEvidence): AdapterStepResult {
   return {
     surface_kind: 'opl_connect_reference_provider_adapter_step_result.v1',
     adapter_abi: REFERENCE_PROVIDER_ADAPTER_ABI,
-    next: { kind: 'complete', evidence },
+    next: {
+      kind: 'complete',
+      evidence: evidence.match_basis === 'none'
+        ? evidence
+        : { ...evidence, match_assessment: assessReferenceMatch(reference, evidence, provider.provider_id) },
+    },
   };
 }
 
@@ -64,7 +70,7 @@ function deferredResult(
   provider: ProviderDefinition,
   reason: string,
 ): AdapterStepResult {
-  return completeResult(deferredEvidence(reference, reason, provider.verification_scope));
+  return completeResult(reference, provider, deferredEvidence(reference, reason, provider.verification_scope));
 }
 
 function parsedCandidate(evidence: AdapterEvidence, extra: Record<string, unknown> = {}) {
@@ -98,7 +104,7 @@ function finishParsed(input: ParsedAdapterResponse): AdapterStepResult {
       { adapter_id: input.adapter_id },
     );
   }
-  return completeResult(evidence);
+  return completeResult(input.reference, input.provider, evidence);
 }
 
 function isEvidence(value: unknown): value is AdapterEvidence {
@@ -440,7 +446,7 @@ const europePmcAdapter: ProviderAdapter = {
       }
       const fullTextAvailable = input.parsed.full_text_available === true;
       if (!fullTextAvailable || !evidence.normalized.pmcid) {
-        return completeResult({
+        return completeResult(input.reference, input.provider, {
           ...evidence,
           verification_scope: {
             ...evidence.verification_scope,
@@ -449,7 +455,7 @@ const europePmcAdapter: ProviderAdapter = {
         });
       }
       if (input.state.step_index >= input.state.max_steps) {
-        return completeResult({
+        return completeResult(input.reference, input.provider, {
           ...evidence,
           verification_scope: {
             ...evidence.verification_scope,
@@ -463,7 +469,9 @@ const europePmcAdapter: ProviderAdapter = {
         step: 'full_text_xml',
         step_index: input.state.step_index + 1,
         max_steps: input.state.max_steps,
-        retained: { evidence },
+        retained: {
+          evidence: { ...evidence, match_assessment: assessReferenceMatch(input.reference, evidence, input.provider.provider_id) },
+        },
       };
       return europePmcAdapter.build_request({
         provider: input.provider,
@@ -480,7 +488,7 @@ const europePmcAdapter: ProviderAdapter = {
       );
     }
     const verified = input.parsed.verified === true;
-    return completeResult({
+    return completeResult(input.reference, input.provider, {
       ...retainedEvidence,
       verification_scope: {
         ...retainedEvidence.verification_scope,

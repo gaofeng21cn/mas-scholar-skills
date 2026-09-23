@@ -119,8 +119,24 @@ test('Crossref adapter builds a request and parses normalized metadata', () => {
   });
   assert.equal(result.next.kind, 'complete');
   assert.equal(result.next.evidence.normalized.doi, '10.1000/abc');
+  assert.equal(result.next.evidence.match_assessment.match_status, 'identifier_matched');
+  assert.equal(result.next.evidence.match_assessment.matched_identifiers.doi, '10.1000/abc');
   assert.equal(result.next.evidence.metadata.year, '2024');
   assert.equal(result.next.evidence.retraction_or_update_flags.retracted, true);
+});
+
+test('provider match assessment defers conflicting metadata', () => {
+  const input = reference({ doi: '10.1000/expected', title: 'Expected title' });
+  const request = build('crossref', input);
+  const result = parse('crossref', input, request, {
+    body: { message: { DOI: '10.1000/other', title: ['Other title'] } },
+  });
+  assert.equal(result.next.kind, 'complete');
+  assert.equal(result.next.evidence.match_assessment.match_status, 'metadata_conflict');
+  assert.deepEqual(
+    result.next.evidence.match_assessment.mismatch_details.map((entry) => entry.field),
+    ['doi', 'title'],
+  );
 });
 
 test('OpenAlex adapter parses DOI, PMID, PMCID, venue, and retraction signal', () => {

@@ -170,10 +170,48 @@
             "normalized": {
               "type": "object"
             },
+            "match_assessment": {
+              "type": "object",
+              "required": ["match_status", "matched_identifiers", "mismatch_details"],
+              "properties": {
+                "match_status": {
+                  "enum": ["identifier_matched", "metadata_conflict", "provider_found"]
+                },
+                "matched_identifiers": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" }
+                },
+                "mismatch_details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["field", "expected", "actual", "normalized_expected", "normalized_actual"],
+                    "properties": {
+                      "field": { "enum": ["doi", "pmid", "pmcid", "title"] },
+                      "expected": { "type": "string" },
+                      "actual": { "type": "string" },
+                      "normalized_expected": { "type": "string" },
+                      "normalized_actual": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "deferred_reason": { "type": "string" },
+                "deferred_code": {
+                  "enum": ["provider_metadata_conflict", "provider_found_without_identifier_match"]
+                }
+              },
+              "additionalProperties": false
+            },
             "verification_scope": {
               "type": "object"
             }
           },
+          "if": {
+            "properties": { "match_basis": { "not": { "const": "none" } } },
+            "required": ["match_basis"]
+          },
+          "then": { "required": ["match_assessment"] },
           "additionalProperties": false
         }
       },

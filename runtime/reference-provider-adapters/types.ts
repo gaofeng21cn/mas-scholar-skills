@@ -63,6 +63,19 @@ export type AdapterEvidence = {
     pmcid: string | null;
     title: string | null;
   };
+  match_assessment?: {
+    match_status: 'identifier_matched' | 'metadata_conflict' | 'provider_found';
+    matched_identifiers: Record<string, string>;
+    mismatch_details: Array<{
+      field: 'doi' | 'pmid' | 'pmcid' | 'title';
+      expected: string;
+      actual: string;
+      normalized_expected: string;
+      normalized_actual: string;
+    }>;
+    deferred_reason?: string;
+    deferred_code?: 'provider_metadata_conflict' | 'provider_found_without_identifier_match';
+  };
   verification_scope?: Record<string, unknown>;
 };
 

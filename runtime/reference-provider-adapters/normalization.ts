@@ -37,6 +37,68 @@ export function normalizePmcid(value: string | null): string | null {
   return normalized.startsWith('PMC') ? normalized : `PMC${normalized}`;
 }
 
+function normalizePmid(value: string | null): string | null {
+  return value?.trim() || null;
+}
+
+function normalizeTitle(value: string | null): string | null {
+  return value?.replace(/\s+/g, ' ').trim().toLowerCase() || null;
+}
+
+export function assessReferenceMatch(
+  reference: ReferenceRecord,
+  evidence: AdapterEvidence,
+  providerId: string,
+): NonNullable<AdapterEvidence['match_assessment']> {
+  const fields = {
+    doi: normalizeDoi,
+    pmid: normalizePmid,
+    pmcid: normalizePmcid,
+    title: normalizeTitle,
+  };
+  const mismatchDetails: NonNullable<AdapterEvidence['match_assessment']>['mismatch_details'] = [];
+  const matchedIdentifiers: Record<string, string> = {};
+  for (const field of ['doi', 'pmid', 'pmcid', 'title'] as const) {
+    const expected = reference[field];
+    const actual = evidence.normalized[field];
+    const normalizedExpected = fields[field](expected);
+    const normalizedActual = fields[field](actual);
+    if (!expected || !actual || !normalizedExpected || !normalizedActual) continue;
+    if (normalizedExpected !== normalizedActual) {
+      mismatchDetails.push({
+        field, expected, actual,
+        normalized_expected: normalizedExpected,
+        normalized_actual: normalizedActual,
+      });
+    } else if (field !== 'title') {
+      matchedIdentifiers[field] = normalizedActual;
+    }
+  }
+  const matchStatus = mismatchDetails.length > 0
+    ? 'metadata_conflict'
+    : Object.keys(matchedIdentifiers).length > 0
+      ? 'identifier_matched'
+      : 'provider_found';
+  return {
+    match_status: matchStatus,
+    matched_identifiers: matchStatus === 'identifier_matched'
+      ? compactIdentifiers({
+          ...matchedIdentifiers,
+          ...Object.fromEntries(Object.entries(evidence.provider_identifiers)
+            .filter(([key]) => key !== 'doi' && key !== 'pmid')),
+        })
+      : matchedIdentifiers,
+    mismatch_details: mismatchDetails,
+    ...(matchStatus === 'metadata_conflict' ? {
+      deferred_reason: `${providerId} provider metadata conflicts with input reference`,
+      deferred_code: 'provider_metadata_conflict' as const,
+    } : matchStatus === 'provider_found' ? {
+      deferred_reason: `${providerId} provider returned an item but no DOI/PMID/PMCID identifier matched the input reference`,
+      deferred_code: 'provider_found_without_identifier_match' as const,
+    } : {}),
+  };
+}
+
 export function compactIdentifiers(
   input: Record<string, string | null | undefined>,
 ): Record<string, string> {

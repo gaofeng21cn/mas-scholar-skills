@@ -6,6 +6,14 @@
   "version": "0.2.31",
   "source": "first_party_repo_local",
   "package_role": "capability_package",
+  "connect_skill_sync_policy": {
+    "default_scope": "workspace",
+    "allowed_scopes": [
+      "workspace",
+      "quest"
+    ],
+    "implicit_without_target": "skip"
+  },
   "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
   "consumer_policy": {
     "compatibility_commitment": "declared_required_consumer_profiles",
@@ -491,7 +499,7 @@
       "packs/medical-display-core/tests/benchmark_render_batch.py",
       "packs/medical-display-core/tests/test_render_session.R"
     ],
-    "digest": "sha256:f446b64f60a4120f7ade6f61ae9759662cd267a3bf5759b8527882415955b7f4"
+    "digest": "sha256:67d47f7868028ed57977ed3c5fd9e252097ec29da4a005a0c65d6082af1736c2"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
