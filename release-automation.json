@@ -1,0 +1,17 @@
+{
+  "strategy": "daily_patch",
+  "prepare": [
+    [
+      "python3",
+      "scripts/verify-capability-package-manifest.py",
+      "--write"
+    ]
+  ],
+  "verify": [
+    [
+      "python3",
+      "scripts/verify-capability-package-manifest.py"
+    ]
+  ],
+  "version_files": []
+}
