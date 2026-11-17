@@ -7,6 +7,7 @@
 - MAS/MAG 的 required edge 由各 consumer 和当前机器合同共同验证；本仓不得自行扩大 consumer readiness 或跨包生命周期 authority。
 - `gallery/medical-display/` 承载最终人审发布包；可选子 Skill exposure 不改变整个 Package 的 dependency 身份。
 - 默认验证运行 `scripts/verify.sh fast`；按影响补 render 或 full lane。
+- 采用 Framework 的[工程限制必要性与作用范围政策](https://github.com/gaofeng21cn/one-person-lab/blob/main/docs/policies/engineering-boundary-policy.md)。机器验证包身份、Schema、资源、引用和真实行为；固定标题、句子或关键词的出现不能作为专业质量或能力准入的门槛。保留或新增限制须说明具体可达故障与最小阻断范围。
 
 <!-- CODEGRAPH_START -->
 ## CodeGraph

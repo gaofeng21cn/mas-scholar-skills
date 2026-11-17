@@ -1165,18 +1165,6 @@ stats_skill = capability_skill_texts["medical-statistical-review"]
 table_skill = capability_skill_texts["medical-table-design"]
 table_kernel = read_text("skills/medical-table-design/kernel.py")
 for token in [
-    "Journal Footnote Discipline",
-    "Main-Table Information Budget",
-    "lint_table_note_inventory()",
-    "lint_main_table_information_budget()",
-    "templates and gallery examples as a reference quality floor",
-    "reader-facing table Markdown",
-    "same long disclaimer below multiple tables",
-    "Do not render a standalone `Notes` heading",
-]:
-    if token not in table_skill:
-        fail(f"medical-table-design missing journal footnote discipline token: {token}")
-for token in [
     "TABLE_NOTE_BUDGET_EXCEEDED",
     "INTERNAL_AUDIT_METADATA_IN_READER_NOTE",
     "REPEATED_GLOBAL_TABLE_NOTE",
@@ -1194,15 +1182,6 @@ submit_skill = capability_skill_texts["medical-submission-prep"]
 submit_kernel = read_text("skills/medical-submission-prep/kernel.py")
 write_kernel = read_text("skills/medical-manuscript-writing/kernel.py")
 for token in [
-    "Manuscript-Author Stance",
-    "scientific_evidence_gap",
-    "author_supplied_objective_fact",
-    "author_input_registry_ref",
-    "[AUTHOR INPUT: ...]",
-]:
-    if token not in write_skill:
-        fail(f"medical-manuscript-writing missing author-input policy token: {token}")
-for token in [
     "validate_author_input_registry",
     "validate_author_stance_integrity_candidate",
     "DEFENSIVE_AUTHOR_INPUT_META_PROSE",
@@ -1212,13 +1191,6 @@ for token in [
 ]:
     if token not in write_kernel:
         fail(f"medical-manuscript-writing kernel missing author-input gate token: {token}")
-for token in [
-    "Author-Input Projection Contract",
-    "author_input_registry_ref",
-    "author_input_todo_projection_ref",
-]:
-    if token not in submit_skill:
-        fail(f"medical-submission-prep missing author-input projection token: {token}")
 for token in [
     "build_author_input_todo_projection",
     "validate_author_input_todo_projection",
@@ -1266,21 +1238,6 @@ mag_grant_skill_texts = {
         if skill_id in medical_method_specialist_skills
     },
 }
-for skill_id, candidate_ref in mag_grant_skill_candidate_refs.items():
-    skill_text = mag_grant_skill_texts.get(skill_id, "")
-    for token in [
-        "MAG grant mode",
-        "source_pack_ref",
-        candidate_ref,
-        "candidate_refs",
-        "owner_gate_handoff_ref",
-        "grant truth",
-        "fundability",
-        "quality verdict",
-        "export readiness",
-    ]:
-        if token not in skill_text:
-            fail(f"{skill_id} missing MAG grant consumer token: {token}")
 display_qc_skill = medical_method_specialist_skills["medical-display-qc"]
 display_qc_kernel = read_text("skills/medical-display-qc/kernel.py")
 reference_integrity_skill = medical_method_specialist_skills[
@@ -1289,116 +1246,10 @@ reference_integrity_skill = medical_method_specialist_skills[
 reference_integrity_kernel = read_text(
     "skills/medical-reference-integrity-auditor/kernel.py"
 )
-survival_skill = medical_method_specialist_skills["medical-survival-analysis-plan"]
 survival_kernel = read_text("skills/medical-survival-analysis-plan/kernel.py")
-data_freeze_skill = medical_method_specialist_skills[
-    "medical-data-freeze-and-analysis-readiness-reviewer"
-]
 data_freeze_kernel = read_text(
     "skills/medical-data-freeze-and-analysis-readiness-reviewer/kernel.py"
 )
-initial_draft_skill_tokens = {
-    "medical-manuscript-writing": (
-        write_skill,
-        [
-            "medical_initial_draft_preflight_candidate_ref",
-            "scholarskills-medical-initial-draft-preflight-candidate-v1.schema.json",
-            "baseline_data_citation",
-            "bounded_analysis_campaign",
-            "review_and_quality_gate",
-            "cannot authorize a full draft",
-            "initial_complete_draft",
-            "all seven gates",
-            "audit_applicable_initial_draft_specialist_refs()",
-            "immutable_candidate_snapshot_ref",
-            "does not sign an immutable reviewer snapshot",
-        ],
-    ),
-    "medical-manuscript-review": (
-        review_skill,
-        [
-            "medical_initial_draft_preflight_candidate_ref",
-            "immutable reviewer",
-            "Figure 1-N",
-            "Table 1-N",
-            "cannot sign first-draft readiness",
-        ],
-    ),
-    "medical-statistical-review": (
-        stats_skill,
-        [
-            "validation_partition_integrity_ref",
-            "endpoint_analysis_set_reconciliation_ref",
-            "model_complexity_sparse_event_ref",
-            "decision_curve_validity_ref",
-            "linked prediction performance",
-            "validate_linked_prediction_performance_v2",
-            "clinical_assessment",
-            "no_tuning_prespecified",
-            "not a mechanical 5- or 10-events-per-variable pass rule",
-            "anomaly_sensitivity_ref",
-            "verification_scope_contract_ref",
-            "does not establish artifact currentness",
-        ],
-    ),
-    "medical-survival-analysis-plan": (
-        survival_skill,
-        [
-            "fixed_horizon_risk_semantics_ref",
-            "competing_risk_ref",
-            "survival_estimand_plan_ref",
-            "decision_curve_validity_ref",
-            "non-informative censoring",
-            "IPCW Brier",
-            "recorded event fraction is descriptive",
-        ],
-    ),
-    "medical-data-freeze-and-analysis-readiness-reviewer": (
-        data_freeze_skill,
-        [
-            "clinical_analysis_input_identity_ref",
-            "study_context",
-            "study_context_ref",
-            "Early censoring is a separate state",
-            "An all-N/A inventory never satisfies identity closure",
-        ],
-    ),
-    "medical-reference-integrity-auditor": (
-        reference_integrity_skill,
-        [
-            "citation_source_coverage_ref",
-            "four keyed sets",
-            "four empty sets",
-            "reference_lane_active_inventory_binding_ref",
-            "reintroduced",
-        ],
-    ),
-    "medical-table-design": (
-        table_skill,
-        [
-            "baseline_table_traceability_ref",
-            "available_n + missing_n = group_n",
-            "variable-level denominators",
-        ],
-    ),
-    "medical-display-qc": (
-        display_qc_skill,
-        [
-            "document_display_scope_coverage_ref",
-            "display_render_integrity_ref",
-            "requires_reader_pdf=true",
-            "member_id",
-            "selected_layout_main_manuscript",
-            "reader_combined_main_and_supplementary",
-            "cannot substitute for page-render/page-hash evidence",
-            "PNG pixels directly",
-        ],
-    ),
-}
-for skill_id, (skill_text, tokens) in initial_draft_skill_tokens.items():
-    for token in tokens:
-        if token not in skill_text:
-            fail(f"{skill_id} missing initial-draft preflight token: {token}")
 
 initial_draft_kernel_tokens = {
     "medical-manuscript-writing": (
@@ -1579,144 +1430,6 @@ require_unversioned_v1_binding(
     "_audit_citation_source_coverage",
 )
 
-transportability_skill = medical_method_specialist_skills[
-    "medical-risk-model-transportability-reviewer"
-]
-evidence_integrity_skill = medical_method_specialist_skills[
-    "medical-evidence-integrity-reviewer"
-]
-initial_draft_learning_skill_tokens = {
-    "medical-survival-analysis-plan": (
-        survival_skill,
-        [
-            "fixed_horizon_risk_semantics_ref",
-            "Kaplan-Meier risk",
-            "cumulative incidence",
-            "IPCW Brier",
-            "medical-statistical-review",
-            "medical-manuscript-writing",
-        ],
-    ),
-    "medical-risk-model-transportability-reviewer": (
-        transportability_skill,
-        [
-            "claim_family_scope_qualifier_ref",
-            "construct_comparability_ref",
-            "not estimable",
-            "identity-preserving linkage",
-            "family cannot satisfy another; discrimination does not establish calibrated",
-            "absolute risk, deployment utility, or the cause of transport failure",
-        ],
-    ),
-    "medical-data-governance": (
-        data_governance_skill,
-        [
-            "analysis_input_anomaly_inventory_ref",
-            "medical-statistical-review",
-            "Do not silently delete, winsorize, recode, or repair observations",
-        ],
-    ),
-    "medical-statistical-review": (
-        stats_skill,
-        [
-            "analysis_input_anomaly_inventory_ref",
-            "anomaly_sensitivity_ref",
-            "verification_scope_contract_ref",
-            "medical-evidence-integrity-reviewer",
-            "medical-manuscript-writing",
-        ],
-    ),
-    "medical-evidence-integrity-reviewer": (
-        evidence_integrity_skill,
-        [
-            "verification_scope_contract_ref",
-            "claim_family_scope_qualifier_ref",
-            "construct_comparability_ref",
-            "medical-statistical-review",
-            "medical-risk-model-transportability-reviewer",
-        ],
-    ),
-    "medical-manuscript-writing": (
-        write_skill,
-        [
-            "immutable_candidate_snapshot_ref",
-            "Only after the seven-gate preflight is satisfied",
-            "build_authoring_freeze_handoff_candidate()",
-            "refs-only and no-authority",
-            "renderer_provenance_ref",
-            "structured_display_source_map_ref",
-            "does not sign an immutable reviewer snapshot",
-        ],
-    ),
-}
-for skill_id, (skill_text, tokens) in initial_draft_learning_skill_tokens.items():
-    for token in tokens:
-        if token not in skill_text:
-            fail(f"{skill_id} missing Study 002 initial-draft learning token: {token}")
-for skill_id, skill_text in {
-    "medical-manuscript-review": review_skill,
-    "medical-statistical-review": stats_skill,
-    "medical-reference-integrity-auditor": reference_integrity_skill,
-    "medical-display-qc": display_qc_skill,
-    "medical-submission-prep": submit_skill,
-}.items():
-    for token in [
-        "review_input_snapshot_binding",
-        "opl_reviewer_input_snapshot_manifest",
-        "live",
-        "typed blocker",
-    ]:
-        if token not in skill_text:
-            fail(f"{skill_id} missing immutable snapshot boundary token: {token}")
-for source_label, source_text, tokens in [
-    (
-        "medical-manuscript-writing skill",
-        write_skill,
-        ["lint_reader_facing_workflow_language()", "review-companion"],
-    ),
-    (
-        "medical-manuscript-writing kernel",
-        write_kernel,
-        [
-            "INTERNAL_WORKFLOW_LANGUAGE_IN_READER_SURFACE",
-            "AUTHORING_INSTRUCTION_IN_READER_SURFACE",
-            "INTERNAL_REVIEW_LANGUAGE_IN_READER_SURFACE",
-        ],
-    ),
-    (
-        "medical-submission-prep skill",
-        submit_skill,
-        ["lint_submission_artifact_roles()", "journal allowlist"],
-    ),
-    (
-        "medical-submission-prep kernel",
-        submit_kernel,
-        [
-            "INTERNAL_REVIEW_ARTIFACT_EXPOSED_TO_JOURNAL",
-            "SUPPLEMENT_ARTIFACT_ROLE_MISMATCH",
-            "SUPPLEMENTARY_MEMBER_IN_MAIN_DOCUMENT",
-        ],
-    ),
-    (
-        "medical-display-qc skill",
-        display_qc_skill,
-        ["editorial_page_composition_ref", "lint_document_layout_inventory()"],
-    ),
-    (
-        "medical-display-qc kernel",
-        display_qc_kernel,
-        [
-            "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
-            "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
-            "DISPLAY_AND_REFERENCES_SHARE_PAGE",
-            "ORPHAN_SECTION_HEADING_AT_PAGE_END",
-            "SINGLETON_PANEL_LABEL_IN_CONTINUATION_TITLE",
-        ],
-    ),
-]:
-    for token in tokens:
-        if token not in source_text:
-            fail(f"{source_label} missing publication-surface quality token: {token}")
 redirect_tombstone_skills = {
     skill_id: read_text(f"tombstones/skills/{skill_id}/TOMBSTONE.md")
     for skill_id in redirect_tombstone_skill_ids
@@ -2769,46 +2482,12 @@ for relative, skill_id, text in [
     ("skills/medical-submission-prep/SKILL.md", "medical-submission-prep", submit_skill),
     ("skills/medical-data-governance/SKILL.md", "medical-data-governance", data_governance_skill),
 ]:
-    for token in ["MAS Scholar Skills", skill_id]:
-        if token not in text:
-            fail(f"{relative} missing skill identity token: {token}")
     for shared_ref in [
         "docs/no-authority-boundary.md",
         "references/professional-quality-ref-templates.md",
     ]:
         if shared_ref not in text:
             fail(f"{relative} missing shared skill ref {shared_ref}")
-for skill_id, text in advanced_specialist_skills.items():
-    for token in [
-        skill_id,
-        "refs-only",
-        "no-authority",
-        "owner_gate_handoff_ref",
-        "cannot write",
-        "domain truth",
-        "owner receipt",
-        "typed blocker",
-        "publication readiness",
-        "54a2f333973147a1fd703caea6f12252e1f227d6",
-    ]:
-        if token not in text:
-            fail(f"skills/{skill_id}/SKILL.md missing advanced specialist no-authority token: {token}")
-    for token in (advanced_expected.get(skill_id, {}).get("sources") or []):
-        if token not in text:
-            fail(f"skills/{skill_id}/SKILL.md missing AcademicForge source token: {token}")
-for skill_id, text in medical_method_specialist_skills.items():
-    for token in [
-        skill_id,
-        "refs-only",
-        "no-authority",
-        "owner_gate_handoff_ref",
-        "MAS truth",
-        "owner receipt",
-        "typed blocker",
-        "publication readiness",
-    ]:
-        if token not in text:
-            fail(f"skills/{skill_id}/SKILL.md missing medical-method specialist no-authority token: {token}")
 for skill_id in redirect_tombstone_skill_ids:
     text = read_text(f"tombstones/skills/{skill_id}/TOMBSTONE.md")
     target = next(
@@ -2824,30 +2503,6 @@ for skill_id in redirect_tombstone_skill_ids:
     )
     if not target:
         fail(f"redirect tombstone missing contract target for {skill_id}")
-    for token in [
-        skill_id,
-        target,
-        "redirect/tombstone",
-        "refs-only",
-        "no-authority",
-        "owner_gate_handoff_ref",
-        "MAS truth",
-        "owner receipt",
-        "typed blocker",
-        "publication readiness",
-    ]:
-        if token not in text:
-            fail(
-                "tombstones/skills/"
-                f"{skill_id}/TOMBSTONE.md missing redirect tombstone token: {token}"
-            )
-for forbidden in [
-    "default opl-scholar-write",
-    "default opl-scholar-review",
-    "default opl-scholar-display",
-]:
-    if forbidden in "\n".join([readme, readme_zh, docs_index, operating_model, skill]):
-        fail(f"docs must not create a parallel ScholarSkills default entry: {forbidden}")
 for token in [
     "opl_connect_pubmed_pmc_search",
     "opl_connect_reference_verification",
@@ -2875,42 +2530,6 @@ for retired_token in [
         fail(f"contract must not retain retired execution or PubMed token: {retired_token}")
 
 professional_template_requirements = {
-    "references/professional-quality-ref-templates.md": [
-        "refs_only_lightweight_reference",
-        "figure_contract_template_ref",
-        "panel_evidence_chain_ref",
-        "source_ref_chain_template_ref",
-        "source_acceptance_decision_ref",
-        "claim_citation_quality_loop_ref",
-        "citation_quality_action_matrix_ref",
-        "cannot write domain",
-        "owner receipt",
-        "typed blocker",
-        "publication readiness",
-    ],
-    "skills/mas-scholar-skills/SKILL.md": [
-        "references/professional-quality-ref-templates.md",
-    ],
-    "skills/medical-figure-design/SKILL.md": [
-        "references/professional-quality-ref-templates.md",
-        "figure_contract_template_ref",
-        "panel_evidence_chain_ref",
-    ],
-    "skills/medical-research-lit/SKILL.md": [
-        "references/professional-quality-ref-templates.md",
-        "source_ref_chain_template_ref",
-        "source_acceptance_decision_ref",
-    ],
-    "skills/medical-manuscript-writing/SKILL.md": [
-        "references/professional-quality-ref-templates.md",
-        "claim_citation_quality_loop_ref",
-        "citation_quality_action_matrix_ref",
-    ],
-    "skills/medical-manuscript-review/SKILL.md": [
-        "references/professional-quality-ref-templates.md",
-        "claim_citation_quality_loop_ref",
-        "citation_quality_action_matrix_ref",
-    ],
     "contracts/scholar-skills-capability-modules.json": [
         "scholarskills_display_professional_ref_templates.v1#figure_contract_panel_evidence_chain",
         "scholarskills_lit_professional_ref_templates.v1#source_ref_chain",
@@ -2924,12 +2543,6 @@ professional_template_requirements = {
     ],
 }
 professional_text_by_relative = {
-    "references/professional-quality-ref-templates.md": professional_ref_templates,
-    "skills/mas-scholar-skills/SKILL.md": skill,
-    "skills/medical-figure-design/SKILL.md": figure_skill,
-    "skills/medical-research-lit/SKILL.md": lit_skill,
-    "skills/medical-manuscript-writing/SKILL.md": write_skill,
-    "skills/medical-manuscript-review/SKILL.md": review_skill,
     "contracts/scholar-skills-capability-modules.json": contract_text,
     "contracts/capability_map.json": json.dumps(capability_map, ensure_ascii=False),
 }
@@ -2939,28 +2552,7 @@ for relative, tokens in professional_template_requirements.items():
         if token not in text:
             fail(f"{relative} missing professional quality template token: {token}")
 
-registry_signal_template_tokens = [
-    "registry_signal_validity_pack",
-    "ehr_registry_signal_validity_ref",
-    *registry_signal_member_refs,
-    "producer_skill: medical-statistical-review",
-    "owner_route: medical-statistical-review",
-    "refs-only/no-authority",
-]
-for token in registry_signal_template_tokens:
-    if token not in professional_ref_templates:
-        fail(f"professional quality templates missing registry signal validity token: {token}")
 
-for token in [
-    "registry_signal_validity_pack",
-    "ehr_registry_signal_validity_ref",
-    *registry_signal_member_refs,
-    "EHR And Registry Signal Validity Rule",
-    "sole producer and professional owner route",
-    "refs-only/no-authority",
-]:
-    if token not in stats_skill:
-        fail(f"medical-statistical-review missing registry signal validity rule token: {token}")
 
 registry_signal_consumers = {
     "skills/medical-cohort-phenotyping/SKILL.md": cohort_phenotyping_skill,
@@ -2970,28 +2562,10 @@ registry_signal_consumers = {
     "skills/medical-manuscript-review/SKILL.md": review_skill,
 }
 for relative, text in registry_signal_consumers.items():
-    for token in [
-        "registry_signal_validity_pack",
-        "ehr_registry_signal_validity_ref",
-        "references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref",
-        "medical-statistical-review",
-    ]:
-        if token not in text:
-            fail(f"{relative} missing registry signal validity consumption route token: {token}")
     duplicated_members = [token for token in registry_signal_member_refs if token in text]
     if duplicated_members:
         fail(f"{relative} must consume the canonical registry signal rule without copying member refs: {duplicated_members}")
 
-for token in [
-    "registry_signal_validity_pack",
-    "ehr_registry_signal_validity_ref",
-    "references/professional-quality-ref-templates.md#ehr-registry-signal-validity-ref",
-    "optional framing only",
-    "does not produce or own",
-    "medical-statistical-review",
-]:
-    if token not in registry_story_architect_skill:
-        fail(f"medical-registry-atlas-story-architect missing optional framing boundary token: {token}")
 
 first_draft_quality_tokens = {
     "skills/medical-manuscript-writing/kernel.py": [
@@ -3022,194 +2596,6 @@ for relative, tokens in first_draft_quality_tokens.items():
         if token not in first_draft_quality_sources[relative]:
             fail(f"{relative} missing first-draft deterministic token: {token}")
 
-for relative, text, tokens in [
-    (
-        "skills/medical-manuscript-writing/SKILL.md",
-        write_skill,
-        [
-            "first_draft_story_contract_ref",
-            "terminology_surface_ledger_ref",
-            "center_sensitivity_claim_binding_ref",
-            "denominator_semantics_matrix_ref",
-            "quality_debt_candidate_refs",
-            "completed_with_quality_debt",
-        ],
-    ),
-    (
-        "skills/medical-registry-atlas-story-architect/SKILL.md",
-        registry_story_architect_skill,
-        [
-            "handling_editor_first_draft_contract_ref",
-            "denominator_state_architecture_ref",
-            "center_sensitivity_claim_binding_ref",
-            "candidate audit signal",
-        ],
-    ),
-    (
-        "skills/medical-statistical-review/SKILL.md",
-        stats_skill,
-        [
-            "denominator_semantics_matrix_ref",
-            "denominator_role",
-            "formula",
-            "center_sensitivity_claim_binding_ref",
-        ],
-    ),
-    (
-        "skills/medical-table-design/SKILL.md",
-        table_skill,
-        [
-            "denominator_semantics_matrix_ref",
-            "final_embedding_readability_ref",
-            "Programmatic non-overflow",
-        ],
-    ),
-    (
-        "skills/medical-manuscript-review/SKILL.md",
-        review_skill,
-        [
-            "first_draft_pre_review_ref",
-            "quality_debt_candidate_refs",
-            "terminology_surface_ledger_ref",
-            "center_sensitivity_claim_binding_ref",
-            "denominator_semantics_matrix_ref",
-            "completed_with_quality_debt",
-        ],
-    ),
-]:
-    for token in tokens:
-        if token not in text:
-            fail(f"{relative} missing first-draft quality rule token: {token}")
-
-for relative, text in [("README.md", readme), ("README.zh-CN.md", readme_zh)]:
-    for token in ["registry_signal_validity_pack", "ehr_registry_signal_validity_ref", "medical-statistical-review"]:
-        if token not in text:
-            fail(f"{relative} missing registry signal validity documentation token: {token}")
-
-registry_foldback_row = next(
-    (line for line in professional_ref_templates.splitlines() if line.startswith("| `registry_signal_validity_pack`")),
-    "",
-)
-require_all(
-    "registry signal validity foldback row",
-    [token for token in ["ehr_registry_signal_validity_ref", "medical-statistical-review", "owner_gate_handoff_ref"] if token in registry_foldback_row],
-    ["ehr_registry_signal_validity_ref", "medical-statistical-review", "owner_gate_handoff_ref"],
-)
-figure_foldback_row = next(
-    (line for line in professional_ref_templates.splitlines() if line.startswith("| `figure_evidence_contract_pack`")),
-    "",
-)
-for ref in ["text_extent_safe_area_ref", "layout_qc_receipt_ref"]:
-    if ref not in figure_foldback_row:
-        fail(f"figure evidence foldback row missing {ref}")
-
-deterministic_figure_closeout_tokens = [
-    "deterministic_render_ref",
-    "font_file_sha256",
-    "headless_backend",
-    "final_size_layout_ref",
-    "single_generation_source_ref",
-    "paired_export_qa_ref",
-    "clean_rebuild_consistency_ref",
-    "source_fingerprint",
-    "output_fingerprints",
-    "programmatic_figure_audit_ref",
-    "layout_qc_receipt_ref",
-    "final_scale_visual_qa_ref",
-    "annotation_headroom",
-    "boundary_clipping",
-    "line_text_intersection",
-    "tick_label_overlap",
-    "pdf.fonttype=42",
-    "PNG/PDF",
-    "catalog/manifest",
-    "route_back_candidate",
-]
-deterministic_figure_closeout_texts = {
-    "skills/medical-figure-design/SKILL.md": figure_skill,
-    "skills/medical-display-qc/SKILL.md": display_qc_skill,
-    "references/professional-quality-ref-templates.md": professional_ref_templates,
-}
-for relative, text in deterministic_figure_closeout_texts.items():
-    for token in deterministic_figure_closeout_tokens:
-        if token not in text:
-            fail(f"{relative} missing deterministic figure closeout token: {token}")
-
-professional_projection_and_flow_tokens = [
-    "final_scale_projection_ref",
-    "minimum_final_embed_width_inches",
-    "minimum_projected_safe_inset_points",
-    "flow_accounting_integrity_ref",
-    "all_quantitative_states_connected",
-    "unconnected_satellite_state_count",
-    "denominator_identities_passed",
-    "unit_transitions_declared",
-]
-for relative, text in {
-    "skills/medical-figure-design/SKILL.md": figure_skill,
-    "references/professional-quality-ref-templates.md": professional_ref_templates,
-}.items():
-    for token in professional_projection_and_flow_tokens:
-        if token not in text:
-            fail(f"{relative} missing final-scale or accounting-flow token: {token}")
-
-text_extent_safe_area_tokens = [
-    "text_extent_safe_area_ref",
-    "final_canvas",
-    "safe_inset",
-    "wrap_policy=automatic_semantic_wrap",
-    "artist_scope=all_text_artists",
-    "renderer_draw_complete",
-    "artist_extent_report",
-    "overflow_count=0",
-    "annotation_lane",
-    "composed_page_check",
-    "renderer draw",
-    "text bounding box",
-    "tight_layout",
-    "bbox_inches=tight",
-    "clip_on",
-    "PNG/PDF",
-    "DOCX/PDF",
-]
-for relative, text in deterministic_figure_closeout_texts.items():
-    for token in text_extent_safe_area_tokens:
-        if token not in text:
-            fail(f"{relative} missing text-extent safe-area token: {token}")
-
-layout_qc_constraint_texts = {
-    "skills/medical-figure-design/SKILL.md": figure_skill,
-    "skills/medical-figure-style/SKILL.md": figure_style_skill,
-    "skills/medical-figure-composer/SKILL.md": figure_composer_skill,
-    "skills/medical-display-qc/SKILL.md": display_qc_skill,
-    "references/professional-quality-ref-templates.md": professional_ref_templates,
-}
-for relative, text in layout_qc_constraint_texts.items():
-    for token in [
-        "layout_qc_receipt_ref",
-        "bbox registry",
-        "annotation",
-        "plotting/data",
-        "minimum",
-        "fixed canvas",
-        "PNG/PDF",
-    ]:
-        if token not in text:
-            fail(f"{relative} missing fixed-canvas layout QC token: {token}")
-
-for relative, text in deterministic_figure_closeout_texts.items():
-    for token in [
-        "renderer-measured",
-        "manual line breaks",
-        "bbox_inches=None",
-        "tight-crop",
-        "long-string",
-        "extreme-value",
-        "full-width",
-        "SHA-256",
-    ]:
-        if token not in text:
-            fail(f"{relative} missing measured-layout regression token: {token}")
 
 if display_receipt_templates.get("schema_version") != "1.6.0":
     fail("display receipt templates must use schema_version 1.6.0")
@@ -3895,12 +3281,6 @@ scope_skill_texts = {
     "submission_prep": submit_skill,
 }
 for scope_id, text in scope_skill_texts.items():
-    for token in [
-        epistemic_review_scope_ref,
-        "scope digest",
-    ]:
-        if token not in text:
-            fail(f"{scope_id} skill missing lightweight epistemic token: {token}")
     if retired_input_scope_signature_ref in text:
         fail(f"{scope_id} skill must not generate the retired input scope signature")
 for capability_id in [
@@ -3919,24 +3299,14 @@ for skill_id in ["medical-reference-integrity-auditor", "medical-display-qc"]:
         (advanced_capability_by_id.get(skill_id) or {}).get("verification_refs"),
         ["references/professional-quality-ref-templates.md#epistemic-provenance-context"],
     )
-for token in [
-    "prevent AI hallucination",
-    "trusted local workspace",
-    "do not copy the whole scope",
-    "must not invalidate medical, statistical, or reference review",
-    "release and installation integrity use a separate OPL contract",
-    "Do not generate it",
-]:
-    if token not in professional_ref_templates:
-        fail(f"professional quality templates missing epistemic provenance token: {token}")
 
 for module in professional_modules:
     module_id = module.get("module_id")
     display_name = module.get("display_name")
-    if not module_id or module_id not in skill:
-        fail(f"SKILL.md missing module id {module_id}")
-    if not display_name or display_name not in skill:
-        fail(f"SKILL.md missing display name {display_name}")
+    if not module_id:
+        fail("Professional module must declare its machine identity")
+    if not display_name:
+        fail(f"Professional module {module_id} must declare a display name")
     boundary = module.get("authority_boundary", {})
     for key in [
         "can_write_domain_truth",
@@ -4141,23 +3511,6 @@ for key in [
     if trigger_boundary.get(key) is not False:
         fail(f"feedback self evolution trigger authority flag {key} must be false")
 
-for token in [
-    "docs/no-authority-boundary.md",
-    "docs/mas-scholar-skills-operating-model.md",
-    "docs/capability-modules.md",
-    "contracts/scholar-skills-capability-modules.json",
-    "contracts/capability_map.json",
-    "medical-manuscript-writing",
-    "medical-manuscript-review",
-    "medical-figure-design",
-    "medical-research-lit",
-    "medical-statistical-review",
-    "medical-table-design",
-    "medical-submission-prep",
-    "medical-data-governance",
-]:
-    if token not in skill:
-        fail(f"aggregate SKILL.md missing routing or owner-reference token: {token}")
 
 gallery_manifest = read_json("gallery/medical-display/gallery_manifest.json")
 snapshot = read_json("gallery/medical-display/gallery_snapshot.json")
@@ -4786,14 +4139,6 @@ if "opl.scholarskills.data" not in (data_assessment_policy.get("legacy_module_id
     fail("Data assessment policy must keep opl.scholarskills.data as legacy alias/provenance")
 if data_assessment_policy.get("legacy_id_policy") != "legacy_alias_provenance_only_not_active_module_id":
     fail("Data assessment policy legacy id policy must be alias/provenance only")
-data_assessment_refs = [
-    "data_governance_handoff_ref",
-    "data_governance_assessment_ref",
-    "data_operation_receipt_ref",
-    "manifest_completeness_check_ref",
-    "privacy_tier_check_ref",
-    "study_impact_check_ref",
-]
 require_all(
     "Data assessment handoff refs",
     data_assessment_policy.get("required_handoff_refs"),
@@ -4888,39 +4233,7 @@ require_all(
         "retired_tombstone",
     ],
 )
-for token in [
-    *data_lifecycle_refs,
-    "hot_current_body",
-    "warm_parent_or_provenance",
-    "paper_facing_current",
-    "active_runtime",
-    "semantic_closed",
-    "byte_closed",
-    "delete_safe_cache",
-    "retired_tombstone",
-]:
-    if token not in capability_modules_doc:
-        fail(f"docs/capability-modules.md missing Data lifecycle token: {token}")
 
-for relative, text in [("skills/medical-data-governance/SKILL.md", data_governance_skill)]:
-    for token in [
-        "mas-scholar-skills.data",
-        "medical-data-governance",
-        "opl.scholarskills.data",
-        *data_assessment_refs,
-        *data_operation_categories,
-        *data_assessment_checks,
-    ]:
-        if token not in text:
-            fail(f"{relative} missing Data governance assessment token: {token}")
-
-for token in [
-    "source_pack_ref",
-    "candidate_refs",
-    "owner_gate_handoff_ref",
-]:
-    if token not in skill:
-        fail(f"SKILL.md missing standard handoff token: {token}")
 
 if gallery_manifest.get("status") != "rendered":
     fail("gallery manifest status must be rendered")
@@ -4958,14 +4271,6 @@ if quality_summary.get("publication_ready_claim_authorized") is not False:
 if snapshot.get("publication_ready_claim_authorized") is not False:
     fail("snapshot must not authorize publication-ready claims")
 quality_audit = read_text("gallery/medical-display/display_pack_gallery_quality_audit.md")
-for token in [
-    "通用科研做图 Quality Floor",
-    "mas_scientific_figure_quality_floor.v1",
-    "reference_target_preserve_list",
-    "source_preservation_ref",
-]:
-    if token not in quality_audit:
-        fail(f"gallery quality audit missing scientific quality-floor token: {token}")
 
 for item in snapshot.get("included_files", []):
     relative = "gallery/medical-display/" + item["path"]
