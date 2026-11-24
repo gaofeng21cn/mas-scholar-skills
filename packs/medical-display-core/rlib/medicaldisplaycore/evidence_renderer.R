@@ -132,9 +132,9 @@ as_numeric_vector <- function(values, field_name) {
   numeric_values
 }
 
-source_renderer_helper("evidence_renderer_parts/style.R")
+source_renderer_helper("evidence_renderer/style.R")
 
-source_renderer_helper("evidence_renderer_parts/data_frames.R")
+source_renderer_helper("evidence_renderer/data_frames.R")
 
 plot_binary_curve <- function(display_payload) {
   series_payload <- display_payload$series
@@ -425,7 +425,7 @@ plot_forest <- function(display_payload) {
   plot
 }
 
-source_renderer_helper("evidence_renderer_parts/layouts.R")
+source_renderer_helper("evidence_renderer/layouts.R")
 
 build_evidence_plot <- function(template_id, payload) {
   lidocaineq_plot <- if (exists("build_lidocaineq_evidence_plot", mode = "function")) {

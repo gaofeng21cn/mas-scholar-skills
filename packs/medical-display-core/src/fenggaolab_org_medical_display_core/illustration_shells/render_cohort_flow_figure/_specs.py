@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from ...shared_parts.flow_layout import (
+from ...shared.flow_layout import (
     _FlowNodeSpec,
     _FlowTextLine,
     _wrap_flow_text_to_width,

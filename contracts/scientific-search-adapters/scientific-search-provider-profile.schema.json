@@ -169,6 +169,25 @@
         },
         "endpoint": {
           "$ref": "#/$defs/endpoint"
+        },
+        "rate_limit": {
+          "$ref": "#/$defs/rateLimit"
+        }
+      }
+    },
+    "rateLimit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_interval_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000
+        },
+        "max_retries_on_429": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
         }
       }
     },
