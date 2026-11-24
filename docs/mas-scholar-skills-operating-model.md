@@ -103,9 +103,7 @@ search as well as Crossref/OpenAlex fallback requests; its next-step state is
 serializable and bounded. OPL Connect executes all declared HTTP, retry, cache,
 receipts, and connector errors. The Package adapter returns a strict identifier
 and metadata match assessment; OPL validates its shape and records the result
-without claiming citation acceptance. Earlier installed v1 adapters without
-that optional assessment remain readable through the legacy match path until
-their active consumers are retired. The verification adapter accepts a known
+without claiming citation acceptance. The verification adapter accepts a known
 reference and may describe up to two provider steps. MAS still decides candidate
 selection, source acceptance, and
 manuscript use. All provider outputs are read-only inputs, not a citation verdict,
@@ -119,11 +117,10 @@ opl packages status --package-id mas --scope workspace --target-workspace <works
 
 The target distribution is complete, independently owner-published Package
 bytes in the ScholarSkills GHCR `latest-stable`. Codex Skill materialization is
-one carrier projection, not Package identity or complete installed truth.
-Current consumers may still use `bundled_capability_package_ids`; that is a
-compatibility carrier input. The provider owns no consumer status, repair,
-admission, route, launch, or readiness authority. The consumer/platform reports
-a missing required presence/callability edge and blocks only MAS or MAG.
+one carrier projection, not Package identity or complete installed truth. The
+provider owns no consumer status, repair, admission, route, launch, or readiness
+authority. The consumer/platform reports a missing required presence/callability
+edge and blocks only MAS or MAG.
 
 Framework development and diagnostics may still inspect the provider source:
 
@@ -140,10 +137,29 @@ sync command's allowed and default scopes; current policy is workspace/quest
 only and skips an implicit sync without a target.
 Scope materialization copies the primary routing Skill by default and adds a
 selected stage or specialty Skill only for the matching task. The package keeps
-all 36 source Skill entries for dependency callability and on-demand routing,
-but they do not become one project-wide discovery set. Do not copy the full repository, MAS render outputs,
+the exported source Skill entries declared in `contracts/scholar-skills-capability-modules.json`
+for dependency callability and on-demand routing, but they do not become one
+project-wide discovery set. Do not copy the full repository, MAS render outputs,
 caches, dependency locks, or intermediate gallery workspaces into a paper
 workspace.
+
+### External Skill Discovery
+
+When the default `medical-*` Skills do not cover a specialized workflow (such as
+omics, single-cell analysis, DICOM imaging, Nextflow, RDKit, Zotero, or a named
+scientific database/API), Codex may discover and sync a single approved external
+Skill on demand through OPL Connect (`--source kdense`):
+
+```bash
+opl connect external-skills search --query "<scientific need>" --source kdense --json
+opl connect external-skills inspect --skill <skill_id> --source kdense --json
+opl connect external-skills sync --skill <skill_id> --source kdense --scope workspace --target-workspace <workspace_root> --json
+opl connect external-skills sync --skill <skill_id> --source kdense --scope quest --target-quest <quest_root> --json
+```
+
+Synced external Skills remain refs-only candidate helpers; they do not install
+foreign runtimes or replace default MAS Scholar Skills packages, MAS/MAG owner
+receipts, typed blockers, artifact authority, or publication readiness.
 
 When a task needs a named specialty, route to the already-materialized specialist
 or its router. Discovery and presence do not replace MAS stage policy, domain

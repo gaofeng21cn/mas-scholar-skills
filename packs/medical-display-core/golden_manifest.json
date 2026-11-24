@@ -30,7 +30,7 @@
   },
   "shared_gallery_snapshot_ref": {
     "path": "gallery/medical-display/gallery_snapshot.json",
-    "sha256": "56632100ee424f4a9800d07b07e8e612e1c6272c634bd11aafd50a82c7076003"
+    "sha256": "8fea03aef6f46a33941970ca370c3fbb1c0324b7f8b164c8171049afb6beb032"
   },
   "shared_gallery_pdf_ref": {
     "path": "gallery/medical-display/medical_display_gallery.pdf",

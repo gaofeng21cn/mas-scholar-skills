@@ -43,9 +43,7 @@ domain agents retain all stage, quality, artifact, and readiness authority.
 The historical `opl-scholarskills` name is provenance only and is not an active
 skill.
 The cross-repository migration SSOT is the App
-[`opl-package-platform-composition-migration.md`](https://github.com/gaofeng21cn/one-person-lab-app/blob/main/docs/active/opl-package-platform-composition-migration.md);
-Framework's same-named document remains its repo-local compatibility and
-deletion inventory.
+[`opl-package-platform-composition-migration.md`](https://github.com/gaofeng21cn/one-person-lab-app/blob/main/docs/active/opl-package-platform-composition-migration.md).
 
 ## What It Covers
 
@@ -60,8 +58,9 @@ deletion inventory.
 | Submission | Offline journal-layout profiles, default reader layout, file inventory, declarations, and response preparation |
 | Data Governance | Data manifests, dictionaries, lineage, lifecycle, access, and reproducibility candidates |
 
-The current source exports 36 discoverable Codex skills: 11 aggregate/core
-skills and 25 routers or named-specialty skills. Specialty skills are present
+The current source exports aggregate/core Codex skills alongside task-selected
+routers and named-specialty skills (cataloged in
+`contracts/scholar-skills-capability-modules.json`). Specialty skills are present
 for discovery but selected only when a task actually needs that specialty.
 The machine catalog also includes two pure adapter modules for scientific search
 and reference verification; OPL Connect performs their network I/O and records
@@ -81,7 +80,7 @@ without creating a parallel validity judgment.
 
 This repository is a standard Codex Plugin marketplace and the repository root
 is the plugin root. The marketplace points directly to that root, so
-`skills/` remains the only source of truth for all 36 active Skills; there is no
+`skills/` remains the only source of truth for all active exported Skills; there is no
 second copied Skill tree under `plugins/`.
 
 Add the repository marketplace, inspect the available entry, and install it:

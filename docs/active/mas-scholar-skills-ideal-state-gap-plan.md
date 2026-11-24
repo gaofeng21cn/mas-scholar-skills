@@ -29,9 +29,9 @@ repository test here can close them.
 
 ## Foldback
 
-Durable operating facts belong in the
+Durable operating and external-discovery facts belong in the
 [operating model](../mas-scholar-skills-operating-model.md), invariant facts in
 the [no-authority boundary](../no-authority-boundary.md), catalog facts in
-[capability modules](../capability-modules.md), and external-learning decisions
-in their landing documents. Completed work, dated tranches and execution
-transcripts stay in Git history.
+[capability modules](../capability-modules.md), and display quality-floor
+boundaries in the [display gallery](../gallery/display-gallery.md). Completed
+work, dated tranches and execution transcripts stay in Git history.

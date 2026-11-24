@@ -14,13 +14,11 @@ is, how a consumer depends on it, and how its layers hand off.
 
 | Topic | Owner |
 | --- | --- |
-| Package role, consumer dependency profiles, layer split, distribution and discovery | [Operating model](./mas-scholar-skills-operating-model.md) |
+| Package role, consumer dependency profiles, layer split, distribution and external discovery | [Operating model](./mas-scholar-skills-operating-model.md) |
 | Forbidden authority claims and refs-only handoff rules | [No-authority boundary](./no-authority-boundary.md) |
-| Module catalog, provider adapters, publication-layout profiles, ref vocabulary | [Capability modules](./capability-modules.md) |
+| Module catalog, provider adapters, quality floor, publication-layout profiles, ref vocabulary | [Capability modules](./capability-modules.md) |
 | Remaining evidence gaps | [Active gaps](./active/mas-scholar-skills-ideal-state-gap-plan.md) |
-| Display gallery review package | [Display gallery](./gallery/display-gallery.md) |
-| Academic figure pattern: adopt/adapt/reject decisions | [Academic figure landing](./academic-figure-skill-landing.md) |
-| K-Dense scientific skills intake and OPL Connect routing | [K-Dense intake](./kdense-scientific-agent-skills-intake.md) |
+| Display quality floor, gallery review package and maintenance | [Display gallery](./gallery/display-gallery.md) |
 | Medical Display pack source, renderer and fixtures | [Pack README](../packs/medical-display-core/README.md) |
 
 ## Verification

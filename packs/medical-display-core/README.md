@@ -44,7 +44,7 @@ Evidence-figure renderer assets are R/ggplot2-first:
 
 The current inventory is derived by `scripts/verify-display-gallery-pack.py --check` from
 `canonical_template_catalog.json`, `templates/*/template.toml`, and `opl_pack.json`. The verifier
-separates 52 default-visible canonical templates from two explicit `paper_derived_reference` table
+separates default-visible canonical templates from explicit `paper_derived_reference` table
 shells. It prints canonical/template-resource/reference counts and renderer-family counts, and fails if descriptor inventory,
 OPL template resources, pack-level execution-mode semantics, or R/ggplot2 `final|candidate` render-mode declarations drift from the pack.
 Run `python3 scripts/verify-display-gallery-pack.py --sync-opl-pack` after catalog or template descriptor

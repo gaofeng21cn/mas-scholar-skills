@@ -49,9 +49,6 @@ syncable Codex skills, plus two read-only runtime adapter modules.
 | `mas-scholar-skills.reference-provider-adapters` | No Skill entry; package runtime binding | Pure request/response normalization for OPL Connect; no I/O, verdict, or receipt authority |
 | `mas-scholar-skills.scientific-search-adapters` | No Skill entry; package runtime binding | Bounded PubMed/PMC, Crossref, and OpenAlex search normalization, including the PubMed ESearch -> ESummary next step; no I/O, acceptance, verdict, or receipt authority |
 
-Historical `opl.scholarskills.*` module ids are provenance aliases only. The
-historical aggregate name is likewise not a discoverable skill surface.
-
 The eight professional modules use the same handoff: `source_pack_ref`,
 `candidate_refs`, and `owner_gate_handoff_ref`. Reference verification uses the
 `build_request -> parse_response -> next_step` ABI and returns normalized metadata
@@ -59,6 +56,16 @@ evidence. Scientific search uses the independent
 `build_search_request -> parse_search_response` ABI and returns `candidates[]`.
 Neither companion path can replace a professional skill, stage prompt, owner gate,
 or domain action.
+
+## Professional Skill Quality Floor
+
+Each professional module maintains its minimum candidate discipline in its
+canonical `skills/medical-*/SKILL.md`, shared handoff schemas in
+`references/professional-quality-ref-templates.md`, and machine schema contracts
+such as `contracts/professional-figure-workflow.schema.json`. Automated checks
+in `scripts/verify.sh fast` validate candidate schema conformance, provenance
+refs, and fail-closed boundary rules; those floors never claim quality verdicts,
+artifact acceptance, or publication readiness (which remain with MAS/MAG owners).
 
 ## Publication Layout Profiles
 

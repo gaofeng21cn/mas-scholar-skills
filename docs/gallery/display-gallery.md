@@ -21,7 +21,13 @@ Gallery 只能证明有人可审的可视样例和 manifest surface 存在；它
 
 ## 通用科研做图 Quality Floor
 
-本轮外部学习落到 `scholarskills_scientific_figure_quality_floor.v1`，覆盖数据证据图、页面级组合图、graphical abstract 和其他 design-led display work。它要求先有 figure contract、reference selection、style brief、candidate artifact、critic review、final-size inspection、source preservation 和 owner gate refs；AI 执行者仍可自由选择最适合论文局部主张的图型、布局、面板层级、渲染后端和候选数量。本仓只提高质量下限，不限制上限，也不签发质量 verdict。
+科研绘图质量下限由 `scholarskills_scientific_figure_quality_floor.v1` 约束，覆盖数据证据图、页面级组合图、graphical abstract 和其他 design-led display work。它要求先有 figure contract、reference selection、style brief、candidate artifact、critic review、final-size inspection、source preservation 和 owner gate refs；AI 执行者仍可自由选择最适合论文局部主张的图型、布局、面板层级、渲染后端和候选数量。本仓只提高质量下限，不限制上限，也不签发质量 verdict。
+
+长期设计边界：
+
+- 模板仅作为可复用参考下限（而非强制绘图语法）；paper-local renderer 只要显式绑定 figure contract、`medical-figure-design` 与 `medical-figure-style` 消费回执、source/input 摘要以及最终 PNG/PDF 精确字节摘要，同样有效。
+- 证据图不在图像内部绘制总标题、副标题、长段页脚注释或免责声明；上述说明统一留在正文题注与图例中。
+- 阴性或不确定科研结果属于有效证据，不得仅因缺少偏好信号而判定图表失败；普通样式或导出警告仅作修复提示，只有缺失/空白/可读性损坏、非法几何或无证据支持的可见断言等硬性契约失败可阻断候选路径。
 
 ## Graphical Abstract 口径
 
@@ -53,7 +59,7 @@ AI 执行者可以按论文局部事实自行选择更合适的图型、布局�
 
 这些文件构成可安装/可引用的 compact review package。OPL Connect 同步到 `<workspace_root>/.codex/skills/mas-scholar-skills/`、`medical-*` 专业 Skill 目录或 quest-local 对应目录时，可以带上这些 review refs 或指向它们的轻量 manifest；`medical-figure-style` / `medical-figure-composer` 作为 Display 子 Skill 共享同一 compact review 边界，不应复制整套 gallery 生成目录。
 
-当前 snapshot 对应 `52` 个默认可见 canonical templates：`43` 个 R/ggplot2 evidence figures、`1` 个 R/ggplot2 reporting-flow figure、`1` 个 Python design figure 和 `7` 个 non-visual table shells。另有 `2` 个 DPCC paper-derived table references 仅保留 provenance 和显式调用入口，`default_visible=false`，不进入默认推荐或 Gallery。Gallery 展示 `46` 个 visual templates，其中只对 `table1_baseline_characteristics` 提供 table preview。精确计数和成员始终以 manifest/snapshot 与 repo-native verifier 为准。
+当前 snapshot 对应 `packs/medical-display-core/canonical_template_catalog.json` 中的默认可见 canonical templates（涵盖 R/ggplot2 evidence figures、reporting-flow figure、Python design figure 与 non-visual table shells）；另有 DPCC paper-derived table references 仅保留 provenance 和显式调用入口，`default_visible=false`，不进入默认推荐或 Gallery。Gallery 展示 visual templates，其中只对 `table1_baseline_characteristics` 提供 table preview。精确计数和成员始终以 `gallery_manifest.json`、`gallery_snapshot.json` 与 `scripts/verify-display-gallery-pack.py --check` 为准。
 
 当前 gallery status、template counts、renderer policy、style profile、palette ref、
 publication-ready claim flag 和 artifact fingerprints 由

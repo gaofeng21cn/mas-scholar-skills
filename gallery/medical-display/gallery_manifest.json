@@ -92,7 +92,7 @@
   "quality_audit_path": "/private/tmp/mas-display-gallery-dpcc-boundary/display_pack_gallery_quality_audit.md",
   "docs_template_catalog_path": "",
   "docs_gallery_review_package_owner": "ScholarSkills",
-  "docs_gallery_review_package_ref": "/Users/gaofeng/workspace/mas-scholar-skills/gallery/medical-display/",
+  "docs_gallery_review_package_ref": "gallery/medical-display/",
   "docs_gallery_review_package_status": "externalized_compact_review_refs",
   "template_count": 46,
   "active_template_count": 43,

@@ -49,8 +49,8 @@ manifest 已将两个 profile 定义为 required/fail-closed；历史名称
 | Submission | 离线期刊版式 profile、默认阅读版、文件清单、声明与回复准备 |
 | Data Governance | 数据清单、字典、lineage、生命周期、访问与可重复性候选 |
 
-当前源码导出 36 个 Codex 可发现 Skill：11 个 aggregate/core Skill，以及 25 个
-router 或具名专科 Skill。专科 Skill 默认可发现，但只在任务确实匹配时选择。机器
+当前源码按 `contracts/scholar-skills-capability-modules.json` 导出 aggregate/core
+Skill 与按任务按需选择的 router 或具名专科 Skill。专科 Skill 默认可发现，但只在任务确实匹配时选择。机器
 目录还包含 scientific search 与 reference verification 两个纯 adapter module；其
 网络执行和 receipt 由 OPL Connect 持有。
 
@@ -65,7 +65,7 @@ router 或具名专科 Skill。专科 Skill 默认可发现，但只在任务确
 MAS 必需依赖本 Package，包内具名专科 Skill 仍按任务选择。安装 MAS 时必须确保
 ScholarSkills Package identity 和 MAS 必需能力集合存在且可调用；缺失只阻断 MAS 并
 进入托管安装/修复，不阻断无关 Package，也不引入 version/ABI/lock/payload 门。
-当前 `bundled_capability_package_ids` 与 required/fail-closed profile 字段由 owner
+当前 manifest 已将两个 profile 定义为 required/fail-closed runtime dependency，由 owner
 manifest 和 consumer contract 共同约束：
 
 ```bash
@@ -142,13 +142,14 @@ publication ready。这些判断始终归 MAS、MAG 或 consuming domain owner�
 ## 仓库地图
 
 ```text
-skills/                         aggregate、core、router 与专科 Skill
-contracts/                      package identity、模块目录与边界
-references/                     共用质量与 handoff 引用
-packs/medical-display-core/     Display 源 pack 与 renderer 验证
-gallery/medical-display/        紧凑人审包
-docs/                           operating、catalog、boundary 与 Active Truth 文档
-scripts/verify.sh               仓库验证入口
+skills/                             aggregate、core、router 与专科 Skill
+contracts/                          package identity、模块目录与边界
+references/                         共用质量与 handoff 引用
+packs/medical-display-core/         Display 源 pack 与 renderer 验证
+packs/medical-publication-layouts/  阅读版模板、期刊适配 profile 与引文资产
+gallery/medical-display/            紧凑人审包
+docs/                               operating、catalog、boundary 与 Active Truth 文档
+scripts/verify.sh                   仓库验证入口
 ```
 
 ## 验证
