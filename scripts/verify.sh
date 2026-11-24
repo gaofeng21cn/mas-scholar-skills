@@ -10,18 +10,17 @@ run_fast() {
   node --test tests/codex-plugin-marketplace.test.mjs
   node --test tests/reference-provider-adapters.test.mjs
   node --test tests/scientific-search-adapters.test.mjs
-  python3 scripts/run-kernel-self-checks.py
-  python3 scripts/verify-professional-figure-workflow.py --self-test
-  python3 scripts/verify-publication-layout-profiles.py
-  python3 scripts/verify-capability-package-manifest.py
-  python3 scripts/verify-repository-consistency.py
+  uv run --frozen pytest -q
+  uv run --frozen python scripts/verify-professional-figure-workflow.py --self-test
+  uv run --frozen python scripts/verify-publication-layout-profiles.py
+  uv run --frozen python scripts/verify-capability-package-manifest.py
 }
 
 run_render() {
-  python3 tests/display-layout-acceptance.py
-  python3 scripts/verify-display-gallery-pack.py --check
-  python3 packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py
-  python3 packs/medical-display-core/tests/render_registry_gallery_templates.py
+  uv run --frozen --extra render python tests/display-layout-acceptance.py
+  uv run --frozen python scripts/verify-display-gallery-pack.py --check
+  uv run --frozen python packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py
+  uv run --frozen python packs/medical-display-core/tests/render_registry_gallery_templates.py
   Rscript --vanilla packs/medical-display-core/tests/test_cohort_flow_heading_overrides.R
   Rscript --vanilla packs/medical-display-core/tests/test_render_session.R
 }

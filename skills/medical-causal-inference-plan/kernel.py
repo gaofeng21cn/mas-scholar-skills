@@ -6,7 +6,6 @@ claim causality, approve analyses, sign receipts, create blockers, or claim read
 
 from __future__ import annotations
 
-import json
 import re
 from typing import Iterable, Mapping
 
@@ -81,16 +80,11 @@ def causal_handoff_skeleton() -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    edges = parse_dag_edges("Age -> Treatment; Treatment causes Outcome.")
-    assert edges[0]["source"] == "Age"
-    assert edges[1]["target"] == "Outcome"
-    assert dag_skeleton(edges)["edges"][0]["target"] == "Treatment"
-    assert estimand_checklist_skeleton()[0]["item"] == "population"
-    assert bias_flag_lint("check positivity and confounding")[0]["code"] == "CONFOUNDING"
-    assert "sensitivity_plan_ref" in causal_handoff_skeleton()
-    print(json.dumps({"ok": True, "checks": 6}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-causal-inference-plan", kernel_file=__file__))

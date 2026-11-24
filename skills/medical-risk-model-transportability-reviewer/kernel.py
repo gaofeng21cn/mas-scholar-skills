@@ -6,7 +6,6 @@ clinical verdicts, write MAS truth, sign owner receipts, or claim readiness.
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -411,31 +410,11 @@ def _construct_finding(code: str, field: str, action: str) -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    assert normalize_predictor_name("LDL-C (mg/dL)") == "ldl_c_mg_dl"
-    row = predictor_mapping_row("Age", "age_years")
-    assert row["writes_authority"] is False
-    skeleton = transportability_review_skeleton("model:abc", "cohort:def")
-    assert skeleton["authority"]["refs_only"] is True
-    assert lint_forbidden_authority_claims("model accepted with owner receipt")
-    fixture_path = Path(__file__).with_name("fixtures") / "construct-comparability-currentness.json"
-    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    results = {
-        case["case_id"]: validate_construct_comparability_currentness(case["candidate"])
-        for case in fixture["cases"]
-    }
-    recovered = results["recovered_codebook_and_linkage_field_role_open"]
-    assert recovered["machine_check_status"] == "candidate_complete"
-    assert recovered["active_stop_layers"] == ["field_role"]
-    assert recovered["estimability_status"] == "not_estimable"
-    assert recovered["estimation_authorized"] is False
-    stale = results["recovered_layers_keep_absence_reasons_active"]
-    assert stale["machine_check_status"] == "route_back_required"
-    assert "CONSTRUCT_STOP_REASON_STALE_ACTIVE" in {
-        item["code"] for item in stale["findings"]
-    }
-    print(json.dumps({"checks": 10, "ok": True}, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-risk-model-transportability-reviewer", kernel_file=__file__))

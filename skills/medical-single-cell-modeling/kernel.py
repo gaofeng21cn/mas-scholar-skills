@@ -6,7 +6,6 @@ anndata or scvi, run models, mutate data truth, or claim publication readiness.
 
 from __future__ import annotations
 
-import json
 import re
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -166,41 +165,11 @@ def _unique_examples(values: list[Any], limit: int) -> list[str]:
     return seen
 
 
-def _self_check() -> None:
-    obs = {"Batch ID": ["a", "b", "b"], "cell type": ["T", "B", "T"], "X": [1, 2, 3]}
-    assert sanitize_key("Batch ID") == "batch_id"
-    assert sanitize_key("X") == "x_key"
-    assert sanitize_anndata_keys(["a b", "a-b"]) == {"a b": "a_b", "a-b": "a_b_2"}
-    assert safe_obs_summary(obs)["n_obs"] == 3
-    assert batch_label_key_diagnostics(obs, "Batch ID", "cell type")["missing_keys"] == []
-    optional = _self_check_h5ad_safe_obs()
-    print(json.dumps({"ok": True, "checks": 6, "h5ad_safe_obs": optional}, indent=2, sort_keys=True))
-
-
-def _self_check_h5ad_safe_obs() -> dict[str, Any]:
-    assert callable(h5ad_safe_obs)
-    try:
-        import pandas as pd
-    except ImportError as exc:
-        return {"status": "skipped", "reason": str(exc)}
-    obs = pd.DataFrame(
-        {
-            "label": ["T", None, "B"],
-            "sample": pd.array(["s1", pd.NA, "s2"], dtype="string"),
-            "count": [1, 2, 3],
-        },
-        index=pd.Index([101, "cell-2", 303], name="cell_id"),
-    )
-    out = h5ad_safe_obs(obs)
-    assert out is not obs
-    assert list(out.index) == ["101", "cell-2", "303"]
-    assert str(out["label"].dtype) == "category"
-    assert str(out["sample"].dtype) == "category"
-    assert str(out["count"].dtype) == "int64"
-    assert out["label"].isna().tolist() == [False, True, False]
-    assert out["sample"].isna().tolist() == [False, True, False]
-    return {"status": "checked"}
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-single-cell-modeling", kernel_file=__file__))

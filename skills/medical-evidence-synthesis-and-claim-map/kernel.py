@@ -6,7 +6,6 @@ citations, issue verdicts, sign receipts, create blockers, or claim readiness.
 
 from __future__ import annotations
 
-import json
 from typing import Iterable, Mapping
 
 
@@ -110,16 +109,11 @@ def evidence_synthesis_handoff_skeleton() -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    rows = claim_evidence_matrix_skeleton(["A"], ["source:1"])
-    assert rows[0]["claim_ref"] == "claim_1"
-    assert rows[0]["support_strength"] == "missing"
-    assert support_strength_vocab_lint([{"support_strength": "strong"}])[0]["code"]
-    assert not support_strength_vocab_lint([{"support_strength": "direct_primary"}])
-    assert claim_inventory_skeleton(["A"])[0]["claim"] == "A"
-    assert "owner_gate_handoff_ref" in evidence_synthesis_handoff_skeleton()
-    print(json.dumps({"ok": True, "checks": 6}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-evidence-synthesis-and-claim-map", kernel_file=__file__))

@@ -160,8 +160,9 @@ scripts/verify.sh render
 scripts/verify.sh full
 ```
 
-`fast` 检查 contracts、adapters、仓库一致性和 Skill kernels；`render` 检查 Gallery
-与 renderer regression；`full` 运行两者。任何 lane 通过都只证明对应仓库表面，不
+`fast` 通过 `uv run --frozen pytest`（依赖锁定于 `pyproject.toml` / `uv.lock`）检查
+contracts、adapters、仓库一致性（`tests/consistency/`）和 Skill kernels（`tests/kernels/`）；
+`render` 检查 Gallery 与 renderer regression；`full` 运行两者。任何 lane 通过都只证明对应仓库表面，不
 代表 runtime、domain、artifact、publication 或 production ready。
 
 ## 文档

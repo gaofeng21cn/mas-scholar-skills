@@ -7,7 +7,6 @@ correctness, phenotype validity, or owner acceptance.
 
 from __future__ import annotations
 
-import json
 from collections.abc import Iterable, Mapping
 
 
@@ -197,49 +196,11 @@ def clinical_note_handoff_skeleton() -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    payload = note_abstraction_skeleton("note-1", "schema-1", ["smoking", "age"])
-    assert validate_note_abstraction("No tobacco use.", payload)["ok"] is True
-
-    payload["records"][0].update(
-        {
-            "null_reason": "explicitly_absent",
-            "verbatim_span": "No tobacco use",
-            "span_start": 0,
-            "span_end": 14,
-            "presence": "absent",
-            "temporality": "current",
-            "experiencer": "patient",
-        }
-    )
-    payload["completeness"]["evidenced_field_count"] = 1
-    assert validate_note_abstraction("No tobacco use.", payload)["ok"] is True
-
-    payload["records"][0]["verbatim_span"] = "tobacco"
-    assert "records[0]:span_mismatch" in validate_note_abstraction("No tobacco use.", payload)["errors"]
-
-    closed_shape = note_abstraction_skeleton("note-2", "schema-1", ["age"])
-    closed_shape["unexpected"] = True
-    assert "payload_shape" in validate_note_abstraction("Age 42.", closed_shape)["errors"]
-
-    null_consistency = note_abstraction_skeleton("note-3", "schema-1", ["age"])
-    null_consistency["records"][0]["candidate_value"] = 42
-    assert "records[0]:non_null_with_null_reason" in validate_note_abstraction(
-        "Age 42.", null_consistency
-    )["errors"]
-
-    assertion_enum = note_abstraction_skeleton("note-4", "schema-1", ["age"])
-    assertion_enum["records"][0]["presence"] = "confirmed"
-    assert "records[0]:presence" in validate_note_abstraction("Age 42.", assertion_enum)["errors"]
-
-    count_consistency = note_abstraction_skeleton("note-5", "schema-1", ["age"])
-    count_consistency["completeness"]["null_field_count"] = 0
-    assert "completeness_mismatch" in validate_note_abstraction(
-        "Age 42.", count_consistency
-    )["errors"]
-    assert "chart_review_validation_candidate_ref" in clinical_note_handoff_skeleton()
-    print(json.dumps({"ok": True, "checks": 8}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-clinical-note-abstraction", kernel_file=__file__))

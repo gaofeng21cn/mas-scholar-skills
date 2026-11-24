@@ -6,7 +6,6 @@ attempts, MAS truth, owner receipts, or typed blockers live here.
 
 from __future__ import annotations
 
-import json
 import re
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -150,21 +149,11 @@ def _sorted_strings(value: Any) -> list[str]:
     return sorted({str(item).strip() for item in _as_list(value) if str(item).strip()})
 
 
-def _self_check() -> None:
-    spec = normalize_env_spec(
-        {"python": "3.11", "dependencies": ["numpy", " scipy ", "numpy"], "env_vars": ["TOKEN=x"], "hardware": {"gpu": 1}}
-    )
-    assert spec["packages"] == ["numpy", "scipy"]
-    assert spec["env_vars"] == ["TOKEN"]
-    assert provider_intent_envelope("fit model", "modal")["authority"] is False
-    assert compute_handoff_skeleton("fit")["candidate_refs"] == []
-    summary = summarize_compute_log("warning\napi_key=abc\nERROR exit code: 137")
-    assert summary["exit_code"] == 137
-    assert summary["signals"]["errors"] == 1
-    assert lint_forbidden_authority_claims("runtime ready with owner receipt")
-    assert helper_receipt_skeleton("cmd")["receipt_kind"] == "scientific_compute_helper_receipt_ref"
-    print(json.dumps({"ok": True, "checks": 7}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("scientific-compute-runner", kernel_file=__file__))

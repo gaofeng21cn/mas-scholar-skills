@@ -147,42 +147,11 @@ def _claim_binding_finding(
     }
 
 
-def _self_check() -> None:
-    assert story_axis_key("Treatment Gap / 2024") == "treatment_gap_2024"
-    row = figure_table_story_row("table1", "claim:a", "denom:b")
-    assert row["writes_authority"] is False
-    assert registry_story_skeleton("question:x")["authority"]["refs_only"] is True
-    assert lint_overclaim_terms("causal service quality claim")
-    central_claim = {
-        "claim_ref": "claim:center-dependence",
-        "locations": ["abstract", "conclusion"],
-        "expected_display_refs": ["T4", "TS4"],
-    }
-    missing_row = lint_center_sensitivity_claim_binding([central_claim], [])
-    assert {item["code"] for item in missing_row} == {
-        "CENTRAL_SENSITIVITY_CLAIM_ROW_MISSING"
-    }
-    incomplete_row = lint_center_sensitivity_claim_binding(
-        [central_claim], [{"claim_ref": "claim:center-dependence"}]
-    )
-    assert {item["code"] for item in incomplete_row} >= {
-        "CENTRAL_SENSITIVITY_ANALYSIS_SOURCE_MISSING",
-        "CENTRAL_SENSITIVITY_DISPLAY_REFS_MISSING",
-    }
-    complete_row = lint_center_sensitivity_claim_binding(
-        [central_claim],
-        [
-            {
-                "claim_ref": "claim:center-dependence",
-                "analysis_source_ref": "analysis://center-sensitivity",
-                "display_refs": ["T4", "TS4"],
-            }
-        ],
-    )
-    assert complete_row == []
-    assert all(item["writes_authority"] is False for item in missing_row)
-    print({"checks": 8, "ok": True})
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-registry-atlas-story-architect", kernel_file=__file__))

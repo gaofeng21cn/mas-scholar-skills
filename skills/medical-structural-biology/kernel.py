@@ -6,7 +6,6 @@ not run folding/docking models, mutate artifacts, or claim MAS authority.
 
 from __future__ import annotations
 
-import json
 import re
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -88,15 +87,11 @@ def _float_or_none(value: Any) -> float | None:
         return None
 
 
-def _self_check() -> None:
-    assert normalize_sequence(" acd ef ") == "ACDEF"
-    assert structure_candidate_skeleton("dock")["candidate_refs"] == []
-    summary = summarize_confidence_metrics({"plddt": 65, "iptm": 0.5, "pae_mean": 12})
-    assert summary["warnings"] == ["low_plddt", "low_iptm", "high_pae_mean"]
-    assert model_output_manifest_skeleton(["pdb:1"])["authority"] is False
-    assert lint_forbidden_authority_claims("publication ready")
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-structural-biology", kernel_file=__file__))

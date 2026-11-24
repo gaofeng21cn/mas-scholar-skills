@@ -140,32 +140,11 @@ def handoff_skeleton(literature_question: str = "") -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    assert extract_dois("See https://doi.org/10.1000/ABC). and doi:10.2000/x.") == [
-        "10.1000/abc",
-        "10.2000/x",
-    ]
-    assert extract_dois(f"doi:10.1000/x{'*' * 10_000}") == ["10.1000/x"]
-    assert normalize_pmid("PMID: 12345") == "12345"
-    assert normalize_pmcid("pmc987") == "PMC987"
-    deduped = dedupe_sources(
-        [
-            {"title": "A Trial", "pmid": "PMID 7"},
-            {"title": "Different", "pmid": "7"},
-            {"title": "A  trial!"},
-        ]
-    )
-    assert len(deduped["retained"]) == 2
-    assert len(deduped["duplicates"]) == 1
-    assert lint_citation_support("PMID: TBD\npublication ready")
-    assert handoff_skeleton("x")["literature_question"] == "x"
-    handoff = handoff_skeleton()
-    assert handoff["opl_connect_search_ref"] == ""
-    assert handoff["opl_connect_reference_verification_ref"] == ""
-    assert handoff["pubmed_source_refs"] == []
-    assert not any("connector_invocation" in field for field in handoff)
-
-
 if __name__ == "__main__":
-    _self_check()
-    print("medical-research-lit kernel self-check passed")
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-research-lit", kernel_file=__file__))

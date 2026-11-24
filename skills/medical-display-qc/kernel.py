@@ -7,11 +7,38 @@ import hashlib
 import json
 import math
 import re
+import sys
 from collections import Counter
 from itertools import combinations
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Any, Mapping, Sequence
+from typing import Any, Literal, Mapping, Sequence
+
+from pydantic import model_validator
+from shapely.geometry import LineString, Point, box as shapely_box
+
+_REPO_ROOT = str(Path(__file__).resolve().parents[2])
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+from runtime.kernel_validation import (  # noqa: E402
+    FiniteNumber,
+    FlexibleSha256Digest,
+    NormalizedSha256Digest,
+    OpenKernelModel,
+    PositiveFiniteNumber,
+    Sha256Digest,
+    StrictKernelModel,
+    StrictPositiveInt,
+    StrippedNonEmptyStr,
+    ValidationError,
+    is_exact_ref,
+    is_sha256_digest,
+    normalize_sha256_digest,
+    parse_exact_ref,
+    parse_finite_number,
+    parse_non_negative_exact_ref,
+    parse_number_sequence,
+)
 
 
 DISPLAY_QC_REFS = (
@@ -104,6 +131,56 @@ def normalize_evidence_ref(value: object) -> str:
     return text.strip(" .;,")
 
 
+class _FontLockModel(OpenKernelModel):
+    font_file_ref: StrippedNonEmptyStr
+    font_file_sha256: Sha256Digest
+
+
+class _RendererLockModel(OpenKernelModel):
+    family: StrippedNonEmptyStr
+    version: StrippedNonEmptyStr
+    headless_backend: StrippedNonEmptyStr
+
+
+class _ExportDimensionsModel(StrictKernelModel):
+    width: PositiveFiniteNumber
+    height: PositiveFiniteNumber
+    unit: Literal["px", "pt"]
+
+
+class _ExportCropBoundsModel(StrictKernelModel):
+    coordinates: tuple[FiniteNumber, FiniteNumber, FiniteNumber, FiniteNumber]
+    unit: Literal["px", "pt"]
+
+    @model_validator(mode="after")
+    def _ordered_extent(self) -> _ExportCropBoundsModel:
+        x0, y0, x1, y1 = self.coordinates
+        if x1 <= x0 or y1 <= y0:
+            raise ValueError("crop coordinates must have positive width and height")
+        return self
+
+
+class _ExpectedMemberModel(OpenKernelModel):
+    member_id: StrippedNonEmptyStr
+    role: StrippedNonEmptyStr
+
+
+class _InventoryMemberModel(OpenKernelModel):
+    member_id: StrippedNonEmptyStr
+    role: StrippedNonEmptyStr
+    ref: StrippedNonEmptyStr
+    size_bytes: StrictPositiveInt
+    sha256: NormalizedSha256Digest
+
+
+class _RasterPageModel(OpenKernelModel):
+    page_number: StrictPositiveInt
+    width: StrictPositiveInt
+    height: StrictPositiveInt
+    pixel_format: StrippedNonEmptyStr
+    pixel_sha256: FlexibleSha256Digest
+
+
 def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[str, Any]:
     """Audit renderer/font locks and semantic parity of the final raster/vector pair."""
 
@@ -113,16 +190,21 @@ def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[s
         findings.append(_layout_violation("display_font_locks_missing"))
         font_locks = []
     for index, lock in enumerate(font_locks):
-        if not isinstance(lock, Mapping) or not str(lock.get("font_file_ref") or "").strip() or re.fullmatch(
-            r"sha256:[0-9a-f]{64}", str(lock.get("font_file_sha256") or "")
-        ) is None:
+        if not isinstance(lock, Mapping):
+            findings.append(_layout_violation("display_font_lock_invalid", index=index))
+            continue
+        try:
+            _FontLockModel.model_validate(dict(lock))
+        except ValidationError:
             findings.append(_layout_violation("display_font_lock_invalid", index=index))
     renderer = candidate.get("renderer_lock")
-    if not isinstance(renderer, Mapping) or not all(
-        str(renderer.get(field) or "").strip()
-        for field in ("family", "version", "headless_backend")
-    ):
+    if not isinstance(renderer, Mapping):
         findings.append(_layout_violation("display_renderer_lock_invalid"))
+    else:
+        try:
+            _RendererLockModel.model_validate(dict(renderer))
+        except ValidationError:
+            findings.append(_layout_violation("display_renderer_lock_invalid"))
     if candidate.get("renderer_draw_complete") is not True:
         findings.append(_layout_violation("display_renderer_draw_incomplete"))
     if candidate.get("artist_scope") != "all_text_artists":
@@ -157,53 +239,44 @@ def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[s
             "panel_order_sha256",
             "source_fingerprint",
         ):
-            value = str(export.get(field) or "")
-            valid = re.fullmatch(r"sha256:[0-9a-f]{64}", value) is not None
-            if not valid:
+            if not is_sha256_digest(export.get(field)):
                 findings.append(
                     _layout_violation(
                         "display_paired_export_field_invalid", index=index, field=field
                     )
                 )
-        dimensions = export.get("dimensions")
-        dimensions_valid = (
-            isinstance(dimensions, Mapping)
-            and set(dimensions) == {"width", "height", "unit"}
-            and _display_render_finite_number(dimensions.get("width"))
-            and _display_render_finite_number(dimensions.get("height"))
-            and float(dimensions.get("width")) > 0
-            and float(dimensions.get("height")) > 0
-            and dimensions.get("unit") == ("px" if artifact_format == "png" else "pt")
-        )
-        if not dimensions_valid:
+        expected_unit = "px" if artifact_format == "png" else "pt"
+        raw_dimensions = export.get("dimensions")
+        parsed_dimensions: _ExportDimensionsModel | None = None
+        if isinstance(raw_dimensions, Mapping):
+            try:
+                candidate_dims = _ExportDimensionsModel.model_validate(dict(raw_dimensions))
+                if candidate_dims.unit == expected_unit:
+                    parsed_dimensions = candidate_dims
+            except ValidationError:
+                parsed_dimensions = None
+        if parsed_dimensions is None:
             findings.append(
                 _layout_violation("display_paired_export_dimensions_invalid", index=index)
             )
-        crop = export.get("crop_bounds")
-        crop_coordinates = (
-            crop.get("coordinates") if isinstance(crop, Mapping) else None
-        )
-        crop_valid = (
-            isinstance(crop, Mapping)
-            and set(crop) == {"coordinates", "unit"}
-            and dimensions_valid
-            and crop.get("unit") == dimensions.get("unit")
-            and isinstance(crop_coordinates, Sequence)
-            and not isinstance(crop_coordinates, (str, bytes))
-            and len(crop_coordinates) == 4
-            and all(
-                _display_render_finite_number(value) for value in crop_coordinates
-            )
-            and float(crop_coordinates[2]) > float(crop_coordinates[0])
-            and float(crop_coordinates[3]) > float(crop_coordinates[1])
-        )
-        if not crop_valid:
+        raw_crop = export.get("crop_bounds")
+        parsed_crop: _ExportCropBoundsModel | None = None
+        if parsed_dimensions is not None and isinstance(raw_crop, Mapping):
+            raw_coords = raw_crop.get("coordinates")
+            if isinstance(raw_coords, Sequence) and not isinstance(raw_coords, (str, bytes)):
+                try:
+                    candidate_crop = _ExportCropBoundsModel.model_validate(
+                        {**dict(raw_crop), "coordinates": tuple(raw_coords)}
+                    )
+                    if candidate_crop.unit == parsed_dimensions.unit:
+                        parsed_crop = candidate_crop
+                except ValidationError:
+                    parsed_crop = None
+        if parsed_crop is None:
             findings.append(_layout_violation("display_paired_export_crop_invalid", index=index))
-        elif (
-            float(crop_coordinates[0]) < 0
-            or float(crop_coordinates[1]) < 0
-            or float(crop_coordinates[2]) > float(dimensions["width"])
-            or float(crop_coordinates[3]) > float(dimensions["height"])
+        elif parsed_dimensions is not None and not _bbox_inside(
+            parsed_crop.coordinates,
+            (0.0, 0.0, float(parsed_dimensions.width), float(parsed_dimensions.height)),
         ):
             findings.append(
                 _layout_violation("display_paired_export_crop_outside_dimensions", index=index)
@@ -216,11 +289,9 @@ def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[s
         )
         resolution = export.get("resolution_per_inch")
         if artifact_format == "png":
-            resolution_valid = (
-                _display_render_finite_number(resolution)
-                and float(resolution) > 0
-            )
-            units_per_inch = float(resolution) if resolution_valid else None
+            parsed_res = parse_finite_number(resolution)
+            resolution_valid = parsed_res is not None and parsed_res > 0
+            units_per_inch = parsed_res if resolution_valid else None
         else:
             resolution_valid = resolution is None
             units_per_inch = 72.0
@@ -233,15 +304,15 @@ def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[s
         if (
             physical_dimensions is None
             or any(value <= 0 for value in physical_dimensions)
-            or not dimensions_valid
+            or parsed_dimensions is None
             or units_per_inch is None
             or not all(
                 math.isclose(observed, expected, rel_tol=0.0, abs_tol=1e-6)
                 for observed, expected in zip(
                     physical_dimensions,
                     (
-                        float(dimensions["width"]) / units_per_inch,
-                        float(dimensions["height"]) / units_per_inch,
+                        float(parsed_dimensions.width) / units_per_inch,
+                        float(parsed_dimensions.height) / units_per_inch,
                     ),
                     strict=True,
                 )
@@ -254,17 +325,18 @@ def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[s
             )
         if (
             normalized_crop is None
-            or not crop_valid
+            or parsed_crop is None
+            or parsed_dimensions is None
             or not all(0.0 <= value <= 1.0 for value in normalized_crop)
             or not all(
                 math.isclose(observed, expected, rel_tol=0.0, abs_tol=1e-9)
                 for observed, expected in zip(
                     normalized_crop,
                     (
-                        float(crop_coordinates[0]) / float(dimensions["width"]),
-                        float(crop_coordinates[1]) / float(dimensions["height"]),
-                        float(crop_coordinates[2]) / float(dimensions["width"]),
-                        float(crop_coordinates[3]) / float(dimensions["height"]),
+                        parsed_crop.coordinates[0] / float(parsed_dimensions.width),
+                        parsed_crop.coordinates[1] / float(parsed_dimensions.height),
+                        parsed_crop.coordinates[2] / float(parsed_dimensions.width),
+                        parsed_crop.coordinates[3] / float(parsed_dimensions.height),
                     ),
                     strict=True,
                 )
@@ -310,42 +382,17 @@ def validate_display_render_integrity(candidate: Mapping[str, object]) -> dict[s
 
 
 def _display_render_exact_ref_valid(value: object) -> bool:
-    if not isinstance(value, Mapping) or set(value) != EXACT_REF_FIELDS:
-        return False
-    size_bytes = value.get("size_bytes")
-    return (
-        bool(normalize_evidence_ref(value.get("kind")))
-        and bool(normalize_evidence_ref(value.get("ref")))
-        and not isinstance(size_bytes, bool)
-        and isinstance(size_bytes, int)
-        and size_bytes > 0
-        and re.fullmatch(
-            r"sha256:[0-9a-f]{64}",
-            str(value.get("sha256") or "").strip().lower(),
-        )
-        is not None
-    )
+    return is_exact_ref(value, normalize_case=True)
 
 
 def _display_render_finite_number(value: object) -> bool:
-    return (
-        not isinstance(value, bool)
-        and isinstance(value, (int, float))
-        and math.isfinite(float(value))
-    )
+    return parse_finite_number(value) is not None
 
 
 def _display_render_number_sequence(
     value: object, expected_length: int
 ) -> list[float] | None:
-    if (
-        not isinstance(value, Sequence)
-        or isinstance(value, (str, bytes))
-        or len(value) != expected_length
-        or not all(_display_render_finite_number(item) for item in value)
-    ):
-        return None
-    return [float(item) for item in value]
+    return parse_number_sequence(value, expected_length)
 
 
 def validate_figure_numbering_one_owner(
@@ -1141,18 +1188,8 @@ def _document_scope_exact_ref(
             )
         )
         return None
-    kind = normalize_evidence_ref(value.get("kind"))
-    ref = normalize_evidence_ref(value.get("ref"))
-    size_bytes = value.get("size_bytes")
-    digest = str(value.get("sha256") or "").strip().lower()
-    if (
-        not kind
-        or not ref
-        or isinstance(size_bytes, bool)
-        or not isinstance(size_bytes, int)
-        or size_bytes < 1
-        or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
-    ):
+    parsed = parse_exact_ref(value, normalize_case=True)
+    if parsed is None:
         findings.append(
             _finding(
                 "DOCUMENT_DISPLAY_REQUIRED_EXACT_REF_INVALID",
@@ -1164,10 +1201,10 @@ def _document_scope_exact_ref(
         )
         return None
     return {
-        "kind": kind,
-        "ref": ref,
-        "size_bytes": size_bytes,
-        "sha256": digest,
+        "kind": normalize_evidence_ref(parsed.kind),
+        "ref": normalize_evidence_ref(parsed.ref),
+        "size_bytes": parsed.size_bytes,
+        "sha256": parsed.sha256,
     }
 
 
@@ -1198,10 +1235,9 @@ def _expected_document_members(
                 )
             )
             continue
-        member_id = normalize_evidence_ref(item.get("member_id"))
-        role = str(item.get("role") or "").strip().lower()
-        identity = (member_id, role)
-        if not member_id or not role:
+        try:
+            parsed = _ExpectedMemberModel.model_validate(dict(item))
+        except ValidationError:
             findings.append(
                 _finding(
                     "DOCUMENT_DISPLAY_EXPECTED_MEMBER_ROW_INCOMPLETE",
@@ -1211,6 +1247,9 @@ def _expected_document_members(
                 )
             )
             continue
+        member_id = normalize_evidence_ref(parsed.member_id)
+        role = parsed.role.lower()
+        identity = (member_id, role)
         if identity in seen:
             findings.append(
                 _finding(
@@ -1256,20 +1295,9 @@ def _document_scope_inventory(
                 )
             )
             continue
-        member_id = normalize_evidence_ref(item.get("member_id"))
-        role = str(item.get("role") or "").strip().lower()
-        ref = normalize_evidence_ref(item.get("ref"))
-        size_bytes = item.get("size_bytes")
-        digest = str(item.get("sha256") or "").strip().lower()
-        if (
-            not member_id
-            or not role
-            or not ref
-            or isinstance(size_bytes, bool)
-            or not isinstance(size_bytes, int)
-            or size_bytes < 1
-            or re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
-        ):
+        try:
+            parsed = _InventoryMemberModel.model_validate(dict(item))
+        except ValidationError:
             findings.append(
                 _finding(
                     "DOCUMENT_DISPLAY_INVENTORY_ROW_INCOMPLETE",
@@ -1279,6 +1307,9 @@ def _document_scope_inventory(
                 )
             )
             continue
+        member_id = normalize_evidence_ref(parsed.member_id)
+        role = parsed.role.lower()
+        ref = normalize_evidence_ref(parsed.ref)
         identity = (member_id, role)
         if identity in seen:
             findings.append(
@@ -1298,8 +1329,8 @@ def _document_scope_inventory(
                 "member_id": member_id,
                 "role": role,
                 "ref": ref,
-                "size_bytes": size_bytes,
-                "sha256": digest,
+                "size_bytes": parsed.size_bytes,
+                "sha256": parsed.sha256,
             }
         )
     return entries
@@ -1358,11 +1389,7 @@ def _canonical_json_sha256(value: object) -> str:
 
 
 def _sha256_digest(value: object, label: str) -> str:
-    text = str(value or "").strip().lower()
-    digest = text.removeprefix("sha256:")
-    if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
-        raise ValueError(f"{label} must be a SHA-256 digest")
-    return f"sha256:{digest}"
+    return normalize_sha256_digest(value, label)
 
 
 def _origin_ref(value: object) -> object | None:
@@ -1370,29 +1397,20 @@ def _origin_ref(value: object) -> object | None:
         return None
     if not isinstance(value, Mapping):
         raise ValueError("origin_reviewer_evidence_ref must be an exact-ref mapping or null")
-    expected_fields = {"kind", "ref", "size_bytes", "sha256"}
-    if set(value) != expected_fields:
+    if set(value) != EXACT_REF_FIELDS:
         raise ValueError(
             "origin_reviewer_evidence_ref must contain exactly kind, ref, "
             "size_bytes, and sha256"
         )
-    normalized_kind = normalize_evidence_ref(value.get("kind"))
-    normalized_ref = normalize_evidence_ref(value.get("ref"))
-    if not normalized_kind or not normalized_ref:
-        raise ValueError("origin_reviewer_evidence_ref kind and ref must be non-empty")
-    normalized_sha256 = _sha256_digest(
-        value.get("sha256"), "origin_reviewer_evidence_ref.sha256"
-    )
-    size_bytes = value.get("size_bytes")
-    if isinstance(size_bytes, bool) or not isinstance(size_bytes, int) or size_bytes < 0:
-        raise ValueError(
-            "origin_reviewer_evidence_ref.size_bytes must be a non-negative integer"
-        )
+    try:
+        parsed = parse_non_negative_exact_ref(value)
+    except ValidationError as exc:
+        raise ValueError(f"origin_reviewer_evidence_ref invalid: {exc}") from exc
     return {
-        "kind": normalized_kind,
-        "ref": normalized_ref,
-        "size_bytes": size_bytes,
-        "sha256": normalized_sha256,
+        "kind": normalize_evidence_ref(parsed.kind),
+        "ref": normalize_evidence_ref(parsed.ref),
+        "size_bytes": parsed.size_bytes,
+        "sha256": parsed.sha256,
     }
 
 
@@ -1407,32 +1425,21 @@ def build_page_hash_evidence_candidate(
 
     normalized_pages: list[dict[str, Any]] = []
     for index, value in enumerate(pages, start=1):
-        page_number = value.get("page_number")
-        width = value.get("width")
-        height = value.get("height")
-        pixel_format = str(value.get("pixel_format") or "").strip()
-        if page_number != index or isinstance(page_number, bool):
+        try:
+            page = _RasterPageModel.model_validate(dict(value))
+        except ValidationError as exc:
+            raise ValueError(f"pages[{index - 1}] invalid: {exc}") from exc
+        if page.page_number != index:
             raise ValueError("pages must use contiguous document-order page_number values")
-        if (
-            isinstance(width, bool)
-            or not isinstance(width, int)
-            or width <= 0
-            or isinstance(height, bool)
-            or not isinstance(height, int)
-            or height <= 0
-        ):
-            raise ValueError("page width and height must be positive integers")
-        if pixel_format != PAGE_HASH_RASTER_CONTRACT["pixel_format"]:
+        if page.pixel_format != PAGE_HASH_RASTER_CONTRACT["pixel_format"]:
             raise ValueError("page pixel_format must match the fixed raster contract")
         normalized_pages.append(
             {
-                "page_number": page_number,
-                "width": width,
-                "height": height,
-                "pixel_format": pixel_format,
-                "pixel_sha256": _sha256_digest(
-                    value.get("pixel_sha256"), f"pages[{index - 1}].pixel_sha256"
-                ),
+                "page_number": page.page_number,
+                "width": page.width,
+                "height": page.height,
+                "pixel_format": page.pixel_format,
+                "pixel_sha256": page.pixel_sha256,
             }
         )
     if not normalized_pages:
@@ -1462,15 +1469,10 @@ def build_page_hash_evidence_candidate(
 
 
 def _layout_number(value: object, label: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
+    parsed = parse_finite_number(value)
+    if parsed is None:
         raise ValueError(f"{label} must be a finite number")
-    try:
-        number = float(value)
-    except OverflowError as exc:
-        raise ValueError(f"{label} must be a finite number") from exc
-    if not math.isfinite(number):
-        raise ValueError(f"{label} must be a finite number")
-    return number
+    return parsed
 
 
 def _layout_bbox(value: object, label: str) -> tuple[float, float, float, float]:
@@ -1488,30 +1490,21 @@ def _bbox_inside(
     inner: tuple[float, float, float, float],
     outer: tuple[float, float, float, float],
 ) -> bool:
-    return (
-        inner[0] >= outer[0]
-        and inner[1] >= outer[1]
-        and inner[2] <= outer[2]
-        and inner[3] <= outer[3]
-    )
+    return bool(shapely_box(*outer).covers(shapely_box(*inner)))
 
 
 def _bbox_overlap_area(
     first: tuple[float, float, float, float],
     second: tuple[float, float, float, float],
 ) -> float:
-    width = max(0.0, min(first[2], second[2]) - max(first[0], second[0]))
-    height = max(0.0, min(first[3], second[3]) - max(first[1], second[1]))
-    return width * height
+    return float(shapely_box(*first).intersection(shapely_box(*second)).area)
 
 
 def _bbox_gap(
     first: tuple[float, float, float, float],
     second: tuple[float, float, float, float],
 ) -> float:
-    dx = max(first[0] - second[2], second[0] - first[2], 0.0)
-    dy = max(first[1] - second[3], second[1] - first[3], 0.0)
-    return math.hypot(dx, dy)
+    return float(shapely_box(*first).distance(shapely_box(*second)))
 
 
 def _semantic_bbox(
@@ -1532,12 +1525,13 @@ def _bbox_inside_tolerance(
     outer: tuple[float, float, float, float],
     tolerance: float = 0.5,
 ) -> bool:
-    return (
-        inner[0] >= outer[0] - tolerance
-        and inner[1] >= outer[1] - tolerance
-        and inner[2] <= outer[2] + tolerance
-        and inner[3] <= outer[3] + tolerance
+    expanded = shapely_box(
+        outer[0] - tolerance,
+        outer[1] - tolerance,
+        outer[2] + tolerance,
+        outer[3] + tolerance,
     )
+    return bool(expanded.covers(shapely_box(*inner)))
 
 
 def _bboxes_close(
@@ -1554,13 +1548,8 @@ def _bboxes_close(
 def _segment_bbox(
     segment: tuple[tuple[float, float], tuple[float, float]]
 ) -> tuple[float, float, float, float]:
-    start, end = segment
-    return (
-        min(start[0], end[0]),
-        min(start[1], end[1]),
-        max(start[0], end[0]),
-        max(start[1], end[1]),
-    )
+    minx, miny, maxx, maxy = LineString(segment).bounds
+    return (float(minx), float(miny), float(maxx), float(maxy))
 
 
 def _point_on_bbox_boundary(
@@ -1568,22 +1557,15 @@ def _point_on_bbox_boundary(
     bbox: tuple[float, float, float, float],
     tolerance: float = 0.5,
 ) -> bool:
-    x_value, y_value = point
     x0, y0, x1, y1 = bbox
-    inside_extended = (
-        x0 - tolerance <= x_value <= x1 + tolerance
-        and y0 - tolerance <= y_value <= y1 + tolerance
-    )
-    on_edge = any(
-        math.isclose(observed, edge, abs_tol=tolerance)
-        for observed, edge in (
-            (x_value, x0),
-            (x_value, x1),
-            (y_value, y0),
-            (y_value, y1),
-        )
-    )
-    return inside_extended and on_edge
+    pt = Point(point)
+    outer = shapely_box(x0 - tolerance, y0 - tolerance, x1 + tolerance, y1 + tolerance)
+    if not outer.covers(pt):
+        return False
+    if x1 - x0 <= 2 * tolerance or y1 - y0 <= 2 * tolerance:
+        return True
+    inner = shapely_box(x0 + tolerance, y0 + tolerance, x1 - tolerance, y1 - tolerance)
+    return not inner.contains(pt)
 
 
 def _semantic_segment(
@@ -1654,31 +1636,12 @@ def _segments_close(
     )
 
 
-def _segment_orientation(
-    first: tuple[float, float],
-    second: tuple[float, float],
-    third: tuple[float, float],
-) -> float:
-    return (second[0] - first[0]) * (third[1] - first[1]) - (
-        second[1] - first[1]
-    ) * (third[0] - first[0])
-
-
 def _point_on_segment(
     point: tuple[float, float],
     segment: tuple[tuple[float, float], tuple[float, float]],
     tolerance: float = 1e-6,
 ) -> bool:
-    start, end = segment
-    return (
-        abs(_segment_orientation(start, end, point)) <= tolerance
-        and min(start[0], end[0]) - tolerance
-        <= point[0]
-        <= max(start[0], end[0]) + tolerance
-        and min(start[1], end[1]) - tolerance
-        <= point[1]
-        <= max(start[1], end[1]) + tolerance
-    )
+    return bool(Point(point).distance(LineString(segment)) <= tolerance)
 
 
 def _segments_intersect(
@@ -1686,28 +1649,7 @@ def _segments_intersect(
     second: tuple[tuple[float, float], tuple[float, float]],
     tolerance: float = 1e-6,
 ) -> bool:
-    first_start, first_end = first
-    second_start, second_end = second
-    orientations = (
-        _segment_orientation(first_start, first_end, second_start),
-        _segment_orientation(first_start, first_end, second_end),
-        _segment_orientation(second_start, second_end, first_start),
-        _segment_orientation(second_start, second_end, first_end),
-    )
-    if (
-        orientations[0] * orientations[1] < -(tolerance**2)
-        and orientations[2] * orientations[3] < -(tolerance**2)
-    ):
-        return True
-    return any(
-        abs(orientation) <= tolerance and _point_on_segment(point, segment, tolerance)
-        for orientation, point, segment in (
-            (orientations[0], second_start, first),
-            (orientations[1], second_end, first),
-            (orientations[2], first_start, second),
-            (orientations[3], first_end, second),
-        )
-    )
+    return bool(LineString(first).distance(LineString(second)) <= tolerance)
 
 
 def _segment_intersects_bbox_interior(
@@ -1718,29 +1660,8 @@ def _segment_intersects_bbox_interior(
     x0, y0, x1, y1 = bbox
     if x1 - x0 <= 2 * inset or y1 - y0 <= 2 * inset:
         inset = 0.0
-    left, bottom, right, top = x0 + inset, y0 + inset, x1 - inset, y1 - inset
-    start, end = segment
-    dx = end[0] - start[0]
-    dy = end[1] - start[1]
-    lower, upper = 0.0, 1.0
-    for p_value, q_value in (
-        (-dx, start[0] - left),
-        (dx, right - start[0]),
-        (-dy, start[1] - bottom),
-        (dy, top - start[1]),
-    ):
-        if abs(p_value) <= 1e-12:
-            if q_value < 0:
-                return False
-            continue
-        ratio = q_value / p_value
-        if p_value < 0:
-            lower = max(lower, ratio)
-        else:
-            upper = min(upper, ratio)
-        if lower > upper:
-            return False
-    return lower <= upper
+    interior = shapely_box(x0 + inset, y0 + inset, x1 - inset, y1 - inset)
+    return bool(LineString(segment).intersects(interior))
 
 
 def _semantic_scope_text(value: object) -> str:
@@ -4952,14 +4873,19 @@ def _main(argv: list[str] | None = None) -> int:
     mode.add_argument(
         "--layout-registry", metavar="JSON", help="renderer-produced bbox registry"
     )
+    mode.add_argument(
+        "--self-check",
+        action="store_true",
+        help="run the extracted pytest suite for medical-display-qc",
+    )
     parser.add_argument("--png", metavar="PATH", help="final fixed-canvas PNG")
     parser.add_argument("--pdf", metavar="PATH", help="final fixed-canvas PDF")
     args = parser.parse_args(argv)
-    if args.inspect is None and args.layout_registry is None:
+    if args.self_check or (args.inspect is None and args.layout_registry is None):
         if args.png or args.pdf:
             parser.error("--png and --pdf require --layout-registry")
-        _self_check()
-        return 0
+        from runtime.kernel_validation import delegate_self_check
+        return delegate_self_check("medical-display-qc", kernel_file=__file__)
     if args.inspect is not None:
         if args.png or args.pdf:
             parser.error("--png and --pdf cannot be combined with --inspect")
@@ -4978,1342 +4904,9 @@ def _main(argv: list[str] | None = None) -> int:
     return 0 if receipt["machine_check_status"] == "geometry_checks_passed" else 2
 
 
-def _self_check() -> None:
-    digest = "sha256:" + "a" * 64
-    def render_exact_ref(artifact_format: str) -> dict[str, object]:
-        return {
-            "kind": f"final_{artifact_format}_export",
-            "ref": f"artifact://figure-1.{artifact_format}",
-            "size_bytes": 100,
-            "sha256": digest,
-        }
-
-    render_integrity_candidate = {
-        "font_locks": [
-            {"font_file_ref": "font://source-sans", "font_file_sha256": digest}
-        ],
-        "renderer_lock": {
-            "family": "matplotlib",
-            "version": "3.x",
-            "headless_backend": "Agg",
-        },
-        "renderer_draw_complete": True,
-        "artist_scope": "all_text_artists",
-        "single_generation_source_ref": "source://figure-1",
-        "paired_exports": [
-            {
-                "format": artifact_format,
-                "artifact_ref": render_exact_ref(artifact_format),
-                "visible_payload_sha256": digest,
-                "labels_sha256": digest,
-                "panel_order_sha256": digest,
-                "source_fingerprint": digest,
-                "dimensions": {
-                    "width": 1800 if artifact_format == "png" else 432,
-                    "height": 900 if artifact_format == "png" else 216,
-                    "unit": "px" if artifact_format == "png" else "pt",
-                },
-                "crop_bounds": {
-                    "coordinates": (
-                        [0, 0, 1800, 900]
-                        if artifact_format == "png"
-                        else [0, 0, 432, 216]
-                    ),
-                    "unit": "px" if artifact_format == "png" else "pt",
-                },
-                "resolution_per_inch": 300 if artifact_format == "png" else None,
-                "physical_dimensions_inches": [6, 3],
-                "normalized_crop_bounds": [0, 0, 1, 1],
-            }
-            for artifact_format in ("png", "pdf")
-        ],
-        "final_scale_visual_note": "Both exports were inspected at final manuscript scale.",
-        "authority": False,
-    }
-    render_integrity = validate_display_render_integrity(render_integrity_candidate)
-    assert render_integrity["machine_check_status"] == "candidate_complete"
-    payload_tamper = json.loads(json.dumps(render_integrity_candidate))
-    payload_tamper["paired_exports"][1]["visible_payload_sha256"] = (
-        "sha256:" + "b" * 64
-    )
-    payload_tamper_audit = validate_display_render_integrity(payload_tamper)
-    assert "display_paired_export_parity_mismatch" in {
-        item["code"] for item in payload_tamper_audit["findings"]
-    }
-    malformed_artifact_ref = json.loads(json.dumps(render_integrity_candidate))
-    malformed_artifact_ref["paired_exports"][0]["artifact_ref"].pop("size_bytes")
-    assert "display_paired_export_exact_ref_invalid" in {
-        item["code"]
-        for item in validate_display_render_integrity(malformed_artifact_ref)[
-            "findings"
-        ]
-    }
-    nonfinite_crop = json.loads(json.dumps(render_integrity_candidate))
-    nonfinite_crop["paired_exports"][0]["crop_bounds"]["coordinates"][2] = float("inf")
-    assert "display_paired_export_crop_invalid" in {
-        item["code"]
-        for item in validate_display_render_integrity(nonfinite_crop)["findings"]
-    }
-    physical_mismatch = json.loads(json.dumps(render_integrity_candidate))
-    physical_mismatch["paired_exports"][1]["physical_dimensions_inches"] = [5, 3]
-    assert "display_paired_export_parity_mismatch" in {
-        item["code"]
-        for item in validate_display_render_integrity(physical_mismatch)["findings"]
-    }
-    unit_mismatch = json.loads(json.dumps(render_integrity_candidate))
-    unit_mismatch["paired_exports"][1]["dimensions"]["unit"] = "px"
-    assert "display_paired_export_dimensions_invalid" in {
-        item["code"]
-        for item in validate_display_render_integrity(unit_mismatch)["findings"]
-    }
-    missing_visual_note = dict(render_integrity_candidate, final_scale_visual_note="")
-    assert "display_final_scale_visual_note_missing" in {
-        item["code"]
-        for item in validate_display_render_integrity(missing_visual_note)["findings"]
-    }
-    assert normalize_evidence_ref("  fig:1 ;") == "fig:1"
-    row = display_artifact_row("artifact:pdf", page_ref=" page 2 ", panel_ref="A")
-    assert row["writes_authority"] is False
-    skeleton = display_qc_skeleton("artifact:pdf")
-    assert "display_qc_support_map_ref" in skeleton["required_refs"]
-    assert "programmatic_figure_audit_ref" in skeleton["required_refs"]
-    assert "display_render_integrity_ref" in skeleton["required_refs"]
-    assert skeleton["authority"]["can_sign_visual_audit_receipt"] is False
-    assert classify_display_qc_route("blank exported panel")["route"] == "artifact_owner_repair"
-    support = display_qc_support_map([{"artifact_ref": "fig:1", "issue": "caption drift"}])
-    assert support[0]["route_back_candidate"] == "caption_numbering_repair"
-    assert lint_forbidden_display_qc_claims("publication-ready with owner receipt")
-    layout_findings = lint_document_layout_inventory(
-        [
-            {
-                "block_id": "F2-legend",
-                "block_kind": "figure_legend",
-                "document_role": "main_document",
-                "artifact_role": "main_figure",
-                "page_start": 22,
-                "page_end": 23,
-            },
-            {
-                "block_id": "S1",
-                "block_kind": "supplementary_figure",
-                "document_role": "main_document",
-                "artifact_role": "supplementary_figure",
-                "page_start": 25,
-                "page_end": 25,
-            },
-            {
-                "block_id": "references",
-                "block_kind": "references",
-                "document_role": "main_document",
-                "artifact_role": "references",
-                "page_start": 25,
-                "page_end": 26,
-            },
-            {
-                "block_id": "discussion-heading",
-                "block_kind": "section_heading",
-                "document_role": "main_document",
-                "artifact_role": "section_heading",
-                "page_start": 30,
-                "page_end": 30,
-                "text": "Discussion",
-            },
-            {
-                "block_id": "discussion-body",
-                "block_kind": "paragraph",
-                "document_role": "main_document",
-                "artifact_role": "text",
-                "page_start": 31,
-                "page_end": 31,
-            },
-            {
-                "block_id": "ts25-continuation-title",
-                "block_kind": "continuation_title",
-                "document_role": "supplement",
-                "artifact_role": "supplementary_table",
-                "page_start": 32,
-                "page_end": 32,
-                "panel_count": 1,
-                "title_text": "TS25, panel 1 of 1",
-            },
-        ]
-    )
-    assert {item["code"] for item in layout_findings} == {
-        "FIGURE_LEGEND_SPLIT_ACROSS_PAGES",
-        "SUPPLEMENTARY_DISPLAY_IN_MAIN_DOCUMENT",
-        "DISPLAY_AND_REFERENCES_SHARE_PAGE",
-        "ORPHAN_SECTION_HEADING_AT_PAGE_END",
-        "SINGLETON_PANEL_LABEL_IN_CONTINUATION_TITLE",
-    }
-    assert all(item["writes_authority"] is False for item in layout_findings)
-    def exact_ref(kind: str, ref: str, digest: str, size_bytes: int = 100) -> dict[str, object]:
-        return {
-            "kind": kind,
-            "ref": ref,
-            "size_bytes": size_bytes,
-            "sha256": f"sha256:{digest * 64}",
-        }
-
-    def inventory_member(
-        member_id: str,
-        role: str,
-        ref: str,
-        digest: str,
-        size_bytes: int = 100,
-    ) -> dict[str, object]:
-        return {
-            "member_id": member_id,
-            "role": role,
-            "ref": ref,
-            "size_bytes": size_bytes,
-            "sha256": f"sha256:{digest * 64}",
-        }
-
-    valid_document_candidate = {
-        "requires_reader_pdf": True,
-        "canonical_manuscript_ref": exact_ref(
-            "canonical_manuscript", "manuscript/paper.md", "1"
-        ),
-        "table_catalog_ref": exact_ref("table_catalog", "tables/catalog.json", "2"),
-        "figure_catalog_ref": exact_ref(
-            "figure_catalog", "figures/catalog.json", "3"
-        ),
-        "caption_legend_manifest_ref": exact_ref(
-            "caption_legend_manifest", "manuscript/captions.json", "4"
-        ),
-        "render_environment_ref": exact_ref(
-            "render_environment", "render/environment.json", "5"
-        ),
-        "font_inventory_ref": exact_ref(
-            "font_inventory", "render/fonts.json", "6"
-        ),
-        "composed_paper_pdf_exact_ref": exact_ref(
-            "composed_paper_pdf", "publication/paper.pdf", "7", 700
-        ),
-        "page_render_evidence_ref": exact_ref(
-            "page_render_evidence", "audit/pages.json", "8"
-        ),
-        "supplement_applicable": True,
-        "supplement_not_applicable_reason": None,
-        "expected_display_members": [
-            {"member_id": "figure-1", "role": "main_figure"},
-            {"member_id": "figure-2", "role": "main_figure"},
-            {"member_id": "table-1", "role": "main_table"},
-        ],
-        "snapshot_inventory": [
-            inventory_member(
-                "paper-main",
-                "selected_layout_main_manuscript",
-                "publication/paper.pdf",
-                "7",
-                700,
-            ),
-            inventory_member(
-                "paper-combined",
-                "reader_combined_main_and_supplementary",
-                "publication/paper_with_supplementary.pdf",
-                "9",
-                900,
-            ),
-            inventory_member("figure-1", "main_figure", "figures/F1.pdf", "a"),
-            inventory_member("figure-2", "main_figure", "figures/F2.pdf", "b"),
-            inventory_member("table-1", "main_table", "tables/T1.docx", "c"),
-        ],
-        "audit_inventory": [
-            inventory_member(
-                "paper-main",
-                "selected_layout_main_manuscript",
-                "audit/paper.pdf",
-                "7",
-                700,
-            ),
-            inventory_member(
-                "paper-combined",
-                "reader_combined_main_and_supplementary",
-                "audit/paper_with_supplementary.pdf",
-                "9",
-                900,
-            ),
-            inventory_member("figure-1", "main_figure", "audit/F1.png", "d"),
-            inventory_member("figure-2", "main_figure", "audit/F2.png", "e"),
-            inventory_member("table-1", "main_table", "audit/T1.png", "f"),
-        ],
-        "authority": False,
-    }
-    valid_document_scope = validate_document_display_scope_coverage(
-        valid_document_candidate
-    )
-    assert valid_document_scope["machine_check_status"] == "candidate_complete"
-
-    missing_members_candidate = json.loads(json.dumps(valid_document_candidate))
-    missing_members_candidate["snapshot_inventory"] = [
-        entry
-        for entry in missing_members_candidate["snapshot_inventory"]
-        if entry["member_id"] != "figure-2"
-    ]
-    missing_members_candidate["audit_inventory"] = [
-        entry
-        for entry in missing_members_candidate["audit_inventory"]
-        if entry["member_id"] != "table-1"
-    ]
-    missing_members = validate_document_display_scope_coverage(
-        missing_members_candidate
-    )
-    assert missing_members["missing_snapshot_members"] == ["figure-2:main_figure"]
-    assert missing_members["missing_audit_members"] == ["table-1:main_table"]
-    assert {item["code"] for item in missing_members["findings"]} >= {
-        "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_SNAPSHOT",
-        "DOCUMENT_DISPLAY_EXPECTED_MEMBER_MISSING_FROM_AUDIT",
-    }
-
-    invalid_pdf_pair_candidate = json.loads(json.dumps(valid_document_candidate))
-    invalid_pdf_pair_candidate["snapshot_inventory"][0]["role"] = "main_composed_pdf"
-    invalid_pdf_pair_candidate["audit_inventory"][0]["ref"] = "audit/manuscript.pdf"
-    invalid_pdf_pair = validate_document_display_scope_coverage(
-        invalid_pdf_pair_candidate
-    )
-    assert {item["code"] for item in invalid_pdf_pair["findings"]} >= {
-        "DOCUMENT_DISPLAY_PAPER_PDF_MISSING_FROM_SNAPSHOT",
-        "DOCUMENT_DISPLAY_PAPER_PDF_MISSING_FROM_AUDIT",
-    }
-
-    missing_durable_refs_candidate = json.loads(json.dumps(valid_document_candidate))
-    missing_durable_refs_candidate.pop("font_inventory_ref")
-    missing_durable_refs_candidate.pop("page_render_evidence_ref")
-    missing_durable_refs_candidate["audit_inventory"].append(
-        inventory_member(
-            "page-audit", "page_render_evidence", "audit/pages.json", "8"
-        )
-    )
-    missing_durable_refs = validate_document_display_scope_coverage(
-        missing_durable_refs_candidate
-    )
-    assert {item["code"] for item in missing_durable_refs["findings"]} >= {
-        "DOCUMENT_DISPLAY_REQUIRED_EXACT_REF_INVALID",
-        "DOCUMENT_DISPLAY_PAGE_EVIDENCE_MISSING",
-    }
-
-    inapplicable_reader_pdf_candidate = json.loads(json.dumps(valid_document_candidate))
-    inapplicable_reader_pdf_candidate["requires_reader_pdf"] = False
-    inapplicable_reader_pdf_candidate["not_applicable_reason"] = "no reader PDF"
-    inapplicable_reader_pdf = validate_document_display_scope_coverage(
-        inapplicable_reader_pdf_candidate
-    )
-    assert inapplicable_reader_pdf["machine_check_status"] == "route_back_required"
-    assert "DOCUMENT_DISPLAY_READER_PDF_NOT_APPLICABLE" in {
-        item["code"] for item in inapplicable_reader_pdf["findings"]
-    }
-
-    valid_supplement_na_candidate = json.loads(json.dumps(valid_document_candidate))
-    valid_supplement_na_candidate["supplement_applicable"] = False
-    valid_supplement_na_candidate[
-        "supplement_not_applicable_reason"
-    ] = "the study has no supplement"
-    valid_supplement_na_candidate["snapshot_inventory"] = [
-        entry
-        for entry in valid_supplement_na_candidate["snapshot_inventory"]
-        if entry["member_id"] != "paper-combined"
-    ]
-    valid_supplement_na_candidate["audit_inventory"] = [
-        entry
-        for entry in valid_supplement_na_candidate["audit_inventory"]
-        if entry["member_id"] != "paper-combined"
-    ]
-    valid_supplement_na = validate_document_display_scope_coverage(
-        valid_supplement_na_candidate
-    )
-    assert valid_supplement_na["machine_check_status"] == "candidate_complete"
-
-    supplement_identity_candidate = json.loads(json.dumps(valid_document_candidate))
-    supplement_identity_candidate["audit_inventory"][1]["sha256"] = f"sha256:{'a' * 64}"
-    supplement_identity = validate_document_display_scope_coverage(
-        supplement_identity_candidate
-    )
-    assert "DOCUMENT_DISPLAY_SUPPLEMENT_PDF_IDENTITY_MISMATCH" in {
-        item["code"] for item in supplement_identity["findings"]
-    }
-    assert _font_embedding_state("Type3", b"") is None
-    assert _font_embedding_state("Type1", b"") is False
-    assert _font_embedding_state("Type0", b"font-program") is True
-
-    page_a = {
-        "page_number": 1,
-        "width": 1224,
-        "height": 1584,
-        "pixel_format": "RGB8",
-        "pixel_sha256": f"sha256:{'1' * 64}",
-    }
-    page_b = {
-        "page_number": 2,
-        "width": 1224,
-        "height": 1584,
-        "pixel_format": "RGB8",
-        "pixel_sha256": f"sha256:{'2' * 64}",
-    }
-    evidence_ref = {
-        "kind": "scholarskills_display_evidence",
-        "ref": "evidence://display-a",
-        "size_bytes": 123,
-        "sha256": f"sha256:{'9' * 64}",
-    }
-    candidate_a = build_page_hash_evidence_candidate(
-        [page_a, page_b],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_evidence_ref=evidence_ref,
-    )
-    same_pixels_other_provenance = build_page_hash_evidence_candidate(
-        [page_a, page_b],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_evidence_ref={
-            "kind": "scholarskills_display_evidence",
-            "ref": "evidence://different-pdf-metadata",
-            "size_bytes": 456,
-            "sha256": f"sha256:{'b' * 64}",
-        },
-    )
-    assert candidate_a["cache_key_sha256"] == (
-        "sha256:f159ceb039e91fcdf43a3402b195592cbce25841837473284b03760a359a012a"
-    )
-    assert candidate_a["cache_key_sha256"] == same_pixels_other_provenance[
-        "cache_key_sha256"
-    ]
-    assert set(candidate_a) == {
-        "surface_kind",
-        "schema_version",
-        "review_scope_sha256",
-        "rubric_sha256",
-        "evidence_payload",
-        "cache_key_sha256",
-        "origin_reviewer_evidence_ref",
-    }
-    assert candidate_a["schema_version"] == 3
-    assert candidate_a["origin_reviewer_evidence_ref"] == evidence_ref
-    changed_pixel = dict(page_b)
-    changed_pixel["pixel_sha256"] = f"sha256:{'5' * 64}"
-    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
-        [page_a, changed_pixel],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_evidence_ref=evidence_ref,
-    )["cache_key_sha256"]
-    changed_geometry = dict(page_b, width=1225)
-    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
-        [page_a, changed_geometry],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_evidence_ref=evidence_ref,
-    )["cache_key_sha256"]
-    reordered_a = dict(page_b, page_number=1)
-    reordered_b = dict(page_a, page_number=2)
-    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
-        [reordered_a, reordered_b],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_evidence_ref=evidence_ref,
-    )["cache_key_sha256"]
-    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
-        [page_a, page_b],
-        review_scope_sha256=f"sha256:{'6' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-        origin_reviewer_evidence_ref=evidence_ref,
-    )["cache_key_sha256"]
-    assert candidate_a["cache_key_sha256"] != build_page_hash_evidence_candidate(
-        [page_a, page_b],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'7' * 64}",
-        origin_reviewer_evidence_ref=evidence_ref,
-    )["cache_key_sha256"]
-    unbound_candidate = build_page_hash_evidence_candidate(
-        [page_a, page_b],
-        review_scope_sha256=f"sha256:{'3' * 64}",
-        rubric_sha256=f"sha256:{'4' * 64}",
-    )
-    assert unbound_candidate["origin_reviewer_evidence_ref"] is None
-    try:
-        build_page_hash_evidence_candidate(
-            [page_a, page_b],
-            review_scope_sha256=f"sha256:{'3' * 64}",
-            rubric_sha256=f"sha256:{'4' * 64}",
-            origin_reviewer_evidence_ref={
-                "kind": "scholarskills_display_evidence",
-                "ref": "evidence://missing-size",
-                "sha256": f"sha256:{'9' * 64}",
-            },
-        )
-        raise AssertionError("incomplete origin exact ref must fail closed")
-    except ValueError:
-        pass
-
-    fixture_path = Path(__file__).with_name("fixtures") / "layout_qc_regression.json"
-    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    long_label = fixture["panels"][0]["text_artists"][1]
-    long_label_measurement = long_label["text_measurement"]
-    long_label_wrap = long_label_measurement["semantic_wrap"]
-    generated_wrap = generate_semantic_wrap(
-        long_label["source_text"],
-        available_width_px=long_label_measurement["available_width_px"],
-        word_widths_px=long_label_wrap["word_widths_px"],
-        space_width_px=long_label_wrap["space_width_px"],
-    )
-    assert generated_wrap["rendered_text"] == long_label["rendered_text"]
-    assert generated_wrap["break_after_word_indices"] == [4, 9]
-    assert generated_wrap["line_widths_px"] == [265, 252, 85]
-    layout_audit = audit_layout_registry(fixture)
-    assert layout_audit["machine_check_status"] == "geometry_checks_passed"
-    assert layout_audit["registered_text_artist_count"] == 6
-    assert layout_audit["checks"]["annotation_lane_separate"] is True
-    assert layout_audit["checks"]["measured_wrap_valid"] is True
-    assert layout_audit["semantic_artist_applicability"] == "not_applicable"
-
-    semantic_fixture_path = (
-        Path(__file__).with_name("fixtures")
-        / "semantic_artist_flow_regression.json"
-    )
-    semantic_fixture = json.loads(semantic_fixture_path.read_text(encoding="utf-8"))
-    semantic_audit = audit_layout_registry(semantic_fixture)
-    assert semantic_audit["machine_check_status"] == "geometry_checks_passed"
-    assert semantic_audit["semantic_flow_contract_required"] is True
-    assert semantic_audit["registered_semantic_artist_count"] == 26
-    assert semantic_audit["semantic_arrow_count"] == 2
-    assert semantic_audit["semantic_segmented_group_span_count"] == 1
-    assert semantic_audit["semantic_validated_segmented_group_span_count"] == 1
-    for semantic_check in (
-        "semantic_artist_applicability_valid",
-        "semantic_artist_registry_complete",
-        "semantic_artist_kinds_complete",
-        "semantic_artists_inside_canvas",
-        "semantic_artists_inside_safe_inset",
-        "semantic_node_text_contained",
-        "semantic_contract_geometry_bound",
-        "semantic_lines_clear_of_text",
-        "semantic_lines_clear_of_unrelated_nodes",
-        "semantic_connectors_non_crossing",
-        "semantic_arrowheads_clear_of_text",
-        "semantic_relation_encoding_valid",
-        "semantic_arrow_budget_met",
-        "semantic_incoming_unambiguous",
-        "semantic_bracket_spans_exact",
-        "semantic_segmented_group_spans_exact",
-        "semantic_segmented_group_perceptual_anchors_valid",
-    ):
-        assert semantic_audit["checks"][semantic_check] is True
-
-    def semantic_violation_codes(candidate: Mapping[str, object]) -> set[str]:
-        return {
-            str(item["code"])
-            for item in audit_layout_registry(candidate)["violations"]
-        }
-
-    def semantic_flow_item(
-        candidate: Mapping[str, object],
-        collection: str,
-        identity_key: str,
-        identity_value: str,
-    ) -> dict[str, object]:
-        return next(
-            item
-            for item in candidate["semantic_flow_contract"][collection]
-            if item[identity_key] == identity_value
-        )
-
-    def semantic_artist_item(
-        candidate: Mapping[str, object], artist_id: str
-    ) -> dict[str, object]:
-        return next(
-            item
-            for item in candidate["semantic_artist_registry"]["artists"]
-            if item["artist_id"] == artist_id
-        )
-
-    missing_segmented_group = json.loads(json.dumps(semantic_fixture))
-    missing_segmented_group["semantic_flow_contract"].pop("segmented_group_spans")
-    assert "semantic_segmented_group_relation_set_mismatch" in (
-        semantic_violation_codes(missing_segmented_group)
-    )
-
-    segmented_connector_to_child = json.loads(json.dumps(semantic_fixture))
-    child_connector = semantic_flow_item(
-        segmented_connector_to_child,
-        "connectors",
-        "connector_id",
-        "band_source_to_group",
-    )
-    child_connector["destination_node_id"] = "band_child_a"
-    child_connector["segments_px"][0] = [900, 420, 870, 280]
-    child_segment_artist = semantic_artist_item(
-        segmented_connector_to_child,
-        "relation.band_partition.segment.1",
-    )
-    child_segment_artist["bbox_px"] = [870, 280, 900, 420]
-    child_segment_artist["geometry_px"] = [900, 420, 870, 280]
-    assert "semantic_segmented_group_connector_invalid" in (
-        semantic_violation_codes(segmented_connector_to_child)
-    )
-
-    segmented_connector_arrowed = json.loads(json.dumps(semantic_fixture))
-    semantic_flow_item(
-        segmented_connector_arrowed,
-        "connectors",
-        "connector_id",
-        "band_source_to_group",
-    )["arrow_bearing"] = True
-    assert "semantic_segmented_group_connector_invalid" in (
-        semantic_violation_codes(segmented_connector_arrowed)
-    )
-
-    segmented_header_narrow = json.loads(json.dumps(semantic_fixture))
-    narrow_group_node = semantic_flow_item(
-        segmented_header_narrow, "nodes", "node_id", "band_group"
-    )
-    narrow_group_node["bbox_px"] = [850, 280, 950, 320]
-    semantic_artist_item(
-        segmented_header_narrow, "node.band_group.patch"
-    )["bbox_px"] = [850, 280, 950, 320]
-    semantic_flow_item(
-        segmented_header_narrow,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["group_header_bbox_px"] = [850, 280, 950, 320]
-    assert "semantic_segmented_group_span_mismatch" in (
-        semantic_violation_codes(segmented_header_narrow)
-    )
-
-    segmented_children_gap = json.loads(json.dumps(semantic_fixture))
-    gap_child_node = semantic_flow_item(
-        segmented_children_gap, "nodes", "node_id", "band_child_b"
-    )
-    gap_child_node["bbox_px"] = [910, 180, 960, 280]
-    semantic_artist_item(
-        segmented_children_gap, "node.band_child_b.patch"
-    )["bbox_px"] = [910, 180, 960, 280]
-    assert "semantic_segmented_group_children_not_contiguous" in (
-        semantic_violation_codes(segmented_children_gap)
-    )
-
-    segmented_children_overlap = json.loads(json.dumps(semantic_fixture))
-    overlap_child_node = semantic_flow_item(
-        segmented_children_overlap, "nodes", "node_id", "band_child_b"
-    )
-    overlap_child_node["bbox_px"] = [890, 180, 960, 280]
-    semantic_artist_item(
-        segmented_children_overlap, "node.band_child_b.patch"
-    )["bbox_px"] = [890, 180, 960, 280]
-    assert "semantic_segmented_group_children_not_contiguous" in (
-        semantic_violation_codes(segmented_children_overlap)
-    )
-
-    segmented_header_detached = json.loads(json.dumps(semantic_fixture))
-    detached_group_node = semantic_flow_item(
-        segmented_header_detached, "nodes", "node_id", "band_group"
-    )
-    detached_group_node["bbox_px"] = [840, 300, 960, 340]
-    semantic_artist_item(
-        segmented_header_detached, "node.band_group.patch"
-    )["bbox_px"] = [840, 300, 960, 340]
-    semantic_flow_item(
-        segmented_header_detached,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["group_header_bbox_px"] = [840, 300, 960, 340]
-    assert "semantic_segmented_group_header_not_adjacent" in (
-        semantic_violation_codes(segmented_header_detached)
-    )
-
-    segmented_side_anchor = json.loads(json.dumps(semantic_fixture))
-    side_connector = semantic_flow_item(
-        segmented_side_anchor,
-        "connectors",
-        "connector_id",
-        "band_source_to_group",
-    )
-    side_connector["segments_px"][0] = [900, 420, 840, 300]
-    side_artist = semantic_artist_item(
-        segmented_side_anchor, "relation.band_partition.segment.1"
-    )
-    side_artist["bbox_px"] = [840, 300, 900, 420]
-    side_artist["geometry_px"] = [900, 420, 840, 300]
-    semantic_flow_item(
-        segmented_side_anchor,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["actual_connector_terminal_px"] = [840, 300]
-    assert "semantic_segmented_group_anchor_mismatch" in (
-        semantic_violation_codes(segmented_side_anchor)
-    )
-
-    segmented_first_child_anchor = json.loads(json.dumps(semantic_fixture))
-    first_child_connector = semantic_flow_item(
-        segmented_first_child_anchor,
-        "connectors",
-        "connector_id",
-        "band_source_to_group",
-    )
-    first_child_connector["segments_px"][0] = [900, 420, 870, 320]
-    first_child_artist = semantic_artist_item(
-        segmented_first_child_anchor, "relation.band_partition.segment.1"
-    )
-    first_child_artist["bbox_px"] = [870, 320, 900, 420]
-    first_child_artist["geometry_px"] = [900, 420, 870, 320]
-    semantic_flow_item(
-        segmented_first_child_anchor,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["actual_connector_terminal_px"] = [870, 320]
-    assert "semantic_segmented_group_anchor_mismatch" in (
-        semantic_violation_codes(segmented_first_child_anchor)
-    )
-    assert (
-        audit_layout_registry(segmented_first_child_anchor)[
-            "semantic_validated_segmented_group_span_count"
-        ]
-        == 0
-    )
-
-    segmented_empty_label = json.loads(json.dumps(semantic_fixture))
-    semantic_flow_item(
-        segmented_empty_label,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["group_label"] = ""
-    assert "semantic_segmented_group_label_empty" in (
-        semantic_violation_codes(segmented_empty_label)
-    )
-
-    segmented_child_label = json.loads(json.dumps(semantic_fixture))
-    child_label_span = semantic_flow_item(
-        segmented_child_label,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )
-    child_label_span["group_label"] = "Alive n=70"
-    child_label_span["perceptual_anchor"][
-        "label_artist_id"
-    ] = "node.band_child_a.label"
-    assert "semantic_segmented_group_label_artist_invalid" in (
-        semantic_violation_codes(segmented_child_label)
-    )
-
-    segmented_orientation = json.loads(json.dumps(semantic_fixture))
-    semantic_flow_item(
-        segmented_orientation,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["orientation"] = "vertical"
-    assert "semantic_segmented_group_orientation_invalid" in (
-        semantic_violation_codes(segmented_orientation)
-    )
-
-    segmented_anchor_mode = json.loads(json.dumps(semantic_fixture))
-    semantic_flow_item(
-        segmented_anchor_mode,
-        "segmented_group_spans",
-        "relation_id",
-        "band_partition",
-    )["perceptual_anchor"]["mode"] = "first_child"
-    assert "semantic_segmented_group_perceptual_anchor_invalid" in (
-        semantic_violation_codes(segmented_anchor_mode)
-    )
-
-    segmented_renderer_geometry = json.loads(json.dumps(semantic_fixture))
-    semantic_artist_item(
-        segmented_renderer_geometry, "relation.band_partition.segment.1"
-    )["geometry_px"] = [900, 420, 880, 320]
-    assert "semantic_connector_geometry_mismatch" in (
-        semantic_violation_codes(segmented_renderer_geometry)
-    )
-
-    missing_semantic_registry = json.loads(json.dumps(semantic_fixture))
-    missing_semantic_registry.pop("semantic_artist_registry")
-    missing_semantic_registry_audit = audit_layout_registry(
-        missing_semantic_registry
-    )
-    assert "semantic_artist_registry_missing" in {
-        item["code"] for item in missing_semantic_registry_audit["violations"]
-    }
-
-    missing_semantic_prefix = json.loads(json.dumps(semantic_fixture))
-    missing_semantic_prefix["semantic_artist_registry"]["artists"] = [
-        item
-        for item in missing_semantic_prefix["semantic_artist_registry"]["artists"]
-        if item["owner_prefix"] != "node.child_b"
-    ]
-    missing_semantic_prefix_audit = audit_layout_registry(missing_semantic_prefix)
-    assert "semantic_artist_prefix_missing" in {
-        item["code"] for item in missing_semantic_prefix_audit["violations"]
-    }
-
-    missing_semantic_kind = json.loads(json.dumps(semantic_fixture))
-    missing_semantic_kind["semantic_flow_contract"]["expected_artist_kinds"].append(
-        "ConnectionPatch"
-    )
-    missing_semantic_kind_audit = audit_layout_registry(missing_semantic_kind)
-    assert "semantic_artist_kinds_missing" in {
-        item["code"] for item in missing_semantic_kind_audit["violations"]
-    }
-
-    semantic_canvas_overflow = json.loads(json.dumps(semantic_fixture))
-    semantic_canvas_overflow["semantic_artist_registry"]["artists"][1][
-        "bbox_px"
-    ] = [100, 180, 1020, 280]
-    semantic_canvas_overflow_audit = audit_layout_registry(
-        semantic_canvas_overflow
-    )
-    assert "semantic_artist_canvas_overflow" in {
-        item["code"] for item in semantic_canvas_overflow_audit["violations"]
-    }
-
-    semantic_safe_inset = json.loads(json.dumps(semantic_fixture))
-    semantic_safe_inset["semantic_artist_registry"]["artists"][1]["bbox_px"] = [
-        10,
-        180,
-        300,
-        280,
-    ]
-    semantic_safe_inset_audit = audit_layout_registry(semantic_safe_inset)
-    assert "semantic_artist_safe_inset_violation" in {
-        item["code"] for item in semantic_safe_inset_audit["violations"]
-    }
-
-    node_text_outside = json.loads(json.dumps(semantic_fixture))
-    node_text_outside["semantic_flow_contract"]["nodes"][0]["text_artist_ids"] = [
-        "node.child_b.label"
-    ]
-    node_text_outside_audit = audit_layout_registry(node_text_outside)
-    assert "semantic_node_text_outside_node" in {
-        item["code"] for item in node_text_outside_audit["violations"]
-    }
-
-    semantic_line_text = json.loads(json.dumps(semantic_fixture))
-    semantic_line_text["semantic_flow_contract"]["connectors"][0]["segments_px"][
-        0
-    ] = [200, 485, 200, 350]
-    semantic_line_text_audit = audit_layout_registry(semantic_line_text)
-    assert "semantic_line_text_intersection" in {
-        item["code"] for item in semantic_line_text_audit["violations"]
-    }
-
-    semantic_geometry_mismatch = json.loads(json.dumps(semantic_fixture))
-    semantic_geometry_mismatch["semantic_flow_contract"]["connectors"][0][
-        "segments_px"
-    ][0] = [220, 420, 220, 350]
-    semantic_geometry_mismatch_audit = audit_layout_registry(
-        semantic_geometry_mismatch
-    )
-    assert "semantic_connector_geometry_mismatch" in {
-        item["code"] for item in semantic_geometry_mismatch_audit["violations"]
-    }
-
-    semantic_artist_direction_mismatch = json.loads(json.dumps(semantic_fixture))
-    direction_mismatch_artist = next(
-        item
-        for item in semantic_artist_direction_mismatch[
-            "semantic_artist_registry"
-        ]["artists"]
-        if item["artist_id"] == "relation.root_partition.child_a.segment.1"
-    )
-    direction_mismatch_artist["geometry_px"] = [200, 350, 200, 420]
-    semantic_artist_direction_mismatch_audit = audit_layout_registry(
-        semantic_artist_direction_mismatch
-    )
-    assert "semantic_connector_geometry_mismatch" in {
-        item["code"]
-        for item in semantic_artist_direction_mismatch_audit["violations"]
-    }
-
-    semantic_source_anchor = json.loads(json.dumps(semantic_fixture))
-    semantic_source_anchor["semantic_flow_contract"]["connectors"][0][
-        "segments_px"
-    ][0] = [200, 410, 200, 350]
-    source_anchor_artist = next(
-        item
-        for item in semantic_source_anchor["semantic_artist_registry"]["artists"]
-        if item["artist_id"] == "relation.root_partition.child_a.segment.1"
-    )
-    source_anchor_artist["bbox_px"] = [200, 350, 200, 410]
-    source_anchor_artist["geometry_px"] = [200, 410, 200, 350]
-    semantic_source_anchor_audit = audit_layout_registry(semantic_source_anchor)
-    assert "semantic_connector_source_not_anchored" in {
-        item["code"] for item in semantic_source_anchor_audit["violations"]
-    }
-
-    semantic_destination_anchor = json.loads(json.dumps(semantic_fixture))
-    semantic_destination_anchor["semantic_flow_contract"]["connectors"][0][
-        "segments_px"
-    ][1] = [200, 350, 200, 250]
-    destination_anchor_artist = next(
-        item
-        for item in semantic_destination_anchor["semantic_artist_registry"][
-            "artists"
-        ]
-        if item["artist_id"] == "relation.root_partition.child_a.segment.2"
-    )
-    destination_anchor_artist["bbox_px"] = [200, 250, 200, 350]
-    destination_anchor_artist["geometry_px"] = [200, 350, 200, 250]
-    semantic_destination_anchor_audit = audit_layout_registry(
-        semantic_destination_anchor
-    )
-    assert "semantic_connector_destination_not_anchored" in {
-        item["code"] for item in semantic_destination_anchor_audit["violations"]
-    }
-
-    semantic_false_junction = json.loads(json.dumps(semantic_fixture))
-    false_junction_connector = semantic_false_junction["semantic_flow_contract"][
-        "connectors"
-    ][0]
-    false_junction_connector["segments_px"] = [
-        [250, 420, 250, 350],
-        [250, 350, 200, 280],
-    ]
-    for artist_id, bbox_px, geometry_px in (
-        (
-            "relation.root_partition.child_a.segment.1",
-            [250, 350, 250, 420],
-            [250, 420, 250, 350],
-        ),
-        (
-            "relation.root_partition.child_a.segment.2",
-            [200, 280, 250, 350],
-            [250, 350, 200, 280],
-        ),
-    ):
-        artist = next(
-            item
-            for item in semantic_false_junction["semantic_artist_registry"][
-                "artists"
-            ]
-            if item["artist_id"] == artist_id
-        )
-        artist["bbox_px"] = bbox_px
-        artist["geometry_px"] = geometry_px
-    semantic_false_junction_audit = audit_layout_registry(
-        semantic_false_junction
-    )
-    assert "semantic_junction_group_invalid" in {
-        item["code"] for item in semantic_false_junction_audit["violations"]
-    }
-
-    semantic_line_node = json.loads(json.dumps(semantic_fixture))
-    semantic_line_node["semantic_flow_contract"]["connectors"][0]["segments_px"][
-        0
-    ] = [600, 500, 600, 200]
-    semantic_line_node_audit = audit_layout_registry(semantic_line_node)
-    assert "semantic_line_unrelated_node_intersection" in {
-        item["code"] for item in semantic_line_node_audit["violations"]
-    }
-
-    semantic_crossing = json.loads(json.dumps(semantic_fixture))
-    semantic_crossing["semantic_flow_contract"]["connectors"][1][
-        "junction_group"
-    ] = "independent_connector"
-    semantic_crossing["semantic_flow_contract"]["connectors"][1]["segments_px"][
-        0
-    ] = [100, 385, 300, 385]
-    semantic_crossing_audit = audit_layout_registry(semantic_crossing)
-    assert "semantic_connector_crossing_unauthorized" in {
-        item["code"] for item in semantic_crossing_audit["violations"]
-    }
-
-    semantic_arrowhead_text = json.loads(json.dumps(semantic_fixture))
-    semantic_arrowhead_text["semantic_artist_registry"]["artists"][10][
-        "bbox_px"
-    ] = [150, 455, 250, 485]
-    semantic_arrowhead_text_audit = audit_layout_registry(
-        semantic_arrowhead_text
-    )
-    assert "semantic_arrowhead_text_intersection" in {
-        item["code"] for item in semantic_arrowhead_text_audit["violations"]
-    }
-
-    semantic_relation_encoding = json.loads(json.dumps(semantic_fixture))
-    next(
-        relation
-        for relation in semantic_relation_encoding["semantic_flow_contract"][
-            "relations"
-        ]
-        if relation["relation_id"] == "children_identity"
-    )["encoding"] = "arrow_split"
-    semantic_relation_encoding_audit = audit_layout_registry(
-        semantic_relation_encoding
-    )
-    assert "semantic_relation_encoding_invalid" in {
-        item["code"] for item in semantic_relation_encoding_audit["violations"]
-    }
-
-    semantic_arrow_budget = json.loads(json.dumps(semantic_fixture))
-    semantic_arrow_budget["semantic_flow_contract"]["arrow_budget"] = 1
-    semantic_arrow_budget_audit = audit_layout_registry(semantic_arrow_budget)
-    assert "semantic_arrow_budget_exceeded" in {
-        item["code"] for item in semantic_arrow_budget_audit["violations"]
-    }
-
-    semantic_ambiguous_incoming = json.loads(json.dumps(semantic_fixture))
-    semantic_ambiguous_incoming["semantic_flow_contract"]["connectors"][1][
-        "destination_node_id"
-    ] = "child_a"
-    semantic_ambiguous_incoming_audit = audit_layout_registry(
-        semantic_ambiguous_incoming
-    )
-    assert "semantic_ambiguous_incoming_connectors" in {
-        item["code"] for item in semantic_ambiguous_incoming_audit["violations"]
-    }
-
-    semantic_bracket_span = json.loads(json.dumps(semantic_fixture))
-    semantic_bracket_span["semantic_flow_contract"]["brackets"][0][
-        "observed_span_px"
-    ] = [100, 690]
-    semantic_bracket_span_audit = audit_layout_registry(semantic_bracket_span)
-    assert "semantic_bracket_span_mismatch" in {
-        item["code"] for item in semantic_bracket_span_audit["violations"]
-    }
-
-    semantic_bracket_geometry = json.loads(json.dumps(semantic_fixture))
-    bracket_artist = next(
-        item
-        for item in semantic_bracket_geometry["semantic_artist_registry"]["artists"]
-        if item["artist_id"] == "relation.children_identity.segment.1"
-    )
-    bracket_artist.pop("geometry_px")
-    semantic_bracket_geometry_audit = audit_layout_registry(
-        semantic_bracket_geometry
-    )
-    assert "semantic_bracket_geometry_invalid" in {
-        item["code"] for item in semantic_bracket_geometry_audit["violations"]
-    }
-
-    fake_png = {
-        "display_artifact_inventory_ref": {
-            "sha256": "1" * 64,
-            "size_bytes": 1000,
-            "format": "PNG",
-            "dimensions": {"width_px": 1800, "height_px": 1000},
-            "page_count": 1,
-        },
-        "programmatic_figure_audit_ref": {"dpi": {"x": 254, "y": 254}},
-        "export_integrity_ref": {"hard_fail": False},
-    }
-    fake_pdf = {
-        "display_artifact_inventory_ref": {
-            "sha256": "2" * 64,
-            "size_bytes": 800,
-            "format": "PDF",
-            "dimensions": {
-                "unit": "pt",
-                "variants": [
-                    {
-                        "width_pt": 510.2362204724,
-                        "height_pt": 283.4645669291,
-                        "page_count": 1,
-                    }
-                ],
-            },
-            "page_count": 1,
-        },
-        "programmatic_figure_audit_ref": {"dpi": None},
-        "export_integrity_ref": {"hard_fail": False},
-    }
-    receipt = build_layout_qc_receipt(fixture, [fake_png, fake_pdf])
-    assert receipt["machine_check_status"] == "geometry_checks_passed"
-    assert receipt["artifact_bindings"][1]["sha256"] == "1" * 64
-    assert receipt["authority"] is False
-    assert receipt["authority_boundary"]["can_claim_quality_verdict"] is False
-    assert (
-        receipt["semantic_artist_scope"]
-        == "not_applicable:statistical_layout_regression"
-    )
-    assert receipt == build_layout_qc_receipt(fixture, [fake_pdf, fake_png])
-    direct_labels = json.loads(json.dumps(fixture))
-    direct_labels["annotation_lane_policy"] = "not_applicable"
-    direct_labels["annotation_lane_reason"] = "Direct labels on one shared data canvas"
-    direct_labels["lanes"]["plotting_data"]["bbox_px"] = [0, 0, 1800, 1000]
-    direct_labels["lanes"].pop("annotation")
-    for panel in direct_labels["panels"]:
-        for artist in panel["text_artists"]:
-            artist["lane"] = "plotting_data"
-    assert audit_layout_registry(direct_labels)["violations"] == []
-    unexplained_lane = json.loads(json.dumps(direct_labels))
-    unexplained_lane.pop("annotation_lane_reason")
-    try:
-        audit_layout_registry(unexplained_lane)
-    except ValueError as exc:
-        assert "annotation_lane_reason" in str(exc)
-    else:
-        raise AssertionError("an inapplicable annotation lane requires its reason")
-    overlapping_direct = json.loads(json.dumps(direct_labels))
-    first, second = overlapping_direct["panels"][0]["text_artists"][:2]
-    second["bbox_px"] = first["bbox_px"]
-    assert "text_artist_overlap" in {
-        item["code"] for item in audit_layout_registry(overlapping_direct)["violations"]
-    }
-    direct_labels["validation_scope"] = "artifact_acceptance"
-    direct_labels["renderer_baseline_ref"] = {
-        "kind": "renderer_regression_baseline",
-        "ref": "artifact://renderer/tested-baseline.json",
-        "sha256": "sha256:" + "3" * 64,
-        "size_bytes": 400,
-    }
-    direct_labels.pop("fixture_id", None)
-    direct_labels.pop("regression_fixture_refs", None)
-    content_receipt = build_layout_qc_receipt(direct_labels, [fake_png, fake_pdf])
-    assert content_receipt["machine_check_status"] == "geometry_checks_passed"
-    assert content_receipt["regression_fixture_refs"] == []
-    assert "plotting_data" in content_receipt["lane_bounds_px"]
-    assert "annotation" not in content_receipt["lane_bounds_px"]
-    direct_labels.pop("renderer_baseline_ref")
-    assert "renderer_baseline_ref_invalid" in {
-        item["code"]
-        for item in build_layout_qc_receipt(direct_labels, [fake_png, fake_pdf])["violations"]
-    }
-    direct_labels["validation_scope"] = "renderer_regression"
-    assert "regression_fixture_ref_missing" in {
-        item["code"]
-        for item in build_layout_qc_receipt(direct_labels, [fake_png, fake_pdf])["violations"]
-    }
-    wrong_size_pdf = json.loads(json.dumps(fake_pdf))
-    wrong_size_pdf["display_artifact_inventory_ref"]["dimensions"]["variants"][0][
-        "width_pt"
-    ] = 500
-    wrong_size_receipt = build_layout_qc_receipt(
-        fixture, [fake_png, wrong_size_pdf]
-    )
-    assert wrong_size_receipt["machine_check_status"] == "geometry_checks_failed"
-    assert "artifact_final_size_mismatch" in {
-        item["code"] for item in wrong_size_receipt["violations"]
-    }
-
-    manual_wrap = json.loads(json.dumps(fixture))
-    manual_wrap["panels"][0]["text_artists"][1]["text_measurement"][
-        "manual_breaks"
-    ] = True
-    failed_layout = audit_layout_registry(manual_wrap)
-    assert failed_layout["machine_check_status"] == "geometry_checks_failed"
-    assert failed_layout["checks"]["measured_wrap_valid"] is False
-
-    rendered_text_counterexample = json.loads(json.dumps(fixture))
-    rendered_text_counterexample["panels"][0]["text_artists"][1][
-        "rendered_text"
-    ] = long_label["source_text"]
-    rendered_text_audit = audit_layout_registry(rendered_text_counterexample)
-    assert "semantic_wrap_rendered_text_mismatch" in {
-        item["code"] for item in rendered_text_audit["violations"]
-    }
-    assert rendered_text_audit["checks"]["measured_wrap_valid"] is False
-
-    semantic_break_counterexample = json.loads(json.dumps(fixture))
-    semantic_break_counterexample["panels"][0]["text_artists"][1][
-        "text_measurement"
-    ]["semantic_wrap"]["break_after_word_indices"] = [3, 9]
-    semantic_break_audit = audit_layout_registry(semantic_break_counterexample)
-    assert "semantic_wrap_break_positions_mismatch" in {
-        item["code"] for item in semantic_break_audit["violations"]
-    }
-    assert semantic_break_audit["checks"]["measured_wrap_valid"] is False
-
-    boolean_line_count_counterexample = json.loads(json.dumps(fixture))
-    boolean_line_count_counterexample["panels"][0]["text_artists"][2][
-        "text_measurement"
-    ]["line_count"] = True
-    boolean_line_count_audit = audit_layout_registry(boolean_line_count_counterexample)
-    assert "semantic_wrap_line_count_mismatch" in {
-        item["code"] for item in boolean_line_count_audit["violations"]
-    }
-    assert boolean_line_count_audit["checks"]["measured_wrap_valid"] is False
-
-    overlap = json.loads(json.dumps(fixture))
-    overlap["panels"][0]["text_artists"][2]["bbox_px"] = [60, 230, 260, 260]
-    clipping = json.loads(json.dumps(fixture))
-    clipping["panels"][0]["text_artists"][1]["clip_bbox_px"] = [80, 180, 320, 250]
-    overflow = json.loads(json.dumps(fixture))
-    overflow["panels"][0]["text_artists"][5]["bbox_px"] = [1750, 900, 1810, 925]
-    minimum_spacing = json.loads(json.dumps(fixture))
-    minimum_spacing["panels"][0]["text_artists"][2]["bbox_px"] = [60, 255, 260, 280]
-    unsafe = json.loads(json.dumps(fixture))
-    unsafe["panels"][0]["text_artists"][1]["bbox_px"] = [20, 180, 340, 250]
-    lane_overlap = json.loads(json.dumps(fixture))
-    lane_overlap["lanes"]["annotation"]["bbox_px"] = [1400, 40, 1760, 960]
-    wrong_lane = json.loads(json.dumps(fixture))
-    wrong_lane["panels"][0]["text_artists"][3]["lane"] = "plotting_data"
-    wrong_lane["panels"][0]["text_artists"][3]["bbox_px"] = [1200, 190, 1440, 220]
-    wrong_lane["panels"][0]["text_artists"][3]["clip_bbox_px"] = [380, 40, 1460, 960]
-    for broken_registry, expected_code in [
-        (overlap, "text_artist_overlap"),
-        (clipping, "artist_clipped"),
-        (overflow, "artist_canvas_overflow"),
-        (minimum_spacing, "text_artist_minimum_spacing_violation"),
-        (unsafe, "artist_safe_inset_violation"),
-        (lane_overlap, "data_annotation_lane_overlap"),
-        (wrong_lane, "numeric_annotation_outside_annotation_lane"),
-    ]:
-        broken_audit = audit_layout_registry(broken_registry)
-        assert expected_code in {item["code"] for item in broken_audit["violations"]}
-
-    with TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        missing = inspect_display_artifact(root / "missing.png")
-        assert missing["export_integrity_ref"]["hard_fail"] is True
-        assert "artifact_missing" in missing["export_integrity_ref"]["finding_codes"]
-
-        pillow_available = True
-        fitz_available = False
-        try:
-            from PIL import Image, ImageDraw
-        except ImportError:
-            pillow_available = False
-            dependency_probe = root / "dependency-probe.png"
-            dependency_probe.write_bytes(b"\x89PNG\r\n\x1a\n")
-            dependency = inspect_display_artifact(dependency_probe)
-            assert dependency["export_integrity_ref"]["hard_fail"] is False
-            assert "dependency_missing" in dependency["export_integrity_ref"]["finding_codes"]
-        else:
-            blank_path = root / "blank.png"
-            Image.new("RGB", (1200, 900), "white").save(blank_path, dpi=(300, 300))
-            blank = inspect_display_artifact(blank_path)
-            assert blank["export_integrity_ref"]["hard_fail"] is True
-            assert "artifact_blank" in blank["export_integrity_ref"]["finding_codes"]
-
-            transparent_path = root / "transparent.png"
-            transparent_image = Image.new("RGBA", (1200, 900), (255, 0, 0, 0))
-            ImageDraw.Draw(transparent_image).rectangle(
-                (100, 100, 1100, 800), fill=(0, 0, 255, 0)
-            )
-            transparent_image.save(transparent_path, dpi=(300, 300))
-            transparent = inspect_display_artifact(transparent_path)
-            assert transparent["export_integrity_ref"]["hard_fail"] is True
-            assert "artifact_blank" in transparent["export_integrity_ref"][
-                "finding_codes"
-            ]
-
-            sparse_path = root / "sparse.png"
-            sparse_image = Image.new("1", (6000, 6000), 1)
-            sparse_image.putpixel((3000, 3000), 0)
-            sparse_image.save(sparse_path, dpi=(300, 300))
-            sparse = inspect_display_artifact(sparse_path)
-            assert sparse["export_integrity_ref"]["hard_fail"] is False
-            assert "artifact_blank" not in sparse["export_integrity_ref"]["finding_codes"]
-
-            nonblank_image = Image.new("RGB", (1200, 900), "white")
-            ImageDraw.Draw(nonblank_image).rectangle(
-                (100, 100, 1100, 800), fill="black"
-            )
-            nonblank_path = root / "nonblank.png"
-            nonblank_image.save(nonblank_path, dpi=(300, 300))
-            nonblank = inspect_display_artifact(nonblank_path)
-            audit = nonblank["programmatic_figure_audit_ref"]
-            assert nonblank["export_integrity_ref"]["hard_fail"] is False
-            assert audit["format"] == "PNG"
-            assert audit["dimensions"] == {"width_px": 1200, "height_px": 900}
-            assert audit["content_density"]["value"] > 0
-
-            mismatched_path = root / "nonblank.jpg"
-            mismatched_path.write_bytes(nonblank_path.read_bytes())
-            mismatched = inspect_display_artifact(mismatched_path)
-            assert mismatched["export_integrity_ref"]["hard_fail"] is False
-            assert "artifact_format_suffix_mismatch" in mismatched[
-                "export_integrity_ref"
-            ]["finding_codes"]
-            assert mismatched["programmatic_figure_audit_ref"]["format"] == "PNG"
-
-            pdf_mismatched_path = root / "minimal.png"
-            nonblank_image.save(pdf_mismatched_path, "PDF", resolution=150)
-            pdf_mismatched = inspect_display_artifact(pdf_mismatched_path)
-            assert pdf_mismatched["export_integrity_ref"]["hard_fail"] is False
-            assert "artifact_format_suffix_mismatch" in pdf_mismatched[
-                "export_integrity_ref"
-            ]["finding_codes"]
-            assert pdf_mismatched["programmatic_figure_audit_ref"]["format"] == "PDF"
-
-            pdf_path = root / "minimal.pdf"
-            nonblank_image.save(pdf_path, "PDF", resolution=150)
-            pdf = inspect_display_artifact(pdf_path)
-            pdf_audit = pdf["programmatic_figure_audit_ref"]
-            assert pdf["export_integrity_ref"]["hard_fail"] is False
-            assert pdf_audit["format"] == "PDF"
-            if pdf_audit["page_count"] is None:
-                assert "dependency_missing" in pdf["export_integrity_ref"]["finding_codes"]
-            else:
-                fitz_available = True
-                assert pdf_audit["page_count"] == 1
-                assert len(pdf_audit["page_pixel_hashes"]) == 1
-                assert pdf_audit["page_pixel_hashes"][0]["pixel_format"] == "RGB8"
-                fitz = _load_pymupdf()
-                metadata_pdf_path = root / "minimal-with-metadata.pdf"
-                metadata_document = fitz.open(pdf_path)
-                metadata = dict(metadata_document.metadata or {})
-                metadata["title"] = "metadata-only change"
-                metadata_document.set_metadata(metadata)
-                metadata_document.save(metadata_pdf_path)
-                metadata_document.close()
-                metadata_pdf = inspect_display_artifact(metadata_pdf_path)
-                assert metadata_pdf["programmatic_figure_audit_ref"][
-                    "page_pixel_hashes"
-                ] == pdf_audit["page_pixel_hashes"]
-                empty_pdf_path = root / "empty.pdf"
-                document = fitz.open()
-                document.new_page(width=612, height=792)
-                document.save(empty_pdf_path)
-                document.close()
-                empty_pdf = inspect_display_artifact(empty_pdf_path)
-                assert empty_pdf["export_integrity_ref"]["hard_fail"] is True
-
-                sparse_pdf_path = root / "sparse.pdf"
-                document = fitz.open()
-                page = document.new_page(width=612, height=792)
-                page.draw_rect(
-                    fitz.Rect(300, 400, 300.01, 400.01),
-                    color=None,
-                    fill=(0, 0, 0),
-                    width=0,
-                )
-                document.save(sparse_pdf_path)
-                document.close()
-                sparse_pdf = inspect_display_artifact(sparse_pdf_path)
-                assert sparse_pdf["export_integrity_ref"]["hard_fail"] is False
-                assert "artifact_blank" not in sparse_pdf["export_integrity_ref"][
-                    "finding_codes"
-                ]
-
-        unsupported_path = root / "notes.txt"
-        unsupported_path.write_text("not a rendered artifact", encoding="utf-8")
-        unsupported = inspect_display_artifact(unsupported_path)
-        assert unsupported["export_integrity_ref"]["hard_fail"] is False
-        expected_code = "unsupported_format" if pillow_available else "dependency_missing"
-        assert expected_code in unsupported["export_integrity_ref"]["finding_codes"]
-
-    numbering_fixture_path = Path(__file__).with_name("fixtures") / "figure-numbering-one-owner.json"
-    numbering_fixture = json.loads(numbering_fixture_path.read_text(encoding="utf-8"))
-    numbering_candidate = numbering_fixture["candidate"]
-    numbering_audit = validate_figure_numbering_one_owner(numbering_candidate)
-    assert numbering_audit["machine_check_status"] == "candidate_complete"
-    assert all(
-        item["occurrence_count"] == 1
-        for item in numbering_audit["figure_surface_invariants"]
-    )
-    for negative in numbering_fixture["negative_cases"]:
-        changed = json.loads(json.dumps(numbering_candidate))
-        figure = next(
-            item for item in changed["figures"]
-            if item["figure_id"] == negative["figure_id"]
-        )
-        occurrences = figure["output_surfaces"][negative["surface"]]["occurrences"]
-        occurrence = next(
-            item for item in occurrences if item["source"] == negative["source"]
-        )
-        occurrence["occurrence_count"] = negative["replacement_count"]
-        changed_audit = validate_figure_numbering_one_owner(changed)
-        assert negative["expected_code"] in {
-            item["code"] for item in changed_audit["findings"]
-        }
-    checks = 132 if fitz_available else 125 if pillow_available else 112
-    print(json.dumps({"ok": True, "checks": checks}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
+    import sys
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
     raise SystemExit(_main())

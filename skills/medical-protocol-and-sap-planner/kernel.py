@@ -6,7 +6,6 @@ write MAS truth, sign owner receipts, create typed blockers, or claim readiness.
 
 from __future__ import annotations
 
-import json
 from typing import Iterable
 
 
@@ -157,18 +156,11 @@ def protocol_handoff_skeleton() -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    assert pico_skeleton("q1")["protocol_question_ref"] == "q1"
-    assert estimand_checklist_skeleton()[0]["item"] == "treatment_condition"
-    assert endpoint_sap_checklist_skeleton(["endpoint"])[0]["item"] == "endpoint"
-    assert interventional_design_checklist_skeleton()[2]["item"] == "allocation_concealment"
-    assert schedule_of_activities_skeleton(["baseline"])[0]["target_day"] is None
-    assert safety_oversight_checklist_skeleton()[0]["item"] == "ae_definition_and_collection_window"
-    assert trial_registry_evidence_map_skeleton(["trial_registry"])[0]["currentness_status"] == "unverified"
-    assert "sap_candidate_ref" in protocol_handoff_skeleton()
-    assert "trial_registry_evidence_map_ref" in protocol_handoff_skeleton()
-    print(json.dumps({"ok": True, "checks": 9}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-protocol-and-sap-planner", kernel_file=__file__))

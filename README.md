@@ -252,10 +252,11 @@ scripts/verify.sh render
 scripts/verify.sh full
 ```
 
-`fast` checks contracts, adapters, repository consistency, and skill kernels.
-`render` checks gallery and renderer regressions. `full` runs both. Passing any
-lane is repository evidence only; it is not runtime, domain, artifact,
-publication, or production readiness.
+`fast` checks contracts, adapters, repository consistency (`tests/consistency/`),
+and skill kernels (`tests/kernels/`) via `uv run --frozen pytest` (locked in
+`pyproject.toml` / `uv.lock`). `render` checks gallery and renderer regressions.
+`full` runs both. Passing any lane is repository evidence only; it is not
+runtime, domain, artifact, publication, or production readiness.
 
 ## Documentation
 
