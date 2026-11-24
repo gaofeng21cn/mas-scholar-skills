@@ -10,10 +10,10 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, PathPatch
 from matplotlib.path import Path as MplPath
 
-from ..shared_parts.common import dump_json
-from ..shared_parts.flow_layout import _flow_box_to_normalized, _wrap_figure_title_to_width, _wrap_flow_text_to_width
-from ..shared_parts.geometry import _bbox_to_layout_box
-from ..shared_parts.rendering import _prepare_python_illustration_output_paths
+from ..shared.common import dump_json
+from ..shared.flow_layout import _flow_box_to_normalized, _wrap_figure_title_to_width, _wrap_flow_text_to_width
+from ..shared.geometry import _bbox_to_layout_box
+from ..shared.rendering import _prepare_python_illustration_output_paths
 from .render_submission_graphical_abstract_square import _render_square_submission_graphical_abstract
 
 

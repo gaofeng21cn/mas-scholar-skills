@@ -71,6 +71,10 @@
         "allowed_origins": [
           "https://eutils.ncbi.nlm.nih.gov"
         ]
+      },
+      "rate_limit": {
+        "min_interval_ms": 400,
+        "max_retries_on_429": 2
       }
     },
     {

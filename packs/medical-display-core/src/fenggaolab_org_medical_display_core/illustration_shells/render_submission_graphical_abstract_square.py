@@ -9,14 +9,14 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
-from ..shared_parts.common import dump_json
-from ..shared_parts.flow_layout import (
+from ..shared.common import dump_json
+from ..shared.flow_layout import (
     _flow_box_to_normalized,
     _measure_flow_text_width_pt,
     _wrap_flow_text_to_width,
 )
-from ..shared_parts.geometry import _bbox_to_layout_box
-from ..shared_parts.rendering import _prepare_python_illustration_output_paths
+from ..shared.geometry import _bbox_to_layout_box
+from ..shared.rendering import _prepare_python_illustration_output_paths
 
 
 def _read_float(mapping: dict[str, Any], key: str, default: float) -> float:
