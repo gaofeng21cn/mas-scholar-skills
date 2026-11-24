@@ -6,7 +6,6 @@ run models, mutate clinical data, write source readiness, or claim authority.
 
 from __future__ import annotations
 
-import json
 import re
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -81,19 +80,11 @@ def lint_genomic_ref_records(records: Sequence[Mapping[str, Any]]) -> list[dict[
     return findings
 
 
-def _self_check() -> None:
-    assert normalize_interval("1:200-100", genome_build="hg38") == {
-        "chrom": "chr1",
-        "start": 100,
-        "end": 200,
-        "genome_build": "hg38",
-    }
-    assert genomics_handoff_skeleton("score")["model_checkpoint_ref"] == ""
-    assert variant_candidate_ref_skeleton("rs1")["authority"] is False
-    findings = lint_genomic_ref_records([{"variant": "rs1"}, {"genome_build": "hg38", "note": "source ready"}])
-    assert [item["code"] for item in findings] == ["MISSING_REFERENCE_GENOME", "FORBIDDEN_AUTHORITY_CLAIM"]
-    print(json.dumps({"ok": True, "checks": 4}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-genomics-foundation-models", kernel_file=__file__))

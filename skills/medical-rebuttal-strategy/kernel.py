@@ -7,7 +7,6 @@ acceptance/readiness.
 
 from __future__ import annotations
 
-import json
 import re
 from typing import Any, Mapping
 
@@ -141,19 +140,11 @@ def lint_forbidden_rebuttal_claims(text: str) -> list[str]:
     return [pattern for pattern in patterns if re.search(pattern, text, flags=re.I)]
 
 
-def _self_check() -> None:
-    assert normalize_comment_id("Reviewer 2 / Major #1") == "reviewer_2_major_1"
-    row = review_comment_row("R1.1", "reviewer", "clarify methods", target_ref="Methods")
-    assert row["writes_authority"] is False
-    skeleton = rebuttal_strategy_skeleton("review:round1")
-    assert "evidence_response_map_ref" in skeleton["required_refs"]
-    assert skeleton["authority"]["can_sign_reviewer_receipt"] is False
-    assert classify_response_route("add sensitivity analysis")["route"] == "analysis_statistics_route_back"
-    mapped = evidence_response_map([{"comment_id": "R1", "requested_action": "add citation"}])
-    assert mapped[0]["response_route"] == "literature_support"
-    assert lint_forbidden_rebuttal_claims("review accepted with reviewer receipt")
-    print(json.dumps({"ok": True, "checks": 7}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-rebuttal-strategy", kernel_file=__file__))

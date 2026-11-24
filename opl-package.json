@@ -359,6 +359,7 @@
       "runtime/scientific-search-adapters/types.ts",
       "runtime/scientific-search-adapters/search-adapters.ts",
       "runtime/scientific-search-adapters/index.ts",
+      "runtime/kernel_validation/__init__.py",
       "packs/medical-publication-layouts/publication_layout_catalog.json",
       "packs/medical-publication-layouts/templates/general-medical-reader/header.tex",
       "packs/medical-publication-layouts/templates/general-medical-reader/layout.lua",
@@ -499,7 +500,7 @@
       "packs/medical-display-core/tests/benchmark_render_batch.py",
       "packs/medical-display-core/tests/test_render_session.R"
     ],
-    "digest": "sha256:46f905e90f98be60de2e152cf7e759450f7ca379446489f988c3b73e05e7c143"
+    "digest": "sha256:609771ebf2db790b03af09c037df28db6f5cb6a6b83bc3668988ef37e5b4eeb0"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",

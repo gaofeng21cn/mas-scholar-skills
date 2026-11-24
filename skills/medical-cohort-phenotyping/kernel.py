@@ -6,7 +6,6 @@ not define final cohort truth, mutate data, sign receipts, or claim readiness.
 
 from __future__ import annotations
 
-import json
 import re
 from typing import Iterable
 
@@ -68,14 +67,11 @@ def phenotype_handoff_skeleton() -> dict[str, object]:
     }
 
 
-def _self_check() -> None:
-    assert normalize_criterion("Exclude prior cancer")["kind"] == "exclusion"
-    assert normalize_criterion("Inclusion: adults")["criterion"] == "adults"
-    assert len(criteria_table_skeleton(["age >= 18"], ["missing index date"])) == 2
-    assert cohort_attrition_table_skeleton(["source"])[0]["n_remaining"] is None
-    assert "phenotype_logic_ref" in phenotype_handoff_skeleton()
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-cohort-phenotyping", kernel_file=__file__))

@@ -203,16 +203,11 @@ def lint_readability(
     return findings
 
 
-def _self_check() -> None:
-    assert matplotlib_style_rcparams(frame="boxed")["axes.spines.top"] is True
-    assert matplotlib_style_rcparams()["savefig.bbox"] is None
-    assert focal_palette(["A", "B"], "A")["A"] == DEFAULT_FOCAL_COLOR
-    assert panel_letter_plan(2, case="upper")[1]["letter"] == "B"
-    assert crop_box_ref("a", (10, 10, 20, 20), image_size_px=(24, 24))["box_px"] == (6, 6, 24, 24)
-    assert contrast_ratio("#000000", "#FFFFFF") > 20
-    assert lint_readability([{"label": "n", "color": "#BBBBBB", "font_pt": 5}])
-
-
 if __name__ == "__main__":
-    _self_check()
-    print("medical-figure-style kernel self-check passed")
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-figure-style", kernel_file=__file__))

@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "contracts" / "opl_capability_package_manifest.json"
+ROOT_DESCRIPTOR_PATH = ROOT / "opl-package.json"
 CANONICAL_CONTENT_LOCK = "ordered_path_length_file_length_bytes"
 
 
@@ -57,10 +58,10 @@ def main() -> int:
     actual = content_lock.get("digest")
     if args.write:
         content_lock["digest"] = expected
-        MANIFEST_PATH.write_text(
-            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
+        serialized = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
+        MANIFEST_PATH.write_text(serialized, encoding="utf-8")
+        if ROOT_DESCRIPTOR_PATH.exists():
+            ROOT_DESCRIPTOR_PATH.write_text(serialized, encoding="utf-8")
         print(expected)
         return 0
     if actual != expected:

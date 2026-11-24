@@ -56,15 +56,11 @@ def lint_forbidden_display_claims(text: str) -> list[str]:
     return [pattern for pattern in patterns if re.search(pattern, text, flags=re.I)]
 
 
-def _self_check() -> None:
-    row = artifact_diff_row("artifact:new", "artifact:old", "blank panel")
-    assert row["writes_authority"] is False
-    skeleton = display_regression_skeleton("artifact:new")
-    assert skeleton["authority"]["can_mutate_artifacts"] is False
-    assert "repair_route_ref" in skeleton["required_refs"]
-    assert lint_forbidden_display_claims("artifact fixed with visual audit receipt")
-    print({"checks": 4, "ok": True})
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-display-regression-debugger", kernel_file=__file__))

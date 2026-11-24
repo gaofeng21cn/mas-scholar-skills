@@ -6,7 +6,6 @@ MAS reviewer receipts, owner receipts, typed blockers, verdicts, or readiness.
 
 from __future__ import annotations
 
-import json
 import math
 import re
 from pathlib import Path
@@ -568,45 +567,11 @@ def _matrix_row(concern: str, lane: str, action: str) -> dict[str, str]:
     }
 
 
-def _self_check() -> None:
-    assert "central_claim" in review_fact_base_schema()["required"]
-    assert classify_issue("Figure caption drifts")["action"] == "display_repair"
-    assert classify_issue("missing citation")["action"] == "citation_repair"
-    assert review_matrix_skeleton(["causal overclaim"])[0]["action"] == "claim_downgrade"
-    assert claim_citation_figure_matrix_skeleton(["A"])[0]["claim_ref"] == "claim_1"
-    anomaly_fixture_path = Path(__file__).with_name("fixtures") / "anomaly-evidence-parity.json"
-    anomaly_fixture = json.loads(anomaly_fixture_path.read_text(encoding="utf-8"))
-    anomaly_candidate = anomaly_fixture["candidate"]
-    assert validate_anomaly_evidence_parity(anomaly_candidate)["machine_check_status"] == "candidate_complete"
-    for negative in anomaly_fixture["negative_cases"]:
-        changed = json.loads(json.dumps(anomaly_candidate))
-        surface = changed["output_surfaces"][negative["surface"]]
-        if negative["field"] == "result_delta":
-            result = next(
-                item for item in surface["result_deltas"]
-                if item["result_id"] == negative["result_id"]
-            )
-            result["delta"] = negative["replacement"]
-        else:
-            surface[negative["field"]] = negative["replacement"]
-        audit = validate_anomaly_evidence_parity(changed)
-        assert "ANOMALY_EVIDENCE_PARITY_MISMATCH" in {
-            item["code"] for item in audit["findings"]
-        }
-
-    receipt_fixture_path = Path(__file__).with_name("fixtures") / "receipt-version-member-delta.json"
-    receipt_fixture = json.loads(receipt_fixture_path.read_text(encoding="utf-8"))
-    receipt_candidate = receipt_fixture["candidate"]
-    receipt_audit = validate_receipt_version_member_delta(receipt_candidate)
-    assert receipt_audit["machine_check_status"] == "candidate_complete"
-    assert all(receipt_audit["normalized_member_delta"][key] for key in ("added", "removed", "changed", "unchanged"))
-    digest_only = json.loads(json.dumps(receipt_candidate))
-    digest_only["member_delta"] = receipt_fixture["digest_only_member_delta"]
-    assert "RECEIPT_DELTA_MEMBER_DELTA_INVALID" in {
-        item["code"] for item in validate_receipt_version_member_delta(digest_only)["findings"]
-    }
-    print(json.dumps({"ok": True, "checks": 13}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-manuscript-review", kernel_file=__file__))

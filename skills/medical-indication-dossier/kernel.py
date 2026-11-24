@@ -6,7 +6,6 @@ truth, owner receipts, typed blockers, market verdicts, or publication claims.
 
 from __future__ import annotations
 
-import json
 import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
@@ -84,17 +83,11 @@ def lint_forbidden_authority_claims(text: str) -> list[dict[str, str]]:
     return [{"code": "FORBIDDEN_AUTHORITY_CLAIM", "note": match.group(0)} for match in AUTHORITY_RE.finditer(text or "")]
 
 
-def _self_check() -> None:
-    assert dossier_handoff_skeleton("x")["indication_question"] == "x"
-    assert waypoint_matrix_skeleton()[0]["waypoint_ref"] == "population_definition_ref"
-    summary = summarize_source_manifest(
-        [{"source_type": "Guideline", "source_ref": "pmid:1"}, {"source_type": "guideline"}]
-    )
-    assert summary["source_type_counts"] == {"guideline": 2}
-    assert summary["missing_identifier_records"] == ["2"]
-    assert lint_forbidden_authority_claims("clinical recommendation")
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-indication-dossier", kernel_file=__file__))

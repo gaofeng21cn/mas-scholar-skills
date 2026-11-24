@@ -6,7 +6,6 @@ receipt, typed blocker, or publication-readiness claim lives here.
 
 from __future__ import annotations
 
-import json
 import re
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -86,17 +85,11 @@ def _as_list(value: Any) -> list[Any]:
     return list(value) if isinstance(value, Sequence) else [value]
 
 
-def _self_check() -> None:
-    constraints = normalize_design_constraints({"fixed_positions": ["3", 1], "allowed_mutations": {"2": ["a", "G"]}})
-    assert constraints["fixed_positions"] == [1, 3]
-    assert constraints["allowed_mutations"]["2"] == ["A", "G"]
-    summary = summarize_sequence_candidates(["ACD", "acd", "AC$"])
-    assert summary["duplicate_count"] == 1
-    assert summary["invalid_sequences"] == ["AC$"]
-    assert design_handoff_skeleton("binder")["sequence_candidate_refs"] == []
-    assert lint_forbidden_authority_claims("owner accepted")
-    print(json.dumps({"ok": True, "checks": 5}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-protein-design", kernel_file=__file__))

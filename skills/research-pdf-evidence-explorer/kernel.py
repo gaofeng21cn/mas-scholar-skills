@@ -154,22 +154,11 @@ def crop_ref_skeleton(source_ref: str, page: int, bbox: tuple[float, float, floa
     }
 
 
-def _self_check() -> None:
-    pages = normalize_page_texts(
-        [
-            "Abstract\nThis paper reports alpha beta findings.",
-            {"page": 2, "text": "Methods\nWe measured beta and gamma.\nDOI 10.1000/XYZ"},
-        ]
-    )
-    assert pages[0]["page"] == 1
-    assert guess_outline(pages)[0]["heading"] == "Abstract"
-    assert lexical_scan(pages, "beta gamma", top_k=1)["hits"][0]["page"] == 2
-    assert regex_grep(pages, r"10\.\d{4,9}/[^\s]+")[0]["matches"] == ["10.1000/XYZ"]
-    assert path_fingerprint(__file__)["sha256"]
-    assert page_evidence_ref("pdf:demo", 2)["page"] == 2
-    assert crop_ref_skeleton("pdf:demo", 1)["bbox"] is None
-
-
 if __name__ == "__main__":
-    _self_check()
-    print("research-pdf-evidence-explorer kernel self-check passed")
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("research-pdf-evidence-explorer", kernel_file=__file__))

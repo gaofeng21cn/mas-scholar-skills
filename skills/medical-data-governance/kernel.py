@@ -7,7 +7,6 @@ readiness.
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -428,31 +427,11 @@ def _reconstruction_finding(code: str, field: str, action: str) -> dict[str, obj
     }
 
 
-def _self_check() -> None:
-    assert "variables" in data_dictionary_schema()["required"]
-    assert normalize_field_name("Date of Birth") == "date_of_birth"
-    assert classify_sensitive_field("patient_email") == "direct_identifier"
-    assert missingness_profile_skeleton(["HbA1c lab"])[0]["sensitivity_class"] == "clinical_sensitive"
-    lint = lint_source_readiness({"source_layer": "csv", "variables": [{"name": "MRN"}]})
-    assert {item["code"] for item in lint} >= {
-        "MISSING_GOVERNANCE_REF",
-        "UNKNOWN_SOURCE_LAYER",
-        "SENSITIVE_FIELD_WITHOUT_PRIVACY_REF",
-    }
-    fixture_path = Path(__file__).with_name("fixtures") / "governed-source-reconstruction.json"
-    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    case_results = {
-        case["case_id"]: validate_governed_source_reconstruction(case["candidate"])
-        for case in fixture["reconstruction_cases"]
-    }
-    assert case_results["recoverable_identity_provenance"]["machine_check_status"] == "candidate_complete"
-    assert case_results["recoverable_identity_provenance"]["reconstruction_outcome"] == "reconstructed"
-    assert case_results["declared_recovery_outside_tolerance"]["machine_check_status"] == "route_back_required"
-    assert "RECONSTRUCTION_OUTCOME_MISMATCH" in {
-        item["code"] for item in case_results["declared_recovery_outside_tolerance"]["findings"]
-    }
-    print(json.dumps({"ok": True, "checks": 9}, indent=2, sort_keys=True))
-
-
 if __name__ == "__main__":
-    _self_check()
+    import sys
+    from pathlib import Path
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
+    from runtime.kernel_validation import delegate_self_check
+    raise SystemExit(delegate_self_check("medical-data-governance", kernel_file=__file__))
