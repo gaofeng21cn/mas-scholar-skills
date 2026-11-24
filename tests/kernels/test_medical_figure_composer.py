@@ -263,5 +263,5 @@ def _self_check(*, include_pillow: bool = False) -> None:
         assert finding["authority"] is False
 
 
-def test_medical_figure_composer_core() -> None:
-    _self_check(include_pillow=False)
+def test_medical_figure_composer_core(pytestconfig) -> None:
+    _self_check(include_pillow=pytestconfig.getoption("--with-pillow"))

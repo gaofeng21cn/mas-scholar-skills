@@ -17,6 +17,7 @@ run_fast() {
 }
 
 run_render() {
+  uv run --frozen --extra render python skills/medical-figure-composer/kernel.py --with-pillow
   uv run --frozen --extra render python tests/display-layout-acceptance.py
   uv run --frozen python scripts/verify-display-gallery-pack.py --check
   uv run --frozen python packs/medical-display-core/src/fenggaolab_org_medical_display_core/live_regression.py

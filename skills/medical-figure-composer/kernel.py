@@ -387,7 +387,12 @@ if __name__ == "__main__":
     if _root not in sys.path:
         sys.path.insert(0, _root)
     from runtime.kernel_validation import delegate_self_check
-    _args = sys.argv[1:]
-    if _args not in ([], ["--with-pillow"], ["--self-check"]):
+    args = sys.argv[1:]
+    if args not in ([], ["--with-pillow"], ["--self-check"]):
         raise SystemExit("usage: kernel.py [--with-pillow|--self-check]")
-    raise SystemExit(delegate_self_check("medical-figure-composer", kernel_file=__file__))
+    pytest_args = ["--with-pillow"] if args == ["--with-pillow"] else []
+    raise SystemExit(
+        delegate_self_check(
+            "medical-figure-composer", kernel_file=__file__, extra_args=pytest_args
+        )
+    )
