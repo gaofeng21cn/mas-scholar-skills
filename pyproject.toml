@@ -21,7 +21,7 @@ dependencies = [
 [project.optional-dependencies]
 render = [
   "matplotlib>=3.9,<4",
-  "pillow>=10.0,<13",
+  "pillow>=10.0,<14",
   "pymupdf>=1.25,<2",
 ]
 
