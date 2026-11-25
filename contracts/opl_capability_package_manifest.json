@@ -3,7 +3,7 @@
   "package_id": "mas-scholar-skills",
   "display_name": "MAS Scholar Skills",
   "publisher": "one-person-lab",
-  "version": "0.2.32",
+  "version": "0.2.33",
   "source": "first_party_repo_local",
   "package_role": "capability_package",
   "connect_skill_sync_policy": {
@@ -500,7 +500,7 @@
       "packs/medical-display-core/tests/benchmark_render_batch.py",
       "packs/medical-display-core/tests/test_render_session.R"
     ],
-    "digest": "sha256:069be2839a52b8bca28d177536631c78767c724456c4a3cb0b0684e4fbf68b66"
+    "digest": "sha256:446d1d331710594e6c4c2c7de448c0f6b6fbe8999b4f62ca25ff8e6682ea3789"
   },
   "codex_surface": {
     "plugin_id": "mas-scholar-skills",
