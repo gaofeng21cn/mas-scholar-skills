@@ -576,7 +576,7 @@
   "codex_skill_exposure_policy": {
     "policy_id": "mas_scholar_skills_codex_skill_exposure.v1",
     "source_of_truth": "contracts/scholar-skills-capability-modules.json",
-    "plugin_manifest_ref": ".codex-plugin/plugin.json",
+    "package_manifest_ref": "opl-package.json",
     "default_install_policy": "workspace_or_quest_install_includes_primary_routing_skill_only",
     "codex_default_exposure": false,
     "aggregate_skill_ids": [
@@ -5427,7 +5427,7 @@
     "policy_id": "mas_scholar_skills_capability_pack_descriptor.v1",
     "canonical_owner_repo": "mas-scholar-skills",
     "descriptor_sources": [
-      ".codex-plugin/plugin.json",
+      "opl-package.json",
       "skills/mas-scholar-skills/SKILL.md",
       "contracts/scholar-skills-capability-modules.json",
       "contracts/opl_capability_package_manifest.json",

@@ -119,10 +119,11 @@ scientific-critical-thinking, Nature-style data, and reviewer-response skills:
 When a statistical review needs a specialty outside the default MAS Scholar
 Skills package, such as omics statistics, single-cell analysis, survival-model
 tooling (`scikit-survival`), classical ML (`scikit-learn` / `shap`), Nextflow,
-RDKit, PyHealth, or a named database/API workflow, first run
-`opl connect external-skills search --query "<need>" --json`, inspect the
-candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
-then sync only that one skill into the active workspace or quest if needed.
+RDKit, PyHealth, or a named database/API workflow, first discover and inspect
+an approved external Skill through host Package/Connect discovery (`opl pack
+list` / `opl pack inspect` / configured external skill sources) rather than
+retired `opl connect external-skills` CLI subcommands, and materialize only that
+one skill into the active workspace or quest if needed.
 Keep the output as refs-only method support; it does not replace this skill,
 the analysis plan owner, or MAS statistical acceptance authority.
 

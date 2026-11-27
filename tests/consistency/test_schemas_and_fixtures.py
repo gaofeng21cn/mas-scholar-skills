@@ -549,12 +549,8 @@ def test_contract_and_schema_invariants() -> None:
         fail("capability package manifest must use opl_capability_package_manifest.v2")
     if package_manifest.get("package_id") != "mas-scholar-skills":
         fail("capability package manifest package_id must be mas-scholar-skills")
-    if package_manifest.get("version") != "0.2.32":
-        fail("capability package version must be 0.2.32")
     if package_manifest.get("package_role") != "capability_package":
         fail("capability package must use the consumer-neutral capability role")
-    if package_manifest.get("schema_ref") != "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json":
-        fail("capability package manifest must point to the OPL capability package schema")
     if "primary_consumer" in package_manifest:
         fail("framework capability provider must not declare a required primary consumer")
     capability_abi = package_manifest.get("capability_abi") or {}

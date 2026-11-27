@@ -70,10 +70,11 @@ typed blocker, quality verdict, or publication readiness.
 
 When a literature task needs a specialty outside the default MAS Scholar Skills
 package, such as omics, single-cell, Nextflow, RDKit, PyHealth, Zotero /
-`pyzotero`, or a named database/API skill, first discover it with
-`opl connect external-skills search --query "<need>" --json`, inspect the
-candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
-then sync only that one skill into the active workspace or quest if needed.
+`pyzotero`, or a named database/API skill, first discover and inspect an
+approved external Skill through host Package/Connect discovery (`opl pack list`
+/ `opl pack inspect` / configured external skill sources) rather than retired
+`opl connect external-skills` CLI subcommands, and materialize only that one
+skill into the active workspace or quest if needed.
 Keep the result as refs-only source-routing support; it does not replace this
 skill or MAS citation and source-acceptance authority.
 

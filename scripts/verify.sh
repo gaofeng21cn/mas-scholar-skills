@@ -7,7 +7,7 @@ cd "$ROOT"
 lane="${1:-fast}"
 
 run_fast() {
-  node --test tests/codex-plugin-marketplace.test.mjs
+  node --test tests/package-manifest.test.mjs
   node --test tests/reference-provider-adapters.test.mjs
   node --test tests/scientific-search-adapters.test.mjs
   uv run --frozen pytest -q

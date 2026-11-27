@@ -723,8 +723,8 @@ def test_capability_map_and_specialist_boundaries() -> None:
         fail("contract missing codex skill exposure policy")
     if exposure_policy.get("source_of_truth") != "contracts/scholar-skills-capability-modules.json":
         fail("codex skill exposure policy must be contract-sourced")
-    if exposure_policy.get("plugin_manifest_ref") != ".codex-plugin/plugin.json":
-        fail("codex skill exposure policy must point to plugin manifest")
+    if exposure_policy.get("package_manifest_ref") != "opl-package.json":
+        fail("codex skill exposure policy must point to the Framework package manifest")
     if exposure_policy.get("codex_default_exposure") is not False:
         fail("codex skill exposure policy default exposure must be false")
     if exposure_policy.get("default_install_policy") != "workspace_or_quest_install_includes_primary_routing_skill_only":

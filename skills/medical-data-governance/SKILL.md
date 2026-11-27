@@ -132,10 +132,11 @@ catalog.
 When data governance needs a specialty outside the default MAS Scholar Skills
 package, such as omics resources, single-cell data, DICOM imaging (`pydicom`),
 Nextflow pipelines, RDKit, PyHealth, OMOP/FHIR, or a named database/API
-connector, first run
-`opl connect external-skills search --query "<need>" --json`, inspect the
-candidate with `opl connect external-skills inspect --skill <skill_id> --json`,
-then sync only that one skill into the active workspace or quest if needed.
+connector, first check and install an approved external Skill through host
+Package/Connect discovery (`opl pack list` / `opl pack inspect` / configured
+external skill sources) rather than retired `opl connect external-skills` CLI
+subcommands, and materialize only that one skill into the active workspace or
+quest if needed.
 Keep the result as refs-only source-readiness support; it does not replace this
 skill, MAS data-owner decisions, source readiness, or clinical data authority.
 

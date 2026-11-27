@@ -69,14 +69,16 @@ ScholarSkills Package identity 和 MAS 必需能力集合存在且可调用；�
 manifest 和 consumer contract 共同约束：
 
 ```bash
-opl packages install mas --scope workspace --target-workspace <workspace_root> --json
-opl packages install mas --scope quest --target-quest <quest_root> --json
+opl pack install <mas-source> --json
+opl pack sync --json
 ```
 
-bundled 状态必须从 MAS package surface fresh readback，不能从本 checkout 反推：
+bundled / 已安装状态必须通过 Framework v2 `opl pack` surface fresh readback，不能从本 checkout 反推：
 
 ```bash
-opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
+opl pack inspect mas --json
+opl pack inspect mas-scholar-skills --json
+opl pack ensure mas --json
 ```
 
 单独 clone 本仓不会安装 MAS，也不能证明完整 ScholarSkills bytes 已安装；只有 Codex
