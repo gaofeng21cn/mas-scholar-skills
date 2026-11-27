@@ -3,7 +3,7 @@
 Owner: `One Person Lab`
 Purpose: Explain how `mas-scholar-skills` supplies required Package capability without becoming MAS or MAG domain truth.
 State: `active_operating_model`
-Machine boundary: Human-readable operating model. Package identity, ABI, exports, profiles, and content digest live in `contracts/opl_capability_package_manifest.json`; module and Skill truth remain in `contracts/scholar-skills-capability-modules.json`, `.codex-plugin/plugin.json`, the selected `skills/medical-*/SKILL.md`, OPL package readback, and MAS/MAG owner surfaces.
+Machine boundary: Human-readable operating model. Canonical Package identity and exports live in `opl-package.json` (`opl.package.v2`); ABI, consumer profiles, `connect_skill_sync_policy`, and `content_lock` digest live in `contracts/opl_capability_package_manifest.json`; module and Skill truth remain in `contracts/scholar-skills-capability-modules.json`, the selected `skills/medical-*/SKILL.md`, OPL package readback, and MAS/MAG owner surfaces.
 
 ## Role
 
@@ -29,9 +29,11 @@ list. These layers do not replace MAS stage prompts or owner surfaces.
 | `mas-medical-paper.v1` | Required Package dependency for the MAS medical-paper workflow | Missing Package identity or required capability callability fails closed for MAS only and routes to managed install/repair |
 | `mag-medical-grant.v1` | Required Package dependency for the MAG native grant workflow | Missing Package identity or required capability callability fails closed for MAG only and routes to managed install/repair |
 
-`contracts/opl_capability_package_manifest.json` is the only owner of each
-profile's `required_export_ids` and `required_module_ids`; this table does not
-restate them. Current profiles use `required=true`,
+`opl-package.json` owns canonical `opl.package.v2` identity and exports
+(`provides.skills`, `provides.module_ids`), while
+`contracts/opl_capability_package_manifest.json` owns each consumer profile's
+`required_export_ids` and `required_module_ids`; this table does not restate
+them. Current profiles use `required=true`,
 `dependency_kind=required_runtime_dependency`, and fail-closed fields. The
 consumer gate checks identity presence and required capability callability
 without provider version, ABI, lock, payload, digest, Release Set, or
@@ -112,7 +114,8 @@ owner receipt, blocker, or publication claim.
 ## Distribution And Discovery
 
 ```bash
-opl packages status --package-id mas --scope workspace --target-workspace <workspace_root> --json
+opl pack inspect mas --json
+opl pack inspect mas-scholar-skills --json
 ```
 
 The target distribution is complete, independently owner-published Package
@@ -122,19 +125,20 @@ provider owns no consumer status, repair, admission, route, launch, or readiness
 authority. The consumer/platform reports a missing required presence/callability
 edge and blocks only MAS or MAG.
 
-Framework development and diagnostics may still inspect the provider source:
+Framework maintenance and host projection inspect and synchronize packages
+through the v2 Package CLI:
 
 ```bash
-opl connect skills --domain mas-scholar-skills --json
-opl connect sync-skills --domain mas-scholar-skills --scope workspace --target-workspace <workspace_root> --json
-opl connect sync-skills --domain mas-scholar-skills --scope quest --target-quest <quest_root> --json
+opl pack inspect mas-scholar-skills --json
+opl pack sync --json
+opl pack ensure mas-scholar-skills --json
 ```
 
-These are internal descriptor/materialization surfaces, not alternative user
-installation interfaces. The first command is descriptor/provenance readback.
-`connect_skill_sync_policy` in the Package manifest owns the compatibility
-sync command's allowed and default scopes; current policy is workspace/quest
-only and skips an implicit sync without a target.
+These inspect and sync the canonical `opl-package.json` (`provides.skills`) and
+its host Codex projection. `connect_skill_sync_policy` in
+`contracts/opl_capability_package_manifest.json` continues to declare the
+domain scope policy (workspace/quest-scoped only, skipping implicit sync without
+a target).
 Scope materialization copies the primary routing Skill by default and adds a
 selected stage or specialty Skill only for the matching task. The package keeps
 the exported source Skill entries declared in `contracts/scholar-skills-capability-modules.json`
@@ -147,15 +151,10 @@ workspace.
 
 When the default `medical-*` Skills do not cover a specialized workflow (such as
 omics, single-cell analysis, DICOM imaging, Nextflow, RDKit, Zotero, or a named
-scientific database/API), Codex may discover and sync a single approved external
-Skill on demand through OPL Connect (`--source kdense`):
-
-```bash
-opl connect external-skills search --query "<scientific need>" --source kdense --json
-opl connect external-skills inspect --skill <skill_id> --source kdense --json
-opl connect external-skills sync --skill <skill_id> --source kdense --scope workspace --target-workspace <workspace_root> --json
-opl connect external-skills sync --skill <skill_id> --source kdense --scope quest --target-quest <quest_root> --json
-```
+scientific database/API), Codex may discover and materialize an approved
+external Skill on demand via OPL Connect / host Package installation (`opl pack
+install` / `opl pack ensure` / configured workspace sources) rather than retired
+`opl connect external-skills` CLI subcommands.
 
 Synced external Skills remain refs-only candidate helpers; they do not install
 foreign runtimes or replace default MAS Scholar Skills packages, MAS/MAG owner

@@ -60,10 +60,9 @@ function parse(providerId, inputReference, requestResult, response) {
 
 test('package manifest, profile, and registry expose the locked reference runtime module', () => {
   const manifest = readJson('contracts/opl_capability_package_manifest.json');
-  const plugin = readJson('.codex-plugin/plugin.json');
+  const packageManifest = readJson('opl-package.json');
   const binding = manifest.exports.runtime_module_bindings[0];
-  assert.equal(manifest.version, '0.2.32');
-  assert.equal(plugin.version, '0.2.32');
+  assert.ok(packageManifest.provides.module_ids.includes(binding.module_id));
   assert.equal(manifest.content_lock.canonicalization, 'ordered_path_length_file_length_bytes');
   assert.equal(binding.module_id, 'mas-scholar-skills.reference-provider-adapters');
   assert.equal(binding.adapter_abi, REFERENCE_PROVIDER_ADAPTER_ABI);

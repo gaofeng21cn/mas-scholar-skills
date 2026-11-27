@@ -14,7 +14,6 @@
     ],
     "implicit_without_target": "skip"
   },
-  "schema_ref": "one-person-lab/contracts/opl-framework/capability-package-manifest.schema.json",
   "consumer_policy": {
     "compatibility_commitment": "declared_required_consumer_profiles",
     "supported_required_by": [
@@ -333,8 +332,6 @@
     "algorithm": "sha256",
     "canonicalization": "ordered_path_length_file_length_bytes",
     "paths": [
-      "plugin.json",
-      ".codex-plugin/plugin.json",
       "contracts/scholar-skills-capability-modules.json",
       "contracts/publication-layout-profile.schema.json",
       "contracts/scholarskills-page-hash-evidence-candidate-v3.schema.json",
@@ -500,23 +497,7 @@
       "packs/medical-display-core/tests/benchmark_render_batch.py",
       "packs/medical-display-core/tests/test_render_session.R"
     ],
-    "digest": "sha256:446d1d331710594e6c4c2c7de448c0f6b6fbe8999b4f62ca25ff8e6682ea3789"
-  },
-  "codex_surface": {
-    "plugin_id": "mas-scholar-skills",
-    "carrier_source_role": "codex_plugin_carrier_not_package_truth",
-    "consumer_profiles_ref": "#/consumer_profiles",
-    "default_materialized_skill_ids_ref": "#/exports/default_materialized_skill_ids",
-    "codex_default_exposure": false,
-    "optional_install_policy": "core_skills_only",
-    "interaction_mode": "headless_internal",
-    "configured_codex_plugin_carrier": {
-      "kind": "codex_plugin_manager",
-      "plugin_selector": "mas-scholar-skills@mas-scholar-skills",
-      "marketplace_source": "gaofeng21cn/mas-scholar-skills",
-      "publication_ref": "ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable",
-      "executor_route": "codex_cli"
-    }
+    "digest": "sha256:350806138f6666066342950dce1229a3d4bd5532b4cffe5acaa4ebde13bd64ff"
   },
   "authority_boundary": {
     "can_write_domain_truth": false,

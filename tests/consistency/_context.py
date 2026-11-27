@@ -114,7 +114,6 @@ def validate_contract_json_schemas() -> list[str]:
 @lru_cache(maxsize=1)
 def load_repo_context() -> SimpleNamespace:
     """Load shared repository manifests, skill catalogs, and lookup indices."""
-    manifest = read_json(".codex-plugin/plugin.json")
     contract = read_json("contracts/scholar-skills-capability-modules.json")
     contract_text = read_text("contracts/scholar-skills-capability-modules.json")
     page_hash_evidence_schema = read_json(
@@ -279,7 +278,6 @@ def load_repo_context() -> SimpleNamespace:
 
     return SimpleNamespace(
         root=ROOT,
-        manifest=manifest,
         contract=contract,
         contract_text=contract_text,
         page_hash_evidence_schema=page_hash_evidence_schema,

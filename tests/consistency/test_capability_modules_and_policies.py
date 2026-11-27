@@ -117,7 +117,7 @@ def test_capability_modules_and_display_source_pack() -> None:
         "capability-pack descriptor sources",
         capability_pack_consumption.get("descriptor_sources"),
         [
-            ".codex-plugin/plugin.json",
+            "opl-package.json",
             "skills/mas-scholar-skills/SKILL.md",
             "contracts/scholar-skills-capability-modules.json",
             "contracts/opl_capability_package_manifest.json",

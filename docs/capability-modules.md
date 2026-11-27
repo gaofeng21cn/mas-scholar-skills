@@ -3,7 +3,7 @@
 Owner: `One Person Lab`
 Purpose: Explain the external capability-pack descriptor, active professional skills, and generic OPL consumption boundary.
 State: `active_structural_baseline`
-Machine boundary: This is human-readable navigation. Module truth, exposure policy, and false-authority flags live in `contracts/scholar-skills-capability-modules.json`; source truth for the professional playbooks lives in the corresponding `skills/medical-*/SKILL.md`; plugin discovery truth lives in `.codex-plugin/plugin.json`.
+Machine boundary: This is human-readable navigation. Package identity and exported Skill/module declarations live in `opl-package.json` (`opl.package.v2`); module truth, exposure policy, and false-authority flags live in `contracts/scholar-skills-capability-modules.json`; source truth for the professional playbooks lives in the corresponding `skills/medical-*/SKILL.md`.
 
 ## Positioning
 
@@ -24,10 +24,12 @@ candidate artifacts, or issue verdicts or receipts.
 
 ## Profile Composition
 
-`contracts/opl_capability_package_manifest.json` is the only owner of the
-consumer profiles: each profile declares `required_export_ids` and
-`required_module_ids`, and those machine sets — not this document — define the
-capability set a consumer requires to be callable. The
+`opl-package.json` owns canonical `opl.package.v2` identity and exports
+(`provides.skills`, `provides.module_ids`), while
+`contracts/opl_capability_package_manifest.json` owns the domain consumer
+profiles (`required_export_ids` and `required_module_ids`) and `content_lock`
+digest: those machine sets — not this document — define the capability set a
+consumer requires to be callable. The
 [operating model](./mas-scholar-skills-operating-model.md) owns the required
 presence/callability semantics and the fail-closed behaviour for MAS and MAG.
 

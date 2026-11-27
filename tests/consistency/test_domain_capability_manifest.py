@@ -1,4 +1,4 @@
-"""Plugin metadata, JSON Schema Draft 2020-12 checks, capability package manifest, and runtime adapters."""
+"""Domain capability contract, content lock, and runtime adapter checks."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 from tests.consistency._context import (
     fail,
     load_repo_context,
-    read_json,
     read_text,
     require_all,
     validate_contract_json_schemas,
@@ -24,24 +23,6 @@ def test_shared_kernel_validation_module_is_content_locked() -> None:
     locked = (ctx.package_manifest.get("content_lock") or {}).get("paths") or []
     assert "runtime/kernel_validation/__init__.py" in locked
 
-
-def test_plugin_manifest_metadata() -> None:
-    manifest = read_json(".codex-plugin/plugin.json")
-    if manifest.get("name") != "mas-scholar-skills":
-        fail("plugin name must be mas-scholar-skills")
-    if manifest.get("version") != "0.2.32":
-        fail("plugin version must be 0.2.32")
-    if manifest.get("skills") != "./skills/":
-        fail("plugin skills path must be ./skills/")
-    if manifest.get("interface", {}).get("displayName") != "MAS Scholar Skills":
-        fail("plugin displayName must be MAS Scholar Skills")
-    default_prompts = manifest.get("interface", {}).get("defaultPrompt") or []
-    if (
-        not default_prompts
-        or len(default_prompts) > 3
-        or any(not isinstance(prompt, str) or len(prompt) > 128 for prompt in default_prompts)
-    ):
-        fail("plugin defaultPrompt entries must be non-empty strings of at most 128 characters")
 
 def test_package_manifest_content_lock_and_runtime_adapters() -> None:
     ctx = load_repo_context()
@@ -445,28 +426,3 @@ def test_package_manifest_content_lock_and_runtime_adapters() -> None:
         fail("capability package must keep specialty routing task-selective")
     if "lifecycle" in package_manifest:
         fail("framework capability provider must not own consumer install, repair, activation, or readiness lifecycle")
-    codex_surface = package_manifest.get("codex_surface") or {}
-    expected_configured_codex_plugin_carrier = {
-        "kind": "codex_plugin_manager",
-        "plugin_selector": "mas-scholar-skills@mas-scholar-skills",
-        "marketplace_source": "gaofeng21cn/mas-scholar-skills",
-        "publication_ref": "ghcr.io/gaofeng21cn/one-person-lab-packages/mas-scholar-skills:latest-stable",
-        "executor_route": "codex_cli",
-    }
-    expected_codex_surface = {
-        "plugin_id": "mas-scholar-skills",
-        "carrier_source_role": "codex_plugin_carrier_not_package_truth",
-        "consumer_profiles_ref": "#/consumer_profiles",
-        "default_materialized_skill_ids_ref": "#/exports/default_materialized_skill_ids",
-        "codex_default_exposure": False,
-        "optional_install_policy": "core_skills_only",
-        "interaction_mode": "headless_internal",
-        "configured_codex_plugin_carrier": expected_configured_codex_plugin_carrier,
-    }
-    if codex_surface != expected_codex_surface:
-        fail("Codex package surface must preserve its metadata and expose the exact nested native carrier")
-    for carrier_key in expected_configured_codex_plugin_carrier:
-        if carrier_key in package_manifest:
-            fail(f"Codex carrier field must stay under codex_surface: {carrier_key}")
-    if "configured_codex_plugin_carrier" in package_manifest:
-        fail("configured Codex carrier must stay under codex_surface")
