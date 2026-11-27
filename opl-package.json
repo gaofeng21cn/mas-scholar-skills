@@ -2,7 +2,7 @@
   "schema_version": "opl.package.v2",
   "identity": {
     "id": "mas-scholar-skills",
-    "version": "0.2.33",
+    "version": "0.2.34",
     "intent": "extension",
     "name": {
       "zh-CN": "MAS Scholar Skills",
