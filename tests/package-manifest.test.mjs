@@ -15,9 +15,11 @@ test('v2 package exports its complete active Skill and module catalog', () => {
   const actualSkillIds = skills.map((skill) => skill.id);
   const actualModuleIds = manifest.provides.module_ids;
 
+  const pyprojectVersion = fs.readFileSync(path.join(ROOT, 'pyproject.toml'), 'utf8').match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  assert.ok(pyprojectVersion, 'pyproject.toml must declare version');
   assert.equal(manifest.schema_version, 'opl.package.v2');
   assert.equal(manifest.identity.id, 'mas-scholar-skills');
-  assert.equal(manifest.identity.version, '0.2.33');
+  assert.equal(manifest.identity.version, pyprojectVersion);
   assert.equal(manifest.identity.intent, 'extension');
   assert.equal(manifest.identity.publisher, 'one-person-lab');
   assert.equal(manifest.identity.license, 'Apache-2.0');
