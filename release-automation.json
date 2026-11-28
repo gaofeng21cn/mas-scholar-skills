@@ -13,5 +13,10 @@
       "scripts/verify-capability-package-manifest.py"
     ]
   ],
-  "version_files": []
+  "version_files": [
+    {
+      "path": "pyproject.toml",
+      "kind": "toml_project"
+    }
+  ]
 }

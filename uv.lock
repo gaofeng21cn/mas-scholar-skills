@@ -329,7 +329,7 @@ wheels = [
 
 [[package]]
 name = "mas-scholar-skills"
-version = "0.2.32"
+version = "0.2.34"
 source = { editable = "." }
 dependencies = [
     { name = "jsonschema" },
