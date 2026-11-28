@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mas-scholar-skills"
-version = "0.2.34"
+version = "0.2.35"
 description = "Medical research, statistical review, manuscript authoring, and display QC capability package for OPL."
 readme = "README.md"
 license = { text = "Apache-2.0" }
